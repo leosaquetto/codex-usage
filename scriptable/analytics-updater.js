@@ -1,6 +1,12 @@
 // Analítica do Codex — Scriptable Widget
 // Small + Medium
 // Lê codex_usage.json e abre o Shortcut "Analítica do Codex" ao tocar.
+//
+// Fonte oficial de dados deste script: API `/api/usage`.
+// O link de WebView (`chatgpt.com/codex/cloud/settings/analytics`) é usado somente
+// para navegação manual ("Abrir analítica"), sem parsing local.
+// Campos esperados do payload mantidos em paridade com o frontend:
+// `fiveHourPercent`, `fiveHourReset`, `weeklyPercent`, `weeklyReset`, `lastUpdated`.
 
 const fm = FileManager.iCloud()
 const folderPath = fm.joinPath(fm.documentsDirectory(), "Analítica do Codex")
@@ -16,117 +22,6 @@ const REMOTE_USAGE_URL = REMOTE_USAGE_URL_STAGING
 const SHORTCUT_URL = "shortcuts://run-shortcut?name=Anal%C3%ADtica%20do%20Codex"
 
 const LOGO_URL = "https://images.ctfassets.net/kftzwdyauwt9/YgXvGzKvVcDvpJGOFyroe/777616dd860276400c9c955688dce373/codex-app.png.png"
-
-const DEFAULT_PERCENT_PATTERN = /(\d{1,3})\s*%/
-const PERCENT_FALLBACK_PATTERNS = [
-  /remaining[:\s]+(\d{1,3})\s*%/i,
-  /(\d{1,3})\s*%\s*(?:left|remaining)/i,
-  /(\d{1,3})\s*percent\s*(?:left|remaining)/i
-]
-
-function escapeRegex(value = "") {
-  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-}
-
-function findFirstMatch(source = "", patterns = []) {
-  for (const pattern of patterns) {
-    const match = source.match(pattern)
-    if (match) {
-      return { match, pattern }
-    }
-  }
-
-  return null
-}
-
-function sliceBetween(source = "", startLabels = [], endLabels = []) {
-  const starts = Array.isArray(startLabels) ? startLabels : [startLabels]
-  const ends = Array.isArray(endLabels) ? endLabels : [endLabels]
-
-  for (const startLabel of starts) {
-    if (!startLabel) continue
-    const startIndex = source.indexOf(startLabel)
-    if (startIndex < 0) continue
-
-    const afterStart = startIndex + startLabel.length
-    let endIndex = source.length
-
-    for (const endLabel of ends) {
-      if (!endLabel) continue
-      const candidate = source.indexOf(endLabel, afterStart)
-      if (candidate >= 0 && candidate < endIndex) {
-        endIndex = candidate
-      }
-    }
-
-    return {
-      content: source.slice(afterStart, endIndex).trim(),
-      matchedStartLabel: startLabel
-    }
-  }
-
-  return {
-    content: "",
-    matchedStartLabel: null
-  }
-}
-
-function parseBlock(source = "", options = {}) {
-  const {
-    startLabels = [],
-    endLabels = [],
-    resetPatterns = ["Redefinição", "Reset", "Renews"]
-  } = options
-
-  const segment = sliceBetween(source, startLabels, endLabels)
-  const segmentText = segment.content
-
-  const percentMatch = segmentText.match(DEFAULT_PERCENT_PATTERN)
-  const percentFallback = percentMatch
-    ? null
-    : findFirstMatch(segmentText, PERCENT_FALLBACK_PATTERNS)
-
-  const resetRegexes = resetPatterns
-    .filter(Boolean)
-    .map((label) => new RegExp(`${escapeRegex(label)}\\s*[:\\-]?\\s*([^\\n|]+)`, "i"))
-  const resetMatch = findFirstMatch(segmentText, resetRegexes)
-
-  return {
-    percent: clampPercent(percentMatch?.[1] ?? percentFallback?.match?.[1]),
-    resetText: resetMatch?.match?.[1]?.trim() || null,
-    matchedPattern: {
-      startLabel: segment.matchedStartLabel,
-      percentPattern: percentMatch
-        ? DEFAULT_PERCENT_PATTERN.source
-        : percentFallback?.pattern?.source || null,
-      resetPattern: resetMatch?.pattern?.source || null
-    }
-  }
-}
-
-function extractFromWebView(webViewText = "") {
-  const fiveHour = parseBlock(webViewText, {
-    startLabels: ["Limite 5h", "5h limit", "5-hour limit"],
-    endLabels: ["Limite Semanal", "Weekly limit", "Weekly"]
-  })
-  const weekly = parseBlock(webViewText, {
-    startLabels: ["Limite Semanal", "Weekly limit", "Weekly"],
-    endLabels: ["Atualizado", "Updated", "History"],
-    resetPatterns: ["Redefinição", "Reset", "Renews", "Renews on"]
-  })
-
-  return {
-    fiveHourPercent: fiveHour.percent,
-    fiveHourResetLabel: fiveHour.resetText,
-    weeklyPercent: weekly.percent,
-    weeklyResetLabel: weekly.resetText,
-    matchedPattern: {
-      fiveHour: fiveHour.matchedPattern,
-      weekly: weekly.matchedPattern
-    }
-  }
-}
-
 
 function buildWeeklyResetFallback(now = new Date()) {
   const fallback = new Date(now)

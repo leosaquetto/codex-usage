@@ -902,7 +902,7 @@
       document.getElementById("cycleStart").textContent = formatDate(payload.history?.cycleStart)
     }
 
-    async function fetchUsage() {
+    async function loadUsageData() {
       const controller = new AbortController()
       const timer = setTimeout(() => controller.abort(), API_TIMEOUT_MS)
 
@@ -918,12 +918,18 @@
           throw new Error(`HTTP ${response.status}`)
         }
 
-        const payload = await response.json()
+        return await response.json()
+      } finally {
+        clearTimeout(timer)
+      }
+    }
+
+    async function fetchUsage() {
+      try {
+        const payload = await loadUsageData()
         renderUsage(payload)
       } catch {
         setFallbackState("API indisponível")
-      } finally {
-        clearTimeout(timer)
       }
     }
 

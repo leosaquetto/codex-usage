@@ -709,13 +709,13 @@
 
     <div class="status-row">
       <div class="pill">
-        <span class="dot"></span>
-        <span>acima do seguro</span>
+        <span class="dot" id="statusDot"></span>
+        <span id="statusText">carregando dados</span>
       </div>
 
       <div class="stamp">
         atualizado<br>
-        <span>24 de abr., 14:36</span>
+        <span id="lastUpdated">--</span>
       </div>
     </div>
 
@@ -724,26 +724,26 @@
         <div class="label">limite de 5 horas</div>
 
         <div class="percent">
-          <strong>100%</strong>
+          <strong id="fiveHourPercent">--%</strong>
           <span>restante</span>
         </div>
 
         <div class="bar">
-          <div class="fill" style="width:100%"></div>
+          <div class="fill" id="fiveHourFill" style="width:0%"></div>
         </div>
 
-        <div class="line">cheio · sem ciclo ativo</div>
+        <div class="line" id="fiveHourLine">dados indisponíveis</div>
 
         <div class="metrics">
           <div class="mini">
             <div class="k">usado</div>
-            <div class="v">0%</div>
+            <div class="v" id="fiveHourUsed">--%</div>
             <div class="s">no ciclo atual</div>
           </div>
 
           <div class="mini">
             <div class="k">seguro</div>
-            <div class="v">0%/h</div>
+            <div class="v" id="fiveHourSafeRate">--/h</div>
             <div class="s">até renovar</div>
           </div>
         </div>
@@ -753,26 +753,26 @@
         <div class="label">limite semanal</div>
 
         <div class="percent">
-          <strong>56%</strong>
+          <strong id="weeklyPercent">--%</strong>
           <span>restante</span>
         </div>
 
         <div class="bar">
-          <div class="fill" style="width:56%"></div>
+          <div class="fill" id="weeklyFill" style="width:0%"></div>
         </div>
 
-        <div class="line">renova em <b>4d 4h</b> · 28 de abr., 19:35</div>
+        <div class="line" id="weeklyLine">dados indisponíveis</div>
 
         <div class="metrics">
           <div class="mini">
             <div class="k">usado</div>
-            <div class="v">44%</div>
+            <div class="v" id="weeklyUsed">--%</div>
             <div class="s">desde o reset</div>
           </div>
 
           <div class="mini">
             <div class="k">restante</div>
-            <div class="v">4.2d</div>
+            <div class="v" id="weeklyRemaining">--</div>
             <div class="s">até o reset</div>
           </div>
         </div>
@@ -785,37 +785,37 @@
       <div class="metrics main-metrics">
         <div class="mini">
           <div class="k">média real</div>
-          <div class="v">15.6%/d</div>
+          <div class="v" id="realDailyRate">--/d</div>
           <div class="s">uso diário até agora</div>
         </div>
 
         <div class="mini">
           <div class="k">ritmo seguro</div>
-          <div class="v">13.4%/d</div>
+          <div class="v" id="safeDailyRate">--/d</div>
           <div class="s">pode usar por dia</div>
         </div>
 
         <div class="mini">
           <div class="k">diferença</div>
-          <div class="v">+2.3%/d</div>
+          <div class="v" id="dailyDiff">--/d</div>
           <div class="s">acima do seguro</div>
         </div>
 
         <div class="mini">
           <div class="k">projeção final</div>
-          <div class="v">-9.5%</div>
+          <div class="v" id="weeklyProjection">--%</div>
           <div class="s">zeraria antes</div>
         </div>
 
         <div class="mini">
           <div class="k">zera em</div>
-          <div class="v">3d 13h</div>
+          <div class="v" id="zeroIn">--</div>
           <div class="s">28 de abr., 05:02</div>
         </div>
 
         <div class="mini">
           <div class="k">início do ciclo</div>
-          <div class="v mono">21 de abr., 19:35</div>
+          <div class="v mono" id="cycleStart">--</div>
           <div class="s">estimado pelo reset</div>
         </div>
       </div>
@@ -831,6 +831,101 @@
     const refreshButton = document.getElementById("refreshButton")
     const shareButton = document.getElementById("shareButton")
     const closeButton = document.getElementById("closeButton")
+
+    const API_TIMEOUT_MS = 7000
+    const API_ENDPOINT = "/api/usage"
+
+    function toPercent(value) {
+      const n = Number(value)
+      if (Number.isNaN(n)) return 0
+      return Math.max(0, Math.min(100, Math.round(n)))
+    }
+
+    function formatDate(isoValue) {
+      if (!isoValue) return "--"
+      const date = new Date(isoValue)
+      if (Number.isNaN(date.getTime())) return "--"
+      return new Intl.DateTimeFormat("pt-BR", {
+        day: "2-digit",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit"
+      }).format(date)
+    }
+
+    function formatDuration(ms) {
+      if (!Number.isFinite(ms) || ms <= 0) return "agora"
+      const totalMinutes = Math.floor(ms / 60000)
+      const days = Math.floor(totalMinutes / 1440)
+      const hours = Math.floor((totalMinutes % 1440) / 60)
+      const minutes = totalMinutes % 60
+      if (days > 0) return `${days}d ${hours}h`
+      if (hours > 0) return `${hours}h ${minutes}m`
+      return `${minutes}m`
+    }
+
+    function setFallbackState(message) {
+      document.getElementById("statusText").textContent = message
+      document.getElementById("statusDot").style.background = "var(--danger)"
+      document.getElementById("statusDot").style.boxShadow = "0 0 16px rgba(255,95,87,.75)"
+      document.getElementById("lastUpdated").textContent = "--"
+    }
+
+    function renderUsage(payload) {
+      const fiveHourPercent = toPercent(payload.fiveHourPercent)
+      const weeklyPercent = toPercent(payload.weeklyPercent)
+      const fiveHourReset = payload.fiveHourReset ? new Date(payload.fiveHourReset) : null
+      const weeklyReset = payload.weeklyReset ? new Date(payload.weeklyReset) : null
+      const fiveHourMs = fiveHourReset ? fiveHourReset.getTime() - Date.now() : NaN
+      const weeklyMs = weeklyReset ? weeklyReset.getTime() - Date.now() : NaN
+
+      document.getElementById("statusText").textContent = payload.statusLabel || "dados carregados"
+      document.getElementById("lastUpdated").textContent = formatDate(payload.lastUpdated)
+
+      document.getElementById("fiveHourPercent").textContent = `${fiveHourPercent}%`
+      document.getElementById("fiveHourFill").style.width = `${fiveHourPercent}%`
+      document.getElementById("fiveHourLine").innerHTML = `renova em <b>${formatDuration(fiveHourMs)}</b> · ${formatDate(payload.fiveHourReset)}`
+      document.getElementById("fiveHourUsed").textContent = `${100 - fiveHourPercent}%`
+      document.getElementById("fiveHourSafeRate").textContent = payload.fiveHourSafeRate || "--/h"
+
+      document.getElementById("weeklyPercent").textContent = `${weeklyPercent}%`
+      document.getElementById("weeklyFill").style.width = `${weeklyPercent}%`
+      document.getElementById("weeklyLine").innerHTML = `renova em <b>${formatDuration(weeklyMs)}</b> · ${formatDate(payload.weeklyReset)}`
+      document.getElementById("weeklyUsed").textContent = `${100 - weeklyPercent}%`
+      document.getElementById("weeklyRemaining").textContent = payload.weeklyRemaining || "--"
+
+      document.getElementById("realDailyRate").textContent = payload.realDailyRate || "--/d"
+      document.getElementById("safeDailyRate").textContent = payload.safeDailyRate || "--/d"
+      document.getElementById("dailyDiff").textContent = payload.dailyDiff || "--/d"
+      document.getElementById("weeklyProjection").textContent = payload.weeklyProjection || "--%"
+      document.getElementById("zeroIn").textContent = payload.zeroIn || "--"
+      document.getElementById("cycleStart").textContent = formatDate(payload.history?.cycleStart)
+    }
+
+    async function fetchUsage() {
+      const controller = new AbortController()
+      const timer = setTimeout(() => controller.abort(), API_TIMEOUT_MS)
+
+      try {
+        const response = await fetch(API_ENDPOINT, {
+          signal: controller.signal,
+          headers: {
+            Accept: "application/json"
+          }
+        })
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`)
+        }
+
+        const payload = await response.json()
+        renderUsage(payload)
+      } catch {
+        setFallbackState("API indisponível")
+      } finally {
+        clearTimeout(timer)
+      }
+    }
 
     refreshButton.addEventListener("click", () => {
       refreshButton.classList.remove("spin-on-load")
@@ -872,6 +967,8 @@
         }
       }, 120)
     })
+
+    void fetchUsage()
   </script>
 </body>
 </html>

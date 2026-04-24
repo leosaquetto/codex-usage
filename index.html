@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Uso do Codex</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="container" aria-live="polite">
+      <header>
+        <h1 id="title">Uso do Codex</h1>
+      </header>
+
+      <section class="card" aria-labelledby="status-geral-label">
+        <h2 id="status-geral-label">Status geral</h2>
+        <p id="overallStatus">Carregando…</p>
+      </section>
+
+      <section class="card" aria-labelledby="limite-5h-label">
+        <h2 id="limite-5h-label">Limite 5h</h2>
+        <p><strong id="fiveHourPercent">--%</strong> restante</p>
+        <div class="progress" role="progressbar" aria-labelledby="limite-5h-label" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div id="fiveHourBar" class="progress-fill"></div>
+        </div>
+        <p class="subtle">Reset: <span id="fiveHourReset">--</span></p>
+      </section>
+
+      <section class="card" aria-labelledby="limite-semanal-label">
+        <h2 id="limite-semanal-label">Limite semanal</h2>
+        <p><strong id="weeklyPercent">--%</strong> restante</p>
+        <div class="progress" role="progressbar" aria-labelledby="limite-semanal-label" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div id="weeklyBar" class="progress-fill"></div>
+        </div>
+        <p class="subtle">Reset: <span id="weeklyReset">--</span></p>
+      </section>
+
+      <section class="card" aria-labelledby="ultima-atualizacao-label">
+        <h2 id="ultima-atualizacao-label">Última atualização</h2>
+        <p id="lastUpdated">--</p>
+      </section>
+    </main>
+
+    <script src="./app.js" defer></script>
+  </body>
+</html>

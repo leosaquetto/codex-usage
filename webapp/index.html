@@ -104,12 +104,10 @@
       from {
         opacity: 0;
         transform: translateY(14px) scale(.985);
-        filter: blur(8px);
       }
       to {
         opacity: 1;
         transform: translateY(0) scale(1);
-        filter: blur(0);
       }
     }
 
@@ -137,7 +135,10 @@
 
     @keyframes fillIn {
       from {
-        width: 0;
+        transform: scaleX(0);
+      }
+      to {
+        transform: scaleX(1);
       }
     }
 
@@ -301,7 +302,7 @@
       border-radius: 999px;
       background: var(--warn);
       box-shadow: 0 0 16px rgba(255,211,106,.75);
-      animation: pulse 2.2s ease-in-out infinite;
+      animation: pulse 4s ease-in-out infinite;
     }
 
     .stamp {
@@ -335,11 +336,6 @@
       -webkit-backdrop-filter: blur(26px) saturate(1.25);
       min-width: 0;
       overflow: hidden;
-      animation: rise .58s cubic-bezier(.2,.8,.2,1) both;
-    }
-
-    .card:nth-child(2) {
-      animation-delay: .06s;
     }
 
     .card::before {
@@ -363,7 +359,6 @@
       pointer-events: none;
       background: linear-gradient(90deg, transparent, rgba(255,255,255,.10), transparent);
       opacity: .42;
-      animation: sheen 5.8s ease-in-out infinite;
     }
 
     .card > * {
@@ -420,12 +415,13 @@
       height: 100%;
       width: 0;
       border-radius: inherit;
+      transform-origin: left center;
       background:
         linear-gradient(90deg, rgba(255,255,255,1), rgba(255,255,255,.86));
       box-shadow:
         0 0 24px rgba(255,255,255,.38),
         inset 0 -1px 0 rgba(160, 195, 230, .28);
-      animation: fillIn .9s .18s cubic-bezier(.2,.8,.2,1) both;
+      animation: fillIn 1.2s .2s cubic-bezier(.2,.8,.2,1) both;
     }
 
     .line {
@@ -549,9 +545,14 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+      }
+
       .app,
       .status-row,
-      .card,
       .section-title,
       .fill,
       .dot,
@@ -561,8 +562,12 @@
       }
 
       .tool,
-      .button {
+      .button,
+      .fill,
+      .dot,
+      .card::after {
         transition: none !important;
+        filter: none !important;
       }
     }
 

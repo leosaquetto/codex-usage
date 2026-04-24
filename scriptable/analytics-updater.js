@@ -15,16 +15,25 @@ const REMOTE_USAGE_URL_STAGING = "https://codex-usage-staging.vercel.app/api/usa
 const REMOTE_USAGE_URL = REMOTE_USAGE_URL_STAGING
 const SHORTCUT_URL = "shortcuts://run-shortcut?name=Anal%C3%ADtica%20do%20Codex"
 
-const DEFAULT_WEEKLY_RESET = "2026-04-28T19:35:00-03:00"
-
 const LOGO_URL = "https://images.ctfassets.net/kftzwdyauwt9/YgXvGzKvVcDvpJGOFyroe/777616dd860276400c9c955688dce373/codex-app.png.png"
+
+
+function buildWeeklyResetFallback(now = new Date()) {
+  const fallback = new Date(now)
+  fallback.setDate(fallback.getDate() + 7)
+  return Number.isFinite(fallback.getTime()) ? fallback : null
+}
+
+function weeklyResetFallbackISO(now = new Date()) {
+  return buildWeeklyResetFallback(now)?.toISOString() || null
+}
 
 function defaultUsageData() {
   return {
     fiveHourPercent: 100,
     fiveHourReset: null,
     weeklyPercent: 61,
-    weeklyReset: DEFAULT_WEEKLY_RESET,
+    weeklyReset: weeklyResetFallbackISO(),
     lastUpdated: new Date().toISOString(),
     statusLabel: "--",
     fiveHourSafeRate: "--/h",
@@ -211,7 +220,7 @@ function inferWeeklyStart(weeklyResetTime) {
 }
 
 function computeWeeklyMetrics() {
-  const weeklyResetTime = validDateFromISO(data.weeklyReset) || new Date(DEFAULT_WEEKLY_RESET)
+  const weeklyResetTime = validDateFromISO(data.weeklyReset) || buildWeeklyResetFallback(now) || now
   const weeklyStartTime = inferWeeklyStart(weeklyResetTime)
 
   const totalMs = weeklyResetTime.getTime() - weeklyStartTime.getTime()
@@ -286,7 +295,7 @@ function computeFiveMetrics() {
 applyAutoResets()
 
 const fiveHourResetTime = validDateFromISO(data.fiveHourReset)
-const weeklyResetTime = validDateFromISO(data.weeklyReset) || new Date(DEFAULT_WEEKLY_RESET)
+const weeklyResetTime = validDateFromISO(data.weeklyReset) || buildWeeklyResetFallback(now) || now
 
 const fiveMs = fiveHourResetTime ? fiveHourResetTime.getTime() - Date.now() : NaN
 const weeklyMs = weeklyResetTime.getTime() - Date.now()

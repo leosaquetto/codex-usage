@@ -11,8 +11,8 @@ if (!fm.fileExists(assetsDir)) fm.createDirectory(assetsDir)
 
 const CODEX_ANALYTICS_URL = "https://chatgpt.com/codex/cloud/settings/analytics"
 const REMOTE_USAGE_URL_STAGING = "https://codex-usage-staging.vercel.app/api/usage"
-// const REMOTE_USAGE_URL_PRODUCTION = "https://codex-usage.vercel.app/api/usage"
-const REMOTE_USAGE_URL = REMOTE_USAGE_URL_PRODUCTION
+const REMOTE_USAGE_URL_PRODUCTION = "https://codex-usage.vercel.app/api/usage"
+const REMOTE_USAGE_URL = REMOTE_USAGE_URL_STAGING
 const DEFAULT_WEEKLY_RESET = "2026-04-28T19:35:00-03:00"
 const LOCAL_LOGO_PATH = fm.joinPath(assetsDir, "codex.png")
 

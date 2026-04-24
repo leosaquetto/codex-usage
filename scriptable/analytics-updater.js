@@ -15,10 +15,21 @@ if (!fm.fileExists(folderPath)) {
 }
 const filePath = fm.joinPath(folderPath, "codex_usage.json")
 
+// Configuração operacional (trocar ambiente somente aqui).
+// ENV controla qual projeto remoto será usado para atualizar o codex_usage.json.
+const ENV = "staging" // "staging" | "production"
 const CODEX_ANALYTICS_URL = "https://chatgpt.com/codex/cloud/settings/analytics"
-const REMOTE_USAGE_URL_STAGING = "https://codex-usage-staging.vercel.app/api/usage"
-// const REMOTE_USAGE_URL_PRODUCTION = "https://codex-usage.vercel.app/api/usage"
-const REMOTE_USAGE_URL = REMOTE_USAGE_URL_STAGING
+const REMOTE_USAGE_URLS = {
+  staging: "https://codex-usage-staging.vercel.app/api/usage",
+  production: "https://codex-usage.vercel.app/api/usage"
+}
+const EXPECTED_PROJECT_HOST_BY_ENV = {
+  staging: "codex-usage-staging.vercel.app",
+  production: "codex-usage.vercel.app"
+}
+const REMOTE_USAGE_URL = REMOTE_USAGE_URLS[ENV] || REMOTE_USAGE_URLS.staging
+// Metadado local da execução.
+const ACTIVE_ENV_METADATA = `ambiente ativo: ${ENV}`
 const SHORTCUT_URL = "shortcuts://run-shortcut?name=Anal%C3%ADtica%20do%20Codex"
 
 const LOGO_URL = "https://images.ctfassets.net/kftzwdyauwt9/YgXvGzKvVcDvpJGOFyroe/777616dd860276400c9c955688dce373/codex-app.png.png"
@@ -95,6 +106,14 @@ function saveLocalUsage(payload) {
   fm.writeString(filePath, JSON.stringify(normalizeUsage(payload), null, 2))
 }
 
+function assertRemoteProjectMatch() {
+  const selectedUrl = new URL(REMOTE_USAGE_URL)
+  const expectedHost = EXPECTED_PROJECT_HOST_BY_ENV[ENV]
+  if (!expectedHost || selectedUrl.hostname !== expectedHost) {
+    throw new Error(`environment_project_mismatch (${ACTIVE_ENV_METADATA})`)
+  }
+}
+
 function timeoutPromise(ms) {
   return new Promise((_, reject) => {
     const timer = setTimeout(() => {
@@ -162,6 +181,7 @@ async function loadCurrentData() {
   const localData = readLocalUsage()
 
   try {
+    assertRemoteProjectMatch()
     const remote = await fetchRemoteUsage()
     saveLocalUsage(remote)
     return {

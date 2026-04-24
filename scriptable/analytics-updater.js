@@ -200,6 +200,52 @@ function saveLocalUsage(payload) {
   fm.writeString(filePath, JSON.stringify(normalizeUsage(payload), null, 2))
 }
 
+function timeoutPromise(ms) {
+  return new Promise((_, reject) => {
+    const timer = setTimeout(() => {
+      clearTimeout(timer)
+      reject(new Error("icloud_download_timeout"))
+    }, ms)
+  })
+}
+
+async function ensureLocalFileAvailability() {
+  if (!fm.fileExists(filePath)) {
+    return { ok: true }
+  }
+
+  const hasStoredCheck = typeof fm.isFileStoredIniCloud === "function"
+  const hasDownloadedCheck = typeof fm.isFileDownloaded === "function"
+  const hasDownload = typeof fm.downloadFileFromiCloud === "function"
+
+  if (!hasStoredCheck || !hasDownloadedCheck || !hasDownload) {
+    return { ok: true }
+  }
+
+  if (!fm.isFileStoredIniCloud(filePath)) {
+    return { ok: true }
+  }
+
+  if (fm.isFileDownloaded(filePath)) {
+    return { ok: true }
+  }
+
+  try {
+    await Promise.race([
+      fm.downloadFileFromiCloud(filePath),
+      timeoutPromise(5000)
+    ])
+
+    if (!fm.isFileDownloaded(filePath)) {
+      throw new Error("icloud_file_still_not_downloaded")
+    }
+
+    return { ok: true }
+  } catch {
+    return { ok: false, reason: "download_failed" }
+  }
+}
+
 async function fetchRemoteUsage() {
   const req = new Request(REMOTE_USAGE_URL)
   req.timeoutInterval = 8
@@ -208,17 +254,43 @@ async function fetchRemoteUsage() {
   return normalizeUsage(payload)
 }
 
-let data = readLocalUsage()
+async function loadCurrentData() {
+  const availability = await ensureLocalFileAvailability()
+
+  if (!availability.ok) {
+    return {
+      data: defaultUsageData(),
+      warning: "Falha ao baixar arquivo local do iCloud. Usando fallback seguro."
+    }
+  }
+
+  const localData = readLocalUsage()
+
+  try {
+    const remote = await fetchRemoteUsage()
+    saveLocalUsage(remote)
+    return {
+      data: remote,
+      warning: ""
+    }
+  } catch {
+    return {
+      data: localData,
+      warning: "Falha na rede. Exibindo dados locais."
+    }
+  }
+}
+
+let data = defaultUsageData()
 let dataLoadWarning = ""
 
-try {
-  const remote = await fetchRemoteUsage()
-  data = remote
-  saveLocalUsage(data)
-} catch {
-  data = readLocalUsage()
-  dataLoadWarning = "Falha na rede. Exibindo dados locais."
+async function main() {
+  const loaded = await loadCurrentData()
+  data = loaded.data
+  dataLoadWarning = loaded.warning
 }
+
+await main()
 
 const now = new Date()
 

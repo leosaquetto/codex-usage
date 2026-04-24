@@ -2,8 +2,11 @@
 -
 
 ## Base da PR
+- [ ] Branch de origem segue o padrão `codex/{feature}`.
 - [ ] Confirmei que a branch base está correta para a integração desta tarefa.
 - [ ] Se a tarefa partiu de `staging`, a PR está apontando para `staging` (não `main`).
+- [ ] Merge final planejado como `staging -> main`.
+- [ ] Se a base estava incorreta, ajustei a base branch antes de mergear.
 - [ ] Não usei `nodeploy` como branch base.
 
 ## Checklist de validação manual

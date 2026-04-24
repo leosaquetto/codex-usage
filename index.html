@@ -1,0 +1,877 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#86bdf5">
+  <meta name="apple-mobile-web-app-title" content="Codex">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <link rel="apple-touch-icon" href="https://i.imgur.com/gJphXZ9.png">
+  <link rel="icon" href="https://i.imgur.com/gJphXZ9.png">
+
+  <title>Analítica do Codex</title>
+
+  <style>
+    :root {
+      color-scheme: dark;
+
+      --bg-top: #86bdf5;
+      --bg-mid-a: #95c4f0;
+      --bg-mid-b: #83add4;
+      --bg-bottom: #6e84a4;
+
+      --text: rgba(255,255,255,.97);
+      --muted: rgba(255,255,255,.70);
+      --soft: rgba(255,255,255,.48);
+
+      --glass: rgba(255,255,255,.115);
+      --glass-2: rgba(255,255,255,.075);
+      --border: rgba(255,255,255,.24);
+      --border-strong: rgba(255,255,255,.34);
+
+      --bar: rgba(255,255,255,.22);
+      --fill: rgba(255,255,255,.96);
+
+      --shadow: rgba(38, 73, 112, .22);
+      --warn: #ffd36a;
+      --ok: #f8fcff;
+      --danger: #ff5f57;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      width: 100%;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 18% -8%, rgba(255,255,255,.34), transparent 30%),
+        radial-gradient(circle at 88% 4%, rgba(255,255,255,.18), transparent 28%),
+        linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid-a) 35%, var(--bg-mid-b) 68%, var(--bg-bottom) 100%);
+      overscroll-behavior-y: none;
+    }
+
+    body {
+      width: 100%;
+      min-height: 100vh;
+      min-height: 100svh;
+      margin: 0;
+      overflow-x: hidden;
+      overscroll-behavior-y: none;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 18% -8%, rgba(255,255,255,.34), transparent 30%),
+        radial-gradient(circle at 88% 4%, rgba(255,255,255,.18), transparent 28%),
+        radial-gradient(circle at 0% 48%, rgba(255,255,255,.13), transparent 34%),
+        radial-gradient(circle at 70% 96%, rgba(255,255,255,.14), transparent 31%),
+        linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid-a) 35%, var(--bg-mid-b) 68%, var(--bg-bottom) 100%);
+      background-attachment: fixed;
+      padding:
+        calc(14px + env(safe-area-inset-top))
+        12px
+        calc(24px + env(safe-area-inset-bottom));
+      -webkit-font-smoothing: antialiased;
+      text-rendering: geometricPrecision;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: -100px 0 -100px 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(255,255,255,.20), transparent 36%),
+        linear-gradient(180deg, rgba(255,255,255,.07), transparent 28%, transparent 72%, rgba(0,0,0,.08));
+      mix-blend-mode: soft-light;
+      opacity: .78;
+      z-index: 0;
+    }
+
+    .app {
+      width: min(100%, 820px);
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+      animation: appIn .55s cubic-bezier(.2,.8,.2,1) both;
+    }
+
+    @keyframes appIn {
+      from {
+        opacity: 0;
+        transform: translateY(14px) scale(.985);
+        filter: blur(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+      }
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+        opacity: .9;
+      }
+      50% {
+        transform: scale(1.22);
+        opacity: 1;
+      }
+    }
+
+    @keyframes fillIn {
+      from {
+        width: 0;
+      }
+    }
+
+    @keyframes spinSoft {
+      from {
+        transform: rotate(-140deg) scale(.94);
+      }
+      to {
+        transform: rotate(0deg) scale(1);
+      }
+    }
+
+    @keyframes sheen {
+      from {
+        transform: translateX(-120%) skewX(-18deg);
+      }
+      to {
+        transform: translateX(180%) skewX(-18deg);
+      }
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      gap: 11px;
+    }
+
+    .icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: linear-gradient(145deg, rgba(255,255,255,.35), rgba(255,255,255,.12));
+      border: 1px solid rgba(255,255,255,.42);
+      box-shadow:
+        0 14px 30px rgba(35, 67, 106, .24),
+        inset 0 1px 0 rgba(255,255,255,.48);
+      overflow: hidden;
+      flex: 0 0 auto;
+    }
+
+    .icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .title {
+      min-width: 0;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(22px, 5.1vw, 34px);
+      line-height: .98;
+      letter-spacing: -.045em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-shadow: 0 12px 32px rgba(57, 93, 130, .20);
+    }
+
+    .subtitle {
+      margin-top: 5px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 650;
+      letter-spacing: -.01em;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      flex: 0 0 auto;
+    }
+
+    .tool {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 36px;
+      height: 36px;
+      border: 1px solid rgba(255,255,255,.28);
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.22), rgba(255,255,255,.09));
+      color: #fff;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      font-size: 16px;
+      font-weight: 850;
+      backdrop-filter: blur(22px) saturate(1.25);
+      -webkit-backdrop-filter: blur(22px) saturate(1.25);
+      box-shadow:
+        0 14px 30px rgba(39, 71, 110, .18),
+        inset 0 1px 0 rgba(255,255,255,.30);
+      cursor: pointer;
+      text-decoration: none;
+      transform: translateZ(0);
+      transition: transform .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease;
+      padding: 0;
+    }
+
+    .tool:hover {
+      border-color: rgba(255,255,255,.42);
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.30), rgba(255,255,255,.13));
+      box-shadow:
+        0 16px 34px rgba(39, 71, 110, .20),
+        inset 0 1px 0 rgba(255,255,255,.38);
+    }
+
+    .tool:active {
+      transform: scale(.94);
+    }
+
+    .spin-on-load {
+      animation: spinSoft .72s cubic-bezier(.2,.8,.2,1);
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0 2px 14px;
+      animation: rise .52s .05s cubic-bezier(.2,.8,.2,1) both;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.18), rgba(255,255,255,.075));
+      border: 1px solid rgba(255,255,255,.22);
+      font-size: 13px;
+      font-weight: 760;
+      letter-spacing: -.01em;
+      color: rgba(255,255,255,.94);
+      backdrop-filter: blur(18px) saturate(1.2);
+      -webkit-backdrop-filter: blur(18px) saturate(1.2);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.24),
+        0 10px 24px rgba(42, 75, 112, .10);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--warn);
+      box-shadow: 0 0 16px rgba(255,211,106,.75);
+      animation: pulse 2.2s ease-in-out infinite;
+    }
+
+    .stamp {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: right;
+      line-height: 1.25;
+      white-space: nowrap;
+      font-weight: 650;
+      letter-spacing: -.01em;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .card {
+      position: relative;
+      background:
+        linear-gradient(155deg, rgba(255,255,255,.18), rgba(255,255,255,.078) 58%, rgba(255,255,255,.12));
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 16px;
+      box-shadow:
+        0 22px 60px var(--shadow),
+        inset 0 1px 0 rgba(255,255,255,.25);
+      backdrop-filter: blur(26px) saturate(1.25);
+      -webkit-backdrop-filter: blur(26px) saturate(1.25);
+      min-width: 0;
+      overflow: hidden;
+      animation: rise .58s cubic-bezier(.2,.8,.2,1) both;
+    }
+
+    .card:nth-child(2) {
+      animation-delay: .06s;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 18% 0%, rgba(255,255,255,.19), transparent 32%),
+        linear-gradient(180deg, rgba(255,255,255,.11), transparent 42%);
+      opacity: .72;
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 44%;
+      height: 100%;
+      pointer-events: none;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.10), transparent);
+      opacity: .42;
+      animation: sheen 5.8s ease-in-out infinite;
+    }
+
+    .card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .label {
+      font-size: 10.5px;
+      font-weight: 820;
+      letter-spacing: .075em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.78);
+      margin-bottom: 10px;
+    }
+
+    .percent {
+      display: block;
+      margin-bottom: 12px;
+      min-width: 0;
+    }
+
+    .percent strong {
+      display: block;
+      font-size: clamp(48px, 13vw, 86px);
+      line-height: .84;
+      letter-spacing: -.085em;
+      font-weight: 860;
+      text-shadow: 0 18px 42px rgba(55, 87, 124, .16);
+    }
+
+    .percent span {
+      display: block;
+      margin-top: 7px;
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 690;
+      letter-spacing: -.02em;
+    }
+
+    .bar {
+      height: 9px;
+      border-radius: 999px;
+      background: var(--bar);
+      overflow: hidden;
+      margin: 8px 0 13px;
+      box-shadow: inset 0 1px 2px rgba(68, 90, 120, .12);
+    }
+
+    .fill {
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.99), rgba(255,255,255,.82));
+      box-shadow: 0 0 22px rgba(255,255,255,.34);
+      animation: fillIn .9s .18s cubic-bezier(.2,.8,.2,1) both;
+    }
+
+    .line {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.34;
+      min-height: 36px;
+      letter-spacing: -.015em;
+    }
+
+    .section-title {
+      margin: 18px 4px 10px;
+      color: rgba(255,255,255,.76);
+      font-weight: 820;
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      animation: rise .55s .1s cubic-bezier(.2,.8,.2,1) both;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+      margin-top: 12px;
+    }
+
+    .main-metrics {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .mini {
+      position: relative;
+      border: 1px solid rgba(255,255,255,.19);
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.10), rgba(255,255,255,.055));
+      border-radius: 18px;
+      padding: 11px;
+      min-width: 0;
+      overflow: hidden;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.13);
+    }
+
+    .mini .k {
+      color: var(--soft);
+      font-size: 9.8px;
+      text-transform: uppercase;
+      letter-spacing: .065em;
+      margin-bottom: 5px;
+      font-weight: 820;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mini .v {
+      font-size: 18px;
+      font-weight: 850;
+      letter-spacing: -.035em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mini .s {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 11.5px;
+      line-height: 1.22;
+      letter-spacing: -.015em;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .button {
+      appearance: none;
+      -webkit-appearance: none;
+      border: 0;
+      display: block;
+      width: 100%;
+      text-align: center;
+      color: #23405f;
+      text-decoration: none;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.98), rgba(255,255,255,.82));
+      padding: 14px 12px;
+      border-radius: 18px;
+      font-weight: 880;
+      font-size: 14.5px;
+      letter-spacing: -.015em;
+      box-shadow:
+        0 14px 30px rgba(45, 77, 115, .18),
+        inset 0 1px 0 rgba(255,255,255,.58);
+      cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    .button.secondary {
+      color: rgba(255,255,255,.96);
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.15), rgba(255,255,255,.07));
+      border: 1px solid rgba(255,255,255,.23);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.20),
+        0 10px 24px rgba(45, 77, 115, .10);
+    }
+
+    .button:active {
+      transform: scale(.985);
+    }
+
+    .mono {
+      font-variant-numeric: tabular-nums;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .app,
+      .status-row,
+      .card,
+      .section-title,
+      .fill,
+      .dot,
+      .card::after,
+      .spin-on-load {
+        animation: none !important;
+      }
+
+      .tool,
+      .button {
+        transition: none !important;
+      }
+    }
+
+    @media (max-width: 520px) {
+      body {
+        padding-left: 12px;
+        padding-right: 12px;
+      }
+
+      .topbar {
+        gap: 10px;
+      }
+
+      .brand {
+        gap: 10px;
+      }
+
+      .cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 9px;
+      }
+
+      .card {
+        border-radius: 24px;
+        padding: 14px;
+      }
+
+      .label {
+        font-size: 9.4px;
+        letter-spacing: .062em;
+      }
+
+      .percent strong {
+        font-size: clamp(47px, 14.8vw, 58px);
+      }
+
+      .percent span {
+        margin-top: 6px;
+        font-size: 13.2px;
+      }
+
+      .line {
+        font-size: 12.2px;
+        min-height: 46px;
+      }
+
+      .metrics {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .main-metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .mini {
+        padding: 10px;
+        border-radius: 16px;
+      }
+
+      .mini .k {
+        font-size: 9.4px;
+        letter-spacing: .055em;
+      }
+
+      .mini .v {
+        font-size: 17px;
+      }
+
+      .mini .s {
+        font-size: 11px;
+      }
+
+      .toolbar {
+        gap: 6px;
+      }
+
+      .tool {
+        width: 35px;
+        height: 35px;
+        font-size: 15px;
+      }
+
+      .icon {
+        width: 40px;
+        height: 40px;
+      }
+
+      h1 {
+        font-size: clamp(21px, 5.8vw, 24px);
+      }
+
+      .subtitle {
+        font-size: 11.5px;
+      }
+
+      .actions {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 390px) {
+      .toolbar {
+        gap: 5px;
+      }
+
+      .tool {
+        width: 33px;
+        height: 33px;
+      }
+
+      .icon {
+        width: 38px;
+        height: 38px;
+      }
+
+      h1 {
+        font-size: 20px;
+      }
+
+      .percent strong {
+        font-size: clamp(43px, 14vw, 52px);
+      }
+
+      .card {
+        padding: 13px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <div class="topbar">
+      <div class="brand">
+        <div class="icon">
+          <img src="https://i.imgur.com/gJphXZ9.png" alt="">
+        </div>
+        <div class="title">
+          <h1>Analítica do Codex</h1>
+          <div class="subtitle">dashboard local</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <button class="tool spin-on-load" id="refreshButton" title="recarregar página">↻</button>
+        <button class="tool" id="shareButton" title="compartilhar">↑</button>
+        <button class="tool" id="closeButton" title="fechar">×</button>
+      </div>
+    </div>
+
+    <div class="status-row">
+      <div class="pill">
+        <span class="dot"></span>
+        <span>acima do seguro</span>
+      </div>
+
+      <div class="stamp">
+        atualizado<br>
+        <span>24 de abr., 14:36</span>
+      </div>
+    </div>
+
+    <div class="cards">
+      <section class="card">
+        <div class="label">limite de 5 horas</div>
+
+        <div class="percent">
+          <strong>100%</strong>
+          <span>restante</span>
+        </div>
+
+        <div class="bar">
+          <div class="fill" style="width:100%"></div>
+        </div>
+
+        <div class="line">cheio · sem ciclo ativo</div>
+
+        <div class="metrics">
+          <div class="mini">
+            <div class="k">usado</div>
+            <div class="v">0%</div>
+            <div class="s">no ciclo atual</div>
+          </div>
+
+          <div class="mini">
+            <div class="k">seguro</div>
+            <div class="v">0%/h</div>
+            <div class="s">até renovar</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="label">limite semanal</div>
+
+        <div class="percent">
+          <strong>56%</strong>
+          <span>restante</span>
+        </div>
+
+        <div class="bar">
+          <div class="fill" style="width:56%"></div>
+        </div>
+
+        <div class="line">renova em <b>4d 4h</b> · 28 de abr., 19:35</div>
+
+        <div class="metrics">
+          <div class="mini">
+            <div class="k">usado</div>
+            <div class="v">44%</div>
+            <div class="s">desde o reset</div>
+          </div>
+
+          <div class="mini">
+            <div class="k">restante</div>
+            <div class="v">4.2d</div>
+            <div class="s">até o reset</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="section-title">ritmo semanal</div>
+
+    <section class="card">
+      <div class="metrics main-metrics">
+        <div class="mini">
+          <div class="k">média real</div>
+          <div class="v">15.6%/d</div>
+          <div class="s">uso diário até agora</div>
+        </div>
+
+        <div class="mini">
+          <div class="k">ritmo seguro</div>
+          <div class="v">13.4%/d</div>
+          <div class="s">pode usar por dia</div>
+        </div>
+
+        <div class="mini">
+          <div class="k">diferença</div>
+          <div class="v">+2.3%/d</div>
+          <div class="s">acima do seguro</div>
+        </div>
+
+        <div class="mini">
+          <div class="k">projeção final</div>
+          <div class="v">-9.5%</div>
+          <div class="s">zeraria antes</div>
+        </div>
+
+        <div class="mini">
+          <div class="k">zera em</div>
+          <div class="v">3d 13h</div>
+          <div class="s">28 de abr., 05:02</div>
+        </div>
+
+        <div class="mini">
+          <div class="k">início do ciclo</div>
+          <div class="v mono">21 de abr., 19:35</div>
+          <div class="s">estimado pelo reset</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <a class="button" href="https://chatgpt.com/codex/cloud/settings/analytics">abrir codex</a>
+        <a class="button secondary" href="shortcuts://run-shortcut?name=Atualizar%20uso%20Codex">atualizar uso</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const refreshButton = document.getElementById("refreshButton")
+    const shareButton = document.getElementById("shareButton")
+    const closeButton = document.getElementById("closeButton")
+
+    refreshButton.addEventListener("click", () => {
+      refreshButton.classList.remove("spin-on-load")
+      void refreshButton.offsetWidth
+      refreshButton.classList.add("spin-on-load")
+
+      setTimeout(() => {
+        location.reload()
+      }, 180)
+    })
+
+    shareButton.addEventListener("click", async () => {
+      const data = {
+        title: "Analítica do Codex",
+        text: "Dashboard local da Analítica do Codex",
+        url: window.location.href
+      }
+
+      if (navigator.share) {
+        try {
+          await navigator.share(data)
+        } catch {}
+        return
+      }
+
+      try {
+        await navigator.clipboard.writeText(window.location.href)
+      } catch {}
+    })
+
+    closeButton.addEventListener("click", () => {
+      window.close()
+
+      setTimeout(() => {
+        if (history.length > 1) {
+          history.back()
+        } else {
+          location.href = "about:blank"
+        }
+      }, 120)
+    })
+  </script>
+</body>
+</html>

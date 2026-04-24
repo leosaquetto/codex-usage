@@ -1,0 +1,3 @@
+# Nunca empacotar snapshots dinâmicos de uso no artefato do frontend
+codex_usage.json
+**/codex_usage.json

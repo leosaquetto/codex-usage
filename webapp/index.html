@@ -8,8 +8,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-  <link rel="apple-touch-icon" href="https://i.imgur.com/gJphXZ9.png">
-  <link rel="icon" href="https://i.imgur.com/gJphXZ9.png">
+  <link rel="apple-touch-icon" href="./assets/logo.png">
+  <link rel="icon" href="./assets/logo.png">
 
   <title>Analítica do Codex</title>
 
@@ -23,15 +23,15 @@
       --bg-bottom: #6e84a4;
 
       --text: rgba(255,255,255,.97);
-      --muted: rgba(255,255,255,.70);
-      --soft: rgba(255,255,255,.48);
+      --muted: rgba(255,255,255,.78);
+      --soft: rgba(255,255,255,.58);
 
-      --glass: rgba(255,255,255,.115);
-      --glass-2: rgba(255,255,255,.075);
-      --border: rgba(255,255,255,.24);
-      --border-strong: rgba(255,255,255,.34);
+      --glass: rgba(255,255,255,.12);
+      --glass-2: rgba(255,255,255,.085);
+      --border: rgba(255,255,255,.29);
+      --border-strong: rgba(255,255,255,.40);
 
-      --bar: rgba(255,255,255,.22);
+      --bar: rgba(255,255,255,.30);
       --fill: rgba(255,255,255,.96);
 
       --shadow: rgba(38, 73, 112, .22);
@@ -72,8 +72,8 @@
         linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid-a) 35%, var(--bg-mid-b) 68%, var(--bg-bottom) 100%);
       background-attachment: fixed;
       padding:
-        calc(14px + env(safe-area-inset-top))
-        12px
+        calc(16px + env(safe-area-inset-top))
+        clamp(12px, 2.8vw, 20px)
         calc(24px + env(safe-area-inset-bottom));
       -webkit-font-smoothing: antialiased;
       text-rendering: geometricPrecision;
@@ -164,7 +164,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      margin-bottom: 14px;
+      margin-bottom: 18px;
     }
 
     .brand {
@@ -175,8 +175,8 @@
     }
 
     .icon {
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 44px;
       border-radius: 14px;
       background: linear-gradient(145deg, rgba(255,255,255,.35), rgba(255,255,255,.12));
       border: 1px solid rgba(255,255,255,.42);
@@ -200,9 +200,9 @@
 
     h1 {
       margin: 0;
-      font-size: clamp(22px, 5.1vw, 34px);
-      line-height: .98;
-      letter-spacing: -.045em;
+      font-size: clamp(24px, 4.8vw, 34px);
+      line-height: 1.02;
+      letter-spacing: -.04em;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -210,8 +210,8 @@
     }
 
     .subtitle {
-      margin-top: 5px;
-      font-size: 12px;
+      margin-top: 6px;
+      font-size: 12.5px;
       color: var(--muted);
       font-weight: 650;
       letter-spacing: -.01em;
@@ -271,7 +271,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      margin: 0 2px 14px;
+      margin: 0 2px 18px;
       animation: rise .52s .05s cubic-bezier(.2,.8,.2,1) both;
     }
 
@@ -317,7 +317,7 @@
     .cards {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
+      gap: 12px;
       align-items: stretch;
     }
 
@@ -326,11 +326,11 @@
       background:
         linear-gradient(155deg, rgba(255,255,255,.18), rgba(255,255,255,.078) 58%, rgba(255,255,255,.12));
       border: 1px solid var(--border);
-      border-radius: 28px;
-      padding: 16px;
+      border-radius: 24px;
+      padding: 18px;
       box-shadow:
-        0 22px 60px var(--shadow),
-        inset 0 1px 0 rgba(255,255,255,.25);
+        0 22px 56px var(--shadow),
+        inset 0 1px 0 rgba(255,255,255,.30);
       backdrop-filter: blur(26px) saturate(1.25);
       -webkit-backdrop-filter: blur(26px) saturate(1.25);
       min-width: 0;
@@ -372,17 +372,17 @@
     }
 
     .label {
-      font-size: 10.5px;
+      font-size: 11px;
       font-weight: 820;
       letter-spacing: .075em;
       text-transform: uppercase;
       color: rgba(255,255,255,.78);
-      margin-bottom: 10px;
+      margin-bottom: 11px;
     }
 
     .percent {
       display: block;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
       min-width: 0;
     }
 
@@ -405,12 +405,15 @@
     }
 
     .bar {
-      height: 9px;
+      height: 10px;
       border-radius: 999px;
-      background: var(--bar);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.35), rgba(255,255,255,.18));
       overflow: hidden;
-      margin: 8px 0 13px;
-      box-shadow: inset 0 1px 2px rgba(68, 90, 120, .12);
+      margin: 10px 0 14px;
+      box-shadow:
+        inset 0 1px 2px rgba(68, 90, 120, .16),
+        0 0 0 1px rgba(255,255,255,.12);
     }
 
     .fill {
@@ -418,13 +421,15 @@
       width: 0;
       border-radius: inherit;
       background:
-        linear-gradient(90deg, rgba(255,255,255,.99), rgba(255,255,255,.82));
-      box-shadow: 0 0 22px rgba(255,255,255,.34);
+        linear-gradient(90deg, rgba(255,255,255,1), rgba(255,255,255,.86));
+      box-shadow:
+        0 0 24px rgba(255,255,255,.38),
+        inset 0 -1px 0 rgba(160, 195, 230, .28);
       animation: fillIn .9s .18s cubic-bezier(.2,.8,.2,1) both;
     }
 
     .line {
-      color: var(--muted);
+      color: rgba(255,255,255,.88);
       font-size: 13px;
       line-height: 1.34;
       min-height: 36px;
@@ -432,8 +437,8 @@
     }
 
     .section-title {
-      margin: 18px 4px 10px;
-      color: rgba(255,255,255,.76);
+      margin: 20px 4px 12px;
+      color: rgba(255,255,255,.84);
       font-weight: 820;
       font-size: 11.5px;
       text-transform: uppercase;
@@ -444,8 +449,8 @@
     .metrics {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 9px;
-      margin-top: 12px;
+      gap: 10px;
+      margin-top: 14px;
     }
 
     .main-metrics {
@@ -454,14 +459,16 @@
 
     .mini {
       position: relative;
-      border: 1px solid rgba(255,255,255,.19);
+      border: 1px solid rgba(255,255,255,.24);
       background:
         linear-gradient(145deg, rgba(255,255,255,.10), rgba(255,255,255,.055));
-      border-radius: 18px;
-      padding: 11px;
+      border-radius: 16px;
+      padding: 12px;
       min-width: 0;
       overflow: hidden;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.13);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.18),
+        0 10px 24px rgba(38, 69, 103, .08);
     }
 
     .mini .k {
@@ -497,7 +504,7 @@
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
-      margin-top: 16px;
+      margin-top: 18px;
     }
 
     .button {
@@ -559,6 +566,20 @@
       }
     }
 
+    @media (max-width: 760px) {
+      .cards {
+        gap: 10px;
+      }
+
+      .card {
+        padding: 16px;
+      }
+
+      .main-metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
     @media (max-width: 520px) {
       body {
         padding-left: 12px;
@@ -575,11 +596,11 @@
 
       .cards {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 9px;
+        gap: 10px;
       }
 
       .card {
-        border-radius: 24px;
+        border-radius: 20px;
         padding: 14px;
       }
 
@@ -589,7 +610,7 @@
       }
 
       .percent strong {
-        font-size: clamp(47px, 14.8vw, 58px);
+        font-size: clamp(45px, 14.8vw, 58px);
       }
 
       .percent span {
@@ -600,11 +621,6 @@
       .line {
         font-size: 12.2px;
         min-height: 46px;
-      }
-
-      .metrics {
-        grid-template-columns: 1fr;
-        gap: 8px;
       }
 
       .main-metrics {
@@ -658,6 +674,10 @@
     }
 
     @media (max-width: 390px) {
+      .cards {
+        grid-template-columns: 1fr;
+      }
+
       .toolbar {
         gap: 5px;
       }
@@ -677,11 +697,15 @@
       }
 
       .percent strong {
-        font-size: clamp(43px, 14vw, 52px);
+        font-size: clamp(42px, 13vw, 50px);
       }
 
       .card {
         padding: 13px;
+      }
+
+      .main-metrics {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -692,7 +716,7 @@
     <div class="topbar">
       <div class="brand">
         <div class="icon">
-          <img src="https://i.imgur.com/gJphXZ9.png" alt="">
+          <img src="./assets/logo.png" alt="">
         </div>
         <div class="title">
           <h1>Analítica do Codex</h1>
@@ -709,13 +733,13 @@
 
     <div class="status-row">
       <div class="pill">
-        <span class="dot"></span>
-        <span>acima do seguro</span>
+        <span class="dot" id="statusDot"></span>
+        <span id="statusText">carregando dados</span>
       </div>
 
       <div class="stamp">
         atualizado<br>
-        <span>24 de abr., 14:36</span>
+        <span id="lastUpdated">--</span>
       </div>
     </div>
 
@@ -724,26 +748,26 @@
         <div class="label">limite de 5 horas</div>
 
         <div class="percent">
-          <strong>100%</strong>
+          <strong id="fiveHourPercent">--%</strong>
           <span>restante</span>
         </div>
 
         <div class="bar">
-          <div class="fill" style="width:100%"></div>
+          <div class="fill" id="fiveHourFill" style="width:0%"></div>
         </div>
 
-        <div class="line">cheio · sem ciclo ativo</div>
+        <div class="line" id="fiveHourLine">dados indisponíveis</div>
 
         <div class="metrics">
           <div class="mini">
             <div class="k">usado</div>
-            <div class="v">0%</div>
+            <div class="v" id="fiveHourUsed">--%</div>
             <div class="s">no ciclo atual</div>
           </div>
 
           <div class="mini">
             <div class="k">seguro</div>
-            <div class="v">0%/h</div>
+            <div class="v" id="fiveHourSafeRate">--/h</div>
             <div class="s">até renovar</div>
           </div>
         </div>
@@ -753,26 +777,26 @@
         <div class="label">limite semanal</div>
 
         <div class="percent">
-          <strong>56%</strong>
+          <strong id="weeklyPercent">--%</strong>
           <span>restante</span>
         </div>
 
         <div class="bar">
-          <div class="fill" style="width:56%"></div>
+          <div class="fill" id="weeklyFill" style="width:0%"></div>
         </div>
 
-        <div class="line">renova em <b>4d 4h</b> · 28 de abr., 19:35</div>
+        <div class="line" id="weeklyLine">dados indisponíveis</div>
 
         <div class="metrics">
           <div class="mini">
             <div class="k">usado</div>
-            <div class="v">44%</div>
+            <div class="v" id="weeklyUsed">--%</div>
             <div class="s">desde o reset</div>
           </div>
 
           <div class="mini">
             <div class="k">restante</div>
-            <div class="v">4.2d</div>
+            <div class="v" id="weeklyRemaining">--</div>
             <div class="s">até o reset</div>
           </div>
         </div>
@@ -785,37 +809,37 @@
       <div class="metrics main-metrics">
         <div class="mini">
           <div class="k">média real</div>
-          <div class="v">15.6%/d</div>
+          <div class="v" id="realDailyRate">--/d</div>
           <div class="s">uso diário até agora</div>
         </div>
 
         <div class="mini">
           <div class="k">ritmo seguro</div>
-          <div class="v">13.4%/d</div>
+          <div class="v" id="safeDailyRate">--/d</div>
           <div class="s">pode usar por dia</div>
         </div>
 
         <div class="mini">
           <div class="k">diferença</div>
-          <div class="v">+2.3%/d</div>
+          <div class="v" id="dailyDiff">--/d</div>
           <div class="s">acima do seguro</div>
         </div>
 
         <div class="mini">
           <div class="k">projeção final</div>
-          <div class="v">-9.5%</div>
+          <div class="v" id="weeklyProjection">--%</div>
           <div class="s">zeraria antes</div>
         </div>
 
         <div class="mini">
           <div class="k">zera em</div>
-          <div class="v">3d 13h</div>
+          <div class="v" id="zeroIn">--</div>
           <div class="s">28 de abr., 05:02</div>
         </div>
 
         <div class="mini">
           <div class="k">início do ciclo</div>
-          <div class="v mono">21 de abr., 19:35</div>
+          <div class="v mono" id="cycleStart">--</div>
           <div class="s">estimado pelo reset</div>
         </div>
       </div>
@@ -831,6 +855,107 @@
     const refreshButton = document.getElementById("refreshButton")
     const shareButton = document.getElementById("shareButton")
     const closeButton = document.getElementById("closeButton")
+
+    const API_TIMEOUT_MS = 7000
+    const API_ENDPOINT = "/api/usage"
+
+    function toPercent(value) {
+      const n = Number(value)
+      if (Number.isNaN(n)) return 0
+      return Math.max(0, Math.min(100, Math.round(n)))
+    }
+
+    function formatDate(isoValue) {
+      if (!isoValue) return "--"
+      const date = new Date(isoValue)
+      if (Number.isNaN(date.getTime())) return "--"
+      return new Intl.DateTimeFormat("pt-BR", {
+        day: "2-digit",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit"
+      }).format(date)
+    }
+
+    function formatDuration(ms) {
+      if (!Number.isFinite(ms) || ms <= 0) return "agora"
+      const totalMinutes = Math.floor(ms / 60000)
+      const days = Math.floor(totalMinutes / 1440)
+      const hours = Math.floor((totalMinutes % 1440) / 60)
+      const minutes = totalMinutes % 60
+      if (days > 0) return `${days}d ${hours}h`
+      if (hours > 0) return `${hours}h ${minutes}m`
+      return `${minutes}m`
+    }
+
+    function setFallbackState(message) {
+      document.getElementById("statusText").textContent = message
+      document.getElementById("statusDot").style.background = "var(--danger)"
+      document.getElementById("statusDot").style.boxShadow = "0 0 16px rgba(255,95,87,.75)"
+      document.getElementById("lastUpdated").textContent = "--"
+    }
+
+    function renderUsage(payload) {
+      const fiveHourPercent = toPercent(payload.fiveHourPercent)
+      const weeklyPercent = toPercent(payload.weeklyPercent)
+      const fiveHourReset = payload.fiveHourReset ? new Date(payload.fiveHourReset) : null
+      const weeklyReset = payload.weeklyReset ? new Date(payload.weeklyReset) : null
+      const fiveHourMs = fiveHourReset ? fiveHourReset.getTime() - Date.now() : NaN
+      const weeklyMs = weeklyReset ? weeklyReset.getTime() - Date.now() : NaN
+
+      document.getElementById("statusText").textContent = payload.statusLabel || "dados carregados"
+      document.getElementById("lastUpdated").textContent = formatDate(payload.lastUpdated)
+
+      document.getElementById("fiveHourPercent").textContent = `${fiveHourPercent}%`
+      document.getElementById("fiveHourFill").style.width = `${fiveHourPercent}%`
+      document.getElementById("fiveHourLine").innerHTML = `renova em <b>${formatDuration(fiveHourMs)}</b> · ${formatDate(payload.fiveHourReset)}`
+      document.getElementById("fiveHourUsed").textContent = `${100 - fiveHourPercent}%`
+      document.getElementById("fiveHourSafeRate").textContent = payload.fiveHourSafeRate || "--/h"
+
+      document.getElementById("weeklyPercent").textContent = `${weeklyPercent}%`
+      document.getElementById("weeklyFill").style.width = `${weeklyPercent}%`
+      document.getElementById("weeklyLine").innerHTML = `renova em <b>${formatDuration(weeklyMs)}</b> · ${formatDate(payload.weeklyReset)}`
+      document.getElementById("weeklyUsed").textContent = `${100 - weeklyPercent}%`
+      document.getElementById("weeklyRemaining").textContent = payload.weeklyRemaining || "--"
+
+      document.getElementById("realDailyRate").textContent = payload.realDailyRate || "--/d"
+      document.getElementById("safeDailyRate").textContent = payload.safeDailyRate || "--/d"
+      document.getElementById("dailyDiff").textContent = payload.dailyDiff || "--/d"
+      document.getElementById("weeklyProjection").textContent = payload.weeklyProjection || "--%"
+      document.getElementById("zeroIn").textContent = payload.zeroIn || "--"
+      document.getElementById("cycleStart").textContent = formatDate(payload.history?.cycleStart)
+    }
+
+    async function loadUsageData() {
+      const controller = new AbortController()
+      const timer = setTimeout(() => controller.abort(), API_TIMEOUT_MS)
+
+      try {
+        const response = await fetch(API_ENDPOINT, {
+          signal: controller.signal,
+          headers: {
+            Accept: "application/json"
+          }
+        })
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`)
+        }
+
+        return await response.json()
+      } finally {
+        clearTimeout(timer)
+      }
+    }
+
+    async function fetchUsage() {
+      try {
+        const payload = await loadUsageData()
+        renderUsage(payload)
+      } catch {
+        setFallbackState("API indisponível")
+      }
+    }
 
     refreshButton.addEventListener("click", () => {
       refreshButton.classList.remove("spin-on-load")
@@ -872,6 +997,8 @@
         }
       }, 120)
     })
+
+    void fetchUsage()
   </script>
 </body>
 </html>

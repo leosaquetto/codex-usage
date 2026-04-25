@@ -4,14 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
-    <meta name="theme-color" content="#86bdf5" />
+    <meta name="theme-color" content="#5e7ea5" />
 
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json" />
 
     <!-- iOS full screen -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 
     <!-- SPLASH iOS -->
     <link rel="apple-touch-startup-image" href="/webapp/assets/splash.svg" />
@@ -27,24 +27,33 @@
 
   <body>
     <main class="wrap" aria-live="polite">
-      <header>
-        <div>
-          <h1>Analítica do Codex</h1>
-          <div class="status" aria-label="Status atual">
-            <span id="statusDot" class="dot" aria-hidden="true"></span>
-            <span id="statusText">carregando</span>
+      <div class="topbar">
+        <div class="brand">
+          <img src="/webapp/assets/logo.png" alt="Codex" />
+          <div>
+            <h1>Analítica do Codex</h1>
+            <div class="subtitle">dashboard local</div>
           </div>
         </div>
+
+        <div class="toolbar">
+          <button id="refreshButton" title="recarregar página">↻</button>
+          <button id="shareButton" title="compartilhar">↑</button>
+          <button id="closeButton" title="fechar">×</button>
+        </div>
+      </div>
+
+      <div class="status-row" aria-label="Status atual">
+        <div class="status-pill">
+          <span id="statusDot" class="dot" aria-hidden="true"></span>
+          <span id="statusText">carregando</span>
+        </div>
+
         <div class="stamp">
           atualizado<br />
           <span id="updatedAtText">—</span>
         </div>
-      </header>
-
-      <section id="errorCard" class="card error-card hidden">
-        <div class="label">erro</div>
-        <div id="errorText" class="line">não foi possível carregar</div>
-      </section>
+      </div>
 
       <section class="grid two">
         <article class="card">
@@ -55,6 +64,19 @@
           </div>
           <div class="bar"><div id="fiveHourBar" class="fill"></div></div>
           <div id="fiveHourLine" class="line">—</div>
+
+          <div class="metrics">
+            <div class="mini">
+              <div class="k">usado</div>
+              <div id="fiveHourUsed" class="v">—%</div>
+              <div class="s">no ciclo atual</div>
+            </div>
+            <div class="mini">
+              <div class="k">seguro</div>
+              <div id="fiveHourSafeRate" class="v">—/h</div>
+              <div class="s">até renovar</div>
+            </div>
+          </div>
         </article>
 
         <article class="card">
@@ -65,13 +87,26 @@
           </div>
           <div class="bar"><div id="weeklyBar" class="fill"></div></div>
           <div id="weeklyLine" class="line">—</div>
+
+          <div class="metrics">
+            <div class="mini">
+              <div class="k">usado</div>
+              <div id="weeklyUsed" class="v">—%</div>
+              <div class="s">desde o reset</div>
+            </div>
+            <div class="mini">
+              <div class="k">restante</div>
+              <div id="weeklyRemainingDays" class="v">—</div>
+              <div class="s">até o reset</div>
+            </div>
+          </div>
         </article>
       </section>
 
       <div class="section-title">ritmo semanal</div>
 
       <section class="card">
-        <div class="metrics">
+        <div class="metrics rhythm-grid">
           <div class="mini">
             <div class="k">média real</div>
             <div id="weeklyAverage" class="v">—</div>
@@ -80,10 +115,27 @@
             <div class="k">ritmo seguro</div>
             <div id="weeklySafeRate" class="v">—</div>
           </div>
+          <div class="mini">
+            <div class="k">diferença</div>
+            <div id="weeklyDifference" class="v">—</div>
+          </div>
+          <div class="mini">
+            <div class="k">projeção final</div>
+            <div id="weeklyProjection" class="v">—</div>
+          </div>
+          <div class="mini">
+            <div class="k">zera em</div>
+            <div id="weeklyZeroAt" class="v">—</div>
+          </div>
+          <div class="mini">
+            <div class="k">início do ciclo</div>
+            <div id="weeklyCycleStart" class="v">—</div>
+          </div>
         </div>
 
         <div class="actions">
-          <a class="button" href="shortcuts://run-shortcut?name=Atualizar%20uso%20Codex">atualizar uso</a>
+          <a class="button" href="https://chatgpt.com/codex/cloud/settings/analytics">abrir codex</a>
+          <a class="button secondary" href="shortcuts://run-shortcut?name=Atualizar%20uso%20Codex">atualizar uso</a>
         </div>
       </section>
     </main>

@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-  <meta name="theme-color" content="#86bdf5">
+  <meta name="theme-color" content="#5e7ea5">
   <meta name="apple-mobile-web-app-title" content="Codex">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
   <link rel="apple-touch-icon" href="./assets/logo_background.png">
   <link rel="icon" href="./assets/logo.png">
@@ -17,10 +17,10 @@
     :root {
       color-scheme: dark;
 
-      --bg-top: #86bdf5;
-      --bg-mid-a: #95c4f0;
-      --bg-mid-b: #83add4;
-      --bg-bottom: #6e84a4;
+      --bg-top: #6f94c2;
+      --bg-mid-a: #6185b1;
+      --bg-mid-b: #536f95;
+      --bg-bottom: #425875;
 
       --text: rgba(255,255,255,.97);
       --muted: rgba(255,255,255,.78);
@@ -48,6 +48,7 @@
     html {
       width: 100%;
       min-height: 100%;
+      background-color: var(--bg-bottom);
       background:
         radial-gradient(circle at 18% -8%, rgba(255,255,255,.34), transparent 30%),
         radial-gradient(circle at 88% 4%, rgba(255,255,255,.18), transparent 28%),
@@ -64,6 +65,7 @@
       overscroll-behavior-y: none;
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
       color: var(--text);
+      background-color: var(--bg-bottom);
       background:
         radial-gradient(circle at 18% -8%, rgba(255,255,255,.34), transparent 30%),
         radial-gradient(circle at 88% 4%, rgba(255,255,255,.18), transparent 28%),

@@ -1,10 +1,10 @@
 :root {
   color-scheme: dark;
 
-  --bg-top: #86bdf5;
-  --bg-mid-a: #95c4f0;
-  --bg-mid-b: #83add4;
-  --bg-bottom: #6e84a4;
+  --bg-top: #6f94c2;
+  --bg-mid-a: #6185b1;
+  --bg-mid-b: #536f95;
+  --bg-bottom: #425875;
 
   --text: rgba(255, 255, 255, 0.98);
   --muted: rgba(255, 255, 255, 0.78);
@@ -33,7 +33,8 @@
 
 html {
   width: 100%;
-  min-height: 200%;
+  min-height: 100%;
+  background-color: var(--bg-bottom);
   background:
     radial-gradient(circle at 18% -8%, rgba(255, 255, 255, 0.34), transparent 30%),
     radial-gradient(circle at 88% 4%, rgba(255, 255, 255, 0.18), transparent 28%),
@@ -50,6 +51,7 @@ body {
   overscroll-behavior-y: none;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
   color: var(--text);
+  background-color: var(--bg-bottom);
   background:
     radial-gradient(circle at 18% -8%, rgba(255, 255, 255, 0.34), transparent 30%),
     radial-gradient(circle at 88% 4%, rgba(255, 255, 255, 0.18), transparent 28%),
@@ -75,7 +77,7 @@ body::before {
   background:
     radial-gradient(circle at 18% 0%, rgba(255, 255, 255, 0.34), transparent 34%),
     radial-gradient(circle at 88% 0%, rgba(255, 255, 255, 0.18), transparent 30%),
-    linear-gradient(180deg, var(--bg-top) 0%, rgba(134, 189, 245, 0.96) 68%, rgba(134, 189, 245, 0));
+    linear-gradient(180deg, var(--bg-top) 0%, rgba(111, 148, 194, 0.96) 68%, rgba(111, 148, 194, 0));
   z-index: 0;
 }
 
@@ -127,6 +129,14 @@ h2 {
   letter-spacing: 0.075em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.78);
+}
+
+.subtitle {
+  margin-top: 6px;
+  font-size: 12.5px;
+  color: var(--muted);
+  font-weight: 650;
+  letter-spacing: -0.01em;
 }
 
 .topbar,

@@ -12,7 +12,7 @@ const DEFAULT_WEEKLY_RESET = "2026-04-28T19:35:00-03:00"
 // GitHub (não hardcode token: usar Keychain)
 const GITHUB_OWNER = "leosaquetto"
 const GITHUB_REPO = "codex-usage"
-const GITHUB_BRANCH = "staging" // ajuste se necessário
+const GITHUB_BRANCH = "staging" // use "main" quando quiser atualizar o JSON usado pela produção
 const GITHUB_FILE_PATH = "codex_usage.json"
 const GITHUB_TOKEN_KEYCHAIN_KEY = "codex_usage_github_token"
 
@@ -263,7 +263,8 @@ function getGithubToken() {
 }
 
 function githubApiUrl(path) {
-  return `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${encodeURIComponent(path)}`
+  const encodedPath = path.split("/").map(encodeURIComponent).join("/")
+  return `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${encodedPath}`
 }
 
 async function getRepoFileSha(path, branch, token) {
@@ -275,13 +276,17 @@ async function getRepoFileSha(path, branch, token) {
     "X-GitHub-Api-Version": "2022-11-28"
   }
 
+  let rawPayload = null
   try {
-    const payload = await req.loadJSON()
+    rawPayload = await req.loadString()
+    const payload = rawPayload ? JSON.parse(rawPayload) : null
     return payload && payload.sha ? payload.sha : null
   } catch (error) {
     const statusCode = Number(req.response?.statusCode || 0)
     if (statusCode === 404) return null
-    throw new Error(`Falha ao buscar SHA no GitHub (${statusCode || "sem status"}): ${String(error)}`)
+    throw new Error(
+      `Falha ao buscar SHA no GitHub (${statusCode || "sem status"}): ${String(error)} | payload bruto: ${rawPayload || "<vazio>"}`
+    )
   }
 }
 
@@ -306,9 +311,22 @@ async function upsertRepoJsonFile(path, branch, jsonText) {
   }
   req.body = JSON.stringify(body)
 
-  const response = await req.loadJSON()
+  let rawResponse = null
+  let response = null
+  try {
+    rawResponse = await req.loadString()
+    response = rawResponse ? JSON.parse(rawResponse) : null
+  } catch (error) {
+    const statusCode = Number(req.response?.statusCode || 0)
+    throw new Error(
+      `Falha no PUT do arquivo no GitHub (${statusCode || "sem status"}): ${String(error)} | payload bruto: ${rawResponse || "<vazio>"}`
+    )
+  }
   if (!response?.commit?.sha) {
-    throw new Error("GitHub não retornou commit SHA na atualização do arquivo")
+    const statusCode = Number(req.response?.statusCode || 0)
+    throw new Error(
+      `GitHub não retornou commit SHA na atualização do arquivo (${statusCode || "sem status"}): ${JSON.stringify(response)}`
+    )
   }
 
   return {
@@ -325,6 +343,7 @@ async function main() {
   const next = buildNextData(current, extracted)
 
   const nextJson = JSON.stringify(next, null, 2)
+  JSON.parse(nextJson)
   fm.writeString(filePath, nextJson)
 
   const repoUpdate = await upsertRepoJsonFile(

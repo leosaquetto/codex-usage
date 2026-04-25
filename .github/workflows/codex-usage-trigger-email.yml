@@ -39,25 +39,25 @@ jobs:
 
           send_email() {
             python - <<'PY'
-import os
-import smtplib
-from email.message import EmailMessage
+            import os
+            import smtplib
+            from email.message import EmailMessage
 
-username = os.environ["MAIL_USERNAME"]
-password = os.environ["MAIL_PASSWORD"]
-receive = os.environ["MAIL_RECEIVE"]
+            username = os.environ["MAIL_USERNAME"]
+            password = os.environ["MAIL_PASSWORD"]
+            receive = os.environ["MAIL_RECEIVE"]
 
-msg = EmailMessage()
-msg["From"] = username
-msg["To"] = receive
-sequence = os.urandom(8).hex()
-msg["Subject"] = f"codex usage trigger [{sequence}]"
-msg.set_content(f"codex usage trigger\nsequence: {sequence}")
+            msg = EmailMessage()
+            msg["From"] = username
+            msg["To"] = receive
+            sequence = os.urandom(8).hex()
+            msg["Subject"] = f"codex usage trigger [{sequence}]"
+            msg.set_content(f"codex usage trigger\nsequence: {sequence}")
 
-with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-    server.login(username, password)
-    server.send_message(msg)
-PY
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+                server.login(username, password)
+                server.send_message(msg)
+            PY
           }
 
           while true; do

@@ -9,11 +9,10 @@
 // Este script NÃO publica no GitHub.
 // Este script NÃO edita percentuais manualmente.
 
-const REMOTE_USAGE_URL_PRODUCTION = "https://codex-usage-nine.vercel.app/api/usage"
-const REMOTE_USAGE_URL_STAGING = "https://codex-usage-staging.vercel.app/api/usage"
+const REMOTE_USAGE_URL_PRODUCTION = "https://raw.githubusercontent.com/leosaquetto/codex-usage/main/codex_usage.json"
+const REMOTE_USAGE_URL_STAGING = "https://raw.githubusercontent.com/leosaquetto/codex-usage/staging/codex_usage.json"
 const REMOTE_USAGE_URL = REMOTE_USAGE_URL_PRODUCTION
 
-const SHORTCUT_URL = "shortcuts://run-shortcut?name=Atualizar%20uso%20Codex"
 const LOGO_URL = "https://images.ctfassets.net/kftzwdyauwt9/YgXvGzKvVcDvpJGOFyroe/777616dd860276400c9c955688dce373/codex-app.png.png"
 
 function emptyUsageData() {
@@ -413,7 +412,6 @@ function buildDashboardCard(parent, title, percent, msUntil, resetDisplay, barWi
 
 function createSmallWidget() {
   const w = new ListWidget()
-  w.url = SHORTCUT_URL
   w.setPadding(14, 14, 14, 14)
 
   addHeader(w, true)
@@ -478,7 +476,6 @@ function createSmallWidget() {
 
 function createMediumWidget() {
   const w = new ListWidget()
-  w.url = SHORTCUT_URL
   w.setPadding(15, 14, 12, 15)
 
   addHeader(w, false)

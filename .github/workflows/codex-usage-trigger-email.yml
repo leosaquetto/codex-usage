@@ -1,6 +1,7 @@
 name: Codex Usage Trigger Email
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - codex_usage.json

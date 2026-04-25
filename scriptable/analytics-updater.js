@@ -1,7 +1,7 @@
 // Analítica do Codex — Scriptable Widget
 // Small + Medium
 // Somente leitura/renderização.
-// Fonte única: https://codex-usage.vercel.app/api/usage
+// Fonte única: https://codex-usage-nine.vercel.app/api/usage
 //
 // Este script NÃO lê cache local.
 // Este script NÃO escreve codex_usage.json local.
@@ -9,7 +9,7 @@
 // Este script NÃO publica no GitHub.
 // Este script NÃO edita percentuais manualmente.
 
-const REMOTE_USAGE_URL_PRODUCTION = "https://codex-usage.vercel.app/api/usage"
+const REMOTE_USAGE_URL_PRODUCTION = "https://codex-usage-nine.vercel.app/api/usage"
 const REMOTE_USAGE_URL_STAGING = "https://codex-usage-staging.vercel.app/api/usage"
 const REMOTE_USAGE_URL = REMOTE_USAGE_URL_PRODUCTION
 

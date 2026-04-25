@@ -1,45 +1,36 @@
 // Analítica do Codex — Scriptable Widget
 // Small + Medium
-// Lê codex_usage.json e abre o Shortcut "Analítica do Codex" ao tocar.
+// Somente leitura/renderização.
+// Fonte oficial: https://codex-usage.vercel.app/api/usage
+// Cache local/iCloud: iCloud Drive/Scriptable/Analítica do Codex/codex_usage.json
 //
-// Fonte oficial de dados deste script: API `/api/usage`.
-// O link de WebView (`chatgpt.com/codex/cloud/settings/analytics`) é usado somente
-// para navegação manual ("Abrir analítica"), sem parsing local.
-// Campos esperados do payload mantidos em paridade com o frontend:
-// `fiveHourPercent`, `fiveHourReset`, `weeklyPercent`, `weeklyReset`, `lastUpdated`.
+// Este script NÃO captura a página do Codex.
+// Este script NÃO publica no GitHub.
+// Este script NÃO edita percentuais manualmente.
+// Quem atualiza os dados é o capturador: scriptable/webview-hidden-auto-update-v3.js
 
-const fm = FileManager.local()
+const fm = FileManager.iCloud()
 const folderPath = fm.joinPath(fm.documentsDirectory(), "Analítica do Codex")
 if (!fm.fileExists(folderPath)) {
   fm.createDirectory(folderPath)
 }
+
 const filePath = fm.joinPath(folderPath, "codex_usage.json")
 
-const CODEX_ANALYTICS_URL = "https://chatgpt.com/codex/cloud/settings/analytics"
 const REMOTE_USAGE_URL_PRODUCTION = "https://codex-usage.vercel.app/api/usage"
 const REMOTE_USAGE_URL_STAGING = "https://codex-usage-staging.vercel.app/api/usage"
 const REMOTE_USAGE_URL = REMOTE_USAGE_URL_PRODUCTION
-const SHORTCUT_URL = "shortcuts://run-shortcut?name=Anal%C3%ADtica%20do%20Codex"
 
+const SHORTCUT_URL = "shortcuts://run-shortcut?name=Atualizar%20uso%20Codex"
 const LOGO_URL = "https://images.ctfassets.net/kftzwdyauwt9/YgXvGzKvVcDvpJGOFyroe/777616dd860276400c9c955688dce373/codex-app.png.png"
 
-function buildWeeklyResetFallback(now = new Date()) {
-  const fallback = new Date(now)
-  fallback.setDate(fallback.getDate() + 7)
-  return Number.isFinite(fallback.getTime()) ? fallback : null
-}
-
-function weeklyResetFallbackISO(now = new Date()) {
-  return buildWeeklyResetFallback(now)?.toISOString() || null
-}
-
-function defaultUsageData() {
+function emptyUsageData() {
   return {
-    fiveHourPercent: 100,
+    fiveHourPercent: null,
     fiveHourReset: null,
-    weeklyPercent: 61,
-    weeklyReset: weeklyResetFallbackISO(),
-    lastUpdated: new Date().toISOString(),
+    weeklyPercent: null,
+    weeklyReset: null,
+    lastUpdated: null,
     statusLabel: "--",
     fiveHourSafeRate: "--/h",
     weeklyRemaining: "--",
@@ -52,91 +43,6 @@ function defaultUsageData() {
   }
 }
 
-function normalizeUsage(raw = {}, fallback = defaultUsageData()) {
-  return {
-    ...fallback,
-    fiveHourPercent: clampPercent(raw.fiveHourPercent, fallback.fiveHourPercent),
-    fiveHourReset: validDateFromISO(raw.fiveHourReset) ? new Date(raw.fiveHourReset).toISOString() : fallback.fiveHourReset,
-    weeklyPercent: clampPercent(raw.weeklyPercent, fallback.weeklyPercent),
-    weeklyReset: validDateFromISO(raw.weeklyReset) ? new Date(raw.weeklyReset).toISOString() : fallback.weeklyReset,
-    lastUpdated: validDateFromISO(raw.lastUpdated) ? new Date(raw.lastUpdated).toISOString() : fallback.lastUpdated,
-    statusLabel: String(raw.statusLabel || fallback.statusLabel),
-    fiveHourSafeRate: String(raw.fiveHourSafeRate || fallback.fiveHourSafeRate),
-    weeklyRemaining: String(raw.weeklyRemaining || fallback.weeklyRemaining),
-    realDailyRate: String(raw.realDailyRate || fallback.realDailyRate),
-    safeDailyRate: String(raw.safeDailyRate || fallback.safeDailyRate),
-    dailyDiff: String(raw.dailyDiff || fallback.dailyDiff),
-    weeklyProjection: String(raw.weeklyProjection || fallback.weeklyProjection),
-    zeroIn: String(raw.zeroIn || fallback.zeroIn),
-    history: {
-      cycleStart: validDateFromISO(raw.history?.cycleStart)
-        ? new Date(raw.history.cycleStart).toISOString()
-        : fallback.history?.cycleStart || null
-    }
-  }
-}
-
-function readLocalUsage() {
-  if (!fm.fileExists(filePath)) {
-    const base = defaultUsageData()
-    fm.writeString(filePath, JSON.stringify(base, null, 2))
-    return base
-  }
-
-  try {
-    const base = defaultUsageData()
-    return normalizeUsage(JSON.parse(fm.readString(filePath)), base)
-  } catch {
-    const base = defaultUsageData()
-    fm.writeString(filePath, JSON.stringify(base, null, 2))
-    return base
-  }
-}
-
-function saveLocalUsage(payload) {
-  const current = fm.fileExists(filePath) ? readLocalUsage() : defaultUsageData()
-  fm.writeString(filePath, JSON.stringify(normalizeUsage(payload, current), null, 2))
-}
-
-async function fetchRemoteUsage(localFallback) {
-  const req = new Request(REMOTE_USAGE_URL)
-  req.timeoutInterval = 8
-  req.headers = { Accept: "application/json" }
-  const payload = await req.loadJSON()
-  return normalizeUsage(payload, localFallback)
-}
-
-async function loadCurrentData() {
-  const localData = readLocalUsage()
-
-  try {
-    const remote = await fetchRemoteUsage(localData)
-    saveLocalUsage(remote)
-    return {
-      data: remote,
-      warning: ""
-    }
-  } catch {
-    return {
-      data: localData,
-      warning: "Falha na rede. Exibindo dados locais."
-    }
-  }
-}
-
-let data = defaultUsageData()
-let dataLoadWarning = ""
-
-async function main() {
-  const loaded = await loadCurrentData()
-  data = loaded.data
-  dataLoadWarning = loaded.warning
-}
-
-await main()
-
-const now = new Date()
-
 function clampPercent(value, fallback = null) {
   if (value === null || value === undefined || value === "") return fallback
   const n = Number(value)
@@ -144,27 +50,171 @@ function clampPercent(value, fallback = null) {
   return Math.max(0, Math.min(100, Math.round(n)))
 }
 
+function validDateFromISO(value) {
+  if (!value) return null
+  const d = new Date(value)
+  return Number.isFinite(d.getTime()) ? d : null
+}
+
+function hasValidPercentPair(payload) {
+  return (
+    Number.isFinite(Number(payload?.fiveHourPercent)) &&
+    Number.isFinite(Number(payload?.weeklyPercent))
+  )
+}
+
+function normalizeUsage(raw = {}, fallback = emptyUsageData()) {
+  const base = fallback || emptyUsageData()
+
+  return {
+    ...base,
+    fiveHourPercent: clampPercent(raw.fiveHourPercent, base.fiveHourPercent),
+    fiveHourReset: validDateFromISO(raw.fiveHourReset)
+      ? new Date(raw.fiveHourReset).toISOString()
+      : base.fiveHourReset,
+    weeklyPercent: clampPercent(raw.weeklyPercent, base.weeklyPercent),
+    weeklyReset: validDateFromISO(raw.weeklyReset)
+      ? new Date(raw.weeklyReset).toISOString()
+      : base.weeklyReset,
+    lastUpdated: validDateFromISO(raw.lastUpdated)
+      ? new Date(raw.lastUpdated).toISOString()
+      : base.lastUpdated,
+    statusLabel: String(raw.statusLabel || base.statusLabel || "--"),
+    fiveHourSafeRate: String(raw.fiveHourSafeRate || base.fiveHourSafeRate || "--/h"),
+    weeklyRemaining: String(raw.weeklyRemaining || base.weeklyRemaining || "--"),
+    realDailyRate: String(raw.realDailyRate || base.realDailyRate || "--/d"),
+    safeDailyRate: String(raw.safeDailyRate || base.safeDailyRate || "--/d"),
+    dailyDiff: String(raw.dailyDiff || base.dailyDiff || "--/d"),
+    weeklyProjection: String(raw.weeklyProjection || base.weeklyProjection || "--%"),
+    zeroIn: String(raw.zeroIn || base.zeroIn || "--"),
+    history: {
+      cycleStart: validDateFromISO(raw.history?.cycleStart)
+        ? new Date(raw.history.cycleStart).toISOString()
+        : base.history?.cycleStart || null
+    }
+  }
+}
+
+function readLocalUsage() {
+  if (!fm.fileExists(filePath)) {
+    return {
+      data: emptyUsageData(),
+      ok: false,
+      warning: "Sem cache local."
+    }
+  }
+
+  try {
+    const parsed = JSON.parse(fm.readString(filePath))
+    const normalized = normalizeUsage(parsed, emptyUsageData())
+
+    if (!hasValidPercentPair(normalized)) {
+      return {
+        data: normalized,
+        ok: false,
+        warning: "Cache local sem percentuais válidos."
+      }
+    }
+
+    return {
+      data: normalized,
+      ok: true,
+      warning: ""
+    }
+  } catch (error) {
+    return {
+      data: emptyUsageData(),
+      ok: false,
+      warning: `Cache local inválido: ${String(error).slice(0, 60)}`
+    }
+  }
+}
+
+function saveLocalUsage(payload) {
+  const normalized = normalizeUsage(payload, emptyUsageData())
+
+  if (!hasValidPercentPair(normalized)) {
+    return false
+  }
+
+  fm.writeString(filePath, JSON.stringify(normalized, null, 2))
+  return true
+}
+
+async function fetchRemoteUsage(localFallback) {
+  const req = new Request(REMOTE_USAGE_URL)
+  req.timeoutInterval = 8
+  req.headers = {
+    Accept: "application/json",
+    "Cache-Control": "no-cache"
+  }
+
+  const payload = await req.loadJSON()
+  const normalized = normalizeUsage(payload, localFallback || emptyUsageData())
+
+  if (!hasValidPercentPair(normalized)) {
+    throw new Error("payload remoto sem percentuais válidos")
+  }
+
+  return normalized
+}
+
+async function loadCurrentData() {
+  const local = readLocalUsage()
+
+  try {
+    const remote = await fetchRemoteUsage(local.data)
+    saveLocalUsage(remote)
+    return {
+      data: remote,
+      warning: ""
+    }
+  } catch (error) {
+    if (local.ok) {
+      return {
+        data: local.data,
+        warning: "Falha na rede. Exibindo cache local."
+      }
+    }
+
+    return {
+      data: emptyUsageData(),
+      warning: `Sem dados válidos. Rode o atualizador. ${String(error).slice(0, 70)}`
+    }
+  }
+}
+
+let data = emptyUsageData()
+let dataLoadWarning = ""
+
+const loaded = await loadCurrentData()
+data = loaded.data
+dataLoadWarning = loaded.warning
+
+const now = new Date()
+
 function round1(value) {
   const n = Number(value)
   if (!Number.isFinite(n)) return null
   return Math.round(n * 10) / 10
 }
 
+function formatPercent(value) {
+  const n = Number(value)
+  if (!Number.isFinite(n)) return "--%"
+  return `${Math.max(0, Math.min(100, Math.round(n)))}%`
+}
+
 function formatClock(date) {
+  if (!date) return "--"
   return date.toLocaleTimeString("pt-BR", {
     hour: "2-digit",
     minute: "2-digit"
   })
 }
 
-function formatDateTime(date) {
-  const day = String(date.getDate()).padStart(2, "0")
-  const months = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"]
-  const month = months[date.getMonth()]
-  return `${day} de ${month}. às ${formatClock(date)}`
-}
-
 function formatShortDate(date) {
+  if (!date) return "--"
   const dd = String(date.getDate()).padStart(2, "0")
   const mm = String(date.getMonth() + 1).padStart(2, "0")
   return `${dd}/${mm}`
@@ -185,8 +235,10 @@ function formatDuration(ms) {
 }
 
 function colorFor(percent) {
-  if (percent <= 10) return new Color("#ff3b30")
-  if (percent <= 30) return new Color("#ff9500")
+  const n = Number(percent)
+  if (!Number.isFinite(n)) return new Color("#ffffff", 0.58)
+  if (n <= 10) return new Color("#ff3b30")
+  if (n <= 30) return new Color("#ff9500")
   return new Color("#ffffff")
 }
 
@@ -198,15 +250,10 @@ function primaryColor() {
   return Color.dynamic(Color.white(), Color.white())
 }
 
-function validDateFromISO(value) {
-  if (!value) return null
-  const d = new Date(value)
-  return Number.isFinite(d.getTime()) ? d : null
-}
-
 async function loadLogo() {
   try {
     const req = new Request(LOGO_URL)
+    req.timeoutInterval = 6
     return await req.loadImage()
   } catch {
     return null
@@ -214,15 +261,25 @@ async function loadLogo() {
 }
 
 function applyAutoResets() {
-  const fiveReset = validDateFromISO(data.fiveHourReset)
+  let changed = false
 
-  if (fiveReset && now >= fiveReset) {
+  const fiveReset = validDateFromISO(data.fiveHourReset)
+  if (
+    Number.isFinite(Number(data.fiveHourPercent)) &&
+    fiveReset &&
+    now >= fiveReset
+  ) {
     data.fiveHourPercent = 100
     data.fiveHourReset = null
+    changed = true
   }
 
   const weeklyReset = validDateFromISO(data.weeklyReset)
-  if (weeklyReset && now >= weeklyReset) {
+  if (
+    Number.isFinite(Number(data.weeklyPercent)) &&
+    weeklyReset &&
+    now >= weeklyReset
+  ) {
     data.weeklyPercent = 100
 
     const nextWeekly = new Date(weeklyReset)
@@ -231,32 +288,46 @@ function applyAutoResets() {
     }
 
     data.weeklyReset = nextWeekly.toISOString()
+    changed = true
   }
 
-  data.fiveHourPercent = clampPercent(data.fiveHourPercent)
-  data.weeklyPercent = clampPercent(data.weeklyPercent)
+  data.fiveHourPercent = clampPercent(data.fiveHourPercent, data.fiveHourPercent)
+  data.weeklyPercent = clampPercent(data.weeklyPercent, data.weeklyPercent)
 
-  saveLocalUsage(data)
+  if (changed && hasValidPercentPair(data)) {
+    saveLocalUsage(data)
+  }
 }
 
 function inferWeeklyStart(weeklyResetTime) {
+  if (!weeklyResetTime) return null
   const d = new Date(weeklyResetTime)
   d.setDate(d.getDate() - 7)
-  return d
+  return Number.isFinite(d.getTime()) ? d : null
 }
 
 function computeWeeklyMetrics() {
-  const weeklyResetTime = validDateFromISO(data.weeklyReset) || buildWeeklyResetFallback(now) || now
+  const weeklyResetTime = validDateFromISO(data.weeklyReset)
   const weeklyStartTime = inferWeeklyStart(weeklyResetTime)
+  const remaining = clampPercent(data.weeklyPercent, null)
 
-  const totalMs = weeklyResetTime.getTime() - weeklyStartTime.getTime()
+  if (!weeklyResetTime || !weeklyStartTime || remaining === null) {
+    return {
+      weeklyResetTime,
+      weeklyStartTime,
+      remaining,
+      used: null,
+      remainingMs: NaN,
+      avgUsedPerDay: null,
+      safeRemainingPerDay: null,
+      deltaPerDay: null
+    }
+  }
+
   const elapsedMs = Math.max(0, now.getTime() - weeklyStartTime.getTime())
   const remainingMs = Math.max(0, weeklyResetTime.getTime() - now.getTime())
-
   const elapsedDays = elapsedMs / 86400000
   const remainingDays = remainingMs / 86400000
-
-  const remaining = clampPercent(data.weeklyPercent)
   const used = 100 - remaining
 
   const avgUsedPerDay = elapsedDays > 0 ? used / elapsedDays : null
@@ -266,53 +337,34 @@ function computeWeeklyMetrics() {
       ? avgUsedPerDay - safeRemainingPerDay
       : null
 
-  const projectedFinal =
-    avgUsedPerDay !== null
-      ? remaining - avgUsedPerDay * remainingDays
-      : null
-
-  const depletionMs =
-    avgUsedPerDay && avgUsedPerDay > 0
-      ? (remaining / avgUsedPerDay) * 86400000
-      : null
-
-  const depletionDate =
-    depletionMs !== null
-      ? new Date(now.getTime() + depletionMs)
-      : null
-
   return {
     weeklyResetTime,
     weeklyStartTime,
-    totalMs,
-    elapsedMs,
-    remainingMs,
-    elapsedDays,
-    remainingDays,
     remaining,
     used,
+    remainingMs,
     avgUsedPerDay,
     safeRemainingPerDay,
-    deltaPerDay,
-    projectedFinal,
-    depletionDate
+    deltaPerDay
   }
 }
 
 function computeFiveMetrics() {
   const fiveResetTime = validDateFromISO(data.fiveHourReset)
-  const remaining = clampPercent(data.fiveHourPercent)
-  const used = 100 - remaining
+  const remaining = clampPercent(data.fiveHourPercent, null)
   const remainingMs = fiveResetTime ? fiveResetTime.getTime() - now.getTime() : NaN
+
   const safePerHour =
-    Number.isFinite(remainingMs) && remainingMs > 0
+    Number.isFinite(remainingMs) &&
+    remainingMs > 0 &&
+    remaining !== null
       ? remaining / (remainingMs / 3600000)
       : null
 
   return {
     fiveResetTime,
     remaining,
-    used,
+    used: remaining === null ? null : 100 - remaining,
     remainingMs,
     safePerHour
   }
@@ -321,14 +373,13 @@ function computeFiveMetrics() {
 applyAutoResets()
 
 const fiveHourResetTime = validDateFromISO(data.fiveHourReset)
-const weeklyResetTime = validDateFromISO(data.weeklyReset) || buildWeeklyResetFallback(now) || now
+const weeklyResetTime = validDateFromISO(data.weeklyReset)
 
 const fiveMs = fiveHourResetTime ? fiveHourResetTime.getTime() - Date.now() : NaN
-const weeklyMs = weeklyResetTime.getTime() - Date.now()
+const weeklyMs = weeklyResetTime ? weeklyResetTime.getTime() - Date.now() : NaN
 
 const weeklyMetrics = computeWeeklyMetrics()
 const fiveMetrics = computeFiveMetrics()
-
 const logo = await loadLogo()
 
 function addHeader(widget, compact = false) {
@@ -343,7 +394,7 @@ function addHeader(widget, compact = false) {
   }
 
   const title = header.addText("Analítica do Codex")
-  title.font = compact ? Font.boldSystemFont(11) : Font.boldSystemFont(11)
+  title.font = Font.boldSystemFont(11)
   title.textColor = primaryColor()
   title.minimumScaleFactor = 0.75
   title.lineLimit = 1
@@ -351,9 +402,16 @@ function addHeader(widget, compact = false) {
   header.addSpacer()
 }
 
+function progressWidth(percent, barWidth) {
+  const n = Number(percent)
+  if (!Number.isFinite(n) || n <= 0) return 0
+  return Math.max(4, barWidth * (Math.max(0, Math.min(100, n)) / 100))
+}
+
 function buildDashboardCard(parent, title, percent, msUntil, resetDisplay, barWidth, options = {}) {
   const inactive = Boolean(options.inactive)
   const secondaryText = options.secondaryText || ""
+  const hasPercent = Number.isFinite(Number(percent))
 
   const card = parent.addStack()
   card.layoutVertically()
@@ -375,7 +433,7 @@ function buildDashboardCard(parent, title, percent, msUntil, resetDisplay, barWi
   percentRow.layoutHorizontally()
   percentRow.centerAlignContent()
 
-  const value = percentRow.addText(`${percent}%`)
+  const value = percentRow.addText(formatPercent(percent))
   value.font = Font.boldSystemFont(36)
   value.textColor = primaryColor()
   value.minimumScaleFactor = 0.8
@@ -403,9 +461,10 @@ function buildDashboardCard(parent, title, percent, msUntil, resetDisplay, barWi
   bg.backgroundColor = Color.dynamic(new Color("#ffffff", 0.38), new Color("#ffffff", 0.28))
   bg.cornerRadius = 7
 
-  if (percent > 0) {
+  const fillWidth = progressWidth(percent, barWidth)
+  if (fillWidth > 0) {
     const fill = bg.addStack()
-    fill.size = new Size(Math.max(4, barWidth * (percent / 100)), 6)
+    fill.size = new Size(fillWidth, 6)
     fill.backgroundColor = inactive ? new Color("#ffffff", 0.72) : colorFor(percent)
     fill.cornerRadius = 7
   }
@@ -415,7 +474,7 @@ function buildDashboardCard(parent, title, percent, msUntil, resetDisplay, barWi
 
   card.addSpacer(6)
 
-  const resetText = `${formatDuration(msUntil)} • ${resetDisplay}`
+  const resetText = hasPercent ? `${formatDuration(msUntil)} • ${resetDisplay}` : "sem dados válidos"
   const reset = card.addText(resetText)
   reset.font = Font.systemFont(8)
   reset.textColor = mutedColor()
@@ -442,14 +501,17 @@ function createSmallWidget() {
   addHeader(w, true)
   w.addSpacer(12)
 
-  const fTitle = w.addText(`5h • ${data.fiveHourPercent}%`)
+  const fTitle = w.addText(`5h • ${formatPercent(data.fiveHourPercent)}`)
   fTitle.font = Font.boldSystemFont(14)
   fTitle.textColor = primaryColor()
   fTitle.lineLimit = 1
 
-  const fiveText = fiveHourResetTime
-    ? `${formatDuration(fiveMs)} • ${formatClock(fiveHourResetTime)}`
-    : "cheio • sem ciclo"
+  const fiveText =
+    Number.isFinite(Number(data.fiveHourPercent))
+      ? fiveHourResetTime
+        ? `${formatDuration(fiveMs)} • ${formatClock(fiveHourResetTime)}`
+        : "cheio • sem ciclo"
+      : "sem dados válidos"
 
   const fSub = w.addText(fiveText)
   fSub.font = Font.systemFont(10)
@@ -470,13 +532,18 @@ function createSmallWidget() {
   const weeklySafe = round1(weeklyMetrics.safeRemainingPerDay)
   const weeklyAvg = round1(weeklyMetrics.avgUsedPerDay)
 
-  const wTitle = w.addText(`Semanal • ${data.weeklyPercent}%`)
+  const wTitle = w.addText(`Semanal • ${formatPercent(data.weeklyPercent)}`)
   wTitle.font = Font.boldSystemFont(14)
   wTitle.textColor = primaryColor()
   wTitle.minimumScaleFactor = 0.7
   wTitle.lineLimit = 1
 
-  const wSub = w.addText(`${formatDuration(weeklyMs)} • seguro ${weeklySafe ?? "—"}%/d`)
+  const weeklyLine =
+    Number.isFinite(Number(data.weeklyPercent))
+      ? `${formatDuration(weeklyMs)} • seguro ${weeklySafe ?? "—"}%/d`
+      : "sem dados válidos"
+
+  const wSub = w.addText(weeklyLine)
   wSub.font = Font.systemFont(10)
   wSub.textColor = mutedColor()
   wSub.minimumScaleFactor = 0.7
@@ -505,12 +572,14 @@ function createMediumWidget() {
   const barW = 124
 
   const fiveDisplay = fiveHourResetTime ? formatClock(fiveHourResetTime) : "sem ciclo"
-  const fiveInactive = !fiveHourResetTime && data.fiveHourPercent >= 100
+  const fiveInactive = !fiveHourResetTime && Number(data.fiveHourPercent) >= 100
 
   const fiveSecondary =
     fiveMetrics.safePerHour !== null
       ? `seguro ${round1(fiveMetrics.safePerHour)}%/h`
-      : "sem consumo ativo"
+      : Number.isFinite(Number(data.fiveHourPercent))
+        ? "sem consumo ativo"
+        : "rode o atualizador"
 
   buildDashboardCard(
     row,
@@ -531,13 +600,15 @@ function createMediumWidget() {
   const weeklyAvg = round1(weeklyMetrics.avgUsedPerDay)
   const delta = round1(weeklyMetrics.deltaPerDay)
 
-  let weeklySecondary = `seguro ${weeklySafe ?? "—"}%/d`
-  if (weeklyAvg !== null) {
-    weeklySecondary += ` × ${weeklyAvg}%/d`
-  }
-
-  if (delta !== null) {
-    weeklySecondary += delta > 0 ? ` (+${delta})` : ` (${delta}`
+  let weeklySecondary = "rode o atualizador"
+  if (Number.isFinite(Number(data.weeklyPercent))) {
+    weeklySecondary = `seguro ${weeklySafe ?? "—"}%/d`
+    if (weeklyAvg !== null) {
+      weeklySecondary += ` × ${weeklyAvg}%/d`
+    }
+    if (delta !== null) {
+      weeklySecondary += delta > 0 ? ` (+${delta})` : ` (${delta})`
+    }
   }
 
   buildDashboardCard(
@@ -561,212 +632,18 @@ function createMediumWidget() {
   }
 
   w.addSpacer()
-
   return w
-}
-
-async function promptPercent(title, currentValue) {
-  const a = new Alert()
-  a.title = title
-  a.message = `valor atual: ${currentValue}%`
-  a.addTextField("percentual restante", String(currentValue))
-  a.addAction("Salvar")
-  a.addCancelAction("Cancelar")
-
-  const r = await a.present()
-  if (r === -1) return null
-
-  return clampPercent(a.textFieldValue(0))
-}
-
-function toInputDateTime(date) {
-  const yyyy = date.getFullYear()
-  const mm = String(date.getMonth() + 1).padStart(2, "0")
-  const dd = String(date.getDate()).padStart(2, "0")
-  const hh = String(date.getHours()).padStart(2, "0")
-  const mi = String(date.getMinutes()).padStart(2, "0")
-  return `${yyyy}-${mm}-${dd} ${hh}:${mi}`
-}
-
-function parseInputDateTime(value) {
-  const m = value.trim().match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})$/)
-  if (!m) return null
-
-  const [, y, mo, d, h, mi] = m
-  const date = new Date(Number(y), Number(mo) - 1, Number(d), Number(h), Number(mi), 0)
-  return Number.isFinite(date.getTime()) ? date : null
-}
-
-function nextDefaultFiveHourReset() {
-  const d = new Date()
-  d.setHours(d.getHours() + 5)
-  d.setSeconds(0)
-  d.setMilliseconds(0)
-  return d
-}
-
-async function promptDateTime(title, message, currentDate) {
-  const a = new Alert()
-  a.title = title
-  a.message = message
-  a.addTextField("AAAA-MM-DD HH:mm", toInputDateTime(currentDate))
-  a.addAction("Salvar")
-  a.addCancelAction("Cancelar")
-
-  const r = await a.present()
-  if (r === -1) return null
-
-  return parseInputDateTime(a.textFieldValue(0))
-}
-
-async function promptFiveHourResetQuick() {
-  const current = fiveHourResetTime || nextDefaultFiveHourReset()
-
-  const a = new Alert()
-  a.title = "Renovação 5h"
-  a.message = "escolha um atalho ou ajuste manualmente."
-  a.addAction("+5h a partir de agora")
-  a.addAction("Hoje em outro horário")
-  a.addAction("Amanhã em outro horário")
-  a.addAction("Data e hora manual")
-  a.addCancelAction("Cancelar")
-
-  const r = await a.present()
-  if (r === -1) return null
-
-  if (r === 0) return nextDefaultFiveHourReset()
-
-  if (r === 1 || r === 2) {
-    const base = new Date()
-    if (r === 2) base.setDate(base.getDate() + 1)
-
-    const h = new Alert()
-    h.title = r === 1 ? "Hoje em qual horário?" : "Amanhã em qual horário?"
-    h.message = "use HH:mm"
-    h.addTextField("HH:mm", formatClock(current))
-    h.addAction("Salvar")
-    h.addCancelAction("Cancelar")
-
-    const hr = await h.present()
-    if (hr === -1) return null
-
-    const m = h.textFieldValue(0).trim().match(/^(\d{1,2}):(\d{2})$/)
-    if (!m) return null
-
-    base.setHours(Number(m[1]), Number(m[2]), 0, 0)
-    return Number.isFinite(base.getTime()) ? base : null
-  }
-
-  if (r === 3) {
-    return await promptDateTime(
-      "Renovação 5h",
-      "ajuste a próxima renovação do limite de 5h.",
-      current
-    )
-  }
-
-  return null
-}
-
-async function promptWeeklyReset() {
-  return await promptDateTime(
-    "Redefinição semanal",
-    "mantenha ou ajuste a próxima redefinição semanal.",
-    weeklyResetTime
-  )
-}
-
-async function runInteractive() {
-  const fiveStatus = fiveHourResetTime
-    ? `${formatClock(fiveHourResetTime)} · ${formatDuration(fiveMs)}`
-    : "sem ciclo ativo"
-
-  const weeklySafe = round1(weeklyMetrics.safeRemainingPerDay)
-  const weeklyAvg = round1(weeklyMetrics.avgUsedPerDay)
-  const delta = round1(weeklyMetrics.deltaPerDay)
-
-  const a = new Alert()
-  a.title = "Analítica do Codex"
-  a.message =
-`${dataLoadWarning ? dataLoadWarning + "\n\n" : ""}5h: ${data.fiveHourPercent}% restante
-renova: ${fiveStatus}
-
-semana: ${data.weeklyPercent}% restante
-renova: ${formatDateTime(weeklyResetTime)} · ${formatDuration(weeklyMs)}
-seguro: ${weeklySafe ?? "—"}%/d
-média atual: ${weeklyAvg ?? "—"}%/d
-diferença: ${delta === null ? "—" : delta > 0 ? "+" + delta + "%/d" : delta + "%/d"}`
-
-  a.addAction("Atualizar 5h")
-  a.addAction("Definir renovação 5h")
-  a.addAction("5h cheio / sem ciclo")
-  a.addAction("Atualizar semanal")
-  a.addAction("Abrir analítica")
-  a.addCancelAction("Cancelar")
-
-  const r = await a.present()
-
-  if (r === 0) {
-    const p = await promptPercent("Atualizar limite de 5 horas", data.fiveHourPercent)
-    if (p !== null) {
-      data.fiveHourPercent = p
-      data.lastUpdated = new Date().toISOString()
-
-      if (p < 100 && !validDateFromISO(data.fiveHourReset)) {
-        const next = await promptFiveHourResetQuick()
-        if (next) data.fiveHourReset = next.toISOString()
-      }
-    }
-  }
-
-  if (r === 1) {
-    const next = await promptFiveHourResetQuick()
-    if (next) {
-      data.fiveHourReset = next.toISOString()
-      data.lastUpdated = new Date().toISOString()
-    }
-  }
-
-  if (r === 2) {
-    data.fiveHourPercent = 100
-    data.fiveHourReset = null
-    data.lastUpdated = new Date().toISOString()
-  }
-
-  if (r === 3) {
-    const p = await promptPercent("Atualizar limite semanal", data.weeklyPercent)
-    if (p !== null) {
-      data.weeklyPercent = p
-      data.lastUpdated = new Date().toISOString()
-    }
-
-    const editReset = new Alert()
-    editReset.title = "Reset semanal"
-    editReset.message = "deseja ajustar a data/hora da próxima redefinição semanal?"
-    editReset.addAction("Manter")
-    editReset.addAction("Ajustar")
-    const er = await editReset.present()
-
-    if (er === 1) {
-      const next = await promptWeeklyReset()
-      if (next) data.weeklyReset = next.toISOString()
-    }
-  }
-
-  if (r === 4) {
-    Safari.open(CODEX_ANALYTICS_URL)
-  }
-
-  data.fiveHourPercent = clampPercent(data.fiveHourPercent)
-  data.weeklyPercent = clampPercent(data.weeklyPercent)
-
-  saveLocalUsage(data)
-}
-
-if (!config.runsInWidget) {
-  await runInteractive()
 }
 
 const widget = config.widgetFamily === "small" ? createSmallWidget() : createMediumWidget()
 Script.setWidget(widget)
+
+if (!config.runsInWidget) {
+  if (config.widgetFamily === "small") {
+    await widget.presentSmall()
+  } else {
+    await widget.presentMedium()
+  }
+}
+
 Script.complete()

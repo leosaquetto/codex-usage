@@ -12,7 +12,7 @@ const DEFAULT_WEEKLY_RESET = "2026-04-28T19:35:00-03:00"
 // GitHub (não hardcode token: usar Keychain)
 const GITHUB_OWNER = "leosaquetto"
 const GITHUB_REPO = "codex-usage"
-const GITHUB_BRANCH = "staging" // use "main" quando quiser atualizar o JSON usado pela produção
+const GITHUB_BRANCH = "main" // produção lê main; use "staging" apenas para teste/preview
 const GITHUB_FILE_PATH = "codex_usage.json"
 const GITHUB_TOKEN_KEYCHAIN_KEY = "codex_usage_github_token"
 

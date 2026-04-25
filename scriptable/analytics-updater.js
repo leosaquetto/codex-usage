@@ -1,21 +1,13 @@
 // Analítica do Codex — Scriptable Widget
 // Small + Medium
 // Somente leitura/renderização.
-// Fonte oficial: https://codex-usage.vercel.app/api/usage
-// Cache local/iCloud: iCloud Drive/Scriptable/Analítica do Codex/codex_usage.json
+// Fonte única: https://codex-usage.vercel.app/api/usage
 //
+// Este script NÃO lê cache local.
+// Este script NÃO escreve codex_usage.json local.
 // Este script NÃO captura a página do Codex.
 // Este script NÃO publica no GitHub.
 // Este script NÃO edita percentuais manualmente.
-// Quem atualiza os dados é o capturador: scriptable/webview-hidden-auto-update-v3.js
-
-const fm = FileManager.iCloud()
-const folderPath = fm.joinPath(fm.documentsDirectory(), "Analítica do Codex")
-if (!fm.fileExists(folderPath)) {
-  fm.createDirectory(folderPath)
-}
-
-const filePath = fm.joinPath(folderPath, "codex_usage.json")
 
 const REMOTE_USAGE_URL_PRODUCTION = "https://codex-usage.vercel.app/api/usage"
 const REMOTE_USAGE_URL_STAGING = "https://codex-usage-staging.vercel.app/api/usage"
@@ -58,91 +50,42 @@ function validDateFromISO(value) {
 
 function hasValidPercentPair(payload) {
   return (
-    Number.isFinite(Number(payload?.fiveHourPercent)) &&
-    Number.isFinite(Number(payload?.weeklyPercent))
+    clampPercent(payload?.fiveHourPercent, null) !== null &&
+    clampPercent(payload?.weeklyPercent, null) !== null
   )
 }
 
-function normalizeUsage(raw = {}, fallback = emptyUsageData()) {
-  const base = fallback || emptyUsageData()
-
+function normalizeUsage(raw = {}) {
   return {
-    ...base,
-    fiveHourPercent: clampPercent(raw.fiveHourPercent, base.fiveHourPercent),
+    fiveHourPercent: clampPercent(raw.fiveHourPercent, null),
     fiveHourReset: validDateFromISO(raw.fiveHourReset)
       ? new Date(raw.fiveHourReset).toISOString()
-      : base.fiveHourReset,
-    weeklyPercent: clampPercent(raw.weeklyPercent, base.weeklyPercent),
+      : null,
+    weeklyPercent: clampPercent(raw.weeklyPercent, null),
     weeklyReset: validDateFromISO(raw.weeklyReset)
       ? new Date(raw.weeklyReset).toISOString()
-      : base.weeklyReset,
+      : null,
     lastUpdated: validDateFromISO(raw.lastUpdated)
       ? new Date(raw.lastUpdated).toISOString()
-      : base.lastUpdated,
-    statusLabel: String(raw.statusLabel || base.statusLabel || "--"),
-    fiveHourSafeRate: String(raw.fiveHourSafeRate || base.fiveHourSafeRate || "--/h"),
-    weeklyRemaining: String(raw.weeklyRemaining || base.weeklyRemaining || "--"),
-    realDailyRate: String(raw.realDailyRate || base.realDailyRate || "--/d"),
-    safeDailyRate: String(raw.safeDailyRate || base.safeDailyRate || "--/d"),
-    dailyDiff: String(raw.dailyDiff || base.dailyDiff || "--/d"),
-    weeklyProjection: String(raw.weeklyProjection || base.weeklyProjection || "--%"),
-    zeroIn: String(raw.zeroIn || base.zeroIn || "--"),
+      : null,
+    statusLabel: String(raw.statusLabel || "--"),
+    fiveHourSafeRate: String(raw.fiveHourSafeRate || "--/h"),
+    weeklyRemaining: String(raw.weeklyRemaining || "--"),
+    realDailyRate: String(raw.realDailyRate || "--/d"),
+    safeDailyRate: String(raw.safeDailyRate || "--/d"),
+    dailyDiff: String(raw.dailyDiff || "--/d"),
+    weeklyProjection: String(raw.weeklyProjection || "--%"),
+    zeroIn: String(raw.zeroIn || "--"),
     history: {
       cycleStart: validDateFromISO(raw.history?.cycleStart)
         ? new Date(raw.history.cycleStart).toISOString()
-        : base.history?.cycleStart || null
+        : null
     }
   }
 }
 
-function readLocalUsage() {
-  if (!fm.fileExists(filePath)) {
-    return {
-      data: emptyUsageData(),
-      ok: false,
-      warning: "Sem cache local."
-    }
-  }
-
-  try {
-    const parsed = JSON.parse(fm.readString(filePath))
-    const normalized = normalizeUsage(parsed, emptyUsageData())
-
-    if (!hasValidPercentPair(normalized)) {
-      return {
-        data: normalized,
-        ok: false,
-        warning: "Cache local sem percentuais válidos."
-      }
-    }
-
-    return {
-      data: normalized,
-      ok: true,
-      warning: ""
-    }
-  } catch (error) {
-    return {
-      data: emptyUsageData(),
-      ok: false,
-      warning: `Cache local inválido: ${String(error).slice(0, 60)}`
-    }
-  }
-}
-
-function saveLocalUsage(payload) {
-  const normalized = normalizeUsage(payload, emptyUsageData())
-
-  if (!hasValidPercentPair(normalized)) {
-    return false
-  }
-
-  fm.writeString(filePath, JSON.stringify(normalized, null, 2))
-  return true
-}
-
-async function fetchRemoteUsage(localFallback) {
-  const req = new Request(REMOTE_USAGE_URL)
+async function fetchRemoteUsage() {
+  const req = new Request(`${REMOTE_USAGE_URL}?t=${Date.now()}`)
   req.timeoutInterval = 8
   req.headers = {
     Accept: "application/json",
@@ -150,7 +93,7 @@ async function fetchRemoteUsage(localFallback) {
   }
 
   const payload = await req.loadJSON()
-  const normalized = normalizeUsage(payload, localFallback || emptyUsageData())
+  const normalized = normalizeUsage(payload)
 
   if (!hasValidPercentPair(normalized)) {
     throw new Error("payload remoto sem percentuais válidos")
@@ -159,37 +102,15 @@ async function fetchRemoteUsage(localFallback) {
   return normalized
 }
 
-async function loadCurrentData() {
-  const local = readLocalUsage()
-
-  try {
-    const remote = await fetchRemoteUsage(local.data)
-    saveLocalUsage(remote)
-    return {
-      data: remote,
-      warning: ""
-    }
-  } catch (error) {
-    if (local.ok) {
-      return {
-        data: local.data,
-        warning: "Falha na rede. Exibindo cache local."
-      }
-    }
-
-    return {
-      data: emptyUsageData(),
-      warning: `Sem dados válidos. Rode o atualizador. ${String(error).slice(0, 70)}`
-    }
-  }
-}
-
 let data = emptyUsageData()
 let dataLoadWarning = ""
 
-const loaded = await loadCurrentData()
-data = loaded.data
-dataLoadWarning = loaded.warning
+try {
+  data = await fetchRemoteUsage()
+} catch (error) {
+  data = emptyUsageData()
+  dataLoadWarning = `API indisponível. Rode o atualizador. ${String(error).slice(0, 70)}`
+}
 
 const now = new Date()
 
@@ -257,45 +178,6 @@ async function loadLogo() {
     return await req.loadImage()
   } catch {
     return null
-  }
-}
-
-function applyAutoResets() {
-  let changed = false
-
-  const fiveReset = validDateFromISO(data.fiveHourReset)
-  if (
-    Number.isFinite(Number(data.fiveHourPercent)) &&
-    fiveReset &&
-    now >= fiveReset
-  ) {
-    data.fiveHourPercent = 100
-    data.fiveHourReset = null
-    changed = true
-  }
-
-  const weeklyReset = validDateFromISO(data.weeklyReset)
-  if (
-    Number.isFinite(Number(data.weeklyPercent)) &&
-    weeklyReset &&
-    now >= weeklyReset
-  ) {
-    data.weeklyPercent = 100
-
-    const nextWeekly = new Date(weeklyReset)
-    while (nextWeekly <= now) {
-      nextWeekly.setDate(nextWeekly.getDate() + 7)
-    }
-
-    data.weeklyReset = nextWeekly.toISOString()
-    changed = true
-  }
-
-  data.fiveHourPercent = clampPercent(data.fiveHourPercent, data.fiveHourPercent)
-  data.weeklyPercent = clampPercent(data.weeklyPercent, data.weeklyPercent)
-
-  if (changed && hasValidPercentPair(data)) {
-    saveLocalUsage(data)
   }
 }
 
@@ -369,8 +251,6 @@ function computeFiveMetrics() {
     safePerHour
   }
 }
-
-applyAutoResets()
 
 const fiveHourResetTime = validDateFromISO(data.fiveHourReset)
 const weeklyResetTime = validDateFromISO(data.weeklyReset)

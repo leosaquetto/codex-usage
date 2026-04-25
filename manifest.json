@@ -1,0 +1,31 @@
+{
+  "name": "Analítica do Codex",
+  "short_name": "Codex",
+  "description": "Dashboard local de consumo do Codex.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#86bdf5",
+  "theme_color": "#86bdf5",
+  "icons": [
+    {
+      "src": "/webapp/assets/logo_background.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/webapp/assets/logo_background.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/webapp/assets/logo_background.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

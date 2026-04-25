@@ -4,25 +4,23 @@ Nota: edite sempre o `.js` legível em `scriptable/analytics-updater.js`; o expo
 
 ## Fluxo de branches e ambientes
 
-- O desenvolvimento e a validação acontecem em `staging`.
+- Produção = `main`.
+- Teste/preview = `staging`.
 - O merge final para release é `staging -> main`.
-- A branch `staging` também é usada para testes/preview da publicação do JSON consumido pelo Scriptable.
-- A branch `main` deve ser usada para publicação quando a produção estiver lendo `main`.
 
 ## Produção e deploy
 
-- Produção é a branch `main`.
-- O deploy de produção na Vercel é manual.
-
-## Estrutura do repositório
-
-- O dashboard web estático fica na raiz do projeto.
+- O deploy de produção na Vercel (branch `main`) é manual.
+- O dashboard web estático fica na raiz do projeto (`index.html`, `style.css`, `app.js`, `vercel.json`).
 - Os scripts iOS ficam em `scriptable/`.
+
+## Publicação de dados via Scriptable
+
+- O Scriptable publica `codex_usage.json` na `main` por padrão.
+- `staging` pode ser usada apenas para teste/preview quando necessário.
+- Alterações em `codex_usage.json` via Scriptable não exigem novo deploy.
+- Alterações em `index.html`, `style.css`, `app.js` ou `vercel.json` exigem novo deploy manual.
 
 ## Token de acesso
 
 - A chave de token usada no ambiente local deve estar no Keychain com o nome: `codex_usage_github_token`.
-
-## Atualização do JSON via Scriptable
-
-- A atualização de `codex_usage.json` via Scriptable não exige build nem instalação de dependências.

@@ -1,7 +1,7 @@
 const SAFE_FALLBACK = {
-  fiveHourPercent: 0,
+  fiveHourPercent: 100,
   fiveHourReset: null,
-  weeklyPercent: 0,
+  weeklyPercent: 100,
   weeklyReset: null,
   lastUpdated: null,
 };
@@ -55,15 +55,15 @@ function normalizeUsage(raw) {
   };
 }
 
-function setProgress(sectionLabelId, barId, textId, percent) {
+function setProgress(barId, textId, percent) {
   const safePercent = clampPercent(percent);
   const bar = document.getElementById(barId);
   const text = document.getElementById(textId);
-  const section = document.querySelector(`[aria-labelledby="${sectionLabelId}"]`);
+  const progress = bar ? bar.closest(".progress") : null;
 
   if (bar) bar.style.width = `${safePercent}%`;
   if (text) text.textContent = `${safePercent}%`;
-  if (section) section.setAttribute("aria-valuenow", String(safePercent));
+  if (progress) progress.setAttribute("aria-valuenow", String(safePercent));
 }
 
 function updateStatus(fiveHour, weekly, hasLoadError) {
@@ -111,8 +111,8 @@ function resetTextFromDate(date) {
   const fiveHourPercent = usage.fiveHourResetIsNull ? 100 : usage.fiveHourPercent;
   const weeklyPercent = usage.weeklyPercent;
 
-  setProgress("limite-5h-label", "fiveHourBar", "fiveHourPercent", fiveHourPercent);
-  setProgress("limite-semanal-label", "weeklyBar", "weeklyPercent", weeklyPercent);
+  setProgress("fiveHourBar", "fiveHourPercent", fiveHourPercent);
+  setProgress("weeklyBar", "weeklyPercent", weeklyPercent);
 
   const fiveHourReset = document.getElementById("fiveHourReset");
   const weeklyReset = document.getElementById("weeklyReset");

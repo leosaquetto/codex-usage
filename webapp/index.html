@@ -330,7 +330,7 @@
         linear-gradient(155deg, rgba(255,255,255,.18), rgba(255,255,255,.078) 58%, rgba(255,255,255,.12));
       border: 1px solid var(--border);
       border-radius: 24px;
-      padding: 18px;
+      padding: 15px;
       box-shadow:
         0 22px 56px var(--shadow),
         inset 0 1px 0 rgba(255,255,255,.30);
@@ -430,7 +430,7 @@
       color: rgba(255,255,255,.88);
       font-size: 13px;
       line-height: 1.34;
-      min-height: 36px;
+      min-height: 34px;
       letter-spacing: -.015em;
     }
 
@@ -579,7 +579,7 @@
       }
 
       .card {
-        padding: 16px;
+        padding: 14px;
       }
 
       .main-metrics {
@@ -608,7 +608,7 @@
 
       .card {
         border-radius: 20px;
-        padding: 14px;
+        padding: 13px;
       }
 
       .label {
@@ -680,7 +680,7 @@
       }
     }
 
-    @media (max-width: 390px) {
+    @media (max-width: 350px) {
       .cards {
         grid-template-columns: 1fr;
       }
@@ -708,7 +708,7 @@
       }
 
       .card {
-        padding: 13px;
+        padding: 12px;
       }
 
       .main-metrics {
@@ -727,7 +727,7 @@
         </div>
         <div class="title">
           <h1>Analítica do Codex</h1>
-          <div class="subtitle">dashboard local</div>
+          <div class="subtitle">dashboard de uso</div>
         </div>
       </div>
 
@@ -773,9 +773,15 @@
           </div>
 
           <div class="mini">
-            <div class="k">seguro</div>
-            <div class="v" id="fiveHourSafeRate">--/h</div>
+            <div class="k">pode/h</div>
+            <div class="v" id="fiveHourCanPerHour">--%/h</div>
             <div class="s">até renovar</div>
+          </div>
+
+          <div class="mini">
+            <div class="k">usado/h</div>
+            <div class="v" id="fiveHourUsedPerHour">--%/h</div>
+            <div class="s">ciclo de 5h</div>
           </div>
         </div>
       </section>
@@ -802,8 +808,14 @@
           </div>
 
           <div class="mini">
-            <div class="k">restante</div>
-            <div class="v" id="weeklyRemaining">--</div>
+            <div class="k">pode/h</div>
+            <div class="v" id="weeklyCanPerHour">--%/h</div>
+            <div class="s">até renovar</div>
+          </div>
+
+          <div class="mini">
+            <div class="k">pode/dia</div>
+            <div class="v" id="weeklyCanPerDay">--%/d</div>
             <div class="s">até o reset</div>
           </div>
         </div>
@@ -814,6 +826,18 @@
 
     <section class="card">
       <div class="metrics main-metrics">
+        <div class="mini">
+          <div class="k">dias desde reset</div>
+          <div class="v" id="daysSinceReset">--</div>
+          <div class="s">início inferido</div>
+        </div>
+
+        <div class="mini">
+          <div class="k">dias até reset</div>
+          <div class="v" id="daysToReset">--</div>
+          <div class="s">restante semanal</div>
+        </div>
+
         <div class="mini">
           <div class="k">média real</div>
           <div class="v" id="realDailyRate">--/d</div>
@@ -841,13 +865,7 @@
         <div class="mini">
           <div class="k">zera em</div>
           <div class="v" id="zeroIn">--</div>
-          <div class="s">28 de abr., 05:02</div>
-        </div>
-
-        <div class="mini">
-          <div class="k">início do ciclo</div>
-          <div class="v mono" id="cycleStart">--</div>
-          <div class="s">estimado pelo reset</div>
+          <div class="s">se ritmo atual seguir</div>
         </div>
       </div>
 
@@ -864,12 +882,39 @@
     const closeButton = document.getElementById("closeButton")
 
     const API_TIMEOUT_MS = 7000
-    const API_ENDPOINT = "/api/usage"
+    const API_ENDPOINT = "https://raw.githubusercontent.com/leosaquetto/codex-usage/main/codex_usage.json"
 
     function toPercent(value) {
       const n = Number(value)
-      if (Number.isNaN(n)) return 0
-      return Math.max(0, Math.min(100, Math.round(n)))
+      if (Number.isNaN(n)) return null
+      return Math.max(0, Math.min(100, n))
+    }
+
+    function safeDiv(a, b) {
+      if (!Number.isFinite(a) || !Number.isFinite(b) || b <= 0) return null
+      const result = a / b
+      return Number.isFinite(result) ? result : null
+    }
+
+    function hoursUntil(date) {
+      if (!(date instanceof Date) || Number.isNaN(date.getTime())) return null
+      return safeDiv(date.getTime() - Date.now(), 3600000)
+    }
+
+    function parseDate(value) {
+      if (!value) return null
+      const date = new Date(value)
+      return Number.isNaN(date.getTime()) ? null : date
+    }
+
+    function displayValue(value, suffix = "", decimals = 1) {
+      if (!Number.isFinite(value)) return `--${suffix}`
+      return `${value.toFixed(decimals)}${suffix}`
+    }
+
+    function displayPercent(value) {
+      if (!Number.isFinite(value)) return "--%"
+      return `${Math.round(value)}%`
     }
 
     function formatDate(isoValue) {
@@ -885,7 +930,8 @@
     }
 
     function formatDuration(ms) {
-      if (!Number.isFinite(ms) || ms <= 0) return "agora"
+      if (!Number.isFinite(ms) || ms < 0) return "--"
+      if (ms === 0) return "agora"
       const totalMinutes = Math.floor(ms / 60000)
       const days = Math.floor(totalMinutes / 1440)
       const hours = Math.floor((totalMinutes % 1440) / 60)
@@ -902,35 +948,64 @@
       document.getElementById("lastUpdated").textContent = "--"
     }
 
+    function setText(id, text) {
+      document.getElementById(id).textContent = text
+    }
+
     function renderUsage(payload) {
-      const fiveHourPercent = toPercent(payload.fiveHourPercent)
-      const weeklyPercent = toPercent(payload.weeklyPercent)
-      const fiveHourReset = payload.fiveHourReset ? new Date(payload.fiveHourReset) : null
-      const weeklyReset = payload.weeklyReset ? new Date(payload.weeklyReset) : null
+      const fiveHourPercent = toPercent(payload?.fiveHourPercent)
+      const weeklyPercent = toPercent(payload?.weeklyPercent)
+      const fiveHourReset = parseDate(payload?.fiveHourReset)
+      const weeklyReset = parseDate(payload?.weeklyReset)
       const fiveHourMs = fiveHourReset ? fiveHourReset.getTime() - Date.now() : NaN
       const weeklyMs = weeklyReset ? weeklyReset.getTime() - Date.now() : NaN
 
-      document.getElementById("statusText").textContent = payload.statusLabel || "dados carregados"
-      document.getElementById("lastUpdated").textContent = formatDate(payload.lastUpdated)
+      const fiveHourUsed = Number.isFinite(fiveHourPercent) ? Math.max(0, 100 - fiveHourPercent) : null
+      const weeklyUsed = Number.isFinite(weeklyPercent) ? Math.max(0, 100 - weeklyPercent) : null
+      const hoursToFiveHourReset = hoursUntil(fiveHourReset)
+      const hoursToWeeklyReset = hoursUntil(weeklyReset)
+      const daysToWeeklyReset = safeDiv(hoursToWeeklyReset, 24)
+      const fiveHourStart = fiveHourReset ? new Date(fiveHourReset.getTime() - (5 * 3600000)) : null
+      const weeklyStart = weeklyReset ? new Date(weeklyReset.getTime() - (7 * 24 * 3600000)) : null
+      const hoursSinceFiveHourStart = fiveHourStart ? safeDiv(Date.now() - fiveHourStart.getTime(), 3600000) : null
+      const daysSinceWeeklyStart = weeklyStart ? safeDiv(Date.now() - weeklyStart.getTime(), 86400000) : null
 
-      document.getElementById("fiveHourPercent").textContent = `${fiveHourPercent}%`
-      document.getElementById("fiveHourFill").style.width = `${fiveHourPercent}%`
-      document.getElementById("fiveHourLine").innerHTML = `renova em <b>${formatDuration(fiveHourMs)}</b> · ${formatDate(payload.fiveHourReset)}`
-      document.getElementById("fiveHourUsed").textContent = `${100 - fiveHourPercent}%`
-      document.getElementById("fiveHourSafeRate").textContent = payload.fiveHourSafeRate || "--/h"
+      const fiveHourCanPerHour = safeDiv(fiveHourPercent, hoursToFiveHourReset)
+      const fiveHourUsedPerHour = safeDiv(fiveHourUsed, hoursSinceFiveHourStart)
+      const weeklyCanPerHour = safeDiv(weeklyPercent, hoursToWeeklyReset)
+      const weeklyCanPerDay = safeDiv(weeklyPercent, daysToWeeklyReset)
+      const realDailyRate = safeDiv(weeklyUsed, daysSinceWeeklyStart)
+      const safeDailyRate = weeklyCanPerDay
+      const dailyDiff = Number.isFinite(realDailyRate) && Number.isFinite(safeDailyRate) ? realDailyRate - safeDailyRate : null
+      const weeklyProjection = Number.isFinite(weeklyPercent) && Number.isFinite(realDailyRate) && Number.isFinite(daysToWeeklyReset)
+        ? weeklyPercent - (realDailyRate * daysToWeeklyReset)
+        : null
+      const zeroInDays = safeDiv(weeklyPercent, realDailyRate)
 
-      document.getElementById("weeklyPercent").textContent = `${weeklyPercent}%`
-      document.getElementById("weeklyFill").style.width = `${weeklyPercent}%`
-      document.getElementById("weeklyLine").innerHTML = `renova em <b>${formatDuration(weeklyMs)}</b> · ${formatDate(payload.weeklyReset)}`
-      document.getElementById("weeklyUsed").textContent = `${100 - weeklyPercent}%`
-      document.getElementById("weeklyRemaining").textContent = payload.weeklyRemaining || "--"
+      setText("statusText", "dados atualizados")
+      setText("lastUpdated", formatDate(payload?.lastUpdated))
 
-      document.getElementById("realDailyRate").textContent = payload.realDailyRate || "--/d"
-      document.getElementById("safeDailyRate").textContent = payload.safeDailyRate || "--/d"
-      document.getElementById("dailyDiff").textContent = payload.dailyDiff || "--/d"
-      document.getElementById("weeklyProjection").textContent = payload.weeklyProjection || "--%"
-      document.getElementById("zeroIn").textContent = payload.zeroIn || "--"
-      document.getElementById("cycleStart").textContent = formatDate(payload.history?.cycleStart)
+      setText("fiveHourPercent", displayPercent(fiveHourPercent))
+      document.getElementById("fiveHourFill").style.width = `${Number.isFinite(fiveHourPercent) ? fiveHourPercent : 0}%`
+      setText("fiveHourLine", `renova em ${formatDuration(fiveHourMs)} · ${formatDate(payload?.fiveHourReset)}`)
+      setText("fiveHourUsed", displayPercent(fiveHourUsed))
+      setText("fiveHourCanPerHour", displayValue(fiveHourCanPerHour, "%/h"))
+      setText("fiveHourUsedPerHour", displayValue(fiveHourUsedPerHour, "%/h"))
+
+      setText("weeklyPercent", displayPercent(weeklyPercent))
+      document.getElementById("weeklyFill").style.width = `${Number.isFinite(weeklyPercent) ? weeklyPercent : 0}%`
+      setText("weeklyLine", `renova em ${formatDuration(weeklyMs)} · ${formatDate(payload?.weeklyReset)}`)
+      setText("weeklyUsed", displayPercent(weeklyUsed))
+      setText("weeklyCanPerHour", displayValue(weeklyCanPerHour, "%/h"))
+      setText("weeklyCanPerDay", displayValue(weeklyCanPerDay, "%/d"))
+
+      setText("daysSinceReset", displayValue(daysSinceWeeklyStart, "d"))
+      setText("daysToReset", displayValue(daysToWeeklyReset, "d"))
+      setText("realDailyRate", displayValue(realDailyRate, "%/d"))
+      setText("safeDailyRate", displayValue(safeDailyRate, "%/d"))
+      setText("dailyDiff", displayValue(dailyDiff, "%/d"))
+      setText("weeklyProjection", displayValue(weeklyProjection, "%"))
+      setText("zeroIn", Number.isFinite(zeroInDays) ? `${displayValue(zeroInDays, "d")} (${formatDate(new Date(Date.now() + (zeroInDays * 86400000)))})` : "--")
     }
 
     async function loadUsageData() {
@@ -938,7 +1013,7 @@
       const timer = setTimeout(() => controller.abort(), API_TIMEOUT_MS)
 
       try {
-        const response = await fetch(API_ENDPOINT, {
+        const response = await fetch(`${API_ENDPOINT}?t=${Date.now()}`, {
           signal: controller.signal,
           headers: {
             Accept: "application/json"
@@ -960,8 +1035,18 @@
         const payload = await loadUsageData()
         renderUsage(payload)
       } catch {
-        setFallbackState("API indisponível")
+        setFallbackState("dados indisponíveis")
       }
+    }
+
+    function runClientValidation() {
+      const exampleCanPerHour = safeDiv(60, 3)
+      const exampleCanPerDay = safeDiv(16, 3.1)
+      const missing = displayValue(safeDiv(undefined, null), "%")
+
+      console.assert(exampleCanPerHour !== null && Math.abs(exampleCanPerHour - 20) < 0.2, "validação 5h falhou")
+      console.assert(exampleCanPerDay !== null && Math.abs(exampleCanPerDay - 5.16) < 0.2, "validação semanal falhou")
+      console.assert(missing === "--%", "validação de campos ausentes falhou")
     }
 
     refreshButton.addEventListener("click", () => {
@@ -977,7 +1062,7 @@
     shareButton.addEventListener("click", async () => {
       const data = {
         title: "Analítica do Codex",
-        text: "Dashboard local da Analítica do Codex",
+        text: "Dashboard de uso da Analítica do Codex",
         url: window.location.href
       }
 
@@ -1005,6 +1090,7 @@
       }, 120)
     })
 
+    runClientValidation()
     void fetchUsage()
   </script>
 </body>

@@ -2,64 +2,77 @@ name: Codex Usage Trigger Email
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - codex_usage.json
+  schedule:
+    - cron: "*/30 * * * *"
 
 concurrency:
-  group: codex-usage-trigger-${{ github.ref }}
+  group: codex-usage-trigger-email
   cancel-in-progress: true
 
 jobs:
-  monitor-five-hour-percent:
+  trigger-email:
     runs-on: ubuntu-latest
-    timeout-minutes: 360
+    timeout-minutes: 10
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Install jq
-        run: sudo apt-get update && sudo apt-get install -y jq
-
-      - name: Monitor fiveHourPercent and send email
+      - name: Read usage and send email if active
         env:
           MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
           MAIL_RECEIVE: ${{ secrets.MAIL_RECEIVE }}
-          BRANCH_NAME: ${{ github.ref_name }}
         run: |
           set -euo pipefail
 
           if [[ -z "${MAIL_USERNAME}" || -z "${MAIL_PASSWORD}" || -z "${MAIL_RECEIVE}" ]]; then
-            echo "Required secrets are missing (MAIL_USERNAME, MAIL_PASSWORD, MAIL_RECEIVE)."
+            echo "Required secrets are missing."
             exit 1
           fi
 
-          send_email() {
-            python -c 'import os,smtplib; from email.message import EmailMessage; username=os.environ["MAIL_USERNAME"]; password=os.environ["MAIL_PASSWORD"]; receive=os.environ["MAIL_RECEIVE"]; sequence=os.urandom(8).hex(); msg=EmailMessage(); msg["From"]=username; msg["To"]=receive; msg["Subject"]=f"codex usage trigger [{sequence}]"; msg.set_content(f"codex usage trigger\nsequence: {sequence}"); server=smtplib.SMTP_SSL("smtp.gmail.com",465); server.login(username,password); server.send_message(msg); server.quit()'
-          }
+          value="$(python - <<'PY'
+import json
+with open("codex_usage.json", "r", encoding="utf-8") as f:
+    data = json.load(f)
+print(data.get("fiveHourPercent", ""))
+PY
+)"
 
-          while true; do
-            git fetch origin "${BRANCH_NAME}" --quiet
-            value="$(git show "origin/${BRANCH_NAME}:codex_usage.json" | jq -r '.fiveHourPercent')"
+          if ! [[ "${value}" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
+            echo "Invalid fiveHourPercent value: ${value}"
+            exit 1
+          fi
 
-            if ! [[ "${value}" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
-              echo "Invalid fiveHourPercent value: ${value}"
-              exit 1
-            fi
+          echo "fiveHourPercent=${value}"
 
-            echo "fiveHourPercent=${value}"
+          int_value="$(printf "%.0f" "${value}")"
 
-            if [[ "${value}" == "0" || "${value}" == "100" ]]; then
-              echo "Boundary reached (${value}). Sending final email and stopping."
-              send_email
-              break
-            fi
+          if [[ "${int_value}" -le 0 || "${int_value}" -ge 100 ]]; then
+            echo "Boundary reached (${int_value}). No recurring trigger needed."
+            exit 0
+          fi
 
-            echo "Value is not 0 or 100. Sending email and waiting 30 minutes."
-            send_email
-            sleep 1800
-          done
+          python - <<'PY'
+import os
+import smtplib
+from email.message import EmailMessage
+from datetime import datetime, timezone
+
+username = os.environ["MAIL_USERNAME"]
+password = os.environ["MAIL_PASSWORD"]
+receive = os.environ["MAIL_RECEIVE"]
+
+now = datetime.now(timezone.utc).isoformat()
+
+msg = EmailMessage()
+msg["From"] = username
+msg["To"] = receive
+msg["Subject"] = f"codex usage trigger [{now}]"
+msg.set_content(f"codex usage trigger\ncreated_at: {now}")
+
+server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
+server.login(username, password)
+server.send_message(msg)
+server.quit()
+PY

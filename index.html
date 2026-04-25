@@ -3,13 +3,25 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#7db2f0" />
+
+    <meta name="theme-color" content="#86bdf5" />
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- iOS full screen -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <link rel="apple-touch-icon" href="https://i.imgur.com/gJphXZ9.png" />
+
+    <!-- ICONES -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/webapp/assets/logo_background.png" />
+    <link rel="icon" sizes="192x192" href="/webapp/assets/logo_background.png" />
+    <link rel="icon" sizes="512x512" href="/webapp/assets/logo_background.png" />
+
     <title>Analítica do Codex</title>
     <link rel="stylesheet" href="./style.css" />
   </head>
+
   <body>
     <main class="wrap" aria-live="polite">
       <header>
@@ -26,101 +38,49 @@
         </div>
       </header>
 
-      <section id="errorCard" class="card error-card hidden" aria-label="Erro">
+      <section id="errorCard" class="card error-card hidden">
         <div class="label">erro</div>
-        <div id="errorText" class="line">não foi possível carregar os dados.</div>
+        <div id="errorText" class="line">não foi possível carregar</div>
       </section>
 
-      <section class="grid two" aria-label="Indicadores principais">
-        <article class="card" aria-labelledby="five-hour-title">
-          <div id="five-hour-title" class="label">limite de 5 horas</div>
+      <section class="grid two">
+        <article class="card">
+          <div class="label">limite de 5 horas</div>
           <div class="percent">
             <strong id="fiveHourPercent">—%</strong>
             <span>restante</span>
           </div>
-          <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Limite de 5 horas">
-            <div id="fiveHourBar" class="fill"></div>
-          </div>
+          <div class="bar"><div id="fiveHourBar" class="fill"></div></div>
           <div id="fiveHourLine" class="line">—</div>
-          <div class="metrics">
-            <div class="mini">
-              <div class="k">usado</div>
-              <div id="fiveHourUsed" class="v">—%</div>
-              <div class="s">no ciclo atual</div>
-            </div>
-            <div class="mini">
-              <div class="k">seguro</div>
-              <div id="fiveHourSafeRate" class="v">—</div>
-              <div class="s">até renovar</div>
-            </div>
-          </div>
         </article>
 
-        <article class="card" aria-labelledby="weekly-title">
-          <div id="weekly-title" class="label">limite semanal</div>
+        <article class="card">
+          <div class="label">limite semanal</div>
           <div class="percent">
             <strong id="weeklyPercent">—%</strong>
             <span>restante</span>
           </div>
-          <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Limite semanal">
-            <div id="weeklyBar" class="fill"></div>
-          </div>
+          <div class="bar"><div id="weeklyBar" class="fill"></div></div>
           <div id="weeklyLine" class="line">—</div>
-          <div class="metrics">
-            <div class="mini">
-              <div class="k">usado</div>
-              <div id="weeklyUsed" class="v">—%</div>
-              <div class="s">desde o reset</div>
-            </div>
-            <div class="mini">
-              <div class="k">restante</div>
-              <div id="weeklyRemainingDays" class="v">—d</div>
-              <div class="s">até o reset</div>
-            </div>
-          </div>
         </article>
       </section>
 
       <div class="section-title">ritmo semanal</div>
 
-      <section class="card" aria-labelledby="weekly-pace-title">
-        <h2 id="weekly-pace-title" class="sr-only">Ritmo semanal</h2>
-        <div class="metrics rhythm-grid">
+      <section class="card">
+        <div class="metrics">
           <div class="mini">
             <div class="k">média real</div>
             <div id="weeklyAverage" class="v">—</div>
-            <div class="s">uso diário até agora</div>
           </div>
           <div class="mini">
             <div class="k">ritmo seguro</div>
             <div id="weeklySafeRate" class="v">—</div>
-            <div class="s">pode usar por dia</div>
-          </div>
-          <div class="mini">
-            <div class="k">diferença</div>
-            <div id="weeklyDifference" class="v">—</div>
-            <div id="weeklyDifferenceCaption" class="s">—</div>
-          </div>
-          <div class="mini">
-            <div class="k">projeção final</div>
-            <div id="weeklyProjection" class="v">—</div>
-            <div id="weeklyProjectionCaption" class="s">—</div>
-          </div>
-          <div class="mini">
-            <div class="k">zera em</div>
-            <div id="weeklyZeroIn" class="v">—</div>
-            <div id="weeklyZeroAt" class="s">—</div>
-          </div>
-          <div class="mini">
-            <div class="k">início do ciclo</div>
-            <div id="weeklyCycleStart" class="v mono">—</div>
-            <div class="s">estimado pelo reset</div>
           </div>
         </div>
 
-        <div class="actions" aria-label="Atalhos">
+        <div class="actions">
           <a class="button" href="shortcuts://run-shortcut?name=Atualizar%20uso%20Codex">atualizar uso</a>
-          <a class="button secondary" href="https://chatgpt.com/codex/cloud/settings/analytics" target="_blank" rel="noopener noreferrer">abrir codex</a>
         </div>
       </section>
     </main>

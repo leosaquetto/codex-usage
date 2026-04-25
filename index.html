@@ -3,42 +3,79 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>Uso do Codex</title>
+    <meta name="theme-color" content="#86bdf5" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="apple-touch-icon" href="https://i.imgur.com/gJphXZ9.png" />
+    <title>Analítica do Codex</title>
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
     <main class="container" aria-live="polite">
-      <header>
-        <h1 id="title">Uso do Codex</h1>
+      <header class="topbar">
+        <div class="brand">
+          <img src="https://i.imgur.com/gJphXZ9.png" alt="Logo do Codex" width="40" height="40" />
+          <h1>Analítica do Codex</h1>
+        </div>
+        <div class="toolbar" aria-label="Ações rápidas">
+          <button id="refreshButton" type="button" aria-label="Atualizar">↻</button>
+          <button id="shareButton" type="button" aria-label="Compartilhar">↑</button>
+          <button id="closeButton" type="button" aria-label="Fechar">×</button>
+        </div>
       </header>
 
-      <section class="card" aria-labelledby="status-geral-label">
-        <h2 id="status-geral-label">Status geral</h2>
-        <p id="overallStatus">Carregando…</p>
+      <section class="status-row" aria-label="Status e atualização">
+        <p class="status-pill">
+          <span class="dot" aria-hidden="true"></span>
+          <span id="statusText" class="status-text">--</span>
+        </p>
+        <p class="stamp">Atualizado: <span id="updatedAtText">--</span></p>
       </section>
 
-      <section class="card" aria-labelledby="limite-5h-label">
-        <h2 id="limite-5h-label">Limite 5h</h2>
-        <p><strong id="fiveHourPercent">--%</strong> restante</p>
-        <div class="progress" role="progressbar" aria-labelledby="limite-5h-label" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-          <div id="fiveHourBar" class="progress-fill"></div>
-        </div>
-        <p class="subtle">Reset: <span id="fiveHourReset">--</span></p>
+      <section class="cards" aria-label="Indicadores principais">
+        <article class="card" aria-labelledby="five-hour-title">
+          <h2 id="five-hour-title">Janela de 5h</h2>
+          <p><strong id="fiveHourPercent">--%</strong></p>
+          <p>Uso: <span id="fiveHourUsed">--%</span></p>
+          <p>Ritmo seguro: <span id="fiveHourSafeRate">--/d</span></p>
+          <p id="fiveHourLine">--</p>
+          <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Progresso de 5 horas">
+            <div id="fiveHourBar"></div>
+          </div>
+        </article>
+
+        <article class="card" aria-labelledby="weekly-title">
+          <h2 id="weekly-title">Semanal</h2>
+          <p><strong id="weeklyPercent">--%</strong></p>
+          <p>Uso: <span id="weeklyUsed">--%</span></p>
+          <p>Dias restantes: <span id="weeklyRemainingDays">--</span></p>
+          <p id="weeklyLine">--</p>
+          <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Progresso semanal">
+            <div id="weeklyBar"></div>
+          </div>
+        </article>
       </section>
 
-      <section class="card" aria-labelledby="limite-semanal-label">
-        <h2 id="limite-semanal-label">Limite semanal</h2>
-        <p><strong id="weeklyPercent">--%</strong> restante</p>
-        <div class="progress" role="progressbar" aria-labelledby="limite-semanal-label" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-          <div id="weeklyBar" class="progress-fill"></div>
-        </div>
-        <p class="subtle">Reset: <span id="weeklyReset">--</span></p>
+      <section class="card" aria-labelledby="weekly-pace-title">
+        <h2 id="weekly-pace-title">Ritmo semanal</h2>
+        <ul>
+          <li>Média semanal: <span id="weeklyAverage">--%</span></li>
+          <li>Ritmo seguro: <span id="weeklySafeRate">--/d</span></li>
+          <li>Diferença: <span id="weeklyDifference">--%</span></li>
+          <li>Projeção: <span id="weeklyProjection">--%</span></li>
+          <li>Zera em: <span id="weeklyZeroAt">--</span></li>
+          <li>Início do ciclo: <span id="weeklyCycleStart">--</span></li>
+        </ul>
       </section>
 
-      <section class="card" aria-labelledby="ultima-atualizacao-label">
-        <h2 id="ultima-atualizacao-label">Última atualização</h2>
-        <p id="lastUpdated">--</p>
-      </section>
+      <footer class="card" aria-label="Atalhos">
+        <p>
+          <a href="https://chatgpt.com/codex/cloud/settings/analytics" target="_blank" rel="noopener noreferrer">Abrir analytics no Codex Cloud</a>
+        </p>
+        <p>
+          <a href="shortcuts://run-shortcut?name=Atualizar%20uso%20Codex">Executar atalho de atualização</a>
+        </p>
+      </footer>
     </main>
 
     <script src="./app.js" defer></script>

@@ -2,6 +2,7 @@
 // Captura a página de analytics do Codex, salva codex_usage.json no iCloud
 // e publica no GitHub Contents API.
 // Este script é o único responsável por atualizar dados reais.
+// O widget NÃO lê este cache local; o widget lê somente a API de produção.
 
 const fm = FileManager.iCloud()
 const folderPath = fm.joinPath(fm.documentsDirectory(), "Analítica do Codex")

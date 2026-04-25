@@ -112,23 +112,56 @@ function enrichPayload(raw = {}) {
   }
 }
 
-module.exports = (req, res) => {
+const REMOTE_USAGE_URL = "https://raw.githubusercontent.com/leosaquetto/codex-usage/main/codex_usage.json"
+const REMOTE_TIMEOUT_MS = 7000
+
+async function fetchRemotePayload() {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), REMOTE_TIMEOUT_MS)
+
+  try {
+    const response = await fetch(`${REMOTE_USAGE_URL}?t=${Date.now()}`, {
+      signal: controller.signal,
+      headers: {
+        Accept: "application/json"
+      }
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`)
+    }
+
+    return await response.json()
+  } finally {
+    clearTimeout(timeoutId)
+  }
+}
+
+function parsePayloadFromEnv() {
+  const rawPayload = process.env.CODEX_USAGE_PAYLOAD
+  if (!rawPayload || rawPayload === "undefined" || rawPayload === "null") return null
+
+  return JSON.parse(rawPayload)
+}
+
+module.exports = async (req, res) => {
   res.setHeader("Cache-Control", "no-store")
 
-  const rawPayload = process.env.CODEX_USAGE_PAYLOAD
-
-  if (!rawPayload || rawPayload === "undefined" || rawPayload === "null") {
-    return res.status(503).json({
-      error: "Usage payload indisponível"
-    })
+  try {
+    const envPayload = parsePayloadFromEnv()
+    if (envPayload) {
+      return res.status(200).json(enrichPayload(envPayload))
+    }
+  } catch {
+    // segue para o fallback remoto quando env estiver inválida
   }
 
   try {
-    const parsed = JSON.parse(rawPayload)
-    return res.status(200).json(enrichPayload(parsed))
+    const remotePayload = await fetchRemotePayload()
+    return res.status(200).json(enrichPayload(remotePayload))
   } catch {
-    return res.status(500).json({
-      error: "Usage payload inválido"
+    return res.status(503).json({
+      error: "Usage payload indisponível"
     })
   }
 }

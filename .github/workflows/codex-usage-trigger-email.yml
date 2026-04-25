@@ -31,13 +31,7 @@ jobs:
             exit 1
           fi
 
-          value="$(python - <<'PY'
-import json
-with open("codex_usage.json", "r", encoding="utf-8") as f:
-    data = json.load(f)
-print(data.get("fiveHourPercent", ""))
-PY
-)"
+          value="$(python -c 'import json; data=json.load(open("codex_usage.json", "r", encoding="utf-8")); print(data.get("fiveHourPercent", ""))')"
 
           if ! [[ "${value}" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
             echo "Invalid fiveHourPercent value: ${value}"
@@ -53,26 +47,4 @@ PY
             exit 0
           fi
 
-          python - <<'PY'
-import os
-import smtplib
-from email.message import EmailMessage
-from datetime import datetime, timezone
-
-username = os.environ["MAIL_USERNAME"]
-password = os.environ["MAIL_PASSWORD"]
-receive = os.environ["MAIL_RECEIVE"]
-
-now = datetime.now(timezone.utc).isoformat()
-
-msg = EmailMessage()
-msg["From"] = username
-msg["To"] = receive
-msg["Subject"] = f"codex usage trigger [{now}]"
-msg.set_content(f"codex usage trigger\ncreated_at: {now}")
-
-server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
-server.login(username, password)
-server.send_message(msg)
-server.quit()
-PY
+          python -c 'import os, smtplib; from email.message import EmailMessage; from datetime import datetime, timezone; username=os.environ["MAIL_USERNAME"]; password=os.environ["MAIL_PASSWORD"]; receive=os.environ["MAIL_RECEIVE"]; now=datetime.now(timezone.utc).isoformat(); msg=EmailMessage(); msg["From"]=username; msg["To"]=receive; msg["Subject"]=f"codex usage trigger [{now}]"; msg.set_content(f"codex usage trigger\ncreated_at: {now}"); server=smtplib.SMTP_SSL("smtp.gmail.com",465); server.login(username,password); server.send_message(msg); server.quit()'

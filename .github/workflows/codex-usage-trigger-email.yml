@@ -38,26 +38,7 @@ jobs:
           fi
 
           send_email() {
-            python - <<'PY'
-            import os
-            import smtplib
-            from email.message import EmailMessage
-
-            username = os.environ["MAIL_USERNAME"]
-            password = os.environ["MAIL_PASSWORD"]
-            receive = os.environ["MAIL_RECEIVE"]
-
-            msg = EmailMessage()
-            msg["From"] = username
-            msg["To"] = receive
-            sequence = os.urandom(8).hex()
-            msg["Subject"] = f"codex usage trigger [{sequence}]"
-            msg.set_content(f"codex usage trigger\nsequence: {sequence}")
-
-            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-                server.login(username, password)
-                server.send_message(msg)
-            PY
+            python -c 'import os,smtplib; from email.message import EmailMessage; username=os.environ["MAIL_USERNAME"]; password=os.environ["MAIL_PASSWORD"]; receive=os.environ["MAIL_RECEIVE"]; sequence=os.urandom(8).hex(); msg=EmailMessage(); msg["From"]=username; msg["To"]=receive; msg["Subject"]=f"codex usage trigger [{sequence}]"; msg.set_content(f"codex usage trigger\nsequence: {sequence}"); server=smtplib.SMTP_SSL("smtp.gmail.com",465); server.login(username,password); server.send_message(msg); server.quit()'
           }
 
           while true; do

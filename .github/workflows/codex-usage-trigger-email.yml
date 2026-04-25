@@ -1,0 +1,83 @@
+name: Codex Usage Trigger Email
+
+on:
+  push:
+    paths:
+      - codex_usage.json
+
+concurrency:
+  group: codex-usage-trigger-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  monitor-five-hour-percent:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Monitor fiveHourPercent and send email
+        env:
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          MAIL_RECEIVE: ${{ secrets.MAIL_RECEIVE }}
+          BRANCH_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${MAIL_USERNAME}" || -z "${MAIL_PASSWORD}" || -z "${MAIL_RECEIVE}" ]]; then
+            echo "Required secrets are missing (MAIL_USERNAME, MAIL_PASSWORD, MAIL_RECEIVE)."
+            exit 1
+          fi
+
+          send_email() {
+            python - <<'PY'
+            import os
+            import smtplib
+            from email.message import EmailMessage
+
+            username = os.environ["MAIL_USERNAME"]
+            password = os.environ["MAIL_PASSWORD"]
+            receive = os.environ["MAIL_RECEIVE"]
+
+            msg = EmailMessage()
+            msg["From"] = username
+            msg["To"] = receive
+            sequence = os.urandom(8).hex()
+            msg["Subject"] = f"codex usage trigger [{sequence}]"
+            msg.set_content(f"codex usage trigger\nsequence: {sequence}")
+
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+                server.login(username, password)
+                server.send_message(msg)
+            PY
+          }
+
+          while true; do
+            git fetch origin "${BRANCH_NAME}" --quiet
+            value="$(git show "origin/${BRANCH_NAME}:codex_usage.json" | jq -r '.fiveHourPercent')"
+
+            if ! [[ "${value}" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
+              echo "Invalid fiveHourPercent value: ${value}"
+              exit 1
+            fi
+
+            echo "fiveHourPercent=${value}"
+
+            if [[ "${value}" == "0" || "${value}" == "100" ]]; then
+              echo "Boundary reached (${value}). Sending final email and stopping."
+              send_email
+              break
+            fi
+
+            echo "Value is not 0 or 100. Sending email and waiting 30 minutes."
+            send_email
+            sleep 1800
+          done

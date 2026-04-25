@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1170" height="2532" viewBox="0 0 1170 2532">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#86bdf5"/>
+      <stop offset="0.48" stop-color="#95c4f0"/>
+      <stop offset="1" stop-color="#6e84a4"/>
+    </linearGradient>
+    <radialGradient id="r1" cx="18%" cy="0%" r="45%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="r2" cx="86%" cy="10%" r="42%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.20"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="28" stdDeviation="38" flood-color="#2b507f" flood-opacity="0.24"/>
+    </filter>
+  </defs>
+  <rect width="1170" height="2532" fill="url(#bg)"/>
+  <rect width="1170" height="2532" fill="url(#r1)"/>
+  <rect width="1170" height="2532" fill="url(#r2)"/>
+  <g transform="translate(585 1162)" text-anchor="middle">
+    <image href="/webapp/assets/logo_background.png" x="-110" y="-150" width="220" height="220" preserveAspectRatio="xMidYMid meet" filter="url(#shadow)"/>
+    <text y="160" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif" font-size="54" font-weight="800" fill="#ffffff" opacity="0.98">Analítica do Codex</text>
+    <text y="218" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" font-size="30" font-weight="650" fill="#ffffff" opacity="0.74">dashboard local</text>
+  </g>
+</svg>

@@ -37,7 +37,11 @@ function emptyUsageData() {
 
 function clampPercent(value, fallback = null) {
   if (value === null || value === undefined || value === "") return fallback
-  const n = Number(value)
+  const normalizedValue =
+    typeof value === "string"
+      ? value.replace("%", "").replace(",", ".").trim()
+      : value
+  const n = Number(normalizedValue)
   if (!Number.isFinite(n)) return fallback
   return Math.max(0, Math.min(100, Math.round(n)))
 }
@@ -56,29 +60,33 @@ function hasValidPercentPair(payload) {
 }
 
 function normalizeUsage(raw = {}) {
+  const source = raw?.data && typeof raw.data === "object" ? raw.data : raw
+  const fallbackFiveHourPercent = clampPercent(source.usage5hPercent ?? source.limit5hPercent, null)
+  const fallbackWeeklyPercent = clampPercent(source.weekPercent ?? source.weeklyRemainingPercent, null)
+
   return {
-    fiveHourPercent: clampPercent(raw.fiveHourPercent, null),
-    fiveHourReset: validDateFromISO(raw.fiveHourReset)
-      ? new Date(raw.fiveHourReset).toISOString()
+    fiveHourPercent: clampPercent(source.fiveHourPercent, fallbackFiveHourPercent),
+    fiveHourReset: validDateFromISO(source.fiveHourReset)
+      ? new Date(source.fiveHourReset).toISOString()
       : null,
-    weeklyPercent: clampPercent(raw.weeklyPercent, null),
-    weeklyReset: validDateFromISO(raw.weeklyReset)
-      ? new Date(raw.weeklyReset).toISOString()
+    weeklyPercent: clampPercent(source.weeklyPercent, fallbackWeeklyPercent),
+    weeklyReset: validDateFromISO(source.weeklyReset)
+      ? new Date(source.weeklyReset).toISOString()
       : null,
-    lastUpdated: validDateFromISO(raw.lastUpdated)
-      ? new Date(raw.lastUpdated).toISOString()
+    lastUpdated: validDateFromISO(source.lastUpdated)
+      ? new Date(source.lastUpdated).toISOString()
       : null,
-    statusLabel: String(raw.statusLabel || "--"),
-    fiveHourSafeRate: String(raw.fiveHourSafeRate || "--/h"),
-    weeklyRemaining: String(raw.weeklyRemaining || "--"),
-    realDailyRate: String(raw.realDailyRate || "--/d"),
-    safeDailyRate: String(raw.safeDailyRate || "--/d"),
-    dailyDiff: String(raw.dailyDiff || "--/d"),
-    weeklyProjection: String(raw.weeklyProjection || "--%"),
-    zeroIn: String(raw.zeroIn || "--"),
+    statusLabel: String(source.statusLabel || "--"),
+    fiveHourSafeRate: String(source.fiveHourSafeRate || "--/h"),
+    weeklyRemaining: String(source.weeklyRemaining || "--"),
+    realDailyRate: String(source.realDailyRate || "--/d"),
+    safeDailyRate: String(source.safeDailyRate || "--/d"),
+    dailyDiff: String(source.dailyDiff || "--/d"),
+    weeklyProjection: String(source.weeklyProjection || "--%"),
+    zeroIn: String(source.zeroIn || "--"),
     history: {
-      cycleStart: validDateFromISO(raw.history?.cycleStart)
-        ? new Date(raw.history.cycleStart).toISOString()
+      cycleStart: validDateFromISO(source.history?.cycleStart)
+        ? new Date(source.history.cycleStart).toISOString()
         : null
     }
   }
@@ -93,6 +101,9 @@ async function fetchRemoteUsage() {
   }
 
   const payload = await req.loadJSON()
+  if (payload?.error) {
+    throw new Error(String(payload.error))
+  }
   const normalized = normalizeUsage(payload)
 
   if (!hasValidPercentPair(normalized)) {

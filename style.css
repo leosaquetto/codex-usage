@@ -54,7 +54,7 @@ body {
     linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid-a) 35%, var(--bg-mid-b) 68%, var(--bg-bottom) 100%);
   background-attachment: fixed;
   padding:
-    calc(16px + env(safe-area-inset-top))
+    calc(78px + env(safe-area-inset-top))
     calc(12px + env(safe-area-inset-right))
     calc(24px + env(safe-area-inset-bottom))
     calc(12px + env(safe-area-inset-left));
@@ -63,6 +63,19 @@ body {
 }
 
 body::before {
+  content: "";
+  position: fixed;
+  inset: -120px 0 auto 0;
+  height: calc(120px + env(safe-area-inset-top));
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(255, 255, 255, 0.34), transparent 34%),
+    radial-gradient(circle at 88% 0%, rgba(255, 255, 255, 0.18), transparent 30%),
+    linear-gradient(180deg, var(--bg-top) 0%, rgba(134, 189, 245, 0.96) 68%, rgba(134, 189, 245, 0));
+  z-index: 0;
+}
+
+body::after {
   content: "";
   position: fixed;
   inset: -100px 0;
@@ -75,7 +88,8 @@ body::before {
   z-index: 0;
 }
 
-.container {
+.container,
+.wrap {
   width: min(100%, 820px);
   margin: 0 auto;
   position: relative;
@@ -111,7 +125,8 @@ h2 {
   color: rgba(255, 255, 255, 0.78);
 }
 
-.topbar {
+.topbar,
+header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -184,16 +199,8 @@ h2 {
   animation: spinButton 0.45s ease-in-out;
 }
 
-.status-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin: 0 2px 6px;
-  animation: rise 0.52s 0.1s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
-
-.status-pill {
+.status-row,
+.status {
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -210,6 +217,18 @@ h2 {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.24),
     0 10px 24px rgba(42, 75, 112, 0.1);
+}
+
+.status-row {
+  justify-content: space-between;
+  margin: 0 2px 6px;
+  animation: rise 0.52s 0.1s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
 }
 
 .dot {
@@ -259,7 +278,8 @@ h2 {
   letter-spacing: -0.01em;
 }
 
-.cards {
+.cards,
+.grid.two {
   display: grid;
   grid-template-columns: 1fr;
   gap: 12px;
@@ -312,13 +332,29 @@ h2 {
 }
 
 .card p,
-.card li {
+.card li,
+.line {
   color: rgba(255, 255, 255, 0.92);
   font-size: 13px;
   line-height: 1.36;
   letter-spacing: -0.01em;
 }
 
+.label,
+h2 {
+  margin-bottom: 11px;
+  font-size: 11px;
+  font-weight: 820;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.percent {
+  display: block;
+}
+
+.percent strong,
 .card strong {
   display: block;
   font-size: clamp(44px, 12vw, 74px);
@@ -329,6 +365,14 @@ h2 {
   margin-bottom: 10px;
 }
 
+.percent span {
+  display: block;
+  margin-top: -2px;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 18px;
+  font-weight: 720;
+}
+
 .card ul {
   margin: 0;
   padding-left: 1rem;
@@ -336,18 +380,21 @@ h2 {
   gap: 4px;
 }
 
-.progress {
+.progress,
+.bar {
   height: 10px;
   border-radius: 999px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.18));
   overflow: hidden;
   margin-top: 10px;
+  margin-bottom: 12px;
   box-shadow:
     inset 0 1px 2px rgba(68, 90, 120, 0.16),
     0 0 0 1px rgba(255, 255, 255, 0.12);
 }
 
-.progress > div {
+.progress > div,
+.fill {
   height: 100%;
   width: 0;
   border-radius: inherit;
@@ -359,7 +406,78 @@ h2 {
   animation: fillIn 1.2s 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
-a {
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.mini {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 12px;
+}
+
+.mini .k {
+  color: var(--soft);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 5px;
+  font-weight: 780;
+}
+
+.mini .v {
+  font-size: 20px;
+  font-weight: 820;
+  letter-spacing: -0.03em;
+}
+
+.mini .s {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.section-title {
+  margin: 20px 2px 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-weight: 830;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+a.button {
+  display: block;
+  width: 100%;
+  text-align: center;
+  color: #111;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.94);
+  padding: 14px;
+  border-radius: 18px;
+  font-weight: 850;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.1);
+}
+
+a.button.secondary {
+  color: rgba(255, 255, 255, 0.96);
+  background: rgba(255, 255, 255, 0.13);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: none;
+}
+
+a:not(.button) {
   color: rgba(255, 255, 255, 0.97);
   text-decoration-color: rgba(255, 255, 255, 0.48);
   text-underline-offset: 2px;
@@ -367,6 +485,23 @@ a {
 
 a:hover {
   text-decoration-color: rgba(255, 255, 255, 0.9);
+}
+
+.hidden,
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.error-card {
+  border-color: rgba(255, 95, 87, 0.42);
 }
 
 @keyframes appIn {
@@ -447,18 +582,25 @@ a:hover {
 }
 
 @media (min-width: 700px) {
-  .cards {
+  .cards,
+  .grid.two {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .actions {
+    grid-template-columns: 1fr 1fr;
   }
 }
 
 @media (max-width: 520px) {
   body {
+    padding-top: calc(74px + env(safe-area-inset-top));
     padding-left: calc(12px + env(safe-area-inset-left));
     padding-right: calc(12px + env(safe-area-inset-right));
   }
 
-  .topbar {
+  .topbar,
+  header {
     gap: 10px;
   }
 
@@ -490,6 +632,7 @@ a:hover {
     padding: 14px;
   }
 
+  .percent strong,
   .card strong {
     font-size: clamp(42px, 14.8vw, 58px);
   }
@@ -522,7 +665,8 @@ a:hover {
     font-size: 20px;
   }
 
-  .cards {
+  .cards,
+  .grid.two {
     grid-template-columns: 1fr;
   }
 
@@ -530,6 +674,7 @@ a:hover {
     padding: 13px;
   }
 
+  .percent strong,
   .card strong {
     font-size: clamp(40px, 13vw, 50px);
   }

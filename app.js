@@ -118,12 +118,12 @@ function setProgress(barId, textId, percent) {
 function applyStatusState(state, statusText, statusDot) {
   const allowed = ["ok", "warn", "danger", "error"];
   for (const name of allowed) {
-    statusText.classList.remove(name);
-    statusDot.classList.remove(name);
+    statusText?.classList.remove(name);
+    statusDot?.classList.remove(name);
   }
   if (allowed.includes(state)) {
-    statusText.classList.add(state);
-    statusDot.classList.add(state);
+    statusText?.classList.add(state);
+    statusDot?.classList.add(state);
   }
 }
 
@@ -159,7 +159,7 @@ function resetTextFromDate(date) {
     shareButton: document.getElementById("shareButton"),
     closeButton: document.getElementById("closeButton"),
     statusText: document.getElementById("statusText"),
-    statusDot: document.getElementById("statusDot"),
+    statusDot: document.querySelector(".status-pill .dot"),
     updatedAtText: document.getElementById("updatedAtText"),
     fiveHourPercent: document.getElementById("fiveHourPercent"),
     fiveHourBar: document.getElementById("fiveHourBar"),

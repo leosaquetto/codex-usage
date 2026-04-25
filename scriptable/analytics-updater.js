@@ -92,7 +92,27 @@ async function fetchRemoteUsage() {
     "Cache-Control": "no-cache"
   }
 
-  const payload = await req.loadJSON()
+  const rawBody = await req.loadString()
+  const statusCode = Number(req.response?.statusCode || 0)
+
+  let payload = null
+  try {
+    payload = rawBody ? JSON.parse(rawBody) : null
+  } catch {
+    payload = null
+  }
+
+  if (statusCode < 200 || statusCode >= 300) {
+    const apiMessage = payload && payload.error ? String(payload.error) : ""
+    const bodySnippet = String(rawBody || "").replace(/\s+/g, " ").slice(0, 120)
+    const details = apiMessage || bodySnippet || "sem detalhes"
+    throw new Error(`HTTP ${statusCode || "sem status"} em /api/usage: ${details}`)
+  }
+
+  if (!payload || typeof payload !== "object") {
+    throw new Error("Resposta da API inválida: corpo não é JSON objeto")
+  }
+
   const normalized = normalizeUsage(payload)
 
   if (!hasValidPercentPair(normalized)) {
@@ -102,6 +122,16 @@ async function fetchRemoteUsage() {
   return normalized
 }
 
+function errorToMessage(error) {
+  if (error instanceof Error && error.message) return error.message
+  if (typeof error === "string") return error
+  try {
+    return JSON.stringify(error)
+  } catch {
+    return String(error)
+  }
+}
+
 let data = emptyUsageData()
 let dataLoadWarning = ""
 
@@ -109,7 +139,7 @@ try {
   data = await fetchRemoteUsage()
 } catch (error) {
   data = emptyUsageData()
-  dataLoadWarning = `API indisponível. Rode o atualizador. ${String(error).slice(0, 70)}`
+  dataLoadWarning = `API indisponível. Rode o atualizador. ${errorToMessage(error).slice(0, 110)}`
 }
 
 const now = new Date()

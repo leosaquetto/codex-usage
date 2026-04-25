@@ -5,8 +5,9 @@ Nota: edite sempre o `.js` legível em `scriptable/analytics-updater.js`; o expo
 ## Fluxo de branches e ambientes
 
 - Produção = `main`.
-- Teste/preview = `staging`.
+- Teste/preview = `staging` (quando existir/for usada).
 - O merge final para release é `staging -> main`.
+- A branch `work` deve ser ignorada (não é branch remota do repositório no GitHub).
 
 ## Produção e deploy
 
@@ -16,9 +17,9 @@ Nota: edite sempre o `.js` legível em `scriptable/analytics-updater.js`; o expo
 
 ## Publicação de dados via Scriptable
 
-- O Scriptable publica `codex_usage.json` na `main` por padrão.
-- `staging` pode ser usada apenas para teste/preview quando necessário.
-- Alterações em `codex_usage.json` via Scriptable não exigem novo deploy.
+- O script `scriptable/webview-hidden-auto-update-v3.js` captura os dados de analytics e publica `codex_usage.json` no GitHub (branch `main`) via GitHub Contents API.
+- O script `scriptable/analytics-updater.js` (widget) é somente leitura e consome a API de produção.
+- Deploy oficial de produção: `https://codex-usage-nine.vercel.app`.
 - Alterações em `index.html`, `style.css`, `app.js` ou `vercel.json` exigem novo deploy manual.
 
 ## Token de acesso

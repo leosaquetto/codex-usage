@@ -180,6 +180,10 @@ h2 {
   transform: scale(0.94);
 }
 
+.toolbar button.spinning {
+  animation: spinButton 0.45s ease-in-out;
+}
+
 .status-row {
   display: flex;
   align-items: center;
@@ -215,6 +219,34 @@ h2 {
   background: var(--warn);
   box-shadow: 0 0 16px rgba(255, 211, 106, 0.75);
   animation: pulse 4s ease-in-out infinite;
+}
+
+.status-text.ok,
+.dot.ok {
+  color: #c7ffd0;
+  background: #4dcb76;
+  box-shadow: 0 0 16px rgba(77, 203, 118, 0.65);
+}
+
+.status-text.warn,
+.dot.warn {
+  color: #fff2bf;
+  background: #ffd36a;
+  box-shadow: 0 0 16px rgba(255, 211, 106, 0.75);
+}
+
+.status-text.danger,
+.dot.danger {
+  color: #ffd0c7;
+  background: #ff8e69;
+  box-shadow: 0 0 16px rgba(255, 142, 105, 0.75);
+}
+
+.status-text.error,
+.dot.error {
+  color: #ffd7da;
+  background: #ff5f57;
+  box-shadow: 0 0 16px rgba(255, 95, 87, 0.75);
 }
 
 .stamp {
@@ -401,6 +433,16 @@ a:hover {
 
   to {
     transform: translateX(180%) skewX(-18deg);
+  }
+}
+
+@keyframes spinButton {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
   }
 }
 

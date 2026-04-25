@@ -15,21 +15,10 @@ if (!fm.fileExists(folderPath)) {
 }
 const filePath = fm.joinPath(folderPath, "codex_usage.json")
 
-// Configuração operacional (trocar ambiente somente aqui).
-// ENV controla qual projeto remoto será usado para atualizar o codex_usage.json.
-const ENV = "staging" // "staging" | "production"
 const CODEX_ANALYTICS_URL = "https://chatgpt.com/codex/cloud/settings/analytics"
-const REMOTE_USAGE_URLS = {
-  staging: "https://codex-usage-staging.vercel.app/api/usage",
-  production: "https://codex-usage.vercel.app/api/usage"
-}
-const EXPECTED_PROJECT_HOST_BY_ENV = {
-  staging: "codex-usage-staging.vercel.app",
-  production: "codex-usage.vercel.app"
-}
-const REMOTE_USAGE_URL = REMOTE_USAGE_URLS[ENV] || REMOTE_USAGE_URLS.staging
-// Metadado local da execução.
-const ACTIVE_ENV_METADATA = `ambiente ativo: ${ENV}`
+const REMOTE_USAGE_URL_PRODUCTION = "https://codex-usage.vercel.app/api/usage"
+const REMOTE_USAGE_URL_STAGING = "https://codex-usage-staging.vercel.app/api/usage"
+const REMOTE_USAGE_URL = REMOTE_USAGE_URL_PRODUCTION
 const SHORTCUT_URL = "shortcuts://run-shortcut?name=Anal%C3%ADtica%20do%20Codex"
 
 const LOGO_URL = "https://images.ctfassets.net/kftzwdyauwt9/YgXvGzKvVcDvpJGOFyroe/777616dd860276400c9c955688dce373/codex-app.png.png"
@@ -63,71 +52,65 @@ function defaultUsageData() {
   }
 }
 
-function normalizeUsage(raw = {}) {
-  const base = defaultUsageData()
+function normalizeUsage(raw = {}, fallback = defaultUsageData()) {
   return {
-    ...base,
-    fiveHourPercent: clampPercent(raw.fiveHourPercent),
-    fiveHourReset: validDateFromISO(raw.fiveHourReset) ? new Date(raw.fiveHourReset).toISOString() : null,
-    weeklyPercent: clampPercent(raw.weeklyPercent),
-    weeklyReset: validDateFromISO(raw.weeklyReset) ? new Date(raw.weeklyReset).toISOString() : base.weeklyReset,
-    lastUpdated: validDateFromISO(raw.lastUpdated) ? new Date(raw.lastUpdated).toISOString() : base.lastUpdated,
-    statusLabel: String(raw.statusLabel || base.statusLabel),
-    fiveHourSafeRate: String(raw.fiveHourSafeRate || base.fiveHourSafeRate),
-    weeklyRemaining: String(raw.weeklyRemaining || base.weeklyRemaining),
-    realDailyRate: String(raw.realDailyRate || base.realDailyRate),
-    safeDailyRate: String(raw.safeDailyRate || base.safeDailyRate),
-    dailyDiff: String(raw.dailyDiff || base.dailyDiff),
-    weeklyProjection: String(raw.weeklyProjection || base.weeklyProjection),
-    zeroIn: String(raw.zeroIn || base.zeroIn),
+    ...fallback,
+    fiveHourPercent: clampPercent(raw.fiveHourPercent, fallback.fiveHourPercent),
+    fiveHourReset: validDateFromISO(raw.fiveHourReset) ? new Date(raw.fiveHourReset).toISOString() : fallback.fiveHourReset,
+    weeklyPercent: clampPercent(raw.weeklyPercent, fallback.weeklyPercent),
+    weeklyReset: validDateFromISO(raw.weeklyReset) ? new Date(raw.weeklyReset).toISOString() : fallback.weeklyReset,
+    lastUpdated: validDateFromISO(raw.lastUpdated) ? new Date(raw.lastUpdated).toISOString() : fallback.lastUpdated,
+    statusLabel: String(raw.statusLabel || fallback.statusLabel),
+    fiveHourSafeRate: String(raw.fiveHourSafeRate || fallback.fiveHourSafeRate),
+    weeklyRemaining: String(raw.weeklyRemaining || fallback.weeklyRemaining),
+    realDailyRate: String(raw.realDailyRate || fallback.realDailyRate),
+    safeDailyRate: String(raw.safeDailyRate || fallback.safeDailyRate),
+    dailyDiff: String(raw.dailyDiff || fallback.dailyDiff),
+    weeklyProjection: String(raw.weeklyProjection || fallback.weeklyProjection),
+    zeroIn: String(raw.zeroIn || fallback.zeroIn),
     history: {
-      cycleStart: validDateFromISO(raw.history?.cycleStart) ? new Date(raw.history.cycleStart).toISOString() : null
+      cycleStart: validDateFromISO(raw.history?.cycleStart)
+        ? new Date(raw.history.cycleStart).toISOString()
+        : fallback.history?.cycleStart || null
     }
   }
 }
 
 function readLocalUsage() {
   if (!fm.fileExists(filePath)) {
-    const initial = defaultUsageData()
-    fm.writeString(filePath, JSON.stringify(initial, null, 2))
-    return initial
+    const base = defaultUsageData()
+    fm.writeString(filePath, JSON.stringify(base, null, 2))
+    return base
   }
 
   try {
-    return normalizeUsage(JSON.parse(fm.readString(filePath)))
+    const base = defaultUsageData()
+    return normalizeUsage(JSON.parse(fm.readString(filePath)), base)
   } catch {
-    const fallback = defaultUsageData()
-    fm.writeString(filePath, JSON.stringify(fallback, null, 2))
-    return fallback
+    const base = defaultUsageData()
+    fm.writeString(filePath, JSON.stringify(base, null, 2))
+    return base
   }
 }
 
 function saveLocalUsage(payload) {
-  fm.writeString(filePath, JSON.stringify(normalizeUsage(payload), null, 2))
+  const current = fm.fileExists(filePath) ? readLocalUsage() : defaultUsageData()
+  fm.writeString(filePath, JSON.stringify(normalizeUsage(payload, current), null, 2))
 }
 
-function assertRemoteProjectMatch() {
-  const selectedUrl = new URL(REMOTE_USAGE_URL)
-  const expectedHost = EXPECTED_PROJECT_HOST_BY_ENV[ENV]
-  if (!expectedHost || selectedUrl.hostname !== expectedHost) {
-    throw new Error(`environment_project_mismatch (${ACTIVE_ENV_METADATA})`)
-  }
-}
-
-async function fetchRemoteUsage() {
+async function fetchRemoteUsage(localFallback) {
   const req = new Request(REMOTE_USAGE_URL)
   req.timeoutInterval = 8
   req.headers = { Accept: "application/json" }
   const payload = await req.loadJSON()
-  return normalizeUsage(payload)
+  return normalizeUsage(payload, localFallback)
 }
 
 async function loadCurrentData() {
   const localData = readLocalUsage()
 
   try {
-    assertRemoteProjectMatch()
-    const remote = await fetchRemoteUsage()
+    const remote = await fetchRemoteUsage(localData)
     saveLocalUsage(remote)
     return {
       data: remote,
@@ -154,9 +137,10 @@ await main()
 
 const now = new Date()
 
-function clampPercent(value) {
+function clampPercent(value, fallback = null) {
+  if (value === null || value === undefined || value === "") return fallback
   const n = Number(value)
-  if (!Number.isFinite(n)) return 0
+  if (!Number.isFinite(n)) return fallback
   return Math.max(0, Math.min(100, Math.round(n)))
 }
 

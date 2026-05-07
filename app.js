@@ -8,6 +8,26 @@ const SAFE_FALLBACK = {
 
 const WEEK_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
+const THEME_KEY = "codex-theme";
+
+function applyTheme(theme) {
+  const safeTheme = theme === "light" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", safeTheme);
+  localStorage.setItem(THEME_KEY, safeTheme);
+  const btn = document.getElementById("themeToggleButton");
+  const icon = document.getElementById("themeToggleIcon");
+  if (btn) btn.setAttribute("aria-pressed", String(safeTheme === "light"));
+  if (icon) icon.textContent = safeTheme === "light" ? "☀" : "☾";
+}
+
+function initTheme() {
+  const saved = localStorage.getItem(THEME_KEY);
+  applyTheme(saved === "light" ? "light" : "dark");
+}
+
+initTheme();
+
+
 /* ===== Viewport Height Fix para iOS ===== */
 function adjustViewportHeight() {
   const vh = window.innerHeight * 0.01;
@@ -238,6 +258,7 @@ function checkAndNotify(status) {
 (async function init() {
   const { usage, hasLoadError } = await loadUsage();
   const els = {
+    themeToggleButton: document.getElementById("themeToggleButton"),
     refreshButton: document.getElementById("refreshButton"),
     shareButton: document.getElementById("shareButton"),
     closeButton: document.getElementById("closeButton"),
@@ -332,6 +353,12 @@ function checkAndNotify(status) {
   checkAndNotify(status);
 
   /* ===== Event Listeners ===== */
+  els.themeToggleButton?.addEventListener("click", () => {
+    triggerHaptic(10);
+    const current = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+    applyTheme(current === "light" ? "dark" : "light");
+  });
+
   els.refreshButton?.addEventListener("click", () => {
     triggerHaptic(20);
     els.refreshButton.classList.remove("spinning");

@@ -14,14 +14,17 @@ const PREVIOUS_SNAPSHOT_KEY = "codex_usage_previous_snapshot_v1";
 
 function saveLastValidPayload(raw) {
   try {
-    localStorage.setItem(LAST_VALID_PAYLOAD_KEY, JSON.stringify(raw));
+    localStorage.setItem(LAST_VALID_PAYLOAD_KEY, JSON.stringify({ payload: raw, savedAt: new Date().toISOString() }));
   } catch {}
 }
 
 function loadLastValidPayload() {
   try {
     const raw = localStorage.getItem(LAST_VALID_PAYLOAD_KEY);
-    return raw ? JSON.parse(raw) : null;
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === "object" && parsed.payload) return parsed;
+    return { payload: parsed, savedAt: null };
   } catch {
     return null;
   }
@@ -261,8 +264,8 @@ async function loadUsage() {
   }
 
   const cached = loadLastValidPayload();
-  if (cached) return { usage: normalizeUsage(cached), hasLoadError: true, source: "cache" };
-  return { usage: normalizeUsage(SAFE_FALLBACK), hasLoadError: true, source: "fallback" };
+  if (cached) return { usage: normalizeUsage(cached.payload), hasLoadError: true, source: "cache", cacheSavedAt: parseDate(cached.savedAt) };
+  return { usage: normalizeUsage(SAFE_FALLBACK), hasLoadError: true, source: "fallback", cacheSavedAt: null };
 }
 
 function resetTextFromDate(date) {
@@ -376,7 +379,7 @@ function renderUsageChart(weeklyUsed, weeklyRemaining) {
 
 /* ===== Main Init Function ===== */
 (async function init() {
-  const { usage, hasLoadError, source } = await loadUsage();
+  const { usage, hasLoadError, source, cacheSavedAt } = await loadUsage();
   const previousSnapshot = loadPreviousSnapshot();
   const els = {
     themeToggleButton: document.getElementById("themeToggleButton"),
@@ -388,6 +391,7 @@ function renderUsageChart(weeklyUsed, weeklyRemaining) {
     statusText: document.getElementById("statusText"),
     statusDot: document.getElementById("statusDot"),
     updatedAtText: document.getElementById("updatedAtText"),
+    dataSourceBadge: document.getElementById("dataSourceBadge"),
     fiveHourPercent: document.getElementById("fiveHourPercent"),
     fiveHourBar: document.getElementById("fiveHourBar"),
     fiveHourLine: document.getElementById("fiveHourLine"),
@@ -434,6 +438,20 @@ function renderUsageChart(weeklyUsed, weeklyRemaining) {
   setProgress("weeklyBar", "weeklyPercent", weeklyRemaining);
 
   els.updatedAtText.textContent = usage.lastUpdatedDate ? formatDateTimePtBr(usage.lastUpdatedDate) : "--";
+  if (els.dataSourceBadge) {
+    if (source === "live") {
+      els.dataSourceBadge.textContent = "AO VIVO";
+      els.dataSourceBadge.className = "source-badge live";
+    } else if (source === "cache") {
+      const ageMinutes = cacheSavedAt ? Math.max(0, Math.floor((Date.now() - cacheSavedAt.getTime()) / 60000)) : null;
+      els.dataSourceBadge.textContent = ageMinutes === null ? "CACHE" : `CACHE ${ageMinutes}m`;
+      els.dataSourceBadge.className = "source-badge cache";
+    } else {
+      els.dataSourceBadge.textContent = "ESTÁTICO";
+      els.dataSourceBadge.className = "source-badge fallback";
+    }
+  }
+
   els.fiveHourUsed.textContent = `${Math.round(fiveHourUsed)}%`;
   els.weeklyUsed.textContent = `${Math.round(weeklyUsed)}%`;
   renderUsageChart(weeklyUsed, weeklyRemaining);

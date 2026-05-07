@@ -108,7 +108,7 @@ function setProgress(barId, textId, percent) {
   const safePercent = clampPercent(percent);
   const bar = document.getElementById(barId);
   const text = document.getElementById(textId);
-  const progress = bar ? bar.closest(".progress") : null;
+  const progress = bar ? bar.parentElement : null;
 
   if (bar) bar.style.width = `${safePercent}%`;
   if (text) text.textContent = `${safePercent}%`;
@@ -122,7 +122,7 @@ function applyStatusState(state, statusText, statusDot) {
     statusDot?.classList.remove(name);
   }
   if (allowed.includes(state)) {
-    statusText?.classList.add(state);
+    statusText?.classList.add(name);
     statusDot?.classList.add(state);
   }
 }
@@ -159,7 +159,7 @@ function resetTextFromDate(date) {
     shareButton: document.getElementById("shareButton"),
     closeButton: document.getElementById("closeButton"),
     statusText: document.getElementById("statusText"),
-    statusDot: document.querySelector(".status-pill .dot"),
+    statusDot: document.getElementById("statusDot"),
     updatedAtText: document.getElementById("updatedAtText"),
     fiveHourPercent: document.getElementById("fiveHourPercent"),
     fiveHourBar: document.getElementById("fiveHourBar"),
@@ -214,16 +214,16 @@ function resetTextFromDate(date) {
   els.weeklyCycleStart.textContent = weeklyCycleStart ? formatDateTimePtBr(weeklyCycleStart) : "--";
 
   els.weeklyLine.textContent = usage.weeklyResetDate
-    ? `renova ${resetTextFromDate(usage.weeklyResetDate)}`
+    ? `Renova ${resetTextFromDate(usage.weeklyResetDate)}`
     : "--";
 
   if (usage.fiveHourResetIsNull && fiveHourRemaining === 100) {
-    els.fiveHourLine.textContent = "cheio · sem ciclo ativo";
+    els.fiveHourLine.textContent = "Cheio · Sem ciclo ativo";
     els.fiveHourUsed.textContent = "0%";
     els.fiveHourSafeRate.textContent = "0%/h";
   } else {
     els.fiveHourLine.textContent = usage.fiveHourResetDate
-      ? `renova em ${formatDurationMs(fiveHourMs)} · ${formatDateTimePtBr(usage.fiveHourResetDate)}`
+      ? `Renova em ${formatDurationMs(fiveHourMs)} · ${formatDateTimePtBr(usage.fiveHourResetDate)}`
       : "--";
     els.fiveHourSafeRate.textContent = formatRatePerHour(fiveHourSafeRate);
   }

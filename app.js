@@ -9,6 +9,22 @@ const SAFE_FALLBACK = {
 const WEEK_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
 const THEME_KEY = "codex-theme";
+const THEME_COLOR_KEY = "codex-theme-color";
+const DEFAULT_THEME_COLOR = "#3b82f6";
+
+function setThemeColor(color) {
+  if (!/^#[0-9a-fA-F]{6}$/.test(color)) return;
+  document.documentElement.style.setProperty("--primary", color);
+  localStorage.setItem(THEME_COLOR_KEY, color);
+  const input = document.getElementById("themeColorInput");
+  if (input) input.value = color;
+}
+
+function initThemeColor() {
+  const saved = localStorage.getItem(THEME_COLOR_KEY) || DEFAULT_THEME_COLOR;
+  setThemeColor(saved);
+}
+
 
 function applyTheme(theme) {
   const safeTheme = theme === "light" ? "light" : "dark";
@@ -26,6 +42,7 @@ function initTheme() {
 }
 
 initTheme();
+initThemeColor();
 
 
 /* ===== Viewport Height Fix para iOS ===== */
@@ -259,6 +276,8 @@ function checkAndNotify(status) {
   const { usage, hasLoadError } = await loadUsage();
   const els = {
     themeToggleButton: document.getElementById("themeToggleButton"),
+    themeColorButton: document.getElementById("themeColorButton"),
+    themeColorInput: document.getElementById("themeColorInput"),
     refreshButton: document.getElementById("refreshButton"),
     shareButton: document.getElementById("shareButton"),
     closeButton: document.getElementById("closeButton"),
@@ -357,6 +376,16 @@ function checkAndNotify(status) {
     triggerHaptic(10);
     const current = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
     applyTheme(current === "light" ? "dark" : "light");
+  });
+
+  els.themeColorButton?.addEventListener("click", () => {
+    triggerHaptic(10);
+    els.themeColorInput?.click();
+  });
+
+  els.themeColorInput?.addEventListener("input", (event) => {
+    const value = event?.target?.value;
+    if (typeof value === "string") setThemeColor(value);
   });
 
   els.refreshButton?.addEventListener("click", () => {

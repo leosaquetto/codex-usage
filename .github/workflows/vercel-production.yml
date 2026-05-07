@@ -6,6 +6,9 @@ on:
 jobs:
   deploy-production:
     runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ steps.deploy_production.outputs.final_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

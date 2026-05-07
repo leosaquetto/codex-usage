@@ -189,15 +189,24 @@ function resolveStatus({ hasLoadError, fiveHourRemaining, weeklyRemaining, realD
 }
 
 async function loadUsage() {
-  try {
-    const response = await fetch(`./codex_usage.json?t=${Date.now()}`, { cache: "no-store" });
-    if (!response.ok) throw new Error("Falha ao carregar JSON");
+  const sources = [
+    `/api/usage?t=${Date.now()}`,
+    `./codex_usage.json?t=${Date.now()}`,
+  ];
 
-    const json = await response.json();
-    return { usage: normalizeUsage(json), hasLoadError: false };
-  } catch {
-    return { usage: normalizeUsage(SAFE_FALLBACK), hasLoadError: true };
+  for (const url of sources) {
+    try {
+      const response = await fetch(url, { cache: "no-store" });
+      if (!response.ok) continue;
+
+      const json = await response.json();
+      return { usage: normalizeUsage(json), hasLoadError: false };
+    } catch {
+      // tenta a próxima fonte
+    }
   }
+
+  return { usage: normalizeUsage(SAFE_FALLBACK), hasLoadError: true };
 }
 
 function resetTextFromDate(date) {

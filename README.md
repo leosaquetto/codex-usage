@@ -1,3 +1,11 @@
+## 🔗 Links de Deploy (Final e Preview)
+
+- **Preview (manual):** abra e execute o workflow [`Vercel Preview Deploy`](../../actions/workflows/vercel-preview.yml).
+- **Final/Produção (manual):** abra e execute o workflow [`Vercel Production Deploy`](../../actions/workflows/vercel-production.yml).
+- Ao final de cada execução, o link correto é publicado no **Job Summary** do GitHub Actions.
+
+---
+
 # 🎨 Refatoração da Analítica do Codex
 
 ## Visão Geral

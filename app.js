@@ -8,6 +8,43 @@ const SAFE_FALLBACK = {
 
 const WEEK_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
+const THEME_KEY = "codex-theme";
+const THEME_COLOR_KEY = "codex-theme-color";
+const DEFAULT_THEME_COLOR = "#3b82f6";
+
+function setThemeColor(color) {
+  if (!/^#[0-9a-fA-F]{6}$/.test(color)) return;
+  document.documentElement.style.setProperty("--primary", color);
+  localStorage.setItem(THEME_COLOR_KEY, color);
+  const input = document.getElementById("themeColorInput");
+  if (input) input.value = color;
+}
+
+function initThemeColor() {
+  const saved = localStorage.getItem(THEME_COLOR_KEY) || DEFAULT_THEME_COLOR;
+  setThemeColor(saved);
+}
+
+
+function applyTheme(theme) {
+  const safeTheme = theme === "light" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", safeTheme);
+  localStorage.setItem(THEME_KEY, safeTheme);
+  const btn = document.getElementById("themeToggleButton");
+  const icon = document.getElementById("themeToggleIcon");
+  if (btn) btn.setAttribute("aria-pressed", String(safeTheme === "light"));
+  if (icon) icon.textContent = safeTheme === "light" ? "☀" : "☾";
+}
+
+function initTheme() {
+  const saved = localStorage.getItem(THEME_KEY);
+  applyTheme(saved === "light" ? "light" : "dark");
+}
+
+initTheme();
+initThemeColor();
+
+
 /* ===== Viewport Height Fix para iOS ===== */
 function adjustViewportHeight() {
   const vh = window.innerHeight * 0.01;
@@ -210,34 +247,75 @@ function requestNotificationPermission() {
   }
 }
 
-function checkAndNotify(status) {
+function getNotificationThreshold(remaining) {
+  if (remaining <= 5) return 5;
+  if (remaining <= 10) return 10;
+  if (remaining <= 20) return 20;
+  return null;
+}
+
+function checkAndNotify(status, fiveHourRemaining, weeklyRemaining) {
   if (localStorage.getItem('notificationsEnabled') !== 'true') return;
-  
+
+  const threshold = Math.min(
+    getNotificationThreshold(fiveHourRemaining) ?? 100,
+    getNotificationThreshold(weeklyRemaining) ?? 100,
+  );
+
+  if (threshold === 100) return;
+
+  const key = `codex-notified-threshold-${threshold}`;
+  if (localStorage.getItem(key) === 'true') return;
+
   try {
-    if (status.state === 'warn') {
-      new Notification('⚠️ Atenção', {
-        body: `${status.text}`,
-        icon: '/webapp/assets/logo.png',
-        tag: 'codex-warning'
-      });
-    }
-    
-    if (status.state === 'danger') {
-      new Notification('🚨 Alerta', {
-        body: `${status.text}`,
-        icon: '/webapp/assets/logo.png',
-        tag: 'codex-danger'
-      });
-    }
+    new Notification('⚠️ Limite baixo', {
+      body: `Seu limite atingiu ${threshold}% ou menos.`,
+      icon: '/webapp/assets/logo.png',
+      tag: `codex-threshold-${threshold}`,
+    });
+    localStorage.setItem(key, 'true');
   } catch (e) {
     // Notificações falharam
   }
+}
+
+
+function renderUsageChart(weeklyUsed, weeklyRemaining) {
+  const canvas = document.getElementById("usageChart");
+  if (!canvas || typeof window.Chart === "undefined") return;
+
+  const data = [Math.max(0, Math.min(100, weeklyUsed)), Math.max(0, Math.min(100, weeklyRemaining))];
+  new window.Chart(canvas, {
+    type: "doughnut",
+    data: {
+      labels: ["Usado", "Restante"],
+      datasets: [{
+        data,
+        backgroundColor: ["#ef4444", getComputedStyle(document.documentElement).getPropertyValue("--primary").trim() || "#3b82f6"],
+        borderWidth: 0,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: {
+            color: getComputedStyle(document.documentElement).getPropertyValue("--text-secondary").trim() || "#cbd5e1",
+          },
+        },
+      },
+    },
+  });
 }
 
 /* ===== Main Init Function ===== */
 (async function init() {
   const { usage, hasLoadError } = await loadUsage();
   const els = {
+    themeToggleButton: document.getElementById("themeToggleButton"),
+    themeColorButton: document.getElementById("themeColorButton"),
+    themeColorInput: document.getElementById("themeColorInput"),
     refreshButton: document.getElementById("refreshButton"),
     shareButton: document.getElementById("shareButton"),
     closeButton: document.getElementById("closeButton"),
@@ -289,6 +367,7 @@ function checkAndNotify(status) {
   els.updatedAtText.textContent = usage.lastUpdatedDate ? formatDateTimePtBr(usage.lastUpdatedDate) : "--";
   els.fiveHourUsed.textContent = `${Math.round(fiveHourUsed)}%`;
   els.weeklyUsed.textContent = `${Math.round(weeklyUsed)}%`;
+  renderUsageChart(weeklyUsed, weeklyRemaining);
   els.weeklyRemainingDays.textContent = formatDays(weeklyDaysRemaining);
   els.weeklyAverage.textContent = formatRatePerDay(realDailyRate);
   els.weeklySafeRate.textContent = formatRatePerDay(safeDailyRate);
@@ -329,9 +408,25 @@ function checkAndNotify(status) {
   applyStatusState(status.state, els.statusText, els.statusDot);
 
   // Verificar e notificar
-  checkAndNotify(status);
+  checkAndNotify(status, fiveHourRemaining, weeklyRemaining);
 
   /* ===== Event Listeners ===== */
+  els.themeToggleButton?.addEventListener("click", () => {
+    triggerHaptic(10);
+    const current = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+    applyTheme(current === "light" ? "dark" : "light");
+  });
+
+  els.themeColorButton?.addEventListener("click", () => {
+    triggerHaptic(10);
+    els.themeColorInput?.click();
+  });
+
+  els.themeColorInput?.addEventListener("input", (event) => {
+    const value = event?.target?.value;
+    if (typeof value === "string") setThemeColor(value);
+  });
+
   els.refreshButton?.addEventListener("click", () => {
     triggerHaptic(20);
     els.refreshButton.classList.remove("spinning");
@@ -387,7 +482,10 @@ function checkAndNotify(status) {
 
 /* ===== Service Worker Registration ===== */
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').catch(() => {
-    // Service worker falhou, não quebra a app
-  });
+  const isSecureContext = window.isSecureContext || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  if (isSecureContext) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {
+      // Service worker falhou, não quebra a app
+    });
+  }
 }

@@ -1,164 +1,134 @@
-const CACHE_NAME = 'codex-v1';
-const ASSETS_TO_CACHE = [
+const CACHE_VERSION = 'v2';
+const STATIC_CACHE = `codex-static-${CACHE_VERSION}`;
+const DATA_CACHE = `codex-data-${CACHE_VERSION}`;
+
+const PRECACHE_URLS = [
   '/',
-  './index.html',
-  './style.css',
-  './app.js',
-  './codex_usage.json',
+  '/index.html',
+  '/style.css',
+  '/app.js',
+  '/manifest.json',
+  '/codex_usage.json',
   '/webapp/assets/logo.png',
   '/webapp/assets/logo_background.png',
   '/webapp/assets/codex.webp',
-  '/webapp/assets/splash.svg'
+  '/webapp/assets/splash.svg',
 ];
 
-/* ===== Install Event ===== */
-self.addEventListener('install', event => {
+self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(ASSETS_TO_CACHE).catch(() => {
-        // Alguns assets podem não estar disponíveis, continuar mesmo assim
-        return Promise.resolve();
-      });
-    }).then(() => {
-      // Ativar o novo service worker imediatamente
-      return self.skipWaiting();
-    })
+    caches
+      .open(STATIC_CACHE)
+      .then((cache) => cache.addAll(PRECACHE_URLS))
+      .catch(() => Promise.resolve())
+      .then(() => self.skipWaiting()),
   );
 });
 
-/* ===== Activate Event ===== */
-self.addEventListener('activate', event => {
+self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => {
-      // Reclamar todos os clientes
-      return self.clients.claim();
-    })
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter((key) => key !== STATIC_CACHE && key !== DATA_CACHE)
+            .map((key) => caches.delete(key)),
+        ),
+      )
+      .then(() => self.clients.claim()),
   );
 });
 
-/* ===== Fetch Event - Network First para dados, Cache First para assets ===== */
-self.addEventListener('fetch', event => {
-  const url = new URL(event.request.url);
+function isSameOrigin(request) {
+  const url = new URL(request.url);
+  return url.origin === self.location.origin;
+}
 
-  // Ignorar requisições para domínios diferentes
-  if (url.origin !== location.origin) {
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+
+  if (request.method !== 'GET' || !isSameOrigin(request)) {
     return;
   }
 
-  // Strategy: Network First para dados dinâmicos (JSON)
-  if (event.request.url.includes('codex_usage.json')) {
+  const isNavigation = request.mode === 'navigate';
+  const isUsageData = request.url.includes('/codex_usage.json');
+
+  if (isNavigation) {
     event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          // Guardar resposta válida no cache
-          if (response && response.status === 200) {
-            const responseClone = response.clone();
-            caches.open(CACHE_NAME).then(cache => {
-              cache.put(event.request, responseClone);
-            });
+      fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(STATIC_CACHE).then((cache) => cache.put('/index.html', clone));
           }
           return response;
         })
-        .catch(() => {
-          // Falha na rede, usar cache
-          return caches.match(event.request).then(response => {
-            return response || new Response('Offline', { status: 503 });
-          });
-        })
+        .catch(async () => (await caches.match('/index.html')) || (await caches.match('/'))),
     );
     return;
   }
 
-  // Strategy: Cache First para assets (imagens, CSS, JS)
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        if (response) {
-          return response;
-        }
-        
-        return fetch(event.request).then(response => {
-          // Não cachear requisições não-GET
-          if (event.request.method !== 'GET' || !response || response.status !== 200) {
-            return response;
+  if (isUsageData) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(DATA_CACHE).then((cache) => cache.put(request, clone));
           }
-          
-          // Guardar no cache
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, responseClone);
-          });
-          
           return response;
-        });
-      })
-      .catch(() => {
-        // Fallback para offline
-        return new Response('Resource not found', { status: 404 });
-      })
+        })
+        .catch(() => caches.match(request) || caches.match('/codex_usage.json')),
+    );
+    return;
+  }
+
+  event.respondWith(
+    caches.match(request).then((cached) => {
+      if (cached) return cached;
+
+      return fetch(request).then((response) => {
+        if (response.ok) {
+          const clone = response.clone();
+          caches.open(STATIC_CACHE).then((cache) => cache.put(request, clone));
+        }
+        return response;
+      });
+    }),
   );
 });
 
-/* ===== Background Sync (Opcional) ===== */
-self.addEventListener('sync', event => {
-  if (event.tag === 'sync-codex-data') {
-    event.waitUntil(
-      fetch('./codex_usage.json')
-        .then(response => response.json())
-        .then(data => {
-          // Guardar dados atualizados
-          return caches.open(CACHE_NAME).then(cache => {
-            return cache.put('./codex_usage.json', new Response(JSON.stringify(data)));
-          });
-        })
-        .catch(err => console.error('Sync failed:', err))
-    );
-  }
-});
 
-/* ===== Push Notifications (Opcional) ===== */
-self.addEventListener('push', event => {
+self.addEventListener('push', (event) => {
   if (!event.data) return;
 
-  const data = event.data.json();
-  
+  let payload = { title: 'Codex Usage', body: 'Limite baixo detectado.' };
+  try {
+    payload = event.data.json();
+  } catch {
+    payload = { title: 'Codex Usage', body: event.data.text() || payload.body };
+  }
+
   event.waitUntil(
-    self.registration.showNotification(data.title || 'Codex Analytics', {
-      body: data.body || '',
+    self.registration.showNotification(payload.title || 'Codex Usage', {
+      body: payload.body || 'Limite baixo detectado.',
       icon: '/webapp/assets/logo.png',
       badge: '/webapp/assets/logo.png',
-      tag: 'codex-notification',
-      requireInteraction: data.requireInteraction || false
-    })
+      tag: payload.tag || 'codex-push-alert',
+    }),
   );
 });
 
-/* ===== Notification Click ===== */
-self.addEventListener('notificationclick', event => {
+self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
-      // Tentar focar uma janela existente
-      for (let i = 0; i < clientList.length; i++) {
-        const client = clientList[i];
-        if (client.url === '/' && 'focus' in client) {
-          return client.focus();
-        }
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+      for (const client of clients) {
+        if ('focus' in client) return client.focus();
       }
-      
-      // Abrir nova janela se não houver
-      if (clients.openWindow) {
-        return clients.openWindow('/');
-      }
-    })
+      if (self.clients.openWindow) return self.clients.openWindow('/');
+    }),
   );
 });

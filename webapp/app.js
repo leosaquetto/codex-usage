@@ -163,6 +163,13 @@ function setProgress(barId, textId, percent) {
   if (bar) {
     bar.style.width = `${safePercent}%`;
     bar.style.setProperty('--progress-width', `${safePercent}%`);
+    if (safePercent >= 70) {
+      bar.style.background = 'linear-gradient(90deg, #22c55e, #16a34a)';
+    } else if (safePercent >= 35) {
+      bar.style.background = 'linear-gradient(90deg, #f59e0b, #d97706)';
+    } else {
+      bar.style.background = 'linear-gradient(90deg, #ef4444, #dc2626)';
+    }
   }
   if (text) text.textContent = `${safePercent}%`;
   if (progress) progress.setAttribute("aria-valuenow", String(safePercent));

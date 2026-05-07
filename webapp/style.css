@@ -242,6 +242,14 @@ p {
   flex-shrink: 0;
 }
 
+.theme-color-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .icon-button {
   appearance: none;
   -webkit-appearance: none;

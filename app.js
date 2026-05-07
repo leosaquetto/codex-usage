@@ -8,6 +8,19 @@ const SAFE_FALLBACK = {
 
 const WEEK_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
+/* ===== Viewport Height Fix para iOS ===== */
+function adjustViewportHeight() {
+  const vh = window.innerHeight * 0.01;
+  const svh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+  document.documentElement.style.setProperty('--svh', `${svh}px`);
+}
+
+window.addEventListener('resize', adjustViewportHeight);
+window.addEventListener('orientationchange', adjustViewportHeight);
+adjustViewportHeight();
+
+/* ===== Utility Functions ===== */
 function clampPercent(value, fallback = 0) {
   const n = Number(value);
   if (Number.isNaN(n)) return fallback;
@@ -110,7 +123,10 @@ function setProgress(barId, textId, percent) {
   const text = document.getElementById(textId);
   const progress = bar ? bar.parentElement : null;
 
-  if (bar) bar.style.width = `${safePercent}%`;
+  if (bar) {
+    bar.style.width = `${safePercent}%`;
+    bar.style.setProperty('--progress-width', `${safePercent}%`);
+  }
   if (text) text.textContent = `${safePercent}%`;
   if (progress) progress.setAttribute("aria-valuenow", String(safePercent));
 }
@@ -122,7 +138,7 @@ function applyStatusState(state, statusText, statusDot) {
     statusDot?.classList.remove(name);
   }
   if (allowed.includes(state)) {
-    statusText?.classList.add(name);
+    statusText?.classList.add(state);
     statusDot?.classList.add(state);
   }
 }
@@ -152,6 +168,73 @@ function resetTextFromDate(date) {
   return `${formatDateTimePtBr(date)} (${formatRemainingTime(date)})`;
 }
 
+/* ===== Haptic Feedback ===== */
+function triggerHaptic(duration = 10) {
+  if (window.navigator && window.navigator.vibrate) {
+    window.navigator.vibrate(duration);
+  }
+}
+
+/* ===== Mobile Interaction Enhancement ===== */
+function enhanceMobileInteraction() {
+  const interactiveElements = document.querySelectorAll('.icon-button, .button');
+  
+  interactiveElements.forEach(el => {
+    el.addEventListener('touchstart', function(e) {
+      triggerHaptic(10);
+      this.style.transform = 'scale(0.95)';
+    }, { passive: true });
+    
+    el.addEventListener('touchend', function() {
+      this.style.transform = '';
+    }, { passive: true });
+  });
+}
+
+/* ===== Notification Support ===== */
+function requestNotificationPermission() {
+  if (!('Notification' in window)) return;
+  
+  if (Notification.permission === 'granted') {
+    return;
+  }
+  
+  if (Notification.permission !== 'denied') {
+    Notification.requestPermission().then(permission => {
+      if (permission === 'granted') {
+        localStorage.setItem('notificationsEnabled', 'true');
+      }
+    }).catch(() => {
+      // Notificações não suportadas
+    });
+  }
+}
+
+function checkAndNotify(status) {
+  if (localStorage.getItem('notificationsEnabled') !== 'true') return;
+  
+  try {
+    if (status.state === 'warn') {
+      new Notification('⚠️ Atenção', {
+        body: `${status.text}`,
+        icon: '/webapp/assets/logo.png',
+        tag: 'codex-warning'
+      });
+    }
+    
+    if (status.state === 'danger') {
+      new Notification('🚨 Alerta', {
+        body: `${status.text}`,
+        icon: '/webapp/assets/logo.png',
+        tag: 'codex-danger'
+      });
+    }
+  } catch (e) {
+    // Notificações falharam
+  }
+}
+
+/* ===== Main Init Function ===== */
 (async function init() {
   const { usage, hasLoadError } = await loadUsage();
   const els = {
@@ -245,7 +328,12 @@ function resetTextFromDate(date) {
   els.statusText.textContent = status.text;
   applyStatusState(status.state, els.statusText, els.statusDot);
 
-  els.refreshButton.addEventListener("click", () => {
+  // Verificar e notificar
+  checkAndNotify(status);
+
+  /* ===== Event Listeners ===== */
+  els.refreshButton?.addEventListener("click", () => {
+    triggerHaptic(20);
     els.refreshButton.classList.remove("spinning");
     void els.refreshButton.offsetWidth;
     els.refreshButton.classList.add("spinning");
@@ -254,7 +342,8 @@ function resetTextFromDate(date) {
     }, 160);
   });
 
-  els.shareButton.addEventListener("click", async () => {
+  els.shareButton?.addEventListener("click", async () => {
+    triggerHaptic(15);
     const data = {
       title: "Analítica do Codex",
       text: "Dashboard local da Analítica do Codex",
@@ -268,10 +357,17 @@ function resetTextFromDate(date) {
     }
     try {
       await navigator.clipboard.writeText(window.location.href);
+      // Feedback visual de cópia
+      const originalText = els.shareButton.textContent;
+      els.shareButton.textContent = "✓";
+      setTimeout(() => {
+        els.shareButton.textContent = originalText;
+      }, 1500);
     } catch {}
   });
 
-  els.closeButton.addEventListener("click", () => {
+  els.closeButton?.addEventListener("click", () => {
+    triggerHaptic(10);
     window.close();
     setTimeout(() => {
       if (history.length > 1) {
@@ -281,4 +377,17 @@ function resetTextFromDate(date) {
       }
     }, 120);
   });
+
+  // Melhorar interações em mobile
+  enhanceMobileInteraction();
+
+  // Solicitar permissão de notificações
+  requestNotificationPermission();
 })();
+
+/* ===== Service Worker Registration ===== */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {
+    // Service worker falhou, não quebra a app
+  });
+}

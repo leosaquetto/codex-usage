@@ -930,43 +930,8 @@ p {
   }
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg-base: #f8fafc;
-    --bg-surface: #f1f5f9;
-    --bg-elevated: #e2e8f0;
-    --text-primary: #0f172a;
-    --text-secondary: #334155;
-    --text-tertiary: #64748b;
-    --text-muted: #94a3b8;
-    --border-color: #cbd5e1;
-    --border-light: #e2e8f0;
-  }
+/* Mantém tema dark como padrão em todos os esquemas de cor */
 
-  .background-decorator {
-    background:
-      radial-gradient(circle at 20% -10%, rgba(59, 130, 246, 0.08), transparent 40%),
-      radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.06), transparent 35%),
-      radial-gradient(circle at 50% 100%, rgba(59, 130, 246, 0.04), transparent 50%);
-  }
-
-  body::before {
-    background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
-  }
-
-  html {
-    background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
-  }
-
-  .limit-card,
-  .rhythm-card {
-    box-shadow: var(--shadow-md);
-  }
-
-  .card-info {
-    background: rgba(59, 130, 246, 0.08);
-  }
-}
 
 /* ===== Print Styles ===== */
 @media print {

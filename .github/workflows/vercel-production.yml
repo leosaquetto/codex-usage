@@ -31,7 +31,20 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Deploy Project Artifacts (Production)
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        id: deploy_production
+        run: |
+          FINAL_URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} --yes)
+          echo "final_url=${FINAL_URL}" >> "$GITHUB_OUTPUT"
+          echo "Final URL: ${FINAL_URL}"
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Publicar links do deploy
+        run: |
+          {
+            echo "## 🚀 Links do Deploy"
+            echo
+            echo "- Final: ${{ steps.deploy_production.outputs.final_url }}"
+            echo "- Preview: Execute o workflow \"Vercel Preview Deploy\" para gerar o link de preview."
+          } >> "$GITHUB_STEP_SUMMARY"

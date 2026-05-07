@@ -3,194 +3,76 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#0f172a" />
-
-    <!-- PWA -->
+    <meta name="theme-color" content="#f4f6fb" />
     <link rel="manifest" href="/manifest.json" />
-
-    <!-- iOS full screen -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-
-    <!-- SPLASH iOS -->
     <link rel="apple-touch-startup-image" href="/assets/splash.svg" />
-
-    <!-- ICONS -->
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/logo_background.png" />
     <link rel="icon" sizes="192x192" href="/assets/logo_background.png" />
-    <link rel="icon" sizes="512x512" href="/assets/logo_background.png" />
-
     <title>Analítica do Codex</title>
     <link rel="stylesheet" href="./style.css" />
   </head>
-
   <body>
-    <div class="background-decorator"></div>
-    
     <main class="container" aria-live="polite">
-      <!-- Header -->
       <header class="header">
-        <div class="header-content">
-          <div class="brand">
-            <img src="/assets/logo.png" alt="Codex" class="brand-logo" />
-            <div class="brand-text">
-              <h1>Analítica do Codex</h1>
-              <p class="brand-subtitle">Dashboard Local</p>
-            </div>
-          </div>
-
+        <div class="header-top">
+          <h1>Analítica do Codex <span class="status-pill"><span id="statusDot" class="status-dot"></span><span id="statusText">Carregando...</span></span></h1>
           <div class="header-actions">
-            <button id="refreshButton" class="icon-button" title="Recarregar página" aria-label="Recarregar">
-              <span class="icon">↻</span>
-            </button>
-            <button id="shareButton" class="icon-button" title="Compartilhar" aria-label="Compartilhar">
-              <span class="icon">↑</span>
-            </button>
-            <button id="closeButton" class="icon-button" title="Fechar" aria-label="Fechar">
-              <span class="icon">×</span>
-            </button>
+            <button id="themeToggleButton" class="icon-button" aria-label="Alternar tema"><span id="themeToggleIcon">☾</span></button>
+            <button id="refreshButton" class="icon-button" title="Recarregar" aria-label="Recarregar">↻</button>
+            <button id="shareButton" class="icon-button" title="Compartilhar" aria-label="Compartilhar">↑</button>
+            <button id="closeButton" class="icon-button" title="Fechar" aria-label="Fechar">×</button>
+            <input id="themeColorInput" type="color" value="#3b82f6" hidden />
           </div>
         </div>
-
-        <!-- Status Bar -->
-        <div class="status-bar">
-          <div class="status-indicator">
-            <span id="statusDot" class="status-dot"></span>
-            <span id="statusText" class="status-message">Carregando...</span>
-          </div>
-          <div class="status-timestamp">
-            <span class="timestamp-label">Atualizado</span>
-            <span id="updatedAtText" class="timestamp-value">—</span>
-          </div>
-        </div>
+        <p class="subtitle">Última atualização: <span id="updatedAtText">—</span></p>
       </header>
 
-      <!-- Main Content -->
-      <section class="content">
-        <!-- Limits Grid -->
+      <section class="section">
+        <h2>Limites de Uso</h2>
         <div class="limits-grid">
-          <!-- 5-Hour Limit Card -->
           <article class="limit-card">
-            <div class="card-header">
-              <h2 class="card-title">Limite de 5 Horas</h2>
-              <div class="card-badge">5h</div>
-            </div>
-
-            <div class="limit-display">
-              <div class="limit-value">
-                <span id="fiveHourPercent" class="value-number">—</span>
-                <span class="value-unit">%</span>
-              </div>
-              <p class="value-label">Restante</p>
-            </div>
-
-            <div class="progress-bar">
-              <div id="fiveHourBar" class="progress-fill"></div>
-            </div>
-
-            <div id="fiveHourLine" class="card-info">—</div>
-
+            <div class="card-header"><h3>Limite de 5 Horas</h3><span class="card-badge">5h</span></div>
+            <div class="limit-value"><span id="fiveHourPercent">—</span><small>% Restante</small></div>
+            <div class="progress-bar"><div id="fiveHourBar" class="progress-fill"></div></div>
+            <p id="fiveHourLine" class="card-info">—</p>
             <div class="metrics-grid">
-              <div class="metric-item">
-                <span class="metric-label">Usado</span>
-                <span id="fiveHourUsed" class="metric-value">—%</span>
-                <span class="metric-subtitle">Neste ciclo</span>
-              </div>
-              <div class="metric-item">
-                <span class="metric-label">Seguro</span>
-                <span id="fiveHourSafeRate" class="metric-value">—/h</span>
-                <span class="metric-subtitle">Taxa horária</span>
-              </div>
+              <div class="metric-item"><span>Usado</span><strong id="fiveHourUsed">—%</strong><small>Neste ciclo</small></div>
+              <div class="metric-item"><span>Ritmo Seguro</span><strong id="fiveHourSafeRate">—/h</strong><small>Taxa horária</small></div>
             </div>
           </article>
 
-          <!-- Weekly Limit Card -->
           <article class="limit-card">
-            <div class="card-header">
-              <h2 class="card-title">Limite Semanal</h2>
-              <div class="card-badge">7d</div>
-            </div>
-
-            <div class="limit-display">
-              <div class="limit-value">
-                <span id="weeklyPercent" class="value-number">—</span>
-                <span class="value-unit">%</span>
-              </div>
-              <p class="value-label">Restante</p>
-            </div>
-
-            <div class="progress-bar">
-              <div id="weeklyBar" class="progress-fill"></div>
-            </div>
-
-            <div id="weeklyLine" class="card-info">—</div>
-
+            <div class="card-header"><h3>Limite Semanal</h3><span class="card-badge">7d</span></div>
+            <div class="limit-value"><span id="weeklyPercent">—</span><small>% Restante</small></div>
+            <div class="progress-bar"><div id="weeklyBar" class="progress-fill"></div></div>
+            <p id="weeklyLine" class="card-info">—</p>
             <div class="metrics-grid">
-              <div class="metric-item">
-                <span class="metric-label">Usado</span>
-                <span id="weeklyUsed" class="metric-value">—%</span>
-                <span class="metric-subtitle">Desde reset</span>
-              </div>
-              <div class="metric-item">
-                <span class="metric-label">Até reset</span>
-                <span id="weeklyRemainingDays" class="metric-value">—</span>
-                <span class="metric-subtitle">Dias restantes</span>
-              </div>
+              <div class="metric-item"><span>Usado</span><strong id="weeklyUsed">—%</strong><small>Desde reset</small></div>
+              <div class="metric-item"><span>Tempo Restante</span><strong id="weeklyRemainingDays">—</strong><small>Dias restantes</small></div>
             </div>
           </article>
         </div>
-
-        <!-- Weekly Rhythm Section -->
-        <section class="rhythm-section">
-          <h2 class="section-title">Análise Semanal</h2>
-          
-          <article class="rhythm-card">
-            <div class="rhythm-grid">
-              <div class="rhythm-item">
-                <span class="rhythm-label">Média Real</span>
-                <span id="weeklyAverage" class="rhythm-value">—</span>
-                <span class="rhythm-unit">%/dia</span>
-              </div>
-              <div class="rhythm-item">
-                <span class="rhythm-label">Ritmo Seguro</span>
-                <span id="weeklySafeRate" class="rhythm-value">—</span>
-                <span class="rhythm-unit">%/dia</span>
-              </div>
-              <div class="rhythm-item">
-                <span class="rhythm-label">Diferença</span>
-                <span id="weeklyDifference" class="rhythm-value">—</span>
-                <span class="rhythm-unit">%/dia</span>
-              </div>
-              <div class="rhythm-item">
-                <span class="rhythm-label">Projeção Final</span>
-                <span id="weeklyProjection" class="rhythm-value">—</span>
-                <span class="rhythm-unit">%</span>
-              </div>
-              <div class="rhythm-item">
-                <span class="rhythm-label">Zera em</span>
-                <span id="weeklyZeroAt" class="rhythm-value">—</span>
-                <span class="rhythm-unit">data/hora</span>
-              </div>
-              <div class="rhythm-item">
-                <span class="rhythm-label">Início do Ciclo</span>
-                <span id="weeklyCycleStart" class="rhythm-value">—</span>
-                <span class="rhythm-unit">data/hora</span>
-              </div>
-            </div>
-
-            <div class="action-buttons">
-              <a href="https://chatgpt.com/codex/cloud/settings/analytics" class="button button-primary">
-                Abrir Codex
-              </a>
-              <a href="shortcuts://run-shortcut?name=Atualizar%20uso%20Codex" class="button button-secondary">
-                Atualizar Uso
-              </a>
-            </div>
-          </article>
-        </section>
       </section>
-    </main>
 
+      <section class="section">
+        <h2>Análise de Desempenho Semanal</h2>
+        <div class="rhythm-grid">
+          <article class="rhythm-item"><span>Média Real</span><strong id="weeklyAverage">—</strong><small>%/dia</small></article>
+          <article class="rhythm-item"><span>Ritmo Seguro</span><strong id="weeklySafeRate">—</strong><small>%/dia</small></article>
+          <article class="rhythm-item"><span>Diferença</span><strong id="weeklyDifference">—</strong><small>%/dia</small></article>
+          <article class="rhythm-item"><span>Projeção Final</span><strong id="weeklyProjection">—</strong><small>%</small></article>
+          <article class="rhythm-item"><span>Zera em</span><strong id="weeklyZeroAt">—</strong><small>data/hora</small></article>
+          <article class="rhythm-item"><span>Início do Ciclo</span><strong id="weeklyCycleStart">—</strong><small>data/hora</small></article>
+        </div>
+      </section>
+
+      <div class="action-buttons">
+        <a href="https://chatgpt.com/codex/cloud/settings/analytics" class="button button-primary">Abrir Codex</a>
+        <a href="shortcuts://run-shortcut?name=Atualizar%20uso%20Codex" class="button button-secondary">Atualizar Uso</a>
+      </div>
+    </main>
     <script src="./app.js" defer></script>
   </body>
 </html>

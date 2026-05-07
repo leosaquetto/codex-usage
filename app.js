@@ -387,7 +387,10 @@ function checkAndNotify(status) {
 
 /* ===== Service Worker Registration ===== */
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').catch(() => {
-    // Service worker falhou, não quebra a app
-  });
+  const isSecureContext = window.isSecureContext || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  if (isSecureContext) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {
+      // Service worker falhou, não quebra a app
+    });
+  }
 }

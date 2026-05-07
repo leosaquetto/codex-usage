@@ -980,3 +980,9 @@ p {
     display: none;
   }
 }
+
+
+#usageChart {
+  width: 100% !important;
+  max-height: 280px;
+}

@@ -271,6 +271,36 @@ function checkAndNotify(status) {
   }
 }
 
+
+function renderUsageChart(weeklyUsed, weeklyRemaining) {
+  const canvas = document.getElementById("usageChart");
+  if (!canvas || typeof window.Chart === "undefined") return;
+
+  const data = [Math.max(0, Math.min(100, weeklyUsed)), Math.max(0, Math.min(100, weeklyRemaining))];
+  new window.Chart(canvas, {
+    type: "doughnut",
+    data: {
+      labels: ["Usado", "Restante"],
+      datasets: [{
+        data,
+        backgroundColor: ["#ef4444", getComputedStyle(document.documentElement).getPropertyValue("--primary").trim() || "#3b82f6"],
+        borderWidth: 0,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: {
+            color: getComputedStyle(document.documentElement).getPropertyValue("--text-secondary").trim() || "#cbd5e1",
+          },
+        },
+      },
+    },
+  });
+}
+
 /* ===== Main Init Function ===== */
 (async function init() {
   const { usage, hasLoadError } = await loadUsage();
@@ -329,6 +359,7 @@ function checkAndNotify(status) {
   els.updatedAtText.textContent = usage.lastUpdatedDate ? formatDateTimePtBr(usage.lastUpdatedDate) : "--";
   els.fiveHourUsed.textContent = `${Math.round(fiveHourUsed)}%`;
   els.weeklyUsed.textContent = `${Math.round(weeklyUsed)}%`;
+  renderUsageChart(weeklyUsed, weeklyRemaining);
   els.weeklyRemainingDays.textContent = formatDays(weeklyDaysRemaining);
   els.weeklyAverage.textContent = formatRatePerDay(realDailyRate);
   els.weeklySafeRate.textContent = formatRatePerDay(safeDailyRate);

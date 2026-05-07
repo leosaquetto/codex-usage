@@ -7,6 +7,7 @@ const SAFE_FALLBACK = {
 };
 
 const WEEK_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+const CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 
 
 const LAST_VALID_PAYLOAD_KEY = "codex_usage_last_valid_v1";
@@ -264,8 +265,15 @@ async function loadUsage() {
   }
 
   const cached = loadLastValidPayload();
-  if (cached) return { usage: normalizeUsage(cached.payload), hasLoadError: true, source: "cache", cacheSavedAt: parseDate(cached.savedAt) };
+  const cacheSavedAt = cached ? parseDate(cached.savedAt) : null;
+  const isCacheFresh = cacheSavedAt ? (Date.now() - cacheSavedAt.getTime()) <= CACHE_TTL_MS : false;
+
+  if (cached && isCacheFresh) {
+    return { usage: normalizeUsage(cached.payload), hasLoadError: true, source: "cache", cacheSavedAt };
+  }
+
   return { usage: normalizeUsage(SAFE_FALLBACK), hasLoadError: true, source: "fallback", cacheSavedAt: null };
+
 }
 
 function resetTextFromDate(date) {
@@ -338,7 +346,7 @@ function checkAndNotify(status, fiveHourRemaining, weeklyRemaining) {
   try {
     new Notification('⚠️ Limite baixo', {
       body: `Seu limite atingiu ${threshold}% ou menos.`,
-      icon: '/webapp/assets/logo.png',
+      icon: '/assets/logo.png',
       tag: `codex-threshold-${threshold}`,
     });
     localStorage.setItem(key, 'true');
@@ -515,10 +523,14 @@ function renderUsageChart(weeklyUsed, weeklyRemaining) {
   }
   applyStatusState(status.state, els.statusText, els.statusDot);
 
-  savePreviousSnapshot({
-    weeklyRemaining,
-    updatedAt: usage.lastUpdatedDate ? usage.lastUpdatedDate.toISOString() : null,
-  });
+  const previousUpdatedAtIso = previousSnapshot?.updatedAt || null;
+  const currentUpdatedAtIso = usage.lastUpdatedDate ? usage.lastUpdatedDate.toISOString() : null;
+  if (currentUpdatedAtIso && currentUpdatedAtIso !== previousUpdatedAtIso) {
+    savePreviousSnapshot({
+      weeklyRemaining,
+      updatedAt: currentUpdatedAtIso,
+    });
+  }
 
   // Verificar e notificar
   checkAndNotify(status, fiveHourRemaining, weeklyRemaining);

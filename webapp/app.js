@@ -8,6 +8,24 @@ const SAFE_FALLBACK = {
 
 const WEEK_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
+
+const LAST_VALID_PAYLOAD_KEY = "codex_usage_last_valid_v1";
+
+function saveLastValidPayload(raw) {
+  try {
+    localStorage.setItem(LAST_VALID_PAYLOAD_KEY, JSON.stringify(raw));
+  } catch {}
+}
+
+function loadLastValidPayload() {
+  try {
+    const raw = localStorage.getItem(LAST_VALID_PAYLOAD_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
 const THEME_KEY = "codex-theme";
 const THEME_COLOR_KEY = "codex-theme-color";
 const DEFAULT_THEME_COLOR = "#3b82f6";
@@ -154,6 +172,17 @@ function normalizeUsage(raw) {
   };
 }
 
+function resolveProgressGradient(percent) {
+  const p = clampPercent(percent);
+
+  if (p <= 25) return "linear-gradient(90deg, #ef4444 0%, #dc2626 100%)";
+  if (p <= 50) return "linear-gradient(90deg, #f59e0b 0%, #d97706 100%)";
+
+  const blueCap = Math.max(8, Math.min(18, 100 - p + 8));
+  const split = Math.max(0, 100 - blueCap);
+  return `linear-gradient(90deg, #22c55e 0%, #22c55e ${split}%, #60a5fa 100%)`;
+}
+
 function setProgress(barId, textId, percent) {
   const safePercent = clampPercent(percent);
   const bar = document.getElementById(barId);
@@ -163,6 +192,7 @@ function setProgress(barId, textId, percent) {
   if (bar) {
     bar.style.width = `${safePercent}%`;
     bar.style.setProperty('--progress-width', `${safePercent}%`);
+    bar.style.background = resolveProgressGradient(safePercent);
   }
   if (text) text.textContent = `${safePercent}%`;
   if (progress) progress.setAttribute("aria-valuenow", String(safePercent));
@@ -200,13 +230,16 @@ async function loadUsage() {
       if (!response.ok) continue;
 
       const json = await response.json();
-      return { usage: normalizeUsage(json), hasLoadError: false };
+      saveLastValidPayload(json);
+      return { usage: normalizeUsage(json), hasLoadError: false, source: "live" };
     } catch {
       // tenta a próxima fonte
     }
   }
 
-  return { usage: normalizeUsage(SAFE_FALLBACK), hasLoadError: true };
+  const cached = loadLastValidPayload();
+  if (cached) return { usage: normalizeUsage(cached), hasLoadError: true, source: "cache" };
+  return { usage: normalizeUsage(SAFE_FALLBACK), hasLoadError: true, source: "fallback" };
 }
 
 function resetTextFromDate(date) {
@@ -320,7 +353,7 @@ function renderUsageChart(weeklyUsed, weeklyRemaining) {
 
 /* ===== Main Init Function ===== */
 (async function init() {
-  const { usage, hasLoadError } = await loadUsage();
+  const { usage, hasLoadError, source } = await loadUsage();
   const els = {
     themeToggleButton: document.getElementById("themeToggleButton"),
     themeColorButton: document.getElementById("themeColorButton"),
@@ -344,6 +377,9 @@ function renderUsageChart(weeklyUsed, weeklyRemaining) {
     weeklyAverage: document.getElementById("weeklyAverage"),
     weeklySafeRate: document.getElementById("weeklySafeRate"),
     weeklyDifference: document.getElementById("weeklyDifference"),
+    weeklyDifferenceTrend: document.getElementById("weeklyDifferenceTrend"),
+    weeklyDeltaSinceLast: document.getElementById("weeklyDeltaSinceLast"),
+    confidenceHint: document.getElementById("confidenceHint"),
     weeklyProjection: document.getElementById("weeklyProjection"),
     weeklyZeroAt: document.getElementById("weeklyZeroAt"),
     weeklyCycleStart: document.getElementById("weeklyCycleStart"),
@@ -381,6 +417,13 @@ function renderUsageChart(weeklyUsed, weeklyRemaining) {
   els.weeklyAverage.textContent = formatRatePerDay(realDailyRate);
   els.weeklySafeRate.textContent = formatRatePerDay(safeDailyRate);
   els.weeklyDifference.textContent = formatDifference(dailyDiff);
+  if (els.weeklyDifferenceTrend) els.weeklyDifferenceTrend.textContent = Number.isFinite(dailyDiff) ? (dailyDiff > 0 ? "↑" : dailyDiff < 0 ? "↓" : "→") : "•";
+  if (els.weeklyDeltaSinceLast) {
+    const deltaText = usage.lastUpdatedDate
+      ? `${formatDifference(0)} desde ${usage.lastUpdatedDate.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
+      : "--";
+    els.weeklyDeltaSinceLast.textContent = deltaText;
+  }
   els.weeklyProjection.textContent = formatPercent(projectedRemaining);
   els.weeklyCycleStart.textContent = weeklyCycleStart ? formatDateTimePtBr(weeklyCycleStart) : "--";
 
@@ -414,6 +457,17 @@ function renderUsageChart(weeklyUsed, weeklyRemaining) {
     safeDailyRate,
   });
   els.statusText.textContent = status.text;
+  if (els.confidenceHint) {
+    if (usage.fiveHourResetIsNull) {
+      els.confidenceHint.textContent = "Confiança: parcial (reset 5h nulo).";
+    } else if (source === "cache") {
+      els.confidenceHint.textContent = "Confiança: média (cache local por falha na API).";
+    } else if (source === "fallback") {
+      els.confidenceHint.textContent = "Confiança: baixa (fallback estático).";
+    } else {
+      els.confidenceHint.textContent = "Confiança: alta (dados ao vivo).";
+    }
+  }
   applyStatusState(status.state, els.statusText, els.statusDot);
 
   // Verificar e notificar

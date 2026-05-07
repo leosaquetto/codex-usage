@@ -55,7 +55,7 @@
             <button id="closeButton" class="icon-button" title="Fechar" aria-label="Fechar">
               <span class="icon">×</span>
             </button>
-            <input id="themeColorInput" type="color" value="#3b82f6" aria-label="Selecionar cor do tema" hidden />
+            <input id="themeColorInput" class="theme-color-input" type="color" value="#3b82f6" aria-label="Selecionar cor do tema" />
           </div>
         </div>
 
@@ -70,6 +70,7 @@
             <span id="updatedAtText" class="timestamp-value">—</span>
           </div>
         </div>
+        <div class="status-legend" aria-hidden="true">seguro · atenção · crítico</div>
       </header>
 
       <!-- Main Content -->
@@ -164,8 +165,9 @@
                 <span class="rhythm-unit">%/dia</span>
               </div>
               <div class="rhythm-item">
-                <span class="rhythm-label">Diferença</span>
+                <span class="rhythm-label">Diferença <span id="weeklyDifferenceTrend" class="trend-icon">•</span></span>
                 <span id="weeklyDifference" class="rhythm-value">—</span>
+                <span id="weeklyDeltaSinceLast" class="rhythm-subvalue">—</span>
                 <span class="rhythm-unit">%/dia</span>
               </div>
               <div class="rhythm-item">
@@ -184,6 +186,8 @@
                 <span class="rhythm-unit">data/hora</span>
               </div>
             </div>
+
+            <p id="confidenceHint" class="confidence-hint">Confiança: —</p>
 
             <div class="action-buttons">
               <a href="https://chatgpt.com/codex/cloud/settings/analytics" class="button button-primary">

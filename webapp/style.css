@@ -372,6 +372,7 @@ p {
   font-size: 12px;
   font-weight: 500;
   color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
 }
 
 .source-badge {
@@ -496,6 +497,7 @@ p {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: valueChange 0.3s ease-out;
+  font-variant-numeric: tabular-nums;
 }
 
 .value-unit {
@@ -530,6 +532,7 @@ p {
   box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
   transform: translateZ(0);
   will-change: width;
+  transition: width 280ms var(--ease-in-out), background 280ms var(--ease-in-out);
 }
 
 /* ===== Card Info ===== */
@@ -582,6 +585,7 @@ p {
   font-weight: 700;
   color: var(--primary-light);
   animation: valueChange 0.3s ease-out;
+  font-variant-numeric: tabular-nums;
 }
 
 .metric-subtitle {
@@ -680,6 +684,7 @@ p {
   font-size: 20px;
   font-weight: 700;
   color: var(--primary-light);
+  font-variant-numeric: tabular-nums;
 }
 
 .rhythm-unit {
@@ -988,6 +993,7 @@ p {
 .rhythm-subvalue {
   font-size: 11px;
   color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
 }
 .confidence-hint {
   margin-top: 12px;

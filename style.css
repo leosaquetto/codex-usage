@@ -42,6 +42,10 @@
   /* Animations */
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-smooth: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* Viewport height para iOS */
+  --vh: 1vh;
+  --svh: 1vh;
 }
 
 /* ===== Reset & Base ===== */
@@ -57,14 +61,18 @@
 html {
   width: 100%;
   height: 100%;
+  height: 100dvh;
   background-color: var(--bg-base);
+  background: linear-gradient(to bottom, #0f172a, #0a0f1a);
+  background-attachment: fixed;
   overscroll-behavior: none;
+  overflow: hidden;
 }
 
 body {
   width: 100%;
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100%;
+  height: 100dvh;
   background-color: var(--bg-base);
   color: var(--text-primary);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", sans-serif;
@@ -73,7 +81,24 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
+  overflow-y: scroll;
+  overflow-y: overlay;
   overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+  background: transparent;
+}
+
+/* Prevenir white flashing no topo em iOS */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  background: linear-gradient(to bottom, #0f172a, #0a0f1a);
+  pointer-events: none;
+  z-index: -2;
 }
 
 /* ===== Background Decorator ===== */
@@ -82,6 +107,8 @@ body {
   inset: 0;
   z-index: -1;
   pointer-events: none;
+  will-change: auto;
+  background-attachment: fixed;
   background:
     radial-gradient(circle at 20% -10%, rgba(59, 130, 246, 0.1), transparent 40%),
     radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.08), transparent 35%),
@@ -126,12 +153,16 @@ p {
   padding-right: max(16px, env(safe-area-inset-right));
   position: relative;
   z-index: 1;
+  contain: layout style paint;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ===== Header ===== */
 .header {
   margin-bottom: 24px;
   animation: fadeInDown 0.5s var(--ease-smooth);
+  contain: layout style;
 }
 
 .header-content {
@@ -161,6 +192,8 @@ p {
   flex-shrink: 0;
   box-shadow: var(--shadow-lg);
   animation: scaleIn 0.5s var(--ease-smooth);
+  will-change: auto;
+  transform: translateZ(0);
 }
 
 .brand-text {
@@ -193,6 +226,8 @@ p {
   -webkit-appearance: none;
   width: 40px;
   height: 40px;
+  min-height: 44px;
+  min-width: 44px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
   background: var(--bg-surface);
@@ -206,6 +241,10 @@ p {
   transition: all 0.2s var(--ease-in-out);
   box-shadow: var(--shadow-sm);
   flex-shrink: 0;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  transform: translateZ(0);
 }
 
 .icon-button:hover {
@@ -215,7 +254,13 @@ p {
 }
 
 .icon-button:active {
-  transform: scale(0.95);
+  transform: scale(0.92);
+  box-shadow: var(--shadow-sm);
+}
+
+.icon-button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 .icon-button.spinning {
@@ -247,8 +292,10 @@ p {
   border-radius: 50%;
   background: var(--status-warn);
   box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
-  animation: pulse 2s ease-in-out infinite;
+  animation: pulse 2s ease-in-out infinite, statusGlow 3s ease-in-out infinite;
   flex-shrink: 0;
+  transform: translateZ(0);
+  will-change: box-shadow;
 }
 
 .status-dot.ok {
@@ -328,6 +375,18 @@ p {
   transition: all 0.3s var(--ease-in-out);
   position: relative;
   overflow: hidden;
+  animation: cascadeIn 0.5s var(--ease-smooth) backwards;
+  contain: content;
+  transform: translateZ(0);
+  will-change: auto;
+}
+
+.limit-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.limit-card:nth-child(2) {
+  animation-delay: 0.2s;
 }
 
 .limit-card::before {
@@ -393,6 +452,7 @@ p {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  animation: valueChange 0.3s ease-out;
 }
 
 .value-unit {
@@ -415,6 +475,7 @@ p {
   overflow: hidden;
   margin-bottom: 12px;
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+  contain: strict;
 }
 
 .progress-fill {
@@ -422,8 +483,10 @@ p {
   width: 0;
   background: linear-gradient(90deg, var(--primary), var(--primary-light));
   border-radius: inherit;
-  transition: width 0.6s var(--ease-smooth);
+  animation: fillSmoothly 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
   box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
+  transform: translateZ(0);
+  will-change: width;
 }
 
 /* ===== Card Info ===== */
@@ -453,6 +516,9 @@ p {
   border: 1px solid var(--border-light);
   border-radius: 10px;
   transition: all 0.2s var(--ease-in-out);
+  touch-action: manipulation;
+  transform: translateZ(0);
+  will-change: auto;
 }
 
 .metric-item:hover {
@@ -472,6 +538,7 @@ p {
   font-size: 18px;
   font-weight: 700;
   color: var(--primary-light);
+  animation: valueChange 0.3s ease-out;
 }
 
 .metric-subtitle {
@@ -499,6 +566,7 @@ p {
   border-radius: 16px;
   padding: 20px;
   box-shadow: var(--shadow-lg);
+  contain: content;
 }
 
 .rhythm-card::before {
@@ -540,7 +608,17 @@ p {
   border: 1px solid var(--border-light);
   border-radius: 10px;
   transition: all 0.2s var(--ease-in-out);
+  animation: cascadeIn 0.5s var(--ease-smooth) backwards;
+  touch-action: manipulation;
+  transform: translateZ(0);
 }
+
+.rhythm-item:nth-child(1) { animation-delay: 0.3s; }
+.rhythm-item:nth-child(2) { animation-delay: 0.35s; }
+.rhythm-item:nth-child(3) { animation-delay: 0.4s; }
+.rhythm-item:nth-child(4) { animation-delay: 0.45s; }
+.rhythm-item:nth-child(5) { animation-delay: 0.5s; }
+.rhythm-item:nth-child(6) { animation-delay: 0.55s; }
 
 .rhythm-item:hover {
   background: rgba(255, 255, 255, 0.05);
@@ -586,6 +664,7 @@ p {
   align-items: center;
   justify-content: center;
   padding: 12px 16px;
+  min-height: 44px;
   border-radius: 10px;
   font-size: 14px;
   font-weight: 700;
@@ -596,6 +675,9 @@ p {
   text-align: center;
   white-space: nowrap;
   user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  transform: translateZ(0);
 }
 
 .button-primary {
@@ -615,6 +697,11 @@ p {
   box-shadow: var(--shadow-sm);
 }
 
+.button-primary:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
 .button-secondary {
   background: var(--bg-elevated);
   color: var(--text-primary);
@@ -631,6 +718,11 @@ p {
 
 .button-secondary:active {
   transform: scale(0.98);
+}
+
+.button-secondary:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 /* ===== Animations ===== */
@@ -665,6 +757,17 @@ p {
   }
 }
 
+@keyframes cascadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @keyframes spin {
   from {
     transform: rotate(0deg);
@@ -682,6 +785,49 @@ p {
   50% {
     opacity: 1;
     transform: scale(1.2);
+  }
+}
+
+@keyframes statusGlow {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(245, 158, 11, 0.8);
+  }
+}
+
+@keyframes valueChange {
+  0% {
+    transform: scale(1.1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes fillSmoothly {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 100%;
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
   }
 }
 
@@ -783,6 +929,14 @@ p {
       radial-gradient(circle at 50% 100%, rgba(59, 130, 246, 0.04), transparent 50%);
   }
 
+  body::before {
+    background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
+  }
+
+  html {
+    background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
+  }
+
   .limit-card,
   .rhythm-card {
     box-shadow: var(--shadow-md);
@@ -790,5 +944,18 @@ p {
 
   .card-info {
     background: rgba(59, 130, 246, 0.08);
+  }
+}
+
+/* ===== Print Styles ===== */
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+
+  .icon-button,
+  .button {
+    display: none;
   }
 }

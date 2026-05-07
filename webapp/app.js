@@ -10,6 +10,7 @@ const WEEK_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
 
 const LAST_VALID_PAYLOAD_KEY = "codex_usage_last_valid_v1";
+const PREVIOUS_SNAPSHOT_KEY = "codex_usage_previous_snapshot_v1";
 
 function saveLastValidPayload(raw) {
   try {
@@ -24,6 +25,28 @@ function loadLastValidPayload() {
   } catch {
     return null;
   }
+}
+
+
+function savePreviousSnapshot(snapshot) {
+  try {
+    localStorage.setItem(PREVIOUS_SNAPSHOT_KEY, JSON.stringify(snapshot));
+  } catch {}
+}
+
+function loadPreviousSnapshot() {
+  try {
+    const raw = localStorage.getItem(PREVIOUS_SNAPSHOT_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function formatDeltaPercent(value) {
+  if (!Number.isFinite(value)) return "--";
+  const sign = value > 0 ? "+" : "";
+  return `${sign}${value.toFixed(1)}%`;
 }
 
 const THEME_KEY = "codex-theme";
@@ -354,6 +377,7 @@ function renderUsageChart(weeklyUsed, weeklyRemaining) {
 /* ===== Main Init Function ===== */
 (async function init() {
   const { usage, hasLoadError, source } = await loadUsage();
+  const previousSnapshot = loadPreviousSnapshot();
   const els = {
     themeToggleButton: document.getElementById("themeToggleButton"),
     themeColorButton: document.getElementById("themeColorButton"),
@@ -419,10 +443,13 @@ function renderUsageChart(weeklyUsed, weeklyRemaining) {
   els.weeklyDifference.textContent = formatDifference(dailyDiff);
   if (els.weeklyDifferenceTrend) els.weeklyDifferenceTrend.textContent = Number.isFinite(dailyDiff) ? (dailyDiff > 0 ? "↑" : dailyDiff < 0 ? "↓" : "→") : "•";
   if (els.weeklyDeltaSinceLast) {
-    const deltaText = usage.lastUpdatedDate
-      ? `${formatDifference(0)} desde ${usage.lastUpdatedDate.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
+    const prevRemaining = previousSnapshot ? Number(previousSnapshot.weeklyRemaining) : NaN;
+    const delta = Number.isFinite(prevRemaining) ? weeklyRemaining - prevRemaining : NaN;
+    const deltaAt = previousSnapshot?.updatedAt ? parseDate(previousSnapshot.updatedAt) : null;
+    const fromTime = deltaAt ? deltaAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "--:--";
+    els.weeklyDeltaSinceLast.textContent = Number.isFinite(delta)
+      ? `${formatDeltaPercent(delta)} desde ${fromTime}`
       : "--";
-    els.weeklyDeltaSinceLast.textContent = deltaText;
   }
   els.weeklyProjection.textContent = formatPercent(projectedRemaining);
   els.weeklyCycleStart.textContent = weeklyCycleStart ? formatDateTimePtBr(weeklyCycleStart) : "--";
@@ -469,6 +496,11 @@ function renderUsageChart(weeklyUsed, weeklyRemaining) {
     }
   }
   applyStatusState(status.state, els.statusText, els.statusDot);
+
+  savePreviousSnapshot({
+    weeklyRemaining,
+    updatedAt: usage.lastUpdatedDate ? usage.lastUpdatedDate.toISOString() : null,
+  });
 
   // Verificar e notificar
   checkAndNotify(status, fiveHourRemaining, weeklyRemaining);

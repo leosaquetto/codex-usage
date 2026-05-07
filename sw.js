@@ -87,7 +87,7 @@ self.addEventListener('fetch', event => {
         
         return fetch(event.request).then(response => {
           // Não cachear requisições não-GET
-          if (!event.request.method === 'GET' || !response || response.status !== 200) {
+          if (event.request.method !== 'GET' || !response || response.status !== 200) {
             return response;
           }
           

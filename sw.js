@@ -99,3 +99,36 @@ self.addEventListener('fetch', (event) => {
     }),
   );
 });
+
+
+self.addEventListener('push', (event) => {
+  if (!event.data) return;
+
+  let payload = { title: 'Codex Usage', body: 'Limite baixo detectado.' };
+  try {
+    payload = event.data.json();
+  } catch {
+    payload = { title: 'Codex Usage', body: event.data.text() || payload.body };
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(payload.title || 'Codex Usage', {
+      body: payload.body || 'Limite baixo detectado.',
+      icon: '/webapp/assets/logo.png',
+      badge: '/webapp/assets/logo.png',
+      tag: payload.tag || 'codex-push-alert',
+    }),
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+      for (const client of clients) {
+        if ('focus' in client) return client.focus();
+      }
+      if (self.clients.openWindow) return self.clients.openWindow('/');
+    }),
+  );
+});

@@ -247,25 +247,33 @@ function requestNotificationPermission() {
   }
 }
 
-function checkAndNotify(status) {
+function getNotificationThreshold(remaining) {
+  if (remaining <= 5) return 5;
+  if (remaining <= 10) return 10;
+  if (remaining <= 20) return 20;
+  return null;
+}
+
+function checkAndNotify(status, fiveHourRemaining, weeklyRemaining) {
   if (localStorage.getItem('notificationsEnabled') !== 'true') return;
-  
+
+  const threshold = Math.min(
+    getNotificationThreshold(fiveHourRemaining) ?? 100,
+    getNotificationThreshold(weeklyRemaining) ?? 100,
+  );
+
+  if (threshold === 100) return;
+
+  const key = `codex-notified-threshold-${threshold}`;
+  if (localStorage.getItem(key) === 'true') return;
+
   try {
-    if (status.state === 'warn') {
-      new Notification('⚠️ Atenção', {
-        body: `${status.text}`,
-        icon: '/webapp/assets/logo.png',
-        tag: 'codex-warning'
-      });
-    }
-    
-    if (status.state === 'danger') {
-      new Notification('🚨 Alerta', {
-        body: `${status.text}`,
-        icon: '/webapp/assets/logo.png',
-        tag: 'codex-danger'
-      });
-    }
+    new Notification('⚠️ Limite baixo', {
+      body: `Seu limite atingiu ${threshold}% ou menos.`,
+      icon: '/webapp/assets/logo.png',
+      tag: `codex-threshold-${threshold}`,
+    });
+    localStorage.setItem(key, 'true');
   } catch (e) {
     // Notificações falharam
   }
@@ -400,7 +408,7 @@ function renderUsageChart(weeklyUsed, weeklyRemaining) {
   applyStatusState(status.state, els.statusText, els.statusDot);
 
   // Verificar e notificar
-  checkAndNotify(status);
+  checkAndNotify(status, fiveHourRemaining, weeklyRemaining);
 
   /* ===== Event Listeners ===== */
   els.themeToggleButton?.addEventListener("click", () => {

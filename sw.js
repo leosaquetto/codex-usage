@@ -1,6 +1,7 @@
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3';
 const STATIC_CACHE = `codex-static-${CACHE_VERSION}`;
 const DATA_CACHE = `codex-data-${CACHE_VERSION}`;
+const USAGE_CACHE_KEY = '/codex_usage.json';
 
 const PRECACHE_URLS = [
   '/',
@@ -76,11 +77,11 @@ self.addEventListener('fetch', (event) => {
         .then((response) => {
           if (response.ok) {
             const clone = response.clone();
-            caches.open(DATA_CACHE).then((cache) => cache.put(request, clone));
+            caches.open(DATA_CACHE).then((cache) => cache.put(USAGE_CACHE_KEY, clone));
           }
           return response;
         })
-        .catch(() => caches.match(request) || caches.match('/codex_usage.json')),
+        .catch(() => caches.match(USAGE_CACHE_KEY) || caches.match('/codex_usage.json')),
     );
     return;
   }

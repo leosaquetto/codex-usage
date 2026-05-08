@@ -10,7 +10,12 @@ const WEEK_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
 const THEME_KEY = "codex-theme";
 const THEME_COLOR_KEY = "codex-theme-color";
+const LAST_VALID_USAGE_KEY = "codex-last-valid-usage-payload";
 const DEFAULT_THEME_COLOR = "#3b82f6";
+let viewportRafId = null;
+let activeUsageController = null;
+let lastUsageSignature = "";
+let lastSuspendedAt = 0;
 
 function setThemeColor(color) {
   if (!/^#[0-9a-fA-F]{6}$/.test(color)) return;
@@ -53,8 +58,29 @@ function adjustViewportHeight() {
   document.documentElement.style.setProperty('--svh', `${svh}px`);
 }
 
-window.addEventListener('resize', adjustViewportHeight);
-window.addEventListener('orientationchange', adjustViewportHeight);
+function scheduleViewportAdjust() {
+  if (viewportRafId !== null) cancelAnimationFrame(viewportRafId);
+  viewportRafId = requestAnimationFrame(() => {
+    viewportRafId = null;
+    adjustViewportHeight();
+  });
+}
+
+window.addEventListener('resize', scheduleViewportAdjust);
+window.addEventListener('orientationchange', scheduleViewportAdjust);
+window.addEventListener("pagehide", () => {
+  lastSuspendedAt = Date.now();
+});
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") {
+    lastSuspendedAt = Date.now();
+    return;
+  }
+  scheduleViewportAdjust();
+  if (lastSuspendedAt && Date.now() - lastSuspendedAt > 60_000) {
+    location.reload();
+  }
+});
 adjustViewportHeight();
 
 /* ===== Utility Functions ===== */
@@ -189,15 +215,57 @@ function resolveStatus({ hasLoadError, fiveHourRemaining, weeklyRemaining, realD
 }
 
 async function loadUsage() {
+  if (activeUsageController) activeUsageController.abort();
+  activeUsageController = new AbortController();
   try {
-    const response = await fetch(`./codex_usage.json?t=${Date.now()}`, { cache: "no-store" });
+    const response = await fetch(`./codex_usage.json?t=${Date.now()}`, {
+      cache: "no-store",
+      signal: activeUsageController.signal,
+    });
     if (!response.ok) throw new Error("Falha ao carregar JSON");
 
     const json = await response.json();
     return { usage: normalizeUsage(json), hasLoadError: false };
-  } catch {
+  } catch (error) {
+    const cachedRaw = localStorage.getItem(LAST_VALID_USAGE_KEY);
+    if (cachedRaw) {
+      try {
+        const cachedUsage = normalizeUsage(JSON.parse(cachedRaw));
+        return { usage: cachedUsage, hasLoadError: true };
+      } catch {
+        // cache inválido, segue fallback seguro
+      }
+    }
+    if (error?.name === "AbortError") {
+      return { usage: normalizeUsage(SAFE_FALLBACK), hasLoadError: true };
+    }
     return { usage: normalizeUsage(SAFE_FALLBACK), hasLoadError: true };
+  } finally {
+    activeUsageController = null;
   }
+}
+
+function saveLastValidPayload(usage) {
+  const signature = [
+    usage.fiveHourPercent,
+    usage.fiveHourResetDate?.toISOString() || "null",
+    usage.weeklyPercent,
+    usage.weeklyResetDate?.toISOString() || "null",
+    usage.lastUpdatedDate?.toISOString() || "null",
+  ].join("|");
+  if (signature === lastUsageSignature) return;
+  lastUsageSignature = signature;
+  localStorage.setItem("codex-last-valid-usage-signature", signature);
+  localStorage.setItem(
+    LAST_VALID_USAGE_KEY,
+    JSON.stringify({
+      fiveHourPercent: usage.fiveHourPercent,
+      fiveHourReset: usage.fiveHourResetDate?.toISOString() || null,
+      weeklyPercent: usage.weeklyPercent,
+      weeklyReset: usage.weeklyResetDate?.toISOString() || null,
+      lastUpdated: usage.lastUpdatedDate?.toISOString() || null,
+    }),
+  );
 }
 
 function resetTextFromDate(date) {
@@ -311,6 +379,7 @@ function renderUsageChart(weeklyUsed, weeklyRemaining) {
 
 /* ===== Main Init Function ===== */
 (async function init() {
+  document.querySelectorAll(".rhythm-value").forEach((el) => el.classList.add("is-loading"));
   const { usage, hasLoadError } = await loadUsage();
   const els = {
     themeToggleButton: document.getElementById("themeToggleButton"),
@@ -361,41 +430,44 @@ function renderUsageChart(weeklyUsed, weeklyRemaining) {
   const zeroInDays = Number.isFinite(realDailyRate) && realDailyRate > 0 ? weeklyRemaining / realDailyRate : NaN;
   const fiveHourSafeRate = Number.isFinite(fiveHourMs) && fiveHourMs > 0 ? fiveHourRemaining / (fiveHourMs / (60 * 60 * 1000)) : 0;
 
-  setProgress("fiveHourBar", "fiveHourPercent", fiveHourRemaining);
-  setProgress("weeklyBar", "weeklyPercent", weeklyRemaining);
+  requestAnimationFrame(() => {
+    setProgress("fiveHourBar", "fiveHourPercent", fiveHourRemaining);
+    setProgress("weeklyBar", "weeklyPercent", weeklyRemaining);
 
-  els.updatedAtText.textContent = usage.lastUpdatedDate ? formatDateTimePtBr(usage.lastUpdatedDate) : "--";
-  els.fiveHourUsed.textContent = `${Math.round(fiveHourUsed)}%`;
-  els.weeklyUsed.textContent = `${Math.round(weeklyUsed)}%`;
-  renderUsageChart(weeklyUsed, weeklyRemaining);
-  els.weeklyRemainingDays.textContent = formatDays(weeklyDaysRemaining);
-  els.weeklyAverage.textContent = formatRatePerDay(realDailyRate);
-  els.weeklySafeRate.textContent = formatRatePerDay(safeDailyRate);
-  els.weeklyDifference.textContent = formatDifference(dailyDiff);
-  els.weeklyProjection.textContent = formatPercent(projectedRemaining);
-  els.weeklyCycleStart.textContent = weeklyCycleStart ? formatDateTimePtBr(weeklyCycleStart) : "--";
+    els.updatedAtText.textContent = usage.lastUpdatedDate ? formatDateTimePtBr(usage.lastUpdatedDate) : "--";
+    els.fiveHourUsed.textContent = `${Math.round(fiveHourUsed)}%`;
+    els.weeklyUsed.textContent = `${Math.round(weeklyUsed)}%`;
+    renderUsageChart(weeklyUsed, weeklyRemaining);
+    els.weeklyRemainingDays.textContent = formatDays(weeklyDaysRemaining);
+    els.weeklyAverage.textContent = formatRatePerDay(realDailyRate);
+    els.weeklySafeRate.textContent = formatRatePerDay(safeDailyRate);
+    els.weeklyDifference.textContent = formatDifference(dailyDiff);
+    els.weeklyProjection.textContent = formatPercent(projectedRemaining);
+    els.weeklyCycleStart.textContent = weeklyCycleStart ? formatDateTimePtBr(weeklyCycleStart) : "--";
 
-  els.weeklyLine.textContent = usage.weeklyResetDate
-    ? `Renova ${resetTextFromDate(usage.weeklyResetDate)}`
-    : "--";
-
-  if (usage.fiveHourResetIsNull && fiveHourRemaining === 100) {
-    els.fiveHourLine.textContent = "Cheio · Sem ciclo ativo";
-    els.fiveHourUsed.textContent = "0%";
-    els.fiveHourSafeRate.textContent = "0%/h";
-  } else {
-    els.fiveHourLine.textContent = usage.fiveHourResetDate
-      ? `Renova em ${formatDurationMs(fiveHourMs)} · ${formatDateTimePtBr(usage.fiveHourResetDate)}`
+    els.weeklyLine.textContent = usage.weeklyResetDate
+      ? `Renova ${resetTextFromDate(usage.weeklyResetDate)}`
       : "--";
-    els.fiveHourSafeRate.textContent = formatRatePerHour(fiveHourSafeRate);
-  }
 
-  if (Number.isFinite(zeroInDays) && zeroInDays > 0) {
-    const zeroAtDate = new Date(now + (zeroInDays * 24 * 60 * 60 * 1000));
-    els.weeklyZeroAt.textContent = `${formatZeroIn(zeroInDays)} · ${formatDateTimePtBr(zeroAtDate)}`;
-  } else {
-    els.weeklyZeroAt.textContent = "--";
-  }
+    if (usage.fiveHourResetIsNull && fiveHourRemaining === 100) {
+      els.fiveHourLine.textContent = "Cheio · Sem ciclo ativo";
+      els.fiveHourUsed.textContent = "0%";
+      els.fiveHourSafeRate.textContent = "0%/h";
+    } else {
+      els.fiveHourLine.textContent = usage.fiveHourResetDate
+        ? `Renova em ${formatDurationMs(fiveHourMs)} · ${formatDateTimePtBr(usage.fiveHourResetDate)}`
+        : "--";
+      els.fiveHourSafeRate.textContent = formatRatePerHour(fiveHourSafeRate);
+    }
+
+    if (Number.isFinite(zeroInDays) && zeroInDays > 0) {
+      const zeroAtDate = new Date(now + (zeroInDays * 24 * 60 * 60 * 1000));
+      els.weeklyZeroAt.textContent = `${formatZeroIn(zeroInDays)} · ${formatDateTimePtBr(zeroAtDate)}`;
+    } else {
+      els.weeklyZeroAt.textContent = "--";
+    }
+    document.querySelectorAll(".rhythm-value").forEach((el) => el.classList.remove("is-loading"));
+  });
 
   const status = resolveStatus({
     hasLoadError,
@@ -406,6 +478,7 @@ function renderUsageChart(weeklyUsed, weeklyRemaining) {
   });
   els.statusText.textContent = status.text;
   applyStatusState(status.state, els.statusText, els.statusDot);
+  if (!hasLoadError) saveLastValidPayload(usage);
 
   // Verificar e notificar
   checkAndNotify(status, fiveHourRemaining, weeklyRemaining);

@@ -21,6 +21,28 @@
     <link rel="icon" sizes="512x512" href="/webapp/assets/logo_background.png" />
 
     <title>Analítica do Codex</title>
+    <style>
+      :root {
+        --primary: #3b82f6;
+        --bg-base: #0f172a;
+        --bg-surface: #1e293b;
+        --text-primary: #f1f5f9;
+      }
+
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        background-color: var(--bg-base);
+        color: var(--text-primary);
+      }
+
+      body {
+        overflow-y: scroll;
+        -webkit-overflow-scrolling: touch;
+      }
+    </style>
     <link rel="stylesheet" href="./style.css" />
   </head>
 
@@ -40,20 +62,20 @@
           </div>
 
           <div class="header-actions">
-            <button id="themeToggleButton" class="icon-button" title="Alternar tema" aria-label="Alternar tema" aria-pressed="false">
+            <button type="button" id="themeToggleButton" class="icon-button" title="Alternar tema" aria-label="Alternar tema" aria-pressed="false">
               <span id="themeToggleIcon" class="icon">◐</span>
             </button>
-            <button id="themeColorButton" class="icon-button" title="Cor do tema" aria-label="Cor do tema">
+            <button type="button" id="themeColorButton" class="icon-button" title="Cor do tema" aria-label="Cor do tema">
               <span class="icon">🎨</span>
             </button>
             <input id="themeColorInput" type="color" value="#3b82f6" aria-label="Selecionar cor do tema" hidden />
-            <button id="refreshButton" class="icon-button" title="Recarregar página" aria-label="Recarregar">
+            <button type="button" id="refreshButton" class="icon-button" title="Recarregar página" aria-label="Recarregar">
               <span class="icon">↻</span>
             </button>
-            <button id="shareButton" class="icon-button" title="Compartilhar" aria-label="Compartilhar">
+            <button type="button" id="shareButton" class="icon-button" title="Compartilhar" aria-label="Compartilhar">
               <span class="icon">↑</span>
             </button>
-            <button id="closeButton" class="icon-button" title="Fechar" aria-label="Fechar">
+            <button type="button" id="closeButton" class="icon-button" title="Fechar" aria-label="Fechar">
               <span class="icon">×</span>
             </button>
           </div>

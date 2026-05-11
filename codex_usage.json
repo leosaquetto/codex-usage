@@ -1,7 +1,7 @@
 {
-  "fiveHourPercent": 100,
-  "fiveHourReset": null,
-  "weeklyPercent": 79,
+  "fiveHourPercent": 77,
+  "fiveHourReset": "2026-05-11T04:27:00.000Z",
+  "weeklyPercent": 59,
   "weeklyReset": "2026-05-14T19:03:00.000Z",
-  "lastUpdated": "2026-05-08T10:10:50.987Z"
+  "lastUpdated": "2026-05-11T04:24:27.507Z"
 }

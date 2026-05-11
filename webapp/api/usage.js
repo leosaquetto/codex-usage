@@ -99,13 +99,14 @@ function enrichPayload(raw = {}) {
     weeklyReset: weeklyResetDate ? weeklyResetDate.toISOString() : null,
     lastUpdated,
     statusLabel,
-    fiveHourSafeRate: raw.fiveHourSafeRate || formatRate(fiveHourSafeRateNumber, "h"),
-    weeklyRemaining: raw.weeklyRemaining || formatDays(weeklyDaysRemaining),
-    realDailyRate: raw.realDailyRate || formatRate(realDailyRateNumber, "d"),
-    safeDailyRate: raw.safeDailyRate || formatRate(safeDailyRateNumber, "d"),
-    dailyDiff: raw.dailyDiff || formatDiff(dailyDiffNumber),
-    weeklyProjection: raw.weeklyProjection || formatPercent(projectedRemainingNumber),
-    zeroIn: raw.zeroIn || formatZeroIn(zeroInDays),
+    // Métricas derivadas sempre recalculadas para refletir o estado real atual.
+    fiveHourSafeRate: formatRate(fiveHourSafeRateNumber, "h"),
+    weeklyRemaining: formatDays(weeklyDaysRemaining),
+    realDailyRate: formatRate(realDailyRateNumber, "d"),
+    safeDailyRate: formatRate(safeDailyRateNumber, "d"),
+    dailyDiff: formatDiff(dailyDiffNumber),
+    weeklyProjection: formatPercent(projectedRemainingNumber),
+    zeroIn: formatZeroIn(zeroInDays),
     history: {
       cycleStart: raw.history?.cycleStart || (cycleStart ? cycleStart.toISOString() : null)
     }

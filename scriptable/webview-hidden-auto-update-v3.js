@@ -125,7 +125,8 @@ async function wait(ms) {
 }
 
 async function installNoiseFilter(webView) {
-  await webView.evaluateJavaScript(`
+  try {
+    await webView.evaluateJavaScript(`
 (() => {
   if (window.__codexUsageNoiseFilterInstalled) return true;
   window.__codexUsageNoiseFilterInstalled = true;
@@ -145,14 +146,22 @@ async function installNoiseFilter(webView) {
   window.addEventListener("error", function(e) {
     const message = String(e && e.message ? e.message : "");
     const detail = String(e && e.error ? (e.error.stack || e.error.message || e.error) : "");
-    if (isNoise(message) || isNoise(detail)) e.preventDefault();
-  });
+    if (isNoise(message) || isNoise(detail)) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      return true;
+    }
+  }, true);
 
   window.addEventListener("unhandledrejection", function(e) {
     const reason = e && e.reason;
     const detail = String(reason && (reason.stack || reason.message || reason));
-    if (isNoise(detail)) e.preventDefault();
-  });
+    if (isNoise(detail)) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      return true;
+    }
+  }, true);
 
   const origError = console.error;
   const origWarn = console.warn;
@@ -167,6 +176,7 @@ async function installNoiseFilter(webView) {
   return true;
 })();
 `, false)
+  } catch {}
 }
 
 async function extractFromWebView(webView) {
@@ -278,8 +288,10 @@ window.addEventListener("error", function(e) {
     String(e.message || "").includes("codex.analytics.")
   ) {
     e.preventDefault();
+    e.stopImmediatePropagation();
+    return true;
   }
-});
+}, true);
 window.addEventListener("unhandledrejection", function(e) {
   if (
     String(e.reason || "").includes("QuotaExceededError") ||
@@ -287,8 +299,10 @@ window.addEventListener("unhandledrejection", function(e) {
     String(e.reason || "").includes("codex.analytics.")
   ) {
     e.preventDefault();
+    e.stopImmediatePropagation();
+    return true;
   }
-});
+}, true);
 </script>
 </head>
 <body></body>

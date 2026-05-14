@@ -124,6 +124,51 @@ async function wait(ms) {
   return new Promise(resolve => Timer.schedule(ms, false, resolve))
 }
 
+async function installNoiseFilter(webView) {
+  await webView.evaluateJavaScript(`
+(() => {
+  if (window.__codexUsageNoiseFilterInstalled) return true;
+  window.__codexUsageNoiseFilterInstalled = true;
+
+  const noisePatterns = [
+    "QuotaExceededError",
+    "@formatjs/intl Error MISSING_TRANSLATION",
+    "MISSING_TRANSLATION",
+    "codex.analytics."
+  ];
+
+  const isNoise = (value) => {
+    const text = String(value || "");
+    return noisePatterns.some(pattern => text.includes(pattern));
+  };
+
+  window.addEventListener("error", function(e) {
+    const message = String(e && e.message ? e.message : "");
+    const detail = String(e && e.error ? (e.error.stack || e.error.message || e.error) : "");
+    if (isNoise(message) || isNoise(detail)) e.preventDefault();
+  });
+
+  window.addEventListener("unhandledrejection", function(e) {
+    const reason = e && e.reason;
+    const detail = String(reason && (reason.stack || reason.message || reason));
+    if (isNoise(detail)) e.preventDefault();
+  });
+
+  const origError = console.error;
+  const origWarn = console.warn;
+  const patch = (origFn) => function(...args) {
+    const text = args.map(v => String(v || "")).join(" ");
+    if (isNoise(text)) return;
+    return origFn.apply(this, args);
+  };
+  console.error = patch(origError);
+  console.warn = patch(origWarn);
+
+  return true;
+})();
+`, false)
+}
+
 async function extractFromWebView(webView) {
   const js = `
 (() => {
@@ -148,8 +193,8 @@ async function extractFromWebView(webView) {
   function parseBlock(block) {
     if (!block) return null;
 
-    const pct = block.match(/(\\d{1,3})\\s*%\\s*restante/i);
-    const reset = block.match(/Redefinição\\s+(.+)$/i);
+    const pct = block.match(/(\\d{1,3})\\s*%\\s*(?:restante|remaining)/i);
+    const reset = block.match(/(?:Redefinição|Reset|Resets)\\s+(.+)$/i);
 
     return {
       percent: pct ? Number(pct[1]) : null,
@@ -159,21 +204,54 @@ async function extractFromWebView(webView) {
 
   const five = parseBlock(sliceBetween(
     "Limite de uso de 5 horas",
-    ["Limite de uso semanal", "Créditos restantes", "Configurações"]
+    [
+      "Limite de uso semanal", "Weekly usage limit",
+      "Créditos restantes", "Credits remaining",
+      "Configurações", "Settings"
+    ]
+  ));
+
+  const fiveEn = parseBlock(sliceBetween(
+    "5-hour usage limit",
+    [
+      "Limite de uso semanal", "Weekly usage limit",
+      "Créditos restantes", "Credits remaining",
+      "Configurações", "Settings"
+    ]
+  )) || parseBlock(sliceBetween(
+    "5 hour usage limit",
+    [
+      "Limite de uso semanal", "Weekly usage limit",
+      "Créditos restantes", "Credits remaining",
+      "Configurações", "Settings"
+    ]
   ));
 
   const weekly = parseBlock(sliceBetween(
     "Limite de uso semanal",
-    ["Créditos restantes", "Configurações", "Detalhes do uso"]
+    [
+      "Créditos restantes", "Credits remaining",
+      "Configurações", "Settings",
+      "Detalhes do uso", "Usage details"
+    ]
+  ));
+
+  const weeklyEn = parseBlock(sliceBetween(
+    "Weekly usage limit",
+    [
+      "Créditos restantes", "Credits remaining",
+      "Configurações", "Settings",
+      "Detalhes do uso", "Usage details"
+    ]
   ));
 
   return JSON.stringify({
     url: location.href,
     title: document.title,
-    fiveHourPercent: five ? five.percent : null,
-    fiveHourResetText: five ? five.resetText : null,
-    weeklyPercent: weekly ? weekly.percent : null,
-    weeklyResetText: weekly ? weekly.resetText : null,
+    fiveHourPercent: (five && five.percent !== null) ? five.percent : (fiveEn ? fiveEn.percent : null),
+    fiveHourResetText: (five && five.resetText) ? five.resetText : (fiveEn ? fiveEn.resetText : null),
+    weeklyPercent: (weekly && weekly.percent !== null) ? weekly.percent : (weeklyEn ? weeklyEn.percent : null),
+    weeklyResetText: (weekly && weekly.resetText) ? weekly.resetText : (weeklyEn ? weeklyEn.resetText : null),
     pageText: text.slice(0, 800),
     capturedAt: new Date().toISOString()
   });
@@ -194,12 +272,20 @@ async function readAnalyticsHidden() {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script>
 window.addEventListener("error", function(e) {
-  if (String(e.message || "").includes("QuotaExceededError")) {
+  if (
+    String(e.message || "").includes("QuotaExceededError") ||
+    String(e.message || "").includes("MISSING_TRANSLATION") ||
+    String(e.message || "").includes("codex.analytics.")
+  ) {
     e.preventDefault();
   }
 });
 window.addEventListener("unhandledrejection", function(e) {
-  if (String(e.reason || "").includes("QuotaExceededError")) {
+  if (
+    String(e.reason || "").includes("QuotaExceededError") ||
+    String(e.reason || "").includes("MISSING_TRANSLATION") ||
+    String(e.reason || "").includes("codex.analytics.")
+  ) {
     e.preventDefault();
   }
 });
@@ -211,6 +297,8 @@ window.addEventListener("unhandledrejection", function(e) {
 
   await wait(500)
   await webView.loadURL(CODEX_ANALYTICS_URL)
+  await wait(300)
+  await installNoiseFilter(webView)
 
   let last = null
 
@@ -218,6 +306,7 @@ window.addEventListener("unhandledrejection", function(e) {
     await wait(1600)
 
     try {
+      await installNoiseFilter(webView)
       last = await extractFromWebView(webView)
     } catch (error) {
       last = {

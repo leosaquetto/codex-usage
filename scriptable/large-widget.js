@@ -1,28 +1,29 @@
-// Codex + Antigravity — Scriptable Large Widget
-// Fonte unica: usage_summary.json servido pelo Vercel/static hosting.
+// ------------------------------------------------------
+// Codex + Antigravity — Scriptable Large Widget (Pro Modular 4x2)
+// ------------------------------------------------------
 
 const SUMMARY_URL = "https://codex-usage-nine.vercel.app/usage_summary.json"
 const CACHE_FILE = "codex-antigravity-usage-summary.json"
 const REFRESH_MINUTES = 20
 
+// Novos URLs dos Logos Oficiais
+const LOGO_GPT = "https://i.imgur.com/qBlxQ5P.png" // Usado para Codex e GPT
+const LOGO_GEMINI = "https://i.imgur.com/5YrjiRD.png"
+const LOGO_CLAUDE = "https://i.imgur.com/WKSOEc8.png"
+const LOGO_AG = "https://brandlogos.net/wp-content/uploads/2025/12/google_antigravity-logo_brandlogos.net_qu4jc-512x472.png"
+
 const fm = FileManager.local()
 const cachePath = fm.joinPath(fm.documentsDirectory(), CACHE_FILE)
+
+// ==========================================
+// 1. MOTOR DE DADOS E FETCH
+// ==========================================
 
 function emptySummary() {
   return {
     lastUpdated: null,
-    codex: {
-      fiveHourPercent: null,
-      fiveHourReset: null,
-      weeklyPercent: null,
-      weeklyReset: null,
-      lastUpdated: null
-    },
-    antigravity: {
-      lastUpdated: null,
-      source: "desktop-automation",
-      models: []
-    }
+    codex: { fiveHourPercent: null, fiveHourReset: null, weeklyPercent: null, weeklyReset: null },
+    antigravity: { lastUpdated: null, models: [] }
   }
 }
 
@@ -42,8 +43,8 @@ function clampPercent(value, fallback = null) {
 function normalizeSummary(raw) {
   const source = raw && typeof raw === "object" ? raw : emptySummary()
   const codex = source.codex || {}
-  const antigravity = source.antigravity || {}
-  const models = Array.isArray(antigravity.models) ? antigravity.models : []
+  const ag = source.antigravity || {}
+  const models = Array.isArray(ag.models) ? ag.models : []
 
   return {
     lastUpdated: validDate(source.lastUpdated)?.toISOString() || null,
@@ -52,22 +53,16 @@ function normalizeSummary(raw) {
       fiveHourReset: validDate(codex.fiveHourReset)?.toISOString() || null,
       weeklyPercent: clampPercent(codex.weeklyPercent),
       weeklyReset: validDate(codex.weeklyReset)?.toISOString() || null,
-      lastUpdated: validDate(codex.lastUpdated)?.toISOString() || null
     },
     antigravity: {
-      source: String(antigravity.source || "desktop-automation"),
-      lastUpdated: validDate(antigravity.lastUpdated)?.toISOString() || null,
-      models: models
-        .map((model) => ({
-          id: String(model.id || model.name || ""),
-          name: String(model.name || "").trim(),
-          tier: String(model.tier || "").trim(),
-          remainingPercent: clampPercent(model.remainingPercent),
-          status: String(model.status || ""),
-          refreshText: String(model.refreshText || ""),
-          refreshAt: validDate(model.refreshAt)?.toISOString() || null
-        }))
-        .filter((model) => model.name)
+      lastUpdated: validDate(ag.lastUpdated)?.toISOString() || null,
+      models: models.map((model) => ({
+        name: String(model.name || "").trim(),
+        tier: String(model.tier || "").trim(),
+        remainingPercent: clampPercent(model.remainingPercent),
+        refreshText: String(model.refreshText || ""),
+        refreshAt: validDate(model.refreshAt)?.toISOString() || null
+      })).filter((model) => model.name)
     }
   }
 }
@@ -75,44 +70,41 @@ function normalizeSummary(raw) {
 async function fetchSummary() {
   const req = new Request(`${SUMMARY_URL}?t=${Date.now()}`)
   req.timeoutInterval = 8
-  req.headers = {
-    Accept: "application/json",
-    "Cache-Control": "no-cache"
-  }
-
   const raw = await req.loadString()
-  const statusCode = Number(req.response?.statusCode || 0)
-  if (statusCode < 200 || statusCode >= 300) {
-    throw new Error(`HTTP ${statusCode || "sem status"}`)
-  }
+  const statusCode = req.response?.statusCode || 0
+  if (statusCode < 200 || statusCode >= 300) throw new Error(`HTTP ${statusCode}`)
 
   const payload = normalizeSummary(JSON.parse(raw))
   fm.writeString(cachePath, JSON.stringify(payload))
-  return { payload, warning: "" }
+  return { payload }
 }
 
 function readCachedSummary() {
   if (!fm.fileExists(cachePath)) return null
+  try { return normalizeSummary(JSON.parse(fm.readString(cachePath))) } catch { return null }
+}
+
+async function loadImage(url) {
   try {
-    return normalizeSummary(JSON.parse(fm.readString(cachePath)))
-  } catch {
-    return null
-  }
+    const req = new Request(url)
+    req.timeoutInterval = 6
+    return await req.loadImage()
+  } catch { return null }
 }
 
 let summary = emptySummary()
-let warning = ""
-
 try {
   const loaded = await fetchSummary()
   summary = loaded.payload
-  warning = loaded.warning
 } catch (error) {
   summary = readCachedSummary() || emptySummary()
-  warning = `Offline/cache: ${String(error.message || error).slice(0, 54)}`
 }
 
 const now = new Date()
+
+// ==========================================
+// 2. FORMATAÇÃO VISUAL
+// ==========================================
 
 function formatPercent(value) {
   const n = Number(value)
@@ -120,221 +112,258 @@ function formatPercent(value) {
   return `${Math.max(0, Math.min(100, Math.round(n)))}%`
 }
 
-function formatClock(date) {
-  if (!date) return "--"
-  return date.toLocaleTimeString("pt-BR", {
-    hour: "2-digit",
-    minute: "2-digit"
-  })
+function formatResetDuration(ms) {
+  if (!Number.isFinite(ms) || ms <= 0) return "reset agora"
+  const totalMins = Math.floor(ms / 60000)
+  const d = Math.floor(totalMins / 1440)
+  const h = Math.floor((totalMins % 1440) / 60)
+  const m = totalMins % 60
+
+  if (d > 0) return `reset em ${d}d ${h}h`
+  if (h > 0) return `reset em ${h}h ${m}m`
+  return `reset em ${m}m`
 }
 
-function formatShortDate(date) {
-  if (!date) return "--"
-  const dd = String(date.getDate()).padStart(2, "0")
-  const mm = String(date.getMonth() + 1).padStart(2, "0")
+function getBadgeText(dateString) {
+  if (!dateString) return "--"
+  const target = new Date(dateString)
+  if (!Number.isFinite(target.getTime())) return "--"
+
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const tomorrow = new Date(today.getTime() + 86400000)
+  const targetDay = new Date(target.getFullYear(), target.getMonth(), target.getDate())
+
+  if (targetDay.getTime() === today.getTime()) return "hoje"
+  if (targetDay.getTime() === tomorrow.getTime()) return "amanhã"
+
+  const dd = String(target.getDate()).padStart(2, "0")
+  const mm = String(target.getMonth() + 1).padStart(2, "0")
   return `${dd}/${mm}`
 }
 
-function formatDuration(ms) {
-  if (!Number.isFinite(ms)) return "sem ciclo"
-  if (ms <= 0) return "agora"
-
-  const totalMinutes = Math.floor(ms / 60000)
-  const days = Math.floor(totalMinutes / 1440)
-  const hours = Math.floor((totalMinutes % 1440) / 60)
-  const minutes = totalMinutes % 60
-
-  if (days > 0) return `${days}d ${hours}h`
-  if (hours > 0) return `${hours}h ${minutes}m`
-  return `${minutes}m`
-}
-
-function muted(alpha = 0.72) {
-  return new Color("#ffffff", alpha)
-}
-
-function colorForPercent(percent) {
+function colorFor(percent) {
   const n = Number(percent)
-  if (!Number.isFinite(n)) return muted(0.5)
+  if (!Number.isFinite(n)) return new Color("#ffffff", 0.4)
   if (n <= 10) return new Color("#ff453a")
   if (n <= 30) return new Color("#ff9f0a")
-  return new Color("#66d9a3")
+  return new Color("#3ade68")
 }
 
-function statusForModel(model) {
-  if (model.status) return model.status
-  const n = Number(model.remainingPercent)
-  if (!Number.isFinite(n)) return "unknown"
-  if (n <= 0) return "empty"
-  if (n < 20) return "low"
-  return "ok"
+function progressWidth(percent, barWidth) {
+  const n = Number(percent)
+  if (!Number.isFinite(n) || n <= 0) return 0
+  return Math.max(4, barWidth * (Math.max(0, Math.min(100, n)) / 100))
 }
 
-function addText(parent, text, font, color = Color.white(), options = {}) {
-  const t = parent.addText(String(text))
-  t.font = font
-  t.textColor = color
-  t.lineLimit = options.lineLimit || 1
-  t.minimumScaleFactor = options.scale || 0.75
-  return t
+// ==========================================
+// 3. MAPEAMENTO DOS DADOS (8 SLOTS)
+// ==========================================
+
+const [imgGpt, imgGemini, imgClaude, imgAg] = await Promise.all([
+  loadImage(LOGO_GPT), loadImage(LOGO_GEMINI), loadImage(LOGO_CLAUDE), loadImage(LOGO_AG)
+])
+
+function getLogoForModel(name) {
+  const lower = name.toLowerCase()
+  if (lower.includes("gemini")) return imgGemini
+  if (lower.includes("claude") || lower.includes("sonnet") || lower.includes("opus")) return imgClaude
+  if (lower.includes("gpt") || lower.includes("chatgpt") || lower.includes("codex")) return imgGpt
+  return imgAg
 }
 
-function addProgress(parent, percent, width, height = 5) {
-  const row = parent.addStack()
-  row.layoutHorizontally()
-  const bg = row.addStack()
-  bg.size = new Size(width, height)
-  bg.cornerRadius = height
-  bg.backgroundColor = new Color("#ffffff", 0.18)
+const unifiedCards = []
 
-  const n = clampPercent(percent, 0)
-  if (n > 0) {
-    const fill = bg.addStack()
-    fill.size = new Size(Math.max(3, Math.round(width * n / 100)), height)
-    fill.cornerRadius = height
-    fill.backgroundColor = colorForPercent(n)
+// Linha 1: Codex (Quebrando manualmente em duas linhas com \n)
+const c5Reset = validDate(summary.codex.fiveHourReset)
+const c5Ms = c5Reset ? c5Reset.getTime() - now.getTime() : NaN
+unifiedCards.push({
+  title: "Codex\nLimite 5h",
+  logo: imgGpt,
+  percent: summary.codex.fiveHourPercent,
+  resetStr: c5Reset ? formatResetDuration(c5Ms) : "sem ciclo ativo",
+  badgeStr: getBadgeText(summary.codex.fiveHourReset)
+})
+
+const cwReset = validDate(summary.codex.weeklyReset)
+const cwMs = cwReset ? cwReset.getTime() - now.getTime() : NaN
+unifiedCards.push({
+  title: "Codex\nLimite Semanal",
+  logo: imgGpt,
+  percent: summary.codex.weeklyPercent,
+  resetStr: cwReset ? formatResetDuration(cwMs) : "sem ciclo ativo",
+  badgeStr: getBadgeText(summary.codex.weeklyReset)
+})
+
+// Linhas 2, 3 e 4: Modelos Antigravity
+const agModelsToUse = summary.antigravity.models.slice(0, 6)
+agModelsToUse.forEach(m => {
+  let resetStr = m.refreshText
+  const mRefreshAt = validDate(m.refreshAt)
+  if (mRefreshAt) {
+    resetStr = formatResetDuration(mRefreshAt.getTime() - now.getTime())
+  } else if (resetStr) {
+    resetStr = resetStr.toLowerCase().replace(/^refreshes in\s*/i, "reset em ")
+  } else {
+    resetStr = "sem previsão"
   }
 
-  bg.addSpacer()
-  row.addSpacer()
+  // Forçando quebra de linha entre o Nome e o Tier (se houver tier)
+  let titleStr = m.name.trim()
+  if (m.tier && m.tier.trim() !== "") {
+    titleStr += `\n${m.tier.trim()}`
+  }
+
+  unifiedCards.push({
+    title: titleStr,
+    logo: getLogoForModel(m.name),
+    percent: m.remainingPercent,
+    resetStr: resetStr,
+    badgeStr: getBadgeText(m.refreshAt)
+  })
+})
+
+while (unifiedCards.length < 8) {
+  unifiedCards.push({ title: "Aguardando\nSlot", logo: imgAg, percent: null, resetStr: "sem dados", badgeStr: "--" })
 }
 
-function addHeader(widget) {
-  const row = widget.addStack()
-  row.centerAlignContent()
-  addText(row, "Codex + Antigravity", Font.boldSystemFont(13), Color.white())
-  row.addSpacer()
+// ==========================================
+// 4. CONSTRUÇÃO DO WIDGET
+// ==========================================
 
-  const updated = validDate(summary.lastUpdated)
-  addText(row, updated ? formatClock(updated) : "--", Font.mediumSystemFont(10), muted(0.7))
-}
+const w = new ListWidget()
+w.setPadding(20, 14, 20, 14) // Margens aumentadas para mais "respiro" no topo e na base
 
-function addCodexBlock(widget) {
-  const codex = summary.codex
-  const fiveReset = validDate(codex.fiveHourReset)
-  const weeklyReset = validDate(codex.weeklyReset)
-  const fiveMs = fiveReset ? fiveReset.getTime() - now.getTime() : NaN
-  const weeklyMs = weeklyReset ? weeklyReset.getTime() - now.getTime() : NaN
+const bgGrad = new LinearGradient()
+bgGrad.colors = [new Color("#254885"), new Color("#173463")]
+bgGrad.locations = [0, 1]
+w.backgroundGradient = bgGrad
+w.refreshAfterDate = new Date(Date.now() + REFRESH_MINUTES * 60000)
 
-  const row = widget.addStack()
-  row.layoutHorizontally()
+const gridStack = w.addStack()
+gridStack.layoutHorizontally()
 
-  addCodexCard(row, "5h", codex.fiveHourPercent, fiveReset ? formatDuration(fiveMs) : "sem ciclo", formatClock(fiveReset))
-  row.addSpacer(9)
-  addCodexCard(row, "Semanal", codex.weeklyPercent, formatDuration(weeklyMs), formatShortDate(weeklyReset))
-}
+const leftCol = gridStack.addStack()
+leftCol.layoutVertically()
+leftCol.size = new Size(156, 0)
 
-function addCodexCard(parent, title, percent, leftMeta, rightMeta) {
+gridStack.addSpacer(10)
+
+const rightCol = gridStack.addStack()
+rightCol.layoutVertically()
+rightCol.size = new Size(156, 0)
+
+function buildCard(parent, data) {
   const card = parent.addStack()
   card.layoutVertically()
-  card.backgroundColor = new Color("#ffffff", 0.1)
+  card.backgroundColor = new Color("#ffffff", 0.08)
   card.cornerRadius = 14
-  card.setPadding(9, 10, 10, 10)
-  card.size = new Size(151, 76)
+  card.setPadding(8, 12, 8, 12) // Reduzido verticalmente para compensar as margens externas
+  card.borderWidth = 1
+  card.borderColor = new Color("#ffffff", 0.06)
 
-  const top = card.addStack()
-  top.centerAlignContent()
-  addText(top, title.toUpperCase(), Font.boldSystemFont(8), muted(0.76))
-  top.addSpacer()
-  addText(top, formatPercent(percent), Font.boldSystemFont(20), colorForPercent(percent))
+  // LINHA 1: Logo + Título + Percentual
+  const topRow = card.addStack()
+  topRow.centerAlignContent()
 
-  card.addSpacer(8)
-  addProgress(card, percent, 130, 5)
-  card.addSpacer(7)
-
-  const meta = card.addStack()
-  meta.centerAlignContent()
-  addText(meta, leftMeta, Font.systemFont(8), muted(0.72))
-  meta.addSpacer()
-  addText(meta, rightMeta, Font.systemFont(8), muted(0.72))
-}
-
-function addAntigravityBlock(widget) {
-  const titleRow = widget.addStack()
-  titleRow.centerAlignContent()
-  addText(titleRow, "ANTIGRAVITY", Font.boldSystemFont(9), muted(0.82))
-  titleRow.addSpacer()
-
-  const updated = validDate(summary.antigravity.lastUpdated)
-  addText(titleRow, updated ? `upd ${formatClock(updated)}` : "sem dados", Font.mediumSystemFont(8), muted(0.62))
-  widget.addSpacer(6)
-
-  const models = summary.antigravity.models.slice(0, 6)
-  if (models.length === 0) {
-    addText(widget, "Rode a automacao desktop para publicar antigravity_usage.json.", Font.systemFont(10), muted(0.72), {
-      lineLimit: 2
-    })
-    return
+  if (data.logo) {
+    const icon = topRow.addImage(data.logo)
+    icon.imageSize = new Size(15.5, 15.5)
+    topRow.addSpacer(6)
   }
 
-  for (const model of models) {
-    addModelRow(widget, model)
-    widget.addSpacer(5)
+  // Nomes travados e quebrados para ocupar exatamente duas linhas e garantir simetria
+  const title = topRow.addText(data.title)
+  title.font = Font.systemFont(8)
+  title.textColor = Color.white()
+  title.lineLimit = 2
+  // Sem minimumScaleFactor, garantindo que o texto use o espaço ou force a quebra de linha.
+
+  topRow.addSpacer()
+
+  // Porcentagem com maior peso na fonte
+  const perc = topRow.addText(formatPercent(data.percent))
+  perc.font = Font.boldSystemFont(18) // Fonte acentuada e levemente maior
+  perc.textColor = colorFor(data.percent)
+  perc.minimumScaleFactor = 0.8
+
+  card.addSpacer(7) // Espaçamento reduzido
+
+  // LINHA 2: Barra de Progresso
+  const barW = 132
+  const barBg = card.addStack()
+  barBg.layoutHorizontally()
+  barBg.size = new Size(barW, 5)
+  barBg.backgroundColor = new Color("#ffffff", 0.2)
+  barBg.cornerRadius = 2.5
+
+  const fillW = progressWidth(data.percent, barW)
+  if (fillW > 0) {
+    const fill = barBg.addStack()
+    fill.size = new Size(fillW, 5)
+    fill.backgroundColor = colorFor(data.percent)
+    fill.cornerRadius = 2.5
+  }
+  barBg.addSpacer()
+
+  card.addSpacer(7) // Espaçamento reduzido
+
+  // LINHA 3: Relógio + Reset Text + Badge com Calendário
+  const footRow = card.addStack()
+  footRow.centerAlignContent()
+
+  const clockSym = SFSymbol.named("clock")
+  if (clockSym) {
+    const clockImg = footRow.addImage(clockSym.image)
+    clockImg.imageSize = new Size(10, 10)
+    clockImg.tintColor = new Color("#ffffff", 0.8)
+    footRow.addSpacer(4)
+  }
+
+  // Texto de limite estrito para que NUNCA apareça "..."
+  const resetTxt = footRow.addText(data.resetStr)
+  resetTxt.font = Font.systemFont(7)
+  resetTxt.textColor = new Color("#ffffff", 0.8)
+  resetTxt.lineLimit = 1
+
+  footRow.addSpacer()
+
+  // Badge Reduzida
+  if (data.badgeStr !== "--") {
+    const badge = footRow.addStack()
+    badge.backgroundColor = new Color("#ffffff", 0.15)
+    badge.cornerRadius = 5
+    badge.setPadding(2, 4, 2, 4) // Badge mais enxuta
+    badge.centerAlignContent()
+
+    const calSym = SFSymbol.named("calendar")
+    if (calSym) {
+      const calImg = badge.addImage(calSym.image)
+      calImg.imageSize = new Size(8, 8) // Ícone menor
+      calImg.tintColor = Color.white()
+      badge.addSpacer(3)
+    }
+
+    const bTxt = badge.addText(data.badgeStr)
+    bTxt.font = Font.mediumSystemFont(7) // Texto sutilmente menor
+    bTxt.textColor = Color.white()
+    bTxt.lineLimit = 1
   }
 }
 
-function addModelRow(parent, model) {
-  const row = parent.addStack()
-  row.layoutVertically()
-  row.backgroundColor = new Color("#ffffff", 0.075)
-  row.cornerRadius = 9
-  row.setPadding(5, 7, 6, 7)
+// Inserção indexada
+for (let r = 0; r < 4; r++) {
+  const leftItem = unifiedCards[r * 2]
+  const rightItem = unifiedCards[r * 2 + 1]
 
-  const top = row.addStack()
-  top.centerAlignContent()
+  buildCard(leftCol, leftItem)
+  buildCard(rightCol, rightItem)
 
-  const label = [model.name, model.tier].filter(Boolean).join(" ")
-  addText(top, label, Font.semiboldSystemFont(10), Color.white(), { scale: 0.68 })
-  top.addSpacer(6)
-
-  const percent = formatPercent(model.remainingPercent)
-  const status = statusForModel(model)
-  const percentColor = status === "empty" || status === "low" ? colorForPercent(model.remainingPercent) : muted(0.9)
-  addText(top, percent, Font.boldSystemFont(11), percentColor)
-
-  row.addSpacer(3)
-
-  const bottom = row.addStack()
-  bottom.centerAlignContent()
-  addProgress(bottom, model.remainingPercent, 86, 4)
-  bottom.addSpacer(6)
-
-  const refreshAt = validDate(model.refreshAt)
-  const refresh = refreshAt
-    ? `${formatDuration(refreshAt.getTime() - now.getTime())}`
-    : model.refreshText.replace(/^Refreshes in\s*/i, "")
-
-  addText(bottom, refresh || "--", Font.systemFont(8), muted(0.62), { scale: 0.6 })
+  if (r < 3) {
+    leftCol.addSpacer(8)
+    rightCol.addSpacer(8)
+  }
 }
 
-const widget = new ListWidget()
-widget.backgroundGradient = (() => {
-  const g = new LinearGradient()
-  g.colors = [new Color("#07111f"), new Color("#0e2530"), new Color("#121827")]
-  g.locations = [0, 0.55, 1]
-  return g
-})()
-widget.setPadding(14, 14, 12, 14)
-widget.refreshAfterDate = new Date(Date.now() + REFRESH_MINUTES * 60000)
-
-addHeader(widget)
-widget.addSpacer(10)
-addCodexBlock(widget)
-widget.addSpacer(10)
-addAntigravityBlock(widget)
-
-if (warning) {
-  widget.addSpacer()
-  addText(widget, warning, Font.systemFont(8), new Color("#ff9f0a"), {
-    lineLimit: 1,
-    scale: 0.55
-  })
-}
-
-Script.setWidget(widget)
-
-if (!config.runsInWidget) {
-  await widget.presentLarge()
-}
-
+Script.setWidget(w)
+if (!config.runsInWidget) await w.presentLarge()
 Script.complete()

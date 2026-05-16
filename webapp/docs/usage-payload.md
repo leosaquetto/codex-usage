@@ -37,3 +37,19 @@ O endpoint `/api/usage` deve responder com `application/json` no formato abaixo:
 - `statusLabel`, `fiveHourSafeRate`, `weeklyRemaining`, `realDailyRate`, `safeDailyRate`, `dailyDiff`, `weeklyProjection`, `zeroIn`, `history.cycleStart`.
 
 Quando os opcionais não são enviados, o frontend mostra fallback seguro (`--`).
+
+## Atualizacao autenticada via Chrome
+
+O fluxo principal para atualizar `codex_usage.json` e:
+
+```bash
+node scripts/update-codex-usage-from-chrome.mjs
+```
+
+Ele abre a pagina oficial `https://chatgpt.com/codex/cloud/settings/analytics` no Chrome ja logado, extrai os limites renderizados pela UI e regenera `usage_summary.json`. Nao usa chave de API da OpenAI e nao persiste credenciais do ChatGPT no repositorio.
+
+Para publicar no GitHub:
+
+```bash
+CODEX_USAGE_GITHUB_TOKEN=ghp_xxx node scripts/update-codex-usage-from-chrome.mjs --publish
+```

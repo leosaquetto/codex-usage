@@ -6,6 +6,12 @@ const SAFE_FALLBACK = {
   lastUpdated: null,
 };
 
+const ANTIGRAVITY_FALLBACK = {
+  source: "desktop-automation",
+  lastUpdated: null,
+  models: [],
+};
+
 const WEEK_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
 const THEME_KEY = "codex-theme";
@@ -178,6 +184,68 @@ function normalizeUsage(raw) {
     weeklyResetDate: parseDate(json.weeklyReset),
     lastUpdatedDate: parseDate(json.lastUpdated),
   };
+}
+
+function normalizeAntigravity(raw) {
+  const json = raw && typeof raw === "object" ? raw : {};
+  const models = Array.isArray(json.models) ? json.models : [];
+
+  return {
+    source: typeof json.source === "string" ? json.source : ANTIGRAVITY_FALLBACK.source,
+    lastUpdatedDate: parseDate(json.lastUpdated),
+    models: models
+      .map((model) => {
+        const name = typeof model.name === "string" ? model.name.trim() : "";
+        if (!name) return null;
+
+        const remainingPercent = clampPercent(
+          model.remainingPercent ?? model.percentRemaining ?? model.percent,
+          NaN,
+        );
+        const status = typeof model.status === "string" ? model.status : resolveAntigravityStatus(remainingPercent);
+        const refreshText = typeof model.refreshText === "string" ? model.refreshText : "";
+        const refreshDate = parseDate(model.refreshAt);
+
+        return {
+          id: typeof model.id === "string" ? model.id : slugify(name),
+          name,
+          tier: typeof model.tier === "string" ? model.tier : "",
+          remainingPercent,
+          status,
+          refreshText,
+          refreshDate,
+        };
+      })
+      .filter(Boolean),
+  };
+}
+
+function resolveAntigravityStatus(percent) {
+  if (!Number.isFinite(percent)) return "unknown";
+  if (percent <= 0) return "empty";
+  if (percent < 20) return "low";
+  return "ok";
+}
+
+function slugify(value) {
+  return String(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+async function loadAntigravityUsage() {
+  try {
+    const response = await fetch(`./antigravity_usage.json?t=${Date.now()}`, {
+      cache: "no-store",
+    });
+    if (!response.ok) throw new Error("Falha ao carregar Antigravity");
+
+    const json = await response.json();
+    return { antigravity: normalizeAntigravity(json), hasLoadError: false };
+  } catch {
+    return { antigravity: normalizeAntigravity(ANTIGRAVITY_FALLBACK), hasLoadError: true };
+  }
 }
 
 function setProgress(barId, textId, percent) {
@@ -377,10 +445,77 @@ function renderUsageChart(weeklyUsed, weeklyRemaining) {
   });
 }
 
+function renderAntigravity(antigravity, hasLoadError, els) {
+  const models = antigravity.models.slice(0, 8);
+  const criticalCount = models.filter((model) => ["empty", "low"].includes(model.status)).length;
+
+  els.antigravityUpdatedAt.textContent = antigravity.lastUpdatedDate
+    ? `Atualizado ${formatDateTimePtBr(antigravity.lastUpdatedDate)}`
+    : "Sem atualização";
+
+  if (hasLoadError) {
+    els.antigravitySummary.textContent = "Sem dados locais do Antigravity. Rode a automação desktop para publicar o JSON.";
+  } else if (models.length === 0) {
+    els.antigravitySummary.textContent = "Nenhum modelo publicado ainda.";
+  } else if (criticalCount > 0) {
+    els.antigravitySummary.textContent = `${criticalCount} modelo(s) pedem atenção.`;
+  } else {
+    els.antigravitySummary.textContent = `${models.length} modelo(s) dentro do seguro.`;
+  }
+
+  els.antigravityModels.replaceChildren();
+  if (models.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "antigravity-empty";
+    empty.textContent = "O arquivo antigravity_usage.json existe para receber a primeira captura.";
+    els.antigravityModels.append(empty);
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+  for (const model of models) {
+    const item = document.createElement("div");
+    item.className = `antigravity-model is-${model.status}`;
+
+    const header = document.createElement("div");
+    header.className = "antigravity-model-header";
+
+    const name = document.createElement("span");
+    name.className = "antigravity-model-name";
+    name.textContent = model.name;
+
+    const percent = document.createElement("span");
+    percent.className = "antigravity-percent";
+    percent.textContent = Number.isFinite(model.remainingPercent) ? `${Math.round(model.remainingPercent)}%` : "--";
+
+    header.append(name, percent);
+
+    const meta = document.createElement("div");
+    meta.className = "antigravity-model-meta";
+    const refreshLabel = model.refreshDate ? resetTextFromDate(model.refreshDate) : model.refreshText || "refresh nao informado";
+    meta.textContent = [model.tier, refreshLabel].filter(Boolean).join(" · ");
+
+    const bar = document.createElement("div");
+    bar.className = "antigravity-progress";
+    const fill = document.createElement("div");
+    fill.className = "antigravity-progress-fill";
+    fill.style.width = `${Number.isFinite(model.remainingPercent) ? clampPercent(model.remainingPercent) : 0}%`;
+    bar.append(fill);
+
+    item.append(header, meta, bar);
+    fragment.append(item);
+  }
+
+  els.antigravityModels.append(fragment);
+}
+
 /* ===== Main Init Function ===== */
 (async function init() {
   document.querySelectorAll(".rhythm-value").forEach((el) => el.classList.add("is-loading"));
-  const { usage, hasLoadError } = await loadUsage();
+  const [{ usage, hasLoadError }, { antigravity, hasLoadError: hasAntigravityLoadError }] = await Promise.all([
+    loadUsage(),
+    loadAntigravityUsage(),
+  ]);
   const els = {
     themeToggleButton: document.getElementById("themeToggleButton"),
     themeColorButton: document.getElementById("themeColorButton"),
@@ -407,6 +542,9 @@ function renderUsageChart(weeklyUsed, weeklyRemaining) {
     weeklyProjection: document.getElementById("weeklyProjection"),
     weeklyZeroAt: document.getElementById("weeklyZeroAt"),
     weeklyCycleStart: document.getElementById("weeklyCycleStart"),
+    antigravityUpdatedAt: document.getElementById("antigravityUpdatedAt"),
+    antigravitySummary: document.getElementById("antigravitySummary"),
+    antigravityModels: document.getElementById("antigravityModels"),
   };
 
   const now = Date.now();
@@ -444,6 +582,7 @@ function renderUsageChart(weeklyUsed, weeklyRemaining) {
     els.weeklyDifference.textContent = formatDifference(dailyDiff);
     els.weeklyProjection.textContent = formatPercent(projectedRemaining);
     els.weeklyCycleStart.textContent = weeklyCycleStart ? formatDateTimePtBr(weeklyCycleStart) : "--";
+    renderAntigravity(antigravity, hasAntigravityLoadError, els);
 
     els.weeklyLine.textContent = usage.weeklyResetDate
       ? `Renova ${resetTextFromDate(usage.weeklyResetDate)}`

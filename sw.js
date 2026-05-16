@@ -1,7 +1,9 @@
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v5';
 const STATIC_CACHE = `codex-static-${CACHE_VERSION}`;
 const DATA_CACHE = `codex-data-${CACHE_VERSION}`;
 const USAGE_CACHE_KEY = '/codex_usage.json';
+const ANTIGRAVITY_CACHE_KEY = '/antigravity_usage.json';
+const SUMMARY_CACHE_KEY = '/usage_summary.json';
 
 const PRECACHE_URLS = [
   '/',
@@ -10,6 +12,8 @@ const PRECACHE_URLS = [
   '/app.js',
   '/manifest.json',
   '/codex_usage.json',
+  '/antigravity_usage.json',
+  '/usage_summary.json',
   '/webapp/assets/logo.png',
   '/webapp/assets/logo_background.png',
   '/webapp/assets/codex.webp',
@@ -54,7 +58,10 @@ self.addEventListener('fetch', (event) => {
   }
 
   const isNavigation = request.mode === 'navigate';
-  const isUsageData = request.url.includes('/codex_usage.json');
+  const isUsageData =
+    request.url.includes('/codex_usage.json') ||
+    request.url.includes('/antigravity_usage.json') ||
+    request.url.includes('/usage_summary.json');
 
   if (isNavigation) {
     event.respondWith(
@@ -72,16 +79,22 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (isUsageData) {
+    const cacheKey = request.url.includes('/antigravity_usage.json')
+      ? ANTIGRAVITY_CACHE_KEY
+      : request.url.includes('/usage_summary.json')
+        ? SUMMARY_CACHE_KEY
+        : USAGE_CACHE_KEY;
+
     event.respondWith(
       fetch(request)
         .then((response) => {
           if (response.ok) {
             const clone = response.clone();
-            caches.open(DATA_CACHE).then((cache) => cache.put(USAGE_CACHE_KEY, clone));
+            caches.open(DATA_CACHE).then((cache) => cache.put(cacheKey, clone));
           }
           return response;
         })
-        .catch(() => caches.match(USAGE_CACHE_KEY) || caches.match('/codex_usage.json')),
+        .catch(() => caches.match(cacheKey)),
     );
     return;
   }

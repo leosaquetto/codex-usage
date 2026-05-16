@@ -358,14 +358,29 @@ function appleScriptString(value) {
 
 async function readAnalyticsFromChrome() {
   const chromeApp = "/Applications/Google Chrome.app";
-  const openArgs = existsSync(chromeApp)
-    ? [chromeApp, analyticsUrl]
-    : ["-a", "Google Chrome", analyticsUrl];
-  const opened = spawnSync("open", openArgs, {
+  const openAttempts = [
+    ["-b", "com.google.Chrome", analyticsUrl],
+    ...(existsSync(chromeApp) ? [["-a", chromeApp, analyticsUrl]] : []),
+    ["-a", "Google Chrome", analyticsUrl],
+  ];
+
+  let opened = null;
+  for (const openArgs of openAttempts) {
+    opened = spawnSync("open", openArgs, {
+      encoding: "utf8",
+    });
+    if (opened.status === 0) break;
+  }
+
+  if (!opened || opened.status !== 0) {
+    throw new Error((opened?.stderr || opened?.stdout || "Falha ao abrir Google Chrome").trim());
+  }
+
+  const activated = spawnSync("open", ["-b", "com.google.Chrome"], {
     encoding: "utf8",
   });
-  if (opened.status !== 0) {
-    throw new Error((opened.stderr || opened.stdout || "Falha ao abrir Google Chrome").trim());
+  if (activated.status !== 0) {
+    throw new Error((activated.stderr || activated.stdout || "Falha ao ativar Google Chrome").trim());
   }
 
   const extractor = `(() => {

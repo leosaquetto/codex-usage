@@ -1,5 +1,9 @@
 .vercel
 .env*.local
+node_modules/
+.local/
+playwright-report/
+test-results/
 
 # local automation scripts/logs
 _scripts/

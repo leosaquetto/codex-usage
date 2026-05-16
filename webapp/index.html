@@ -13,14 +13,36 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
     <!-- SPLASH iOS -->
-    <link rel="apple-touch-startup-image" href="/assets/splash.svg" />
+    <link rel="apple-touch-startup-image" href="/webapp/assets/splash.svg" />
 
     <!-- ICONS -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/assets/logo_background.png" />
-    <link rel="icon" sizes="192x192" href="/assets/logo_background.png" />
-    <link rel="icon" sizes="512x512" href="/assets/logo_background.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/webapp/assets/logo_background.png" />
+    <link rel="icon" sizes="192x192" href="/webapp/assets/logo_background.png" />
+    <link rel="icon" sizes="512x512" href="/webapp/assets/logo_background.png" />
 
     <title>Analítica do Codex</title>
+    <style>
+      :root {
+        --primary: #3b82f6;
+        --bg-base: #0f172a;
+        --bg-surface: #1e293b;
+        --text-primary: #f1f5f9;
+      }
+
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        background-color: var(--bg-base);
+        color: var(--text-primary);
+      }
+
+      body {
+        overflow-y: scroll;
+        -webkit-overflow-scrolling: touch;
+      }
+    </style>
     <link rel="stylesheet" href="./style.css" />
   </head>
 
@@ -32,30 +54,30 @@
       <header class="header">
         <div class="header-content">
           <div class="brand">
-            <img src="/assets/logo.png" alt="Codex" class="brand-logo" />
+            <img src="/webapp/assets/logo.png" alt="Codex" class="brand-logo" />
             <div class="brand-text">
-              <h1>Analítica do Codex</h1>
+              <h1>Codex + Antigravity</h1>
               <p class="brand-subtitle">Dashboard Local</p>
             </div>
           </div>
 
           <div class="header-actions">
-            <button id="themeToggleButton" class="icon-button" title="Alternar tema" aria-label="Alternar tema" aria-pressed="false">
+            <button type="button" id="themeToggleButton" class="icon-button" title="Alternar tema" aria-label="Alternar tema" aria-pressed="false">
               <span id="themeToggleIcon" class="icon">◐</span>
             </button>
-            <button id="themeColorButton" class="icon-button" title="Cor do tema" aria-label="Cor do tema">
+            <button type="button" id="themeColorButton" class="icon-button" title="Cor do tema" aria-label="Cor do tema">
               <span class="icon">🎨</span>
             </button>
-            <button id="refreshButton" class="icon-button" title="Recarregar página" aria-label="Recarregar">
+            <input id="themeColorInput" type="color" value="#3b82f6" aria-label="Selecionar cor do tema" hidden />
+            <button type="button" id="refreshButton" class="icon-button" title="Recarregar página" aria-label="Recarregar">
               <span class="icon">↻</span>
             </button>
-            <button id="shareButton" class="icon-button" title="Compartilhar" aria-label="Compartilhar">
+            <button type="button" id="shareButton" class="icon-button" title="Compartilhar" aria-label="Compartilhar">
               <span class="icon">↑</span>
             </button>
-            <button id="closeButton" class="icon-button" title="Fechar" aria-label="Fechar">
+            <button type="button" id="closeButton" class="icon-button" title="Fechar" aria-label="Fechar">
               <span class="icon">×</span>
             </button>
-            <input id="themeColorInput" class="theme-color-input" type="color" value="#3b82f6" aria-label="Selecionar cor do tema" />
           </div>
         </div>
 
@@ -67,11 +89,9 @@
           </div>
           <div class="status-timestamp">
             <span class="timestamp-label">Atualizado</span>
-            <span id="dataSourceBadge" class="source-badge">—</span>
             <span id="updatedAtText" class="timestamp-value">—</span>
           </div>
         </div>
-        <div class="status-legend" aria-hidden="true">seguro · atenção · crítico</div>
       </header>
 
       <!-- Main Content -->
@@ -149,6 +169,27 @@
           </article>
         </div>
 
+        <!-- Antigravity Quota Section -->
+        <section class="rhythm-section antigravity-section" aria-labelledby="antigravityTitle">
+          <div class="section-heading-row">
+            <h2 id="antigravityTitle" class="section-title">Antigravity</h2>
+            <span id="antigravityUpdatedAt" class="section-meta">—</span>
+          </div>
+
+          <article class="rhythm-card">
+            <div id="antigravitySummary" class="antigravity-summary">Carregando quotas...</div>
+            <div id="antigravityModels" class="antigravity-models" aria-label="Quotas de modelos do Antigravity"></div>
+          </article>
+        </section>
+
+
+        <section class="rhythm-section">
+          <h2 class="section-title">Gráfico de Consumo</h2>
+          <article class="rhythm-card">
+            <canvas id="usageChart" aria-label="Gráfico de consumo" role="img"></canvas>
+          </article>
+        </section>
+
         <!-- Weekly Rhythm Section -->
         <section class="rhythm-section">
           <h2 class="section-title">Análise Semanal</h2>
@@ -166,9 +207,8 @@
                 <span class="rhythm-unit">%/dia</span>
               </div>
               <div class="rhythm-item">
-                <span class="rhythm-label">Diferença <span id="weeklyDifferenceTrend" class="trend-icon">•</span></span>
+                <span class="rhythm-label">Diferença</span>
                 <span id="weeklyDifference" class="rhythm-value">—</span>
-                <span id="weeklyDeltaSinceLast" class="rhythm-subvalue">—</span>
                 <span class="rhythm-unit">%/dia</span>
               </div>
               <div class="rhythm-item">
@@ -188,14 +228,12 @@
               </div>
             </div>
 
-            <p id="confidenceHint" class="confidence-hint">Confiança: —</p>
-
             <div class="action-buttons">
               <a href="https://chatgpt.com/codex/cloud/settings/analytics" class="button button-primary">
                 Abrir Codex
               </a>
-              <a href="shortcuts://run-shortcut?name=Atualizar%20uso%20Codex" class="button button-secondary">
-                Atualizar Uso
+              <a href="https://github.com/leosaquetto/codex-usage/blob/main/scriptable/README.md" class="button button-secondary">
+                Como Atualizar
               </a>
             </div>
           </article>
@@ -203,6 +241,7 @@
       </section>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" defer></script>
     <script src="./app.js" defer></script>
   </body>
 </html>

@@ -6,56 +6,22 @@ const SAFE_FALLBACK = {
   lastUpdated: null,
 };
 
+const ANTIGRAVITY_FALLBACK = {
+  source: "desktop-automation",
+  lastUpdated: null,
+  models: [],
+};
+
 const WEEK_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
-const CACHE_TTL_MS = 6 * 60 * 60 * 1000;
-
-
-const LAST_VALID_PAYLOAD_KEY = "codex_usage_last_valid_v1";
-const PREVIOUS_SNAPSHOT_KEY = "codex_usage_previous_snapshot_v1";
-
-function saveLastValidPayload(raw) {
-  try {
-    localStorage.setItem(LAST_VALID_PAYLOAD_KEY, JSON.stringify({ payload: raw, savedAt: new Date().toISOString() }));
-  } catch {}
-}
-
-function loadLastValidPayload() {
-  try {
-    const raw = localStorage.getItem(LAST_VALID_PAYLOAD_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (parsed && typeof parsed === "object" && parsed.payload) return parsed;
-    return { payload: parsed, savedAt: null };
-  } catch {
-    return null;
-  }
-}
-
-
-function savePreviousSnapshot(snapshot) {
-  try {
-    localStorage.setItem(PREVIOUS_SNAPSHOT_KEY, JSON.stringify(snapshot));
-  } catch {}
-}
-
-function loadPreviousSnapshot() {
-  try {
-    const raw = localStorage.getItem(PREVIOUS_SNAPSHOT_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
-function formatDeltaPercent(value) {
-  if (!Number.isFinite(value)) return "--";
-  const sign = value > 0 ? "+" : "";
-  return `${sign}${value.toFixed(1)}%`;
-}
 
 const THEME_KEY = "codex-theme";
 const THEME_COLOR_KEY = "codex-theme-color";
+const LAST_VALID_USAGE_KEY = "codex-last-valid-usage-payload";
 const DEFAULT_THEME_COLOR = "#3b82f6";
+let viewportRafId = null;
+let activeUsageController = null;
+let lastUsageSignature = "";
+let lastSuspendedAt = 0;
 
 function setThemeColor(color) {
   if (!/^#[0-9a-fA-F]{6}$/.test(color)) return;
@@ -98,8 +64,29 @@ function adjustViewportHeight() {
   document.documentElement.style.setProperty('--svh', `${svh}px`);
 }
 
-window.addEventListener('resize', adjustViewportHeight);
-window.addEventListener('orientationchange', adjustViewportHeight);
+function scheduleViewportAdjust() {
+  if (viewportRafId !== null) cancelAnimationFrame(viewportRafId);
+  viewportRafId = requestAnimationFrame(() => {
+    viewportRafId = null;
+    adjustViewportHeight();
+  });
+}
+
+window.addEventListener('resize', scheduleViewportAdjust);
+window.addEventListener('orientationchange', scheduleViewportAdjust);
+window.addEventListener("pagehide", () => {
+  lastSuspendedAt = Date.now();
+});
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") {
+    lastSuspendedAt = Date.now();
+    return;
+  }
+  scheduleViewportAdjust();
+  if (lastSuspendedAt && Date.now() - lastSuspendedAt > 60_000) {
+    location.reload();
+  }
+});
 adjustViewportHeight();
 
 /* ===== Utility Functions ===== */
@@ -199,15 +186,66 @@ function normalizeUsage(raw) {
   };
 }
 
-function resolveProgressGradient(percent) {
-  const p = clampPercent(percent);
+function normalizeAntigravity(raw) {
+  const json = raw && typeof raw === "object" ? raw : {};
+  const models = Array.isArray(json.models) ? json.models : [];
 
-  if (p <= 25) return "linear-gradient(90deg, #ef4444 0%, #dc2626 100%)";
-  if (p <= 50) return "linear-gradient(90deg, #f59e0b 0%, #d97706 100%)";
+  return {
+    source: typeof json.source === "string" ? json.source : ANTIGRAVITY_FALLBACK.source,
+    lastUpdatedDate: parseDate(json.lastUpdated),
+    models: models
+      .map((model) => {
+        const name = typeof model.name === "string" ? model.name.trim() : "";
+        if (!name) return null;
 
-  const blueCap = Math.max(8, Math.min(18, 100 - p + 8));
-  const split = Math.max(0, 100 - blueCap);
-  return `linear-gradient(90deg, #22c55e 0%, #22c55e ${split}%, #60a5fa 100%)`;
+        const remainingPercent = clampPercent(
+          model.remainingPercent ?? model.percentRemaining ?? model.percent,
+          NaN,
+        );
+        const status = typeof model.status === "string" ? model.status : resolveAntigravityStatus(remainingPercent);
+        const refreshText = typeof model.refreshText === "string" ? model.refreshText : "";
+        const refreshDate = parseDate(model.refreshAt);
+
+        return {
+          id: typeof model.id === "string" ? model.id : slugify(name),
+          name,
+          tier: typeof model.tier === "string" ? model.tier : "",
+          remainingPercent,
+          status,
+          refreshText,
+          refreshDate,
+        };
+      })
+      .filter(Boolean),
+  };
+}
+
+function resolveAntigravityStatus(percent) {
+  if (!Number.isFinite(percent)) return "unknown";
+  if (percent <= 0) return "empty";
+  if (percent < 20) return "low";
+  return "ok";
+}
+
+function slugify(value) {
+  return String(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+async function loadAntigravityUsage() {
+  try {
+    const response = await fetch(`./antigravity_usage.json?t=${Date.now()}`, {
+      cache: "no-store",
+    });
+    if (!response.ok) throw new Error("Falha ao carregar Antigravity");
+
+    const json = await response.json();
+    return { antigravity: normalizeAntigravity(json), hasLoadError: false };
+  } catch {
+    return { antigravity: normalizeAntigravity(ANTIGRAVITY_FALLBACK), hasLoadError: true };
+  }
 }
 
 function setProgress(barId, textId, percent) {
@@ -219,7 +257,6 @@ function setProgress(barId, textId, percent) {
   if (bar) {
     bar.style.width = `${safePercent}%`;
     bar.style.setProperty('--progress-width', `${safePercent}%`);
-    bar.style.background = resolveProgressGradient(safePercent);
   }
   if (text) text.textContent = `${safePercent}%`;
   if (progress) progress.setAttribute("aria-valuenow", String(safePercent));
@@ -246,34 +283,57 @@ function resolveStatus({ hasLoadError, fiveHourRemaining, weeklyRemaining, realD
 }
 
 async function loadUsage() {
-  const sources = [
-    `/api/usage?t=${Date.now()}`,
-    `./codex_usage.json?t=${Date.now()}`,
-  ];
+  if (activeUsageController) activeUsageController.abort();
+  activeUsageController = new AbortController();
+  try {
+    const response = await fetch(`./codex_usage.json?t=${Date.now()}`, {
+      cache: "no-store",
+      signal: activeUsageController.signal,
+    });
+    if (!response.ok) throw new Error("Falha ao carregar JSON");
 
-  for (const url of sources) {
-    try {
-      const response = await fetch(url, { cache: "no-store" });
-      if (!response.ok) continue;
-
-      const json = await response.json();
-      saveLastValidPayload(json);
-      return { usage: normalizeUsage(json), hasLoadError: false, source: "live" };
-    } catch {
-      // tenta a próxima fonte
+    const json = await response.json();
+    return { usage: normalizeUsage(json), hasLoadError: false };
+  } catch (error) {
+    const cachedRaw = localStorage.getItem(LAST_VALID_USAGE_KEY);
+    if (cachedRaw) {
+      try {
+        const cachedUsage = normalizeUsage(JSON.parse(cachedRaw));
+        return { usage: cachedUsage, hasLoadError: true };
+      } catch {
+        // cache inválido, segue fallback seguro
+      }
     }
+    if (error?.name === "AbortError") {
+      return { usage: normalizeUsage(SAFE_FALLBACK), hasLoadError: true };
+    }
+    return { usage: normalizeUsage(SAFE_FALLBACK), hasLoadError: true };
+  } finally {
+    activeUsageController = null;
   }
+}
 
-  const cached = loadLastValidPayload();
-  const cacheSavedAt = cached ? parseDate(cached.savedAt) : null;
-  const isCacheFresh = cacheSavedAt ? (Date.now() - cacheSavedAt.getTime()) <= CACHE_TTL_MS : false;
-
-  if (cached && isCacheFresh) {
-    return { usage: normalizeUsage(cached.payload), hasLoadError: true, source: "cache", cacheSavedAt };
-  }
-
-  return { usage: normalizeUsage(SAFE_FALLBACK), hasLoadError: true, source: "fallback", cacheSavedAt: null };
-
+function saveLastValidPayload(usage) {
+  const signature = [
+    usage.fiveHourPercent,
+    usage.fiveHourResetDate?.toISOString() || "null",
+    usage.weeklyPercent,
+    usage.weeklyResetDate?.toISOString() || "null",
+    usage.lastUpdatedDate?.toISOString() || "null",
+  ].join("|");
+  if (signature === lastUsageSignature) return;
+  lastUsageSignature = signature;
+  localStorage.setItem("codex-last-valid-usage-signature", signature);
+  localStorage.setItem(
+    LAST_VALID_USAGE_KEY,
+    JSON.stringify({
+      fiveHourPercent: usage.fiveHourPercent,
+      fiveHourReset: usage.fiveHourResetDate?.toISOString() || null,
+      weeklyPercent: usage.weeklyPercent,
+      weeklyReset: usage.weeklyResetDate?.toISOString() || null,
+      lastUpdated: usage.lastUpdatedDate?.toISOString() || null,
+    }),
+  );
 }
 
 function resetTextFromDate(date) {
@@ -346,7 +406,7 @@ function checkAndNotify(status, fiveHourRemaining, weeklyRemaining) {
   try {
     new Notification('⚠️ Limite baixo', {
       body: `Seu limite atingiu ${threshold}% ou menos.`,
-      icon: '/assets/logo.png',
+      icon: '/webapp/assets/logo.png',
       tag: `codex-threshold-${threshold}`,
     });
     localStorage.setItem(key, 'true');
@@ -385,10 +445,77 @@ function renderUsageChart(weeklyUsed, weeklyRemaining) {
   });
 }
 
+function renderAntigravity(antigravity, hasLoadError, els) {
+  const models = antigravity.models.slice(0, 8);
+  const criticalCount = models.filter((model) => ["empty", "low"].includes(model.status)).length;
+
+  els.antigravityUpdatedAt.textContent = antigravity.lastUpdatedDate
+    ? `Atualizado ${formatDateTimePtBr(antigravity.lastUpdatedDate)}`
+    : "Sem atualização";
+
+  if (hasLoadError) {
+    els.antigravitySummary.textContent = "Sem dados locais do Antigravity. Rode a automação desktop para publicar o JSON.";
+  } else if (models.length === 0) {
+    els.antigravitySummary.textContent = "Nenhum modelo publicado ainda.";
+  } else if (criticalCount > 0) {
+    els.antigravitySummary.textContent = `${criticalCount} modelo(s) pedem atenção.`;
+  } else {
+    els.antigravitySummary.textContent = `${models.length} modelo(s) dentro do seguro.`;
+  }
+
+  els.antigravityModels.replaceChildren();
+  if (models.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "antigravity-empty";
+    empty.textContent = "O arquivo antigravity_usage.json existe para receber a primeira captura.";
+    els.antigravityModels.append(empty);
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+  for (const model of models) {
+    const item = document.createElement("div");
+    item.className = `antigravity-model is-${model.status}`;
+
+    const header = document.createElement("div");
+    header.className = "antigravity-model-header";
+
+    const name = document.createElement("span");
+    name.className = "antigravity-model-name";
+    name.textContent = model.name;
+
+    const percent = document.createElement("span");
+    percent.className = "antigravity-percent";
+    percent.textContent = Number.isFinite(model.remainingPercent) ? `${Math.round(model.remainingPercent)}%` : "--";
+
+    header.append(name, percent);
+
+    const meta = document.createElement("div");
+    meta.className = "antigravity-model-meta";
+    const refreshLabel = model.refreshDate ? resetTextFromDate(model.refreshDate) : model.refreshText || "refresh nao informado";
+    meta.textContent = [model.tier, refreshLabel].filter(Boolean).join(" · ");
+
+    const bar = document.createElement("div");
+    bar.className = "antigravity-progress";
+    const fill = document.createElement("div");
+    fill.className = "antigravity-progress-fill";
+    fill.style.width = `${Number.isFinite(model.remainingPercent) ? clampPercent(model.remainingPercent) : 0}%`;
+    bar.append(fill);
+
+    item.append(header, meta, bar);
+    fragment.append(item);
+  }
+
+  els.antigravityModels.append(fragment);
+}
+
 /* ===== Main Init Function ===== */
 (async function init() {
-  const { usage, hasLoadError, source, cacheSavedAt } = await loadUsage();
-  const previousSnapshot = loadPreviousSnapshot();
+  document.querySelectorAll(".rhythm-value").forEach((el) => el.classList.add("is-loading"));
+  const [{ usage, hasLoadError }, { antigravity, hasLoadError: hasAntigravityLoadError }] = await Promise.all([
+    loadUsage(),
+    loadAntigravityUsage(),
+  ]);
   const els = {
     themeToggleButton: document.getElementById("themeToggleButton"),
     themeColorButton: document.getElementById("themeColorButton"),
@@ -399,7 +526,6 @@ function renderUsageChart(weeklyUsed, weeklyRemaining) {
     statusText: document.getElementById("statusText"),
     statusDot: document.getElementById("statusDot"),
     updatedAtText: document.getElementById("updatedAtText"),
-    dataSourceBadge: document.getElementById("dataSourceBadge"),
     fiveHourPercent: document.getElementById("fiveHourPercent"),
     fiveHourBar: document.getElementById("fiveHourBar"),
     fiveHourLine: document.getElementById("fiveHourLine"),
@@ -413,12 +539,12 @@ function renderUsageChart(weeklyUsed, weeklyRemaining) {
     weeklyAverage: document.getElementById("weeklyAverage"),
     weeklySafeRate: document.getElementById("weeklySafeRate"),
     weeklyDifference: document.getElementById("weeklyDifference"),
-    weeklyDifferenceTrend: document.getElementById("weeklyDifferenceTrend"),
-    weeklyDeltaSinceLast: document.getElementById("weeklyDeltaSinceLast"),
-    confidenceHint: document.getElementById("confidenceHint"),
     weeklyProjection: document.getElementById("weeklyProjection"),
     weeklyZeroAt: document.getElementById("weeklyZeroAt"),
     weeklyCycleStart: document.getElementById("weeklyCycleStart"),
+    antigravityUpdatedAt: document.getElementById("antigravityUpdatedAt"),
+    antigravitySummary: document.getElementById("antigravitySummary"),
+    antigravityModels: document.getElementById("antigravityModels"),
   };
 
   const now = Date.now();
@@ -442,65 +568,45 @@ function renderUsageChart(weeklyUsed, weeklyRemaining) {
   const zeroInDays = Number.isFinite(realDailyRate) && realDailyRate > 0 ? weeklyRemaining / realDailyRate : NaN;
   const fiveHourSafeRate = Number.isFinite(fiveHourMs) && fiveHourMs > 0 ? fiveHourRemaining / (fiveHourMs / (60 * 60 * 1000)) : 0;
 
-  setProgress("fiveHourBar", "fiveHourPercent", fiveHourRemaining);
-  setProgress("weeklyBar", "weeklyPercent", weeklyRemaining);
+  requestAnimationFrame(() => {
+    setProgress("fiveHourBar", "fiveHourPercent", fiveHourRemaining);
+    setProgress("weeklyBar", "weeklyPercent", weeklyRemaining);
 
-  els.updatedAtText.textContent = usage.lastUpdatedDate ? formatDateTimePtBr(usage.lastUpdatedDate) : "--";
-  if (els.dataSourceBadge) {
-    if (source === "live") {
-      els.dataSourceBadge.textContent = "AO VIVO";
-      els.dataSourceBadge.className = "source-badge live";
-    } else if (source === "cache") {
-      const ageMinutes = cacheSavedAt ? Math.max(0, Math.floor((Date.now() - cacheSavedAt.getTime()) / 60000)) : null;
-      els.dataSourceBadge.textContent = ageMinutes === null ? "CACHE" : `CACHE ${ageMinutes}m`;
-      els.dataSourceBadge.className = "source-badge cache";
+    els.updatedAtText.textContent = usage.lastUpdatedDate ? formatDateTimePtBr(usage.lastUpdatedDate) : "--";
+    els.fiveHourUsed.textContent = `${Math.round(fiveHourUsed)}%`;
+    els.weeklyUsed.textContent = `${Math.round(weeklyUsed)}%`;
+    renderUsageChart(weeklyUsed, weeklyRemaining);
+    els.weeklyRemainingDays.textContent = formatDays(weeklyDaysRemaining);
+    els.weeklyAverage.textContent = formatRatePerDay(realDailyRate);
+    els.weeklySafeRate.textContent = formatRatePerDay(safeDailyRate);
+    els.weeklyDifference.textContent = formatDifference(dailyDiff);
+    els.weeklyProjection.textContent = formatPercent(projectedRemaining);
+    els.weeklyCycleStart.textContent = weeklyCycleStart ? formatDateTimePtBr(weeklyCycleStart) : "--";
+    renderAntigravity(antigravity, hasAntigravityLoadError, els);
+
+    els.weeklyLine.textContent = usage.weeklyResetDate
+      ? `Renova ${resetTextFromDate(usage.weeklyResetDate)}`
+      : "--";
+
+    if (usage.fiveHourResetIsNull && fiveHourRemaining === 100) {
+      els.fiveHourLine.textContent = "Cheio · Sem ciclo ativo";
+      els.fiveHourUsed.textContent = "0%";
+      els.fiveHourSafeRate.textContent = "0%/h";
     } else {
-      els.dataSourceBadge.textContent = "ESTÁTICO";
-      els.dataSourceBadge.className = "source-badge fallback";
+      els.fiveHourLine.textContent = usage.fiveHourResetDate
+        ? `Renova em ${formatDurationMs(fiveHourMs)} · ${formatDateTimePtBr(usage.fiveHourResetDate)}`
+        : "--";
+      els.fiveHourSafeRate.textContent = formatRatePerHour(fiveHourSafeRate);
     }
-  }
 
-  els.fiveHourUsed.textContent = `${Math.round(fiveHourUsed)}%`;
-  els.weeklyUsed.textContent = `${Math.round(weeklyUsed)}%`;
-  renderUsageChart(weeklyUsed, weeklyRemaining);
-  els.weeklyRemainingDays.textContent = formatDays(weeklyDaysRemaining);
-  els.weeklyAverage.textContent = formatRatePerDay(realDailyRate);
-  els.weeklySafeRate.textContent = formatRatePerDay(safeDailyRate);
-  els.weeklyDifference.textContent = formatDifference(dailyDiff);
-  if (els.weeklyDifferenceTrend) els.weeklyDifferenceTrend.textContent = Number.isFinite(dailyDiff) ? (dailyDiff > 0 ? "↑" : dailyDiff < 0 ? "↓" : "→") : "•";
-  if (els.weeklyDeltaSinceLast) {
-    const prevRemaining = previousSnapshot ? Number(previousSnapshot.weeklyRemaining) : NaN;
-    const delta = Number.isFinite(prevRemaining) ? weeklyRemaining - prevRemaining : NaN;
-    const deltaAt = previousSnapshot?.updatedAt ? parseDate(previousSnapshot.updatedAt) : null;
-    const fromTime = deltaAt ? deltaAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "--:--";
-    els.weeklyDeltaSinceLast.textContent = Number.isFinite(delta)
-      ? `${formatDeltaPercent(delta)} desde ${fromTime}`
-      : "--";
-  }
-  els.weeklyProjection.textContent = formatPercent(projectedRemaining);
-  els.weeklyCycleStart.textContent = weeklyCycleStart ? formatDateTimePtBr(weeklyCycleStart) : "--";
-
-  els.weeklyLine.textContent = usage.weeklyResetDate
-    ? `Renova ${resetTextFromDate(usage.weeklyResetDate)}`
-    : "--";
-
-  if (usage.fiveHourResetIsNull && fiveHourRemaining === 100) {
-    els.fiveHourLine.textContent = "Cheio · Sem ciclo ativo";
-    els.fiveHourUsed.textContent = "0%";
-    els.fiveHourSafeRate.textContent = "0%/h";
-  } else {
-    els.fiveHourLine.textContent = usage.fiveHourResetDate
-      ? `Renova em ${formatDurationMs(fiveHourMs)} · ${formatDateTimePtBr(usage.fiveHourResetDate)}`
-      : "--";
-    els.fiveHourSafeRate.textContent = formatRatePerHour(fiveHourSafeRate);
-  }
-
-  if (Number.isFinite(zeroInDays) && zeroInDays > 0) {
-    const zeroAtDate = new Date(now + (zeroInDays * 24 * 60 * 60 * 1000));
-    els.weeklyZeroAt.textContent = `${formatZeroIn(zeroInDays)} · ${formatDateTimePtBr(zeroAtDate)}`;
-  } else {
-    els.weeklyZeroAt.textContent = "--";
-  }
+    if (Number.isFinite(zeroInDays) && zeroInDays > 0) {
+      const zeroAtDate = new Date(now + (zeroInDays * 24 * 60 * 60 * 1000));
+      els.weeklyZeroAt.textContent = `${formatZeroIn(zeroInDays)} · ${formatDateTimePtBr(zeroAtDate)}`;
+    } else {
+      els.weeklyZeroAt.textContent = "--";
+    }
+    document.querySelectorAll(".rhythm-value").forEach((el) => el.classList.remove("is-loading"));
+  });
 
   const status = resolveStatus({
     hasLoadError,
@@ -510,27 +616,8 @@ function renderUsageChart(weeklyUsed, weeklyRemaining) {
     safeDailyRate,
   });
   els.statusText.textContent = status.text;
-  if (els.confidenceHint) {
-    if (usage.fiveHourResetIsNull) {
-      els.confidenceHint.textContent = "Confiança: parcial (reset 5h nulo).";
-    } else if (source === "cache") {
-      els.confidenceHint.textContent = "Confiança: média (cache local por falha na API).";
-    } else if (source === "fallback") {
-      els.confidenceHint.textContent = "Confiança: baixa (fallback estático).";
-    } else {
-      els.confidenceHint.textContent = "Confiança: alta (dados ao vivo).";
-    }
-  }
   applyStatusState(status.state, els.statusText, els.statusDot);
-
-  const previousUpdatedAtIso = previousSnapshot?.updatedAt || null;
-  const currentUpdatedAtIso = usage.lastUpdatedDate ? usage.lastUpdatedDate.toISOString() : null;
-  if (currentUpdatedAtIso && currentUpdatedAtIso !== previousUpdatedAtIso) {
-    savePreviousSnapshot({
-      weeklyRemaining,
-      updatedAt: currentUpdatedAtIso,
-    });
-  }
+  if (!hasLoadError) saveLastValidPayload(usage);
 
   // Verificar e notificar
   checkAndNotify(status, fiveHourRemaining, weeklyRemaining);

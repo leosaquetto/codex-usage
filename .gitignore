@@ -1,2 +1,6 @@
 .vercel
 .env*.local
+
+# local automation scripts/logs
+_scripts/
+.env.local

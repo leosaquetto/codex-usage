@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v4';
+const CACHE_VERSION = 'v5';
 const STATIC_CACHE = `codex-static-${CACHE_VERSION}`;
 const DATA_CACHE = `codex-data-${CACHE_VERSION}`;
 const USAGE_CACHE_KEY = '/codex_usage.json';

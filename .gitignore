@@ -8,3 +8,7 @@ _scripts/
 # local automation scripts/logs
 _scripts/
 .env.local
+
+# local automation scripts/logs
+_scripts/
+.env.local

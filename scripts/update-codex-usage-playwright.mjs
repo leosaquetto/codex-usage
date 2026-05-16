@@ -48,6 +48,7 @@ function usage() {
     "  node scripts/update-codex-usage-playwright.mjs --headed",
     "  node scripts/update-codex-usage-playwright.mjs --headless",
     "  node scripts/update-codex-usage-playwright.mjs --headed --commit",
+    "  node scripts/update-codex-usage-playwright.mjs --ensure-cdp --commit --push",
     "  node scripts/update-codex-usage-playwright.mjs --cdp",
     "  node scripts/update-codex-usage-playwright.mjs --ensure-cdp",
     "  node scripts/update-codex-usage-playwright.mjs --headless --cdp-profile",
@@ -924,12 +925,38 @@ function maybeCommit() {
     throw new Error("Falha no git add dos arquivos de uso do Codex.");
   }
 
+  const diff = spawnSync("git", ["diff", "--cached", "--quiet"], {
+    cwd: root,
+    stdio: "inherit",
+  });
+  if (diff.status === 0) {
+    return false;
+  }
+  if (diff.status !== 1) {
+    throw new Error("Falha ao verificar diff staged dos arquivos de uso do Codex.");
+  }
+
   const commit = spawnSync("git", ["commit", "-m", "Update Codex usage via Playwright"], {
     cwd: root,
     stdio: "inherit",
   });
   if (commit.status !== 0) {
     throw new Error("Falha no git commit dos arquivos de uso do Codex.");
+  }
+
+  return true;
+}
+
+function maybePush(committed) {
+  if (!args.has("push")) return false;
+  if (!committed) return false;
+
+  const push = spawnSync("git", ["push"], {
+    cwd: root,
+    stdio: "inherit",
+  });
+  if (push.status !== 0) {
+    throw new Error("Falha no git push dos arquivos de uso do Codex.");
   }
 
   return true;
@@ -966,6 +993,7 @@ async function main() {
 
   await writeArtifacts(next);
   const committed = maybeCommit();
+  const pushed = maybePush(committed);
 
   console.log(
     JSON.stringify(
@@ -975,6 +1003,7 @@ async function main() {
         browser: capture.browser,
         source: capture.source,
         committed,
+        pushed,
         saved: next,
         details: capture.details,
       },

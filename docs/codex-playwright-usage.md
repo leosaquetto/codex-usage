@@ -75,7 +75,7 @@ Depois que o profile CDP ja estiver logado, use:
 npm run update:codex-usage:auto
 ```
 
-Esse comando tenta conectar em `http://127.0.0.1:9222`. Se a porta nao estiver ativa, ele sobe o Google Chrome dedicado de forma oculta, com o profile `/Users/leosaquetto/Developer/BrowserProfiles/codex-cdp-profile`, captura a pagina e atualiza os JSONs sem trazer janela para frente.
+Esse comando tenta conectar em `http://127.0.0.1:9222`. Se a porta nao estiver ativa, ele sobe o Google Chrome dedicado de forma oculta, com o profile `/Users/leosaquetto/Developer/BrowserProfiles/codex-cdp-profile`, captura a pagina, atualiza os JSONs, faz commit e envia para o GitHub sem trazer janela para frente.
 
 Para preparar ou renovar login nesse profile, rode uma vez:
 
@@ -85,7 +85,7 @@ npm run chrome:cdp
 
 Depois faca login no Chrome visivel que abriu e confirme que a pagina de analytics carrega. As execucoes automaticas seguintes usam esse mesmo profile em um Chrome oculto via CDP.
 
-O LaunchAgent local `com.leosaquetto.codexusage.autoupdate` foi configurado para rodar o updater nos minutos `17` e `47` de cada hora. Os logs ficam em:
+O LaunchAgent local `com.leosaquetto.codexusage.autoupdate` foi configurado para rodar o updater nos minutos `17` e `47` de cada hora com `--commit --push`. Os logs ficam em:
 
 - `.local/logs/codex-usage-launchd.out.log`
 - `.local/logs/codex-usage-launchd.err.log`
@@ -126,6 +126,12 @@ Atualizar e commitar os JSONs gerados:
 
 ```bash
 node scripts/update-codex-usage-playwright.mjs --headed --commit
+```
+
+Atualizar, commitar e fazer push:
+
+```bash
+node scripts/update-codex-usage-playwright.mjs --ensure-cdp --commit --push
 ```
 
 ## Arquivos atualizados

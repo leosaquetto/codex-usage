@@ -1,11 +1,11 @@
 {
-  "lastUpdated": "2026-05-16T21:31:13.537Z",
+  "lastUpdated": "2026-05-16T21:42:03.606Z",
   "codex": {
-    "fiveHourPercent": 79,
+    "fiveHourPercent": 74,
     "fiveHourReset": "2026-05-17T02:13:00.000Z",
-    "weeklyPercent": 97,
+    "weeklyPercent": 96,
     "weeklyReset": "2026-05-23T21:13:00.000Z",
-    "lastUpdated": "2026-05-16T21:31:13.537Z"
+    "lastUpdated": "2026-05-16T21:42:03.606Z"
   },
   "antigravity": {
     "source": "desktop-automation",

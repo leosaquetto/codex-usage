@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "chrome:cdp": "open -na \"Google Chrome\" --args --remote-debugging-port=9222 --user-data-dir=/Users/leosaquetto/Developer/BrowserProfiles/codex-cdp-profile",
-    "update:codex-usage:auto": "node scripts/update-codex-usage-playwright.mjs --ensure-cdp --no-commit",
+    "update:codex-usage:auto": "node scripts/update-codex-usage-playwright.mjs --ensure-cdp --commit --push",
     "update:codex-usage:cdp": "node scripts/update-codex-usage-playwright.mjs --cdp --no-commit",
     "update:codex-usage:playwright": "node scripts/update-codex-usage-playwright.mjs",
     "test:codex-usage-parser": "node scripts/test-codex-usage-parser.mjs"

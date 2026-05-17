@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-05-17T20:47:11.854Z",
+  "lastUpdated": "2026-05-17T20:59:20.452Z",
   "codex": {
     "fiveHourPercent": 99,
     "fiveHourReset": "2026-05-18T01:09:00.000Z",
@@ -9,7 +9,7 @@
   },
   "antigravity": {
     "source": "desktop-ui-automation",
-    "lastUpdated": "2026-05-17T20:19:20.235Z",
+    "lastUpdated": "2026-05-17T20:59:20.452Z",
     "models": [
       {
         "id": "gemini-3-1-pro-high",
@@ -17,8 +17,8 @@
         "tier": "High",
         "remainingPercent": 80,
         "status": "ok",
-        "refreshText": "Refreshes in 5 days, 8 hours",
-        "refreshAt": "2026-05-23T04:19:20.204Z"
+        "refreshText": "Refreshes in 5 days, 7 hours",
+        "refreshAt": "2026-05-23T03:59:20.448Z"
       },
       {
         "id": "gemini-3-1-pro-low",
@@ -26,8 +26,8 @@
         "tier": "Low",
         "remainingPercent": 80,
         "status": "ok",
-        "refreshText": "Refreshes in 5 days, 8 hours",
-        "refreshAt": "2026-05-23T04:19:20.204Z"
+        "refreshText": "Refreshes in 5 days, 7 hours",
+        "refreshAt": "2026-05-23T03:59:20.448Z"
       },
       {
         "id": "gemini-3-flash",
@@ -36,7 +36,7 @@
         "remainingPercent": 0,
         "status": "empty",
         "refreshText": "Refreshes in 5 days, 5 hours",
-        "refreshAt": "2026-05-23T01:19:20.204Z"
+        "refreshAt": "2026-05-23T01:59:20.448Z"
       },
       {
         "id": "claude-sonnet-4-6-thinking",
@@ -45,7 +45,7 @@
         "remainingPercent": 100,
         "status": "ok",
         "refreshText": "Refreshes in 5 days, 8 hours",
-        "refreshAt": "2026-05-23T04:19:20.204Z"
+        "refreshAt": "2026-05-23T04:59:20.448Z"
       },
       {
         "id": "claude-opus-4-6-thinking",
@@ -54,7 +54,7 @@
         "remainingPercent": 100,
         "status": "ok",
         "refreshText": "Refreshes in 5 days, 8 hours",
-        "refreshAt": "2026-05-23T04:19:20.204Z"
+        "refreshAt": "2026-05-23T04:59:20.448Z"
       },
       {
         "id": "gpt-oss-120b-medium",
@@ -63,7 +63,7 @@
         "remainingPercent": 100,
         "status": "ok",
         "refreshText": "Refreshes in 5 days, 8 hours",
-        "refreshAt": "2026-05-23T04:19:20.204Z"
+        "refreshAt": "2026-05-23T04:59:20.448Z"
       }
     ]
   }

@@ -79,9 +79,10 @@ async function inputText() {
 }
 
 function parseRefresh(line, now = new Date()) {
-  const match = String(line).match(/refresh(?:es)?\s+in\s+(\d+)\s+days?,\s*(\d+)\s+hours?/i);
+  const raw = String(line).trim();
+  const match = raw.match(/refresh(?:es)?\s+in\s+(\d+)\s+days?,\s*(?:\d+\s+)?(\d+)\s+hours?/i);
   if (!match) {
-    return { refreshText: line.trim(), refreshAt: null };
+    return { refreshText: raw, refreshAt: null };
   }
 
   const days = Number(match[1]);
@@ -89,7 +90,7 @@ function parseRefresh(line, now = new Date()) {
   const refreshAt = new Date(now.getTime() + ((days * 24 + hours) * 60 * 60 * 1000));
 
   return {
-    refreshText: match[0].replace(/^refresh/i, "Refresh"),
+    refreshText: `Refreshes in ${days} ${days === 1 ? "day" : "days"}, ${hours} ${hours === 1 ? "hour" : "hours"}`,
     refreshAt: refreshAt.toISOString(),
   };
 }
@@ -98,6 +99,7 @@ function splitNameTier(rawName) {
   const cleaned = rawName
     .replace(/\b\d{1,3}\s*%/g, "")
     .replace(/\s*[△⚠].*$/, "")
+    .replace(/^(Gemini\s+3\s+Flash)\s+A$/i, "$1")
     .replace(/\s+/g, " ")
     .trim();
   const match = cleaned.match(/^(.*?)\s+\((.*?)\)$/);

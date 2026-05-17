@@ -170,7 +170,7 @@ function extractRowsFromOcr(observations) {
     .sort((a, b) => a.y - b.y || a.x - b.x);
 
   const refreshes = items
-    .filter((item) => /refresh(?:es)?\s+in\s+\d+\s+days?,?\s*\d+\s+hours?/i.test(item.text))
+    .filter((item) => /refresh(?:es)?\s+in\s+\d+\s+days?,?\s*(?:\d+\s+)?\d+\s+hours?/i.test(item.text))
     .sort((a, b) => a.y - b.y || a.x - b.x);
 
   const rows = [];
@@ -186,7 +186,7 @@ function extractRowsFromOcr(observations) {
 
     if (!refresh) continue;
     rows.push({
-      name: model.text.replace(/\s*[△⚠].*$/, "").trim(),
+      name: model.text.replace(/\s*[△⚠].*$/, "").replace(/^(Gemini\s+3\s+Flash)\s+A$/i, "$1").trim(),
       refreshText: refresh.text.replace(/Refresh(?:es)? in/i, "Refreshes in"),
       y: model.y,
     });

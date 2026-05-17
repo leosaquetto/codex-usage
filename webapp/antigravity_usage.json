@@ -1,6 +1,6 @@
 {
   "source": "desktop-ui-automation",
-  "lastUpdated": "2026-05-17T20:59:20.452Z",
+  "lastUpdated": "2026-05-17T21:09:54.940Z",
   "models": [
     {
       "id": "gemini-3-1-pro-high",
@@ -9,7 +9,7 @@
       "remainingPercent": 80,
       "status": "ok",
       "refreshText": "Refreshes in 5 days, 7 hours",
-      "refreshAt": "2026-05-23T03:59:20.448Z"
+      "refreshAt": "2026-05-23T04:09:54.937Z"
     },
     {
       "id": "gemini-3-1-pro-low",
@@ -18,7 +18,7 @@
       "remainingPercent": 80,
       "status": "ok",
       "refreshText": "Refreshes in 5 days, 7 hours",
-      "refreshAt": "2026-05-23T03:59:20.448Z"
+      "refreshAt": "2026-05-23T04:09:54.937Z"
     },
     {
       "id": "gemini-3-flash",
@@ -26,8 +26,8 @@
       "tier": "",
       "remainingPercent": 0,
       "status": "empty",
-      "refreshText": "Refreshes in 5 days, 5 hours",
-      "refreshAt": "2026-05-23T01:59:20.448Z"
+      "refreshText": "Refreshes in 5 days, 4 hours",
+      "refreshAt": "2026-05-23T01:09:54.937Z"
     },
     {
       "id": "claude-sonnet-4-6-thinking",
@@ -36,7 +36,7 @@
       "remainingPercent": 100,
       "status": "ok",
       "refreshText": "Refreshes in 5 days, 8 hours",
-      "refreshAt": "2026-05-23T04:59:20.448Z"
+      "refreshAt": "2026-05-23T05:09:54.937Z"
     },
     {
       "id": "claude-opus-4-6-thinking",
@@ -45,7 +45,7 @@
       "remainingPercent": 100,
       "status": "ok",
       "refreshText": "Refreshes in 5 days, 8 hours",
-      "refreshAt": "2026-05-23T04:59:20.448Z"
+      "refreshAt": "2026-05-23T05:09:54.937Z"
     },
     {
       "id": "gpt-oss-120b-medium",
@@ -54,7 +54,7 @@
       "remainingPercent": 100,
       "status": "ok",
       "refreshText": "Refreshes in 5 days, 8 hours",
-      "refreshAt": "2026-05-23T04:59:20.448Z"
+      "refreshAt": "2026-05-23T05:09:54.937Z"
     }
   ]
 }

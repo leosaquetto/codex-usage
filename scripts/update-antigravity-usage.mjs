@@ -7,8 +7,6 @@ import { pathToFileURL } from "node:url";
 const root = resolve(new URL("..", import.meta.url).pathname);
 const outputPath = resolve(root, "antigravity_usage.json");
 const summaryPath = resolve(root, "usage_summary.json");
-const webappOutputPath = resolve(root, "webapp/antigravity_usage.json");
-const webappSummaryPath = resolve(root, "webapp/usage_summary.json");
 
 function parseArgs(argv = process.argv.slice(2)) {
   const parsed = new Map();
@@ -238,9 +236,9 @@ function validateModels(models) {
 }
 
 async function syncWebappArtifacts() {
-  await mkdir(dirname(webappOutputPath), { recursive: true });
-  await copyFile(outputPath, webappOutputPath);
-  await copyFile(summaryPath, webappSummaryPath);
+  // Data JSONs are intentionally kept at repo root only.
+  // The deployed /webapp reads them from raw GitHub to avoid Vercel redeploys
+  // on every usage refresh.
 }
 
 function runSummaryBuilder() {
@@ -256,7 +254,7 @@ function runSummaryBuilder() {
 
 function maybeCommit(enabled) {
   if (!enabled) return false;
-  const add = spawnSync("git", ["add", "antigravity_usage.json", "usage_summary.json", "webapp/antigravity_usage.json", "webapp/usage_summary.json"], {
+  const add = spawnSync("git", ["add", "antigravity_usage.json", "usage_summary.json"], {
     cwd: root,
     stdio: "inherit",
   });

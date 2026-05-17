@@ -17,11 +17,16 @@ const WEEK_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 const THEME_KEY = "codex-theme";
 const THEME_COLOR_KEY = "codex-theme-color";
 const LAST_VALID_USAGE_KEY = "codex-last-valid-usage-payload";
+const RAW_DATA_BASE_URL = "https://raw.githubusercontent.com/leosaquetto/codex-usage/main";
 const DEFAULT_THEME_COLOR = "#3b82f6";
 let viewportRafId = null;
 let activeUsageController = null;
 let lastUsageSignature = "";
 let lastSuspendedAt = 0;
+
+function rawDataUrl(fileName) {
+  return `${RAW_DATA_BASE_URL}/${fileName}?t=${Date.now()}`;
+}
 
 function setThemeColor(color) {
   if (!/^#[0-9a-fA-F]{6}$/.test(color)) return;
@@ -236,7 +241,7 @@ function slugify(value) {
 
 async function loadAntigravityUsage() {
   try {
-    const response = await fetch(`./antigravity_usage.json?t=${Date.now()}`, {
+    const response = await fetch(rawDataUrl("antigravity_usage.json"), {
       cache: "no-store",
     });
     if (!response.ok) throw new Error("Falha ao carregar Antigravity");
@@ -285,7 +290,7 @@ function resolveStatus({ hasLoadError, fiveHourRemaining, weeklyRemaining, realD
 async function loadUsage() {
   if (activeUsageController) activeUsageController.abort();
   activeUsageController = new AbortController();
-  const endpoints = ["./api/usage", "./codex_usage.json"];
+  const endpoints = [rawDataUrl("codex_usage.json"), "./api/usage"];
 
   try {
     let json = null;

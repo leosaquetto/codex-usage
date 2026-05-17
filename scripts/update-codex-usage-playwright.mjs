@@ -19,8 +19,6 @@ const defaultCdpUrl = "http://127.0.0.1:9222";
 
 const codexUsagePath = resolve(root, "codex_usage.json");
 const summaryPath = resolve(root, "usage_summary.json");
-const webappCodexUsagePath = resolve(root, "webapp/codex_usage.json");
-const webappSummaryPath = resolve(root, "webapp/usage_summary.json");
 
 const args = parseArgs(process.argv.slice(2));
 
@@ -924,9 +922,9 @@ async function captureAnalytics(mode) {
 }
 
 async function syncWebappArtifacts() {
-  await mkdir(dirname(webappCodexUsagePath), { recursive: true });
-  await copyFile(codexUsagePath, webappCodexUsagePath);
-  await copyFile(summaryPath, webappSummaryPath);
+  // Data JSONs are intentionally kept at repo root only.
+  // The deployed /webapp reads them from raw GitHub to avoid Vercel redeploys
+  // on every usage refresh.
 }
 
 function runSummaryBuilder() {
@@ -944,7 +942,7 @@ function maybeCommit() {
   if (args.has("no-commit")) return false;
   if (!args.has("commit")) return false;
 
-  const add = spawnSync("git", ["add", "codex_usage.json", "usage_summary.json", "webapp/codex_usage.json", "webapp/usage_summary.json"], {
+  const add = spawnSync("git", ["add", "codex_usage.json", "usage_summary.json"], {
     cwd: root,
     stdio: "inherit",
   });

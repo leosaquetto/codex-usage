@@ -101,6 +101,28 @@ function parseWindowInfo(stdout) {
   return { title, rect: { x, y, width, height } };
 }
 
+function findExistingModelsWindow() {
+  const result = run("/usr/bin/swift", [resolve(root, "scripts/find-antigravity-models-window.swift")], { timeout: 15000 });
+  if (result.status !== 0) return null;
+
+  try {
+    const window = JSON.parse(result.stdout);
+    if (!window?.id || !window?.title) return null;
+    return {
+      id: Number(window.id),
+      title: String(window.title),
+      rect: {
+        x: Number(window.x),
+        y: Number(window.y),
+        width: Number(window.width),
+        height: Number(window.height),
+      },
+    };
+  } catch {
+    return null;
+  }
+}
+
 function focusModelsWindow() {
   const stdout = runAppleScript(`
 tell application "System Events"
@@ -201,6 +223,11 @@ function extractRowsFromOcr(observations) {
 }
 
 async function screenshotWindow(window, outputPath) {
+  if (Number.isFinite(window.id)) {
+    const result = run("screencapture", ["-x", "-l", String(window.id), outputPath]);
+    if (result.status === 0) return;
+  }
+
   const rect = window.rect;
   const region = [
     Math.max(0, Math.round(rect.x)),
@@ -405,7 +432,7 @@ async function buildModelsFromCapture(screenshotPath) {
 }
 
 async function captureAntigravityModels() {
-  const window = focusModelsWindow();
+  const window = findExistingModelsWindow() || focusModelsWindow();
 
   const tempDir = await mkdtemp(join(tmpdir(), "antigravity-usage-"));
   const screenshotPath = join(tempDir, "settings-models.png");

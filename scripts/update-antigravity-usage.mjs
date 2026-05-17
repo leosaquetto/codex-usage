@@ -1,23 +1,40 @@
 #!/usr/bin/env node
-import { readFile, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 const outputPath = resolve(root, "antigravity_usage.json");
+const summaryPath = resolve(root, "usage_summary.json");
+const webappOutputPath = resolve(root, "webapp/antigravity_usage.json");
+const webappSummaryPath = resolve(root, "webapp/usage_summary.json");
 
-const args = new Map();
-for (let i = 2; i < process.argv.length; i += 1) {
-  const arg = process.argv[i];
-  if (!arg.startsWith("--")) continue;
-  const key = arg.slice(2);
-  const next = process.argv[i + 1];
-  if (next && !next.startsWith("--")) {
-    args.set(key, next);
-    i += 1;
-  } else {
-    args.set(key, true);
+function parseArgs(argv = process.argv.slice(2)) {
+  const parsed = new Map();
+  for (let i = 0; i < argv.length; i += 1) {
+    const arg = argv[i];
+    if (!arg.startsWith("--")) continue;
+    const key = arg.slice(2);
+    const next = argv[i + 1];
+    if (next && !next.startsWith("--")) {
+      parsed.set(key, next);
+      i += 1;
+    } else {
+      parsed.set(key, true);
+    }
   }
+  return parsed;
+}
+
+const args = parseArgs();
+
+function hasFlag(name) {
+  return args.has(name);
+}
+
+function getArg(name) {
+  return args.get(name);
 }
 
 function usage() {
@@ -25,8 +42,10 @@ function usage() {
     "Usage:",
     "  node scripts/update-antigravity-usage.mjs --text antigravity-ocr.txt",
     "  pbpaste | node scripts/update-antigravity-usage.mjs --stdin",
+    "  node scripts/update-antigravity-usage.mjs --json antigravity-structured.json",
     "",
-    "The input should be OCR/plain text from Antigravity Settings > Models.",
+    "Plain text input should be OCR/plain text from Antigravity Settings > Models.",
+    "JSON input should include a top-level models array with name, optional tier, remainingPercent, and refreshText.",
     "After writing antigravity_usage.json, the script rebuilds usage_summary.json.",
   ].join("\n");
 }
@@ -38,16 +57,16 @@ async function readStdin() {
 }
 
 async function inputText() {
-  if (args.has("help")) {
+  if (hasFlag("help")) {
     console.log(usage());
     process.exit(0);
   }
 
-  if (args.has("text")) {
-    return readFile(resolve(process.cwd(), args.get("text")), "utf8");
+  if (hasFlag("text")) {
+    return readFile(resolve(process.cwd(), getArg("text")), "utf8");
   }
 
-  if (args.has("stdin")) {
+  if (hasFlag("stdin")) {
     return readStdin();
   }
 
@@ -59,7 +78,7 @@ async function inputText() {
   throw new Error(`${usage()}\n\nNo OCR text was provided.`);
 }
 
-function parseRefresh(line, now) {
+function parseRefresh(line, now = new Date()) {
   const match = String(line).match(/refresh(?:es)?\s+in\s+(\d+)\s+days?,\s*(\d+)\s+hours?/i);
   if (!match) {
     return { refreshText: line.trim(), refreshAt: null };
@@ -78,6 +97,7 @@ function parseRefresh(line, now) {
 function splitNameTier(rawName) {
   const cleaned = rawName
     .replace(/\b\d{1,3}\s*%/g, "")
+    .replace(/\s*[△⚠].*$/, "")
     .replace(/\s+/g, " ")
     .trim();
   const match = cleaned.match(/^(.*?)\s+\((.*?)\)$/);
@@ -96,11 +116,17 @@ function inferPercent(line, index, lines) {
   const sameLine = String(line).match(/(\d{1,3})\s*%/);
   if (sameLine) return clampPercent(Number(sameLine[1]));
 
-  const nearby = lines.slice(index + 1, index + 5).join(" ");
-  const bars = nearby.match(/[▁▂▃▄▅▆▇█|_=-]{4,}/g) || [];
-  if (bars.length === 0) return null;
+  let bar = "";
+  for (const nearbyLine of lines.slice(index + 1, index + 6)) {
+    if (/refresh(?:es)?\s+in\s+\d+\s+days?,\s*\d+\s+hours?/i.test(nearbyLine)) break;
+    const match = nearbyLine.match(/[▁▂▃▄▅▆▇█|_=-]{4,}/);
+    if (match) {
+      bar = match[0];
+      break;
+    }
+  }
 
-  const bar = bars.join("");
+  if (!bar) return null;
   const filled = (bar.match(/[▃▄▅▆▇█|=]/g) || []).length;
   const total = bar.length;
   if (total === 0) return null;
@@ -165,41 +191,179 @@ function parseModels(text, now = new Date()) {
   return models;
 }
 
-const text = await inputText();
-const now = new Date();
-const models = parseModels(text, now);
+function normalizeStructuredModels(models, now = new Date()) {
+  if (!Array.isArray(models)) return [];
 
-if (models.length === 0) {
-  throw new Error("No Antigravity model quota lines were parsed from the input text.");
+  return models
+    .map((model) => {
+      const rawName = String(model?.name || "").replace(/\s*[△⚠].*$/, "").trim();
+      if (!rawName) return null;
+
+      const split = splitNameTier(rawName);
+      const name = split.name;
+      const tier = String(model.tier ?? split.tier ?? "").trim();
+      const remainingPercent = clampPercent(model.remainingPercent);
+      const refresh = parseRefresh(model.refreshText || model.refresh || "", now);
+
+      return {
+        id: slugify([name, tier].filter(Boolean).join(" ")),
+        name,
+        tier,
+        remainingPercent,
+        status: statusFor(remainingPercent),
+        refreshText: refresh.refreshText,
+        refreshAt: model.refreshAt || refresh.refreshAt,
+      };
+    })
+    .filter(Boolean);
 }
 
-const payload = {
-  source: "desktop-automation",
-  lastUpdated: now.toISOString(),
-  models,
-};
+function validateModels(models) {
+  if (!Array.isArray(models) || models.length === 0) {
+    throw new Error("No Antigravity model quota lines were parsed from the input.");
+  }
 
-await writeFile(outputPath, `${JSON.stringify(payload, null, 2)}\n`);
-console.log(`Wrote ${outputPath} with ${models.length} model(s).`);
-
-const summary = spawnSync(process.execPath, [resolve(root, "scripts/build-usage-summary.mjs")], {
-  stdio: "inherit",
-});
-
-if (summary.status !== 0) {
-  process.exit(summary.status || 1);
+  for (const model of models) {
+    if (!model.name) throw new Error("Antigravity model is missing name.");
+    if (!model.id) throw new Error(`Antigravity model "${model.name}" is missing id.`);
+    if (!Number.isFinite(model.remainingPercent)) {
+      throw new Error(`Antigravity model "${model.name}" is missing remainingPercent.`);
+    }
+    if (!model.refreshText) {
+      throw new Error(`Antigravity model "${model.name}" is missing refreshText.`);
+    }
+  }
 }
 
-if (args.has("commit")) {
-  const add = spawnSync("git", ["add", "antigravity_usage.json", "usage_summary.json"], {
+async function syncWebappArtifacts() {
+  await mkdir(dirname(webappOutputPath), { recursive: true });
+  await copyFile(outputPath, webappOutputPath);
+  await copyFile(summaryPath, webappSummaryPath);
+}
+
+function runSummaryBuilder() {
+  const summary = spawnSync(process.execPath, [resolve(root, "scripts/build-usage-summary.mjs")], {
     cwd: root,
     stdio: "inherit",
   });
-  if (add.status !== 0) process.exit(add.status || 1);
+
+  if (summary.status !== 0) {
+    throw new Error("Failed to rebuild usage_summary.json.");
+  }
+}
+
+function maybeCommit(enabled) {
+  if (!enabled) return false;
+  const add = spawnSync("git", ["add", "antigravity_usage.json", "usage_summary.json", "webapp/antigravity_usage.json", "webapp/usage_summary.json"], {
+    cwd: root,
+    stdio: "inherit",
+  });
+  if (add.status !== 0) throw new Error("Failed to git add Antigravity usage files.");
+
+  const diff = spawnSync("git", ["diff", "--cached", "--quiet"], {
+    cwd: root,
+    stdio: "inherit",
+  });
+  if (diff.status === 0) return false;
+  if (diff.status !== 1) throw new Error("Failed to inspect staged Antigravity diff.");
 
   const commit = spawnSync("git", ["commit", "-m", "Update Antigravity usage"], {
     cwd: root,
     stdio: "inherit",
   });
-  if (commit.status !== 0) process.exit(commit.status || 1);
+  if (commit.status !== 0) throw new Error("Failed to commit Antigravity usage files.");
+
+  return true;
 }
+
+function maybePush(enabled, committed) {
+  if (!enabled) return false;
+  if (!committed) return false;
+
+  const push = spawnSync("git", ["push"], {
+    cwd: root,
+    stdio: "inherit",
+  });
+  if (push.status !== 0) throw new Error("Failed to push Antigravity usage commit.");
+
+  return true;
+}
+
+async function readStructuredInput(now = new Date()) {
+  const source = hasFlag("json")
+    ? await readFile(resolve(process.cwd(), getArg("json")), "utf8")
+    : await readStdin();
+  const payload = JSON.parse(source);
+  return normalizeStructuredModels(payload.models || payload, now);
+}
+
+async function buildPayloadFromArgs(now = new Date()) {
+  const models = hasFlag("json") || hasFlag("structured-stdin")
+    ? await readStructuredInput(now)
+    : parseModels(await inputText(), now);
+
+  validateModels(models);
+
+  return {
+    source: "desktop-automation",
+    lastUpdated: now.toISOString(),
+    models,
+  };
+}
+
+async function writeAntigravityUsage(payload, options = {}) {
+  validateModels(payload.models);
+
+  const next = {
+    source: payload.source || "desktop-automation",
+    lastUpdated: payload.lastUpdated || new Date().toISOString(),
+    models: payload.models,
+  };
+
+  await writeFile(outputPath, `${JSON.stringify(next, null, 2)}\n`);
+  console.log(`Wrote ${outputPath} with ${next.models.length} model(s).`);
+
+  runSummaryBuilder();
+  await syncWebappArtifacts();
+
+  const committed = maybeCommit(Boolean(options.commit));
+  const pushed = maybePush(Boolean(options.push), committed);
+
+  return { payload: next, committed, pushed };
+}
+
+async function main() {
+  if (hasFlag("help")) {
+    console.log(usage());
+    return;
+  }
+
+  const payload = await buildPayloadFromArgs(new Date());
+  const result = await writeAntigravityUsage(payload, {
+    commit: hasFlag("commit"),
+    push: hasFlag("push"),
+  });
+
+  console.log(JSON.stringify({ ok: true, committed: result.committed, pushed: result.pushed, saved: result.payload }, null, 2));
+}
+
+if (import.meta.url === pathToFileURL(process.argv[1] || "").href) {
+  try {
+    await main();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exit(1);
+  }
+}
+
+export {
+  clampPercent,
+  normalizeStructuredModels,
+  parseModels,
+  parseRefresh,
+  slugify,
+  splitNameTier,
+  statusFor,
+  validateModels,
+  writeAntigravityUsage,
+};

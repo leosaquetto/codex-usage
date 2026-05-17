@@ -15,6 +15,8 @@ const GITHUB_OWNER = "leosaquetto"
 const GITHUB_REPO = "codex-usage"
 const GITHUB_BRANCH = "main"
 const GITHUB_FILE_PATH = "codex_usage.json"
+const GITHUB_SUMMARY_FILE_PATH = "usage_summary.json"
+const REMOTE_ANTIGRAVITY_USAGE_URL = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/antigravity_usage.json`
 const GITHUB_TOKEN_KEYCHAIN_KEY = "codex_usage_github_token"
 
 if (!fm.fileExists(folderPath)) fm.createDirectory(folderPath)
@@ -509,6 +511,51 @@ async function upsertRepoJsonFile(path, branch, jsonText) {
   }
 }
 
+async function fetchRemoteJson(url, fallback) {
+  const req = new Request(`${url}?t=${Date.now()}`)
+  req.method = "GET"
+  req.headers = {
+    Accept: "application/json",
+    "Cache-Control": "no-cache"
+  }
+  req.timeoutInterval = 8
+
+  try {
+    const raw = await req.loadString()
+    const statusCode = Number(req.response?.statusCode || 0)
+    if (statusCode < 200 || statusCode >= 300) return fallback
+    return raw ? JSON.parse(raw) : fallback
+  } catch {
+    return fallback
+  }
+}
+
+function latestIso(...values) {
+  const times = values
+    .map(value => {
+      const date = validDateFromISO(value)
+      return date ? date.getTime() : null
+    })
+    .filter(value => value !== null)
+
+  if (times.length === 0) return new Date().toISOString()
+  return new Date(Math.max(...times)).toISOString()
+}
+
+async function buildUsageSummary(codex) {
+  const antigravity = await fetchRemoteJson(REMOTE_ANTIGRAVITY_USAGE_URL, {
+    source: "desktop-automation",
+    lastUpdated: null,
+    models: []
+  })
+
+  return {
+    lastUpdated: latestIso(codex.lastUpdated, antigravity.lastUpdated),
+    codex,
+    antigravity
+  }
+}
+
 async function main() {
   const current = loadCurrentData()
   const extracted = await readAnalyticsHidden()
@@ -524,11 +571,20 @@ async function main() {
     GITHUB_BRANCH,
     nextJson
   )
+  const summary = await buildUsageSummary(next)
+  const summaryJson = JSON.stringify(summary, null, 2)
+  JSON.parse(summaryJson)
+  const summaryUpdate = await upsertRepoJsonFile(
+    GITHUB_SUMMARY_FILE_PATH,
+    GITHUB_BRANCH,
+    summaryJson
+  )
 
   Script.setShortcutOutput(JSON.stringify({
     ok: true,
     saved: next,
     repoUpdate,
+    summaryUpdate,
     extracted: {
       fiveHourPercent: extracted.fiveHourPercent,
       fiveHourResetText: extracted.fiveHourResetText,

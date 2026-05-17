@@ -1,0 +1,20 @@
+Model Quota
+Gemini 3.1 Pro (High)
+====
+Refreshes in 5 days, 8 hours
+Gemini 3.1 Pro (Low)
+========
+Refreshes in 5 days, 8 hours
+Gemini 3 Flash △
+____
+Refreshes in 5 days, 6 hours
+Claude Sonnet 4.6 (Thinking)
+==========
+Refreshes in 5 days, 9 hours
+Claude Opus 4.6 (Thinking)
+========
+Refreshes in 5 days, 9 hours
+GPT-OSS 120B (Medium)
+==========
+Refreshes in 5 days, 9 hours
+View your available model quota. Quota refreshes periodically based on your plan.

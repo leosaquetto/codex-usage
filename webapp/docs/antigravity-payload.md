@@ -1,6 +1,9 @@
 # Antigravity Usage Payload
 
 `antigravity_usage.json` e gerado pela automacao desktop e servido como arquivo estatico.
+O fluxo automatico roda via `scripts/update-antigravity-usage-auto.mjs`: se Antigravity estiver fechado,
+ele pula o ciclo; se estiver aberto, pode focar Settings > Models, capturar a janela e calcular cada
+percentual pelas cinco barras de quota.
 
 ```json
 {

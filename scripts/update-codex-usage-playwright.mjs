@@ -359,20 +359,40 @@ async function readPageSnapshot(page) {
   }
 
   try {
-    const snapshot = await page.evaluate(() => ({
-      closed: false,
-      url: location.href,
-      title: document.title,
-      text: [
-        document.body?.innerText || "",
-        document.body?.textContent || "",
-        document.documentElement?.innerText || "",
-        document.documentElement?.textContent || "",
-      ]
-        .map((value) => String(value || "").replace(/\s+/g, " ").trim())
-        .sort((a, b) => b.length - a.length)[0] || "",
-      html: document.documentElement?.outerHTML || "",
-    }));
+    const snapshot = await page.evaluate(() => {
+      function visibleText() {
+        const blockedTags = new Set(["SCRIPT", "STYLE", "NOSCRIPT", "TEMPLATE", "SVG"]);
+        const walker = document.createTreeWalker(document.body || document.documentElement, NodeFilter.SHOW_TEXT);
+        const texts = [];
+
+        while (walker.nextNode()) {
+          const node = walker.currentNode;
+          const parent = node.parentElement;
+          const text = String(node.nodeValue || "").replace(/\s+/g, " ").trim();
+          if (!parent || !text || blockedTags.has(parent.tagName)) continue;
+
+          const style = window.getComputedStyle(parent);
+          if (style.display === "none" || style.visibility === "hidden" || Number(style.opacity) === 0) continue;
+
+          const rects = parent.getClientRects();
+          if (!rects || rects.length === 0) continue;
+
+          texts.push(text);
+        }
+
+        return texts.join(" ").replace(/\s+/g, " ").trim();
+      }
+
+      const text = visibleText();
+
+      return {
+        closed: false,
+        url: location.href,
+        title: document.title,
+        text,
+        html: document.documentElement?.outerHTML || "",
+      };
+    });
 
     if (snapshot.text || snapshot.html || snapshot.title) {
       return snapshot;
@@ -531,23 +551,6 @@ async function finalizeCapture({
       ? latestSnapshot
       : snapshot;
 
-  const networkMatch = networkCandidates.find((entry) => entry.normalized);
-  if (networkMatch) {
-    return {
-      browser: browserName,
-      mode: modeLabel,
-      source: "network-json",
-      extracted: networkMatch.payload,
-      details: {
-        connection: connectionLabel,
-        cdpStarted,
-        profileDir: captureProfileDir,
-        matchedUrl: networkMatch.url,
-        matchedStatus: networkMatch.status,
-      },
-    };
-  }
-
   const parseInput = finalSnapshot.text || htmlToText(finalSnapshot.html) || finalSnapshot.html || "";
   const captureDetails = {
     connection: connectionLabel,
@@ -573,32 +576,34 @@ async function finalizeCapture({
     throw new Error(`CDP capturou a aba de analytics, mas texto/HTML vieram vazios: ${JSON.stringify(captureDetails)}`);
   }
 
-  return {
-    browser: browserName,
-    mode: modeLabel,
-    source: "page-text",
-    extracted: parseCodexAnalyticsText(parseInput),
-    details: captureDetails,
-  };
-}
+  try {
+    return {
+      browser: browserName,
+      mode: modeLabel,
+      source: "page-text",
+      extracted: parseCodexAnalyticsText(parseInput),
+      details: captureDetails,
+    };
+  } catch (error) {
+    const networkMatch = networkCandidates.find((entry) => entry.normalized);
+    if (!networkMatch) throw error;
 
-function captureFromSnapshot({ snapshot, networkCandidates, browserName, modeLabel, connectionLabel, cdpStarted = false }) {
-  const networkMatch = networkCandidates.find((entry) => entry.normalized);
-  if (networkMatch) {
     return {
       browser: browserName,
       mode: modeLabel,
       source: "network-json",
       extracted: networkMatch.payload,
       details: {
-        connection: connectionLabel,
-        cdpStarted,
+        ...captureDetails,
+        pageTextError: String(error?.message || error),
         matchedUrl: networkMatch.url,
         matchedStatus: networkMatch.status,
       },
     };
   }
+}
 
+function captureFromSnapshot({ snapshot, networkCandidates, browserName, modeLabel, connectionLabel, cdpStarted = false }) {
   const parseInput = snapshot.text || htmlToText(snapshot.html) || snapshot.html || "";
   const captureDetails = {
     connection: connectionLabel,
@@ -623,13 +628,31 @@ function captureFromSnapshot({ snapshot, networkCandidates, browserName, modeLab
     throw new Error(`CDP capturou a aba de analytics, mas texto/HTML vieram vazios: ${JSON.stringify(captureDetails)}`);
   }
 
-  return {
-    browser: browserName,
-    mode: modeLabel,
-    source: "page-text",
-    extracted: parseCodexAnalyticsText(parseInput),
-    details: captureDetails,
-  };
+  try {
+    return {
+      browser: browserName,
+      mode: modeLabel,
+      source: "page-text",
+      extracted: parseCodexAnalyticsText(parseInput),
+      details: captureDetails,
+    };
+  } catch (error) {
+    const networkMatch = networkCandidates.find((entry) => entry.normalized);
+    if (!networkMatch) throw error;
+
+    return {
+      browser: browserName,
+      mode: modeLabel,
+      source: "network-json",
+      extracted: networkMatch.payload,
+      details: {
+        ...captureDetails,
+        pageTextError: String(error?.message || error),
+        matchedUrl: networkMatch.url,
+        matchedStatus: networkMatch.status,
+      },
+    };
+  }
 }
 
 async function dumpContextPages(browser) {
@@ -873,7 +896,11 @@ async function captureViaCdp(config) {
       cdpStarted: ensured.started,
     });
   } finally {
-    await browser?.disconnect?.().catch(() => null);
+    if ((ensured.started || args.has("close-cdp")) && !args.has("keep-started-cdp")) {
+      await browser?.close?.().catch(() => null);
+    } else {
+      await browser?.disconnect?.().catch(() => null);
+    }
   }
 }
 

@@ -285,14 +285,29 @@ function resolveStatus({ hasLoadError, fiveHourRemaining, weeklyRemaining, realD
 async function loadUsage() {
   if (activeUsageController) activeUsageController.abort();
   activeUsageController = new AbortController();
-  try {
-    const response = await fetch(`./codex_usage.json?t=${Date.now()}`, {
-      cache: "no-store",
-      signal: activeUsageController.signal,
-    });
-    if (!response.ok) throw new Error("Falha ao carregar JSON");
+  const endpoints = ["./api/usage", "./codex_usage.json"];
 
-    const json = await response.json();
+  try {
+    let json = null;
+    let lastError = null;
+
+    for (const endpoint of endpoints) {
+      try {
+        const response = await fetch(`${endpoint}?t=${Date.now()}`, {
+          cache: "no-store",
+          signal: activeUsageController.signal,
+        });
+        if (!response.ok) throw new Error(`Falha ao carregar ${endpoint}: HTTP ${response.status}`);
+        json = await response.json();
+        break;
+      } catch (error) {
+        lastError = error;
+        if (error?.name === "AbortError") throw error;
+      }
+    }
+
+    if (!json) throw lastError || new Error("Falha ao carregar dados de uso");
+
     return { usage: normalizeUsage(json), hasLoadError: false };
   } catch (error) {
     const cachedRaw = localStorage.getItem(LAST_VALID_USAGE_KEY);

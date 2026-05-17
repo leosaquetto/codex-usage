@@ -147,6 +147,14 @@ function analyticsTextLike(text) {
   return /analytics|usage|limite|weekly|5-hour|5 hour|semanal|remaining|restante/i.test(String(text || ""));
 }
 
+function analyticsDataReady(text) {
+  const value = String(text || "");
+  const hasPercent = /\d{1,3}\s*%\s*(restantes|remaining)/i.test(value);
+  const hasFiveHour = /(5\s*horas?|5[-\s]?hour|five[-\s]?hour)/i.test(value);
+  const hasWeekly = /(semanal|weekly)/i.test(value);
+  return hasPercent && hasFiveHour && hasWeekly;
+}
+
 function htmlToText(html) {
   return String(html || "")
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
@@ -481,14 +489,15 @@ async function waitForAuthenticatedAnalytics(getPage, timeoutMs) {
       return lastSnapshot;
     }
 
-    if (
-      analyticsUrlLike(snapshot.url) &&
-      (analyticsVisible(snapshot.text) || analyticsTextLike(snapshot.text))
-    ) {
+    if (analyticsUrlLike(snapshot.url) && analyticsDataReady(snapshot.text)) {
       return snapshot;
     }
 
-    if (analyticsUrlLike(snapshot.url) && Date.now() - startedAt > 8000) {
+    if (
+      analyticsUrlLike(snapshot.url) &&
+      Date.now() - startedAt > 45000 &&
+      (analyticsVisible(snapshot.text) || analyticsTextLike(snapshot.text))
+    ) {
       return snapshot;
     }
 

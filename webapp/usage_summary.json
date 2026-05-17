@@ -1,24 +1,24 @@
 {
-  "lastUpdated": "2026-05-17T11:47:07.734Z",
+  "lastUpdated": "2026-05-17T20:19:20.235Z",
   "codex": {
-    "fiveHourPercent": 97,
-    "fiveHourReset": "2026-05-17T14:13:00.000Z",
-    "weeklyPercent": 93,
-    "weeklyReset": "2026-05-23T21:13:00.000Z",
-    "lastUpdated": "2026-05-17T11:47:07.734Z"
+    "fiveHourPercent": 99,
+    "fiveHourReset": "2026-05-18T01:09:00.000Z",
+    "weeklyPercent": 71,
+    "weeklyReset": "2026-05-21T19:12:00.000Z",
+    "lastUpdated": "2026-05-17T20:17:23.650Z"
   },
   "antigravity": {
-    "source": "desktop-automation",
-    "lastUpdated": "2026-05-16T05:42:48.919Z",
+    "source": "desktop-ui-automation",
+    "lastUpdated": "2026-05-17T20:19:20.235Z",
     "models": [
       {
         "id": "gemini-3-1-pro-high",
         "name": "Gemini 3.1 Pro",
         "tier": "High",
-        "remainingPercent": 50,
+        "remainingPercent": 80,
         "status": "ok",
-        "refreshText": "Refreshes in 6 days, 22 hours",
-        "refreshAt": "2026-05-23T03:42:48.919Z"
+        "refreshText": "Refreshes in 5 days, 8 hours",
+        "refreshAt": "2026-05-23T04:19:20.204Z"
       },
       {
         "id": "gemini-3-1-pro-low",
@@ -26,8 +26,8 @@
         "tier": "Low",
         "remainingPercent": 80,
         "status": "ok",
-        "refreshText": "Refreshes in 6 days, 22 hours",
-        "refreshAt": "2026-05-23T03:42:48.919Z"
+        "refreshText": "Refreshes in 5 days, 8 hours",
+        "refreshAt": "2026-05-23T04:19:20.204Z"
       },
       {
         "id": "gemini-3-flash",
@@ -35,8 +35,8 @@
         "tier": "",
         "remainingPercent": 0,
         "status": "empty",
-        "refreshText": "Refreshes in 6 days, 20 hours",
-        "refreshAt": "2026-05-23T01:42:48.919Z"
+        "refreshText": "Refreshes in 5 days, 5 hours",
+        "refreshAt": "2026-05-23T01:19:20.204Z"
       },
       {
         "id": "claude-sonnet-4-6-thinking",
@@ -44,17 +44,17 @@
         "tier": "Thinking",
         "remainingPercent": 100,
         "status": "ok",
-        "refreshText": "Refreshes in 6 days, 23 hours",
-        "refreshAt": "2026-05-23T04:42:48.919Z"
+        "refreshText": "Refreshes in 5 days, 8 hours",
+        "refreshAt": "2026-05-23T04:19:20.204Z"
       },
       {
         "id": "claude-opus-4-6-thinking",
         "name": "Claude Opus 4.6",
         "tier": "Thinking",
-        "remainingPercent": 80,
+        "remainingPercent": 100,
         "status": "ok",
-        "refreshText": "Refreshes in 6 days, 23 hours",
-        "refreshAt": "2026-05-23T04:42:48.919Z"
+        "refreshText": "Refreshes in 5 days, 8 hours",
+        "refreshAt": "2026-05-23T04:19:20.204Z"
       },
       {
         "id": "gpt-oss-120b-medium",
@@ -62,8 +62,8 @@
         "tier": "Medium",
         "remainingPercent": 100,
         "status": "ok",
-        "refreshText": "Refreshes in 6 days, 23 hours",
-        "refreshAt": "2026-05-23T04:42:48.919Z"
+        "refreshText": "Refreshes in 5 days, 8 hours",
+        "refreshAt": "2026-05-23T04:19:20.204Z"
       }
     ]
   }

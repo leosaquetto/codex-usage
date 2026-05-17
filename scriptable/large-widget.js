@@ -321,7 +321,7 @@ function buildCard(parent, data) {
 
   // Texto de limite estrito para que NUNCA apareça "..."
   const resetTxt = footRow.addText(data.resetStr)
-  resetTxt.font = Font.systemFont(7)
+  resetTxt.font = Font.systemFont(8)
   resetTxt.textColor = new Color("#ffffff", 0.8)
   resetTxt.lineLimit = 1
 

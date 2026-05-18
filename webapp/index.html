@@ -8,37 +8,43 @@
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json" />
 
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
     <!-- iOS full screen -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
     <!-- SPLASH iOS -->
-    <link rel="apple-touch-startup-image" href="/webapp/assets/splash.svg" />
+    <link rel="apple-touch-startup-image" href="/assets/splash.svg" />
 
     <!-- ICONS -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/webapp/assets/logo_background.png" />
-    <link rel="icon" sizes="192x192" href="/webapp/assets/logo_background.png" />
-    <link rel="icon" sizes="512x512" href="/webapp/assets/logo_background.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/logo_background.png" />
+    <link rel="icon" sizes="192x192" href="/assets/logo_background.png" />
+    <link rel="icon" sizes="512x512" href="/assets/logo_background.png" />
 
     <title>Analítica do Codex</title>
     <style>
       :root {
         --primary: #3b82f6;
-        --bg-base: #0f172a;
+        --bg-base: #0b1120;
         --bg-surface: #1e293b;
         --text-primary: #f1f5f9;
       }
 
       html, body {
         width: 100%;
-        height: 100%;
+        min-height: 100%;
         margin: 0;
         padding: 0;
         background-color: var(--bg-base);
         color: var(--text-primary);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       }
     </style>
-    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./style.css?v=refatoracao_final" />
   </head>
 
   <body>
@@ -49,7 +55,7 @@
       <header class="header">
         <div class="header-content">
           <div class="brand">
-            <img src="/webapp/assets/codex-color.png" alt="Codex Analytics" class="brand-logo" />
+            <img src="/assets/codex-color.png" alt="Codex Analytics" class="brand-logo" />
             <div class="brand-text">
               <h1>Codex Analytics</h1>
               <p class="brand-subtitle">Monitoramento em Tempo Real</p>
@@ -63,7 +69,10 @@
             <button type="button" id="themeColorButton" class="icon-button" title="Cor do tema" aria-label="Cor do tema">
               <span class="icon">🎨</span>
             </button>
-            <input id="themeColorInput" type="color" value="#3b82f6" aria-label="Selecionar cor do tema" hidden />
+            <input id="themeColorInput" type="color" value="#3b82f6" aria-label="Selecionar cor do tema" style="position: absolute; opacity: 0; width: 0; height: 0;" />
+            <button type="button" id="notificationButton" class="icon-button" title="Ativar notificações" aria-label="Notificações" aria-pressed="false">
+              <span id="notificationIcon" class="icon">🔔</span>
+            </button>
             <button type="button" id="refreshButton" class="icon-button" title="Recarregar página" aria-label="Recarregar">
               <span class="icon">↻</span>
             </button>
@@ -97,7 +106,7 @@
           <article class="limit-card">
             <div class="card-header">
               <div class="card-header-left">
-                <img src="/webapp/assets/codex-color.png" alt="ChatGPT" class="card-logo" />
+                <img src="/assets/codex-color.png" alt="ChatGPT" class="card-logo" />
                 <h2 class="card-title">⏰ Limite de 5 Horas</h2>
               </div>
               <div class="card-badge">5h</div>
@@ -141,7 +150,7 @@
           <article class="limit-card">
             <div class="card-header">
               <div class="card-header-left">
-                <img src="/webapp/assets/codex-color.png" alt="ChatGPT" class="card-logo" />
+                <img src="/assets/codex-color.png" alt="ChatGPT" class="card-logo" />
                 <h2 class="card-title">📅 Limite Semanal</h2>
               </div>
               <div class="card-badge">7d</div>
@@ -279,6 +288,91 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" defer></script>
+    <script>
+      // Registrar event listeners dos botões IMEDIATAMENTE (antes do app.js carregar)
+      document.addEventListener('DOMContentLoaded', () => {
+        // Botão de tema (dark/light)
+        const themeToggleButton = document.getElementById('themeToggleButton');
+        const themeToggleIcon = document.getElementById('themeToggleIcon');
+        if (themeToggleButton) {
+          themeToggleButton.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const newTheme = current === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('codex-theme', newTheme);
+            themeToggleButton.setAttribute('aria-pressed', String(newTheme === 'light'));
+            if (themeToggleIcon) {
+              themeToggleIcon.textContent = newTheme === 'light' ? '☀' : '☾';
+            }
+          });
+        }
+
+        // Botão de cor do tema
+        const themeColorButton = document.getElementById('themeColorButton');
+        const themeColorInput = document.getElementById('themeColorInput');
+        if (themeColorButton && themeColorInput) {
+          themeColorButton.addEventListener('click', () => {
+            themeColorInput.click();
+          });
+
+          themeColorInput.addEventListener('input', (e) => {
+            const color = e.target.value;
+            document.documentElement.style.setProperty('--primary', color);
+            localStorage.setItem('codex-theme-color', color);
+          });
+        }
+
+        // Botão de refresh
+        const refreshButton = document.getElementById('refreshButton');
+        if (refreshButton) {
+          refreshButton.addEventListener('click', () => {
+            location.reload();
+          });
+        }
+
+        // Botão de compartilhar
+        const shareButton = document.getElementById('shareButton');
+        if (shareButton) {
+          shareButton.addEventListener('click', async () => {
+            if (navigator.share) {
+              try {
+                await navigator.share({
+                  title: 'Analítica do Codex',
+                  url: window.location.href
+                });
+              } catch {}
+            } else if (navigator.clipboard) {
+              try {
+                await navigator.clipboard.writeText(window.location.href);
+                alert('Link copiado!');
+              } catch {}
+            }
+          });
+        }
+
+        // Botão de fechar
+        const closeButton = document.getElementById('closeButton');
+        if (closeButton) {
+          closeButton.addEventListener('click', () => {
+            window.close();
+          });
+        }
+      });
+    </script>
     <script src="./app.js" defer></script>
+    <script>
+      // Service Worker Registration
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('✅ Service Worker registrado:', registration.scope);
+            })
+            .catch((error) => {
+              console.warn('⚠️ Falha ao registrar Service Worker:', error);
+            });
+        });
+      }
+    </script>
   </body>
 </html>

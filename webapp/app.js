@@ -28,8 +28,63 @@ function rawDataUrl(fileName) {
   return `${RAW_DATA_BASE_URL}/${fileName}?t=${Date.now()}`;
 }
 
+// Funções de validação de contraste WCAG
+function hexToRgb(hex) {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : null;
+}
+
+function getLuminance(r, g, b) {
+  const [rs, gs, bs] = [r, g, b].map(c => {
+    c = c / 255;
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  });
+  return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
+}
+
+function getContrastRatio(color1, color2) {
+  const rgb1 = hexToRgb(color1);
+  const rgb2 = hexToRgb(color2);
+  if (!rgb1 || !rgb2) return 0;
+
+  const lum1 = getLuminance(rgb1.r, rgb1.g, rgb1.b);
+  const lum2 = getLuminance(rgb2.r, rgb2.g, rgb2.b);
+  const lighter = Math.max(lum1, lum2);
+  const darker = Math.min(lum1, lum2);
+
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+function validateColorContrast(color) {
+  const currentTheme = document.documentElement.getAttribute("data-theme");
+  const bgColor = currentTheme === "light" ? "#eef2f7" : "#0f172a";
+  const contrastRatio = getContrastRatio(color, bgColor);
+
+  // WCAG AA requer contraste mínimo de 3:1 para elementos grandes (UI)
+  const MIN_CONTRAST_RATIO = 3.0;
+
+  return {
+    isValid: contrastRatio >= MIN_CONTRAST_RATIO,
+    ratio: contrastRatio.toFixed(2),
+    minRequired: MIN_CONTRAST_RATIO
+  };
+}
+
 function setThemeColor(color) {
   if (!/^#[0-9a-fA-F]{6}$/.test(color)) return;
+
+  const contrastCheck = validateColorContrast(color);
+  if (!contrastCheck.isValid) {
+    console.warn(
+      `⚠️ Cor com contraste insuficiente: ${contrastCheck.ratio}:1 (mínimo: ${contrastCheck.minRequired}:1)`
+    );
+    // Ainda permite a cor, mas avisa o usuário
+  }
+
   document.documentElement.style.setProperty("--primary", color);
   localStorage.setItem(THEME_COLOR_KEY, color);
   const input = document.getElementById("themeColorInput");
@@ -284,7 +339,7 @@ function resolveStatus({ hasLoadError, fiveHourRemaining, weeklyRemaining, realD
   if (fiveHourRemaining <= 0 || weeklyRemaining <= 0) return { text: "limite esgotado", state: "danger" };
   if (realDailyRate > safeDailyRate) return { text: "ritmo alto", state: "danger" };
   if (fiveHourRemaining < 20 || weeklyRemaining < 20) return { text: "atenção ao consumo", state: "warn" };
-  return { text: "dentro do seguro", state: "ok" };
+  return { text: "dentro da margem segura", state: "ok" };
 }
 
 async function loadUsage() {
@@ -387,18 +442,30 @@ function enhanceMobileInteraction() {
 /* ===== Notification Support ===== */
 function requestNotificationPermission() {
   if (!('Notification' in window)) return;
-  
+
   if (Notification.permission === 'granted') {
+    localStorage.setItem('notificationsEnabled', 'true');
     return;
   }
-  
-  if (Notification.permission !== 'denied') {
+
+  // Não solicitar se já foi negado
+  if (Notification.permission === 'denied') {
+    localStorage.setItem('notificationsEnabled', 'false');
+    return;
+  }
+
+  // Solicitar permissão de forma contextual (não intrusiva)
+  // Apenas quando o usuário já está interagindo com a página
+  if (Notification.permission === 'default') {
     Notification.requestPermission().then(permission => {
       if (permission === 'granted') {
         localStorage.setItem('notificationsEnabled', 'true');
+        console.log('✅ Notificações ativadas');
+      } else {
+        localStorage.setItem('notificationsEnabled', 'false');
       }
     }).catch(() => {
-      // Notificações não suportadas
+      localStorage.setItem('notificationsEnabled', 'false');
     });
   }
 }
@@ -412,6 +479,7 @@ function getNotificationThreshold(remaining) {
 
 function checkAndNotify(status, fiveHourRemaining, weeklyRemaining) {
   if (localStorage.getItem('notificationsEnabled') !== 'true') return;
+  if (Notification.permission !== 'granted') return;
 
   const threshold = Math.min(
     getNotificationThreshold(fiveHourRemaining) ?? 100,
@@ -424,41 +492,129 @@ function checkAndNotify(status, fiveHourRemaining, weeklyRemaining) {
   if (localStorage.getItem(key) === 'true') return;
 
   try {
-    new Notification('⚠️ Limite baixo', {
-      body: `Seu limite atingiu ${threshold}% ou menos.`,
-      icon: '/webapp/assets/logo.png',
+    const notification = new Notification('⚠️ Codex Analytics - Limite Baixo', {
+      body: `Seu limite atingiu ${threshold}% ou menos. Considere reduzir o uso.`,
+      icon: '/assets/logo_background.png',
+      badge: '/assets/codex-color.png',
       tag: `codex-threshold-${threshold}`,
+      requireInteraction: false,
+      silent: false,
+      timestamp: Date.now(),
     });
+
+    // Auto-fechar após 10 segundos
+    setTimeout(() => notification.close(), 10000);
+
     localStorage.setItem(key, 'true');
+    console.log(`🔔 Notificação enviada: limite ${threshold}%`);
   } catch (e) {
-    // Notificações falharam
+    console.warn('⚠️ Falha ao enviar notificação:', e);
   }
 }
 
+// Limpar flags de notificação quando o limite resetar
+function resetNotificationFlags() {
+  [5, 10, 20].forEach(threshold => {
+    localStorage.removeItem(`codex-notified-threshold-${threshold}`);
+  });
+}
+
+
+let chartInstance = null;
 
 function renderUsageChart(weeklyUsed, weeklyRemaining) {
   const canvas = document.getElementById("usageChart");
-  if (!canvas || typeof window.Chart === "undefined") return;
+  if (!canvas) return;
 
-  const data = [Math.max(0, Math.min(100, weeklyUsed)), Math.max(0, Math.min(100, weeklyRemaining))];
-  new window.Chart(canvas, {
+  // Fallback textual se Chart.js não carregar
+  if (typeof window.Chart === "undefined") {
+    const fallback = document.createElement("div");
+    fallback.className = "chart-fallback";
+    fallback.innerHTML = `
+      <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+        <p style="font-size: 1.125rem; margin-bottom: 1rem;">📊 Gráfico indisponível</p>
+        <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+          <div>
+            <div style="font-size: 2rem; font-weight: 700; color: #ef4444;">${Math.round(weeklyUsed)}%</div>
+            <div style="font-size: 0.875rem;">Usado</div>
+          </div>
+          <div>
+            <div style="font-size: 2rem; font-weight: 700; color: var(--primary);">${Math.round(weeklyRemaining)}%</div>
+            <div style="font-size: 0.875rem;">Restante</div>
+          </div>
+        </div>
+      </div>
+    `;
+    canvas.parentElement.replaceChild(fallback, canvas);
+    return;
+  }
+
+  // Destruir instância anterior para evitar duplicação
+  if (chartInstance) {
+    chartInstance.destroy();
+    chartInstance = null;
+  }
+
+  const data = [
+    Math.max(0, Math.min(100, weeklyUsed)),
+    Math.max(0, Math.min(100, weeklyRemaining))
+  ];
+
+  const isDark = document.documentElement.getAttribute("data-theme") !== "light";
+  const primaryColor = getComputedStyle(document.documentElement).getPropertyValue("--primary").trim() || "#3b82f6";
+  const textColor = getComputedStyle(document.documentElement).getPropertyValue("--text-secondary").trim() || (isDark ? "#cbd5e1" : "#64748b");
+
+  chartInstance = new window.Chart(canvas, {
     type: "doughnut",
     data: {
       labels: ["Usado", "Restante"],
       datasets: [{
         data,
-        backgroundColor: ["#ef4444", getComputedStyle(document.documentElement).getPropertyValue("--primary").trim() || "#3b82f6"],
-        borderWidth: 0,
+        backgroundColor: ["#ef4444", primaryColor],
+        borderWidth: 4,
+        borderColor: isDark ? "#0b1120" : "#eef2f7",
+        hoverOffset: 12,
+        hoverBorderWidth: 6,
       }],
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      cutout: "70%",
       plugins: {
         legend: {
+          position: "bottom",
           labels: {
-            color: getComputedStyle(document.documentElement).getPropertyValue("--text-secondary").trim() || "#cbd5e1",
+            color: textColor,
+            font: {
+              size: 13,
+              weight: "600",
+              family: "'Inter', -apple-system, sans-serif",
+            },
+            padding: 16,
+            usePointStyle: true,
+            pointStyle: "circle",
           },
+        },
+        tooltip: {
+          backgroundColor: isDark ? "rgba(30, 41, 59, 0.95)" : "rgba(255, 255, 255, 0.95)",
+          titleColor: textColor,
+          bodyColor: textColor,
+          borderColor: isDark ? "#334155" : "#e2e8f0",
+          borderWidth: 1,
+          padding: 12,
+          displayColors: true,
+          bodyFont: {
+            size: 14,
+            weight: "600",
+          },
+          callbacks: {
+            label: function(context) {
+              const label = context.label || "";
+              const value = context.parsed || 0;
+              return `${label}: ${value.toFixed(1)}%`;
+            }
+          }
         },
       },
     },
@@ -480,7 +636,7 @@ function renderAntigravity(antigravity, hasLoadError, els) {
   } else if (criticalCount > 0) {
     els.antigravitySummary.textContent = `${criticalCount} modelo(s) pedem atenção.`;
   } else {
-    els.antigravitySummary.textContent = `${models.length} modelo(s) dentro do seguro.`;
+    els.antigravitySummary.textContent = `${models.length} modelo(s) dentro da margem segura.`;
   }
 
   els.antigravityModels.replaceChildren();
@@ -508,18 +664,18 @@ function renderAntigravity(antigravity, hasLoadError, els) {
 
     // Mapear logos baseado no nome do modelo
     if (model.name.toLowerCase().includes("gemini")) {
-      logo.src = "/webapp/assets/gemini-svg-13.svg";
+      logo.src = "https://i.imgur.com/5YrjiRD.png";
     } else if (model.name.toLowerCase().includes("claude")) {
-      logo.src = "/webapp/assets/claude__.png";
+      logo.src = "https://i.imgur.com/WKSOEc8.png";
     } else if (model.name.toLowerCase().includes("gpt") || model.name.toLowerCase().includes("codex")) {
-      logo.src = "/webapp/assets/gpt_.png";
+      logo.src = "https://i.imgur.com/qBlxQ5P.png";
     } else {
-      logo.src = "/webapp/assets/codex-color.png";
+      logo.src = "https://i.imgur.com/qBlxQ5P.png";
     }
 
     // Fallback para imagem quebrada
     logo.onerror = () => {
-      logo.src = "/webapp/assets/codex-color.png";
+      logo.src = "https://i.imgur.com/qBlxQ5P.png";
     };
 
     const name = document.createElement("span");
@@ -661,6 +817,11 @@ function renderAntigravity(antigravity, hasLoadError, els) {
   applyStatusState(status.state, els.statusText, els.statusDot);
   if (!hasLoadError) saveLastValidPayload(usage);
 
+  // Resetar flags de notificação se os limites voltarem a valores altos
+  if (fiveHourRemaining > 50 && weeklyRemaining > 50) {
+    resetNotificationFlags();
+  }
+
   // Verificar e notificar
   checkAndNotify(status, fiveHourRemaining, weeklyRemaining);
 
@@ -678,7 +839,100 @@ function renderAntigravity(antigravity, hasLoadError, els) {
 
   els.themeColorInput?.addEventListener("input", (event) => {
     const value = event?.target?.value;
-    if (typeof value === "string") setThemeColor(value);
+    if (typeof value === "string") {
+      const contrastCheck = validateColorContrast(value);
+
+      if (!contrastCheck.isValid) {
+        // Mostrar aviso temporário
+        const statusText = document.getElementById("statusText");
+        const originalText = statusText?.textContent;
+        if (statusText) {
+          statusText.textContent = `⚠️ Contraste baixo: ${contrastCheck.ratio}:1 (mín: ${contrastCheck.minRequired}:1)`;
+          setTimeout(() => {
+            if (statusText.textContent.includes("Contraste baixo")) {
+              statusText.textContent = originalText || "Online";
+            }
+          }, 3000);
+        }
+      }
+
+      setThemeColor(value);
+    }
+  });
+
+  // Botão de notificações
+  const notificationButton = document.getElementById("notificationButton");
+  const notificationIcon = document.getElementById("notificationIcon");
+
+  function updateNotificationButton() {
+    const enabled = localStorage.getItem('notificationsEnabled') === 'true';
+    const permission = 'Notification' in window ? Notification.permission : 'denied';
+
+    if (notificationButton) {
+      notificationButton.setAttribute('aria-pressed', String(enabled && permission === 'granted'));
+
+      if (permission === 'denied') {
+        notificationButton.title = 'Notificações bloqueadas pelo navegador';
+        if (notificationIcon) notificationIcon.textContent = '🔕';
+      } else if (enabled && permission === 'granted') {
+        notificationButton.title = 'Notificações ativadas';
+        if (notificationIcon) notificationIcon.textContent = '🔔';
+      } else {
+        notificationButton.title = 'Ativar notificações';
+        if (notificationIcon) notificationIcon.textContent = '🔕';
+      }
+    }
+  }
+
+  updateNotificationButton();
+
+  notificationButton?.addEventListener("click", () => {
+    triggerHaptic(10);
+
+    if (!('Notification' in window)) {
+      alert('Notificações não são suportadas neste navegador.');
+      return;
+    }
+
+    if (Notification.permission === 'denied') {
+      alert('Notificações foram bloqueadas. Ative nas configurações do navegador.');
+      return;
+    }
+
+    if (Notification.permission === 'granted') {
+      // Toggle on/off
+      const enabled = localStorage.getItem('notificationsEnabled') === 'true';
+      localStorage.setItem('notificationsEnabled', String(!enabled));
+      updateNotificationButton();
+
+      const statusText = document.getElementById("statusText");
+      if (statusText) {
+        const originalText = statusText.textContent;
+        statusText.textContent = !enabled ? '🔔 Notificações ativadas' : '🔕 Notificações desativadas';
+        setTimeout(() => {
+          if (statusText.textContent.includes('Notificações')) {
+            statusText.textContent = originalText;
+          }
+        }, 2000);
+      }
+    } else {
+      // Solicitar permissão
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          localStorage.setItem('notificationsEnabled', 'true');
+          updateNotificationButton();
+
+          // Enviar notificação de teste
+          new Notification('✅ Notificações ativadas', {
+            body: 'Você será alertado quando o limite estiver baixo (20%, 10%, 5%).',
+            icon: '/assets/logo_background.png',
+          });
+        } else {
+          localStorage.setItem('notificationsEnabled', 'false');
+          updateNotificationButton();
+        }
+      });
+    }
   });
 
   els.refreshButton?.addEventListener("click", () => {

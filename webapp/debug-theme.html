@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Debug - Botão de Tema</title>
+  <style>
+    body {
+      font-family: system-ui;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #0b1120;
+      color: #f1f5f9;
+    }
+    button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px 0;
+    }
+    .info {
+      background: rgba(255,255,255,0.1);
+      padding: 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+      font-family: monospace;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 Debug do Botão de Tema</h1>
+
+  <button onclick="testTheme()">Testar Alternância de Tema</button>
+  <button onclick="checkElements()">Verificar Elementos</button>
+  <button onclick="window.location.href='/'">Voltar para Home</button>
+
+  <div id="output" class="info">Clique nos botões acima para testar...</div>
+
+  <script>
+    function log(msg) {
+      const output = document.getElementById('output');
+      output.innerHTML += '<br>' + msg;
+    }
+
+    function testTheme() {
+      log('🧪 Testando alternância de tema...');
+      const current = document.documentElement.getAttribute('data-theme');
+      log('Tema atual: ' + (current || 'dark (padrão)'));
+
+      const newTheme = current === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      log('✅ Tema alterado para: ' + newTheme);
+
+      localStorage.setItem('codex-theme', newTheme);
+      log('💾 Salvo no localStorage');
+    }
+
+    function checkElements() {
+      log('🔍 Verificando elementos...');
+
+      const btn = document.getElementById('themeToggleButton');
+      log('themeToggleButton existe na home? Não (estamos na página de debug)');
+
+      log('Abrindo home em nova aba para verificar...');
+      window.open('/', '_blank');
+    }
+
+    // Verificar localStorage
+    const saved = localStorage.getItem('codex-theme');
+    log('📦 Tema salvo no localStorage: ' + (saved || 'nenhum'));
+  </script>
+</body>
+</html>

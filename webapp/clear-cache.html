@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Limpar Cache - Codex Analytics</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #0b1120;
+      color: #f1f5f9;
+    }
+    button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px 0;
+    }
+    button:hover { background: #2563eb; }
+    .status {
+      margin-top: 20px;
+      padding: 12px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧹 Limpar Cache</h1>
+  <p>Use este utilitário para limpar completamente o cache e ver o novo design.</p>
+
+  <button onclick="clearEverything()">Limpar Tudo e Recarregar</button>
+
+  <div class="status" id="status"></div>
+
+  <script>
+    async function clearEverything() {
+      const status = document.getElementById('status');
+      status.innerHTML = 'Limpando...';
+
+      try {
+        // 1. Unregister all service workers
+        if ('serviceWorker' in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          for (let registration of registrations) {
+            await registration.unregister();
+          }
+          status.innerHTML += '<br>✅ Service Workers removidos';
+        }
+
+        // 2. Clear all caches
+        if ('caches' in window) {
+          const cacheNames = await caches.keys();
+          for (let name of cacheNames) {
+            await caches.delete(name);
+          }
+          status.innerHTML += '<br>✅ Caches limpos';
+        }
+
+        // 3. Clear localStorage
+        localStorage.clear();
+        status.innerHTML += '<br>✅ LocalStorage limpo';
+
+        // 4. Clear sessionStorage
+        sessionStorage.clear();
+        status.innerHTML += '<br>✅ SessionStorage limpo';
+
+        status.innerHTML += '<br><br>🎉 Tudo limpo! Redirecionando...';
+
+        // 5. Redirect to home with cache buster
+        setTimeout(() => {
+          window.location.href = '/?nocache=' + Date.now();
+        }, 1500);
+
+      } catch (error) {
+        status.innerHTML += '<br>❌ Erro: ' + error.message;
+      }
+    }
+  </script>
+</body>
+</html>

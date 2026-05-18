@@ -81,19 +81,19 @@
 
 html {
   width: 100%;
-  height: 100%;
-  height: 100dvh;
+  min-height: 100%;
+  min-height: 100dvh;
   background-color: var(--bg-base);
-  background: linear-gradient(to bottom, var(--bg-base), color-mix(in srgb, var(--bg-base) 85%, black));
+  background: linear-gradient(180deg, var(--bg-base) 0%, color-mix(in srgb, var(--bg-base) 85%, black) 100%);
   background-attachment: fixed;
-  overscroll-behavior: none;
+  overscroll-behavior-y: none;
   overflow: hidden;
 }
 
 body {
   width: 100%;
-  height: 100%;
-  height: 100dvh;
+  min-height: 100%;
+  min-height: 100dvh;
   background-color: var(--bg-base);
   color: var(--text-primary);
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
@@ -103,22 +103,21 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
-  overflow-y: scroll;
-  overflow-y: overlay;
-  overscroll-behavior: none;
+  overflow-y: auto;
+  overscroll-behavior-y: none;
   -webkit-overflow-scrolling: touch;
   background: transparent;
 }
 
-/* Prevenir white flashing no topo em iOS */
+/* Prevenir white flashing no topo em iOS - fundo infinito */
 body::before {
   content: "";
   position: fixed;
-  top: 0;
+  top: -100vh;
   left: 0;
   right: 0;
-  height: 100vh;
-  background: linear-gradient(to bottom, var(--bg-base), color-mix(in srgb, var(--bg-base) 85%, black));
+  height: 300vh;
+  background: linear-gradient(180deg, var(--bg-base) 0%, var(--bg-base) 33%, color-mix(in srgb, var(--bg-base) 85%, black) 100%);
   pointer-events: none;
   z-index: -2;
 }
@@ -416,22 +415,22 @@ p {
 .limit-card {
   background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-elevated) 100%);
   border: 0;
-  border-radius: 12px;
-  padding: 14px;
+  border-radius: 16px;
+  padding: 20px;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05), var(--shadow-lg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  transition: all 0.3s var(--ease-in-out);
+  transition: all 0.4s var(--ease-smooth);
   position: relative;
   overflow: hidden;
   contain: content;
   transform: translateZ(0);
-  will-change: auto;
+  will-change: transform, box-shadow;
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .limit-card {
-    animation: cascadeIn 0.5s var(--ease-smooth) backwards;
+    animation: cascadeIn 0.6s var(--ease-smooth) backwards;
   }
 }
 
@@ -440,7 +439,7 @@ p {
 }
 
 .limit-card:nth-child(2) {
-  animation-delay: 0.2s;
+  animation-delay: 0.25s;
 }
 
 .limit-card::before {
@@ -449,13 +448,14 @@ p {
   top: 0;
   left: 0;
   right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 3s ease-in-out infinite;
 }
 
 .limit-card:hover {
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), var(--shadow-xl);
-  transform: translateY(-2px);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), var(--shadow-xl);
+  transform: translateY(-4px) scale(1.01);
 }
 
 .card-header {
@@ -522,24 +522,44 @@ p {
 
 /* ===== Progress Bar ===== */
 .progress-bar {
-  height: 8px;
+  height: 10px;
   background: var(--bg-overlay);
   border-radius: 999px;
   overflow: hidden;
-  margin-bottom: 10px;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+  margin-bottom: 12px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
   contain: strict;
+  position: relative;
+}
+
+.progress-bar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  animation: shimmer 2s ease-in-out infinite;
 }
 
 .progress-fill {
   height: 100%;
   width: 0;
-  background: linear-gradient(90deg, var(--primary), var(--primary-light));
+  background: linear-gradient(90deg, var(--primary), var(--primary-light), var(--primary));
+  background-size: 200% 100%;
   border-radius: inherit;
-  animation: fillSmoothly 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
+  animation: fillSmoothly 1s cubic-bezier(0.34, 1.56, 0.64, 1), gradientShift 3s ease-in-out infinite;
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.3);
   transform: translateZ(0);
   will-change: width;
+  position: relative;
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
 /* ===== Card Info ===== */
@@ -563,10 +583,21 @@ p {
 .metric-item {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  padding: 9px;
+  gap: 4px;
+  padding: 12px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--border-light);
+  border-radius: 10px;
+  transition: all 0.3s var(--ease-smooth);
+  transform: translateZ(0);
+}
+
+.metric-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
   border-radius: 10px;
   transition: all 0.2s var(--ease-in-out);
   touch-action: manipulation;
@@ -601,16 +632,28 @@ p {
 
 /* ===== Rhythm Section ===== */
 .rhythm-section {
+  margin-bottom: 24px;
   animation: fadeIn 0.6s 0.3s var(--ease-smooth) backwards;
 }
 
 .section-title {
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 700;
-  text-transform: uppercase;
   color: var(--text-primary);
-  letter-spacing: 0.05em;
-  margin-bottom: 8px;
+  margin-bottom: 14px;
+  letter-spacing: -0.02em;
+  animation: slideInLeft 0.5s var(--ease-smooth);
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .section-heading-row {
@@ -635,12 +678,20 @@ p {
 .rhythm-card {
   background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-elevated) 100%);
   border: 0;
-  border-radius: 12px;
-  padding: 14px;
+  border-radius: 16px;
+  padding: 20px;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05), var(--shadow-lg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   contain: content;
+  position: relative;
+  transition: all 0.3s var(--ease-smooth);
+  transform: translateZ(0);
+}
+
+.rhythm-card:hover {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), var(--shadow-xl);
+  transform: translateY(-2px);
 }
 
 .rhythm-card::before {
@@ -649,8 +700,9 @@ p {
   top: 0;
   left: 0;
   right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 3s ease-in-out infinite;
 }
 
 .antigravity-section .rhythm-card {
@@ -678,36 +730,80 @@ p {
 
 .antigravity-model {
   display: grid;
-  gap: 6px;
-  padding: 9px;
+  gap: 8px;
+  padding: 14px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--border-light);
-  border-radius: 10px;
+  border-radius: 12px;
+  transition: all 0.3s var(--ease-smooth);
+  transform: translateZ(0);
+}
+
+.antigravity-model:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
 }
 
 .antigravity-model.is-low,
 .antigravity-model.is-empty {
   border-color: color-mix(in srgb, var(--warning) 52%, var(--border-light));
+  animation: pulseWarning 2s ease-in-out infinite;
 }
 
 .antigravity-model.is-empty {
   border-color: color-mix(in srgb, var(--danger) 58%, var(--border-light));
+  animation: pulseDanger 2s ease-in-out infinite;
+}
+
+@keyframes pulseWarning {
+  0%, 100% {
+    box-shadow: 0 0 0 rgba(245, 158, 11, 0);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+  }
+}
+
+@keyframes pulseDanger {
+  0%, 100% {
+    box-shadow: 0 0 0 rgba(239, 68, 68, 0);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+  }
 }
 
 .antigravity-model-header {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   gap: 12px;
+}
+
+.antigravity-model-logo {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  transition: transform 0.3s var(--ease-smooth);
+}
+
+.antigravity-model:hover .antigravity-model-logo {
+  transform: scale(1.1) rotate(5deg);
 }
 
 .antigravity-model-name {
   color: var(--text-primary);
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 700;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1;
 }
 
 .antigravity-percent {
@@ -733,10 +829,11 @@ p {
 }
 
 .antigravity-progress {
-  height: 6px;
+  height: 8px;
   background: var(--bg-overlay);
   border-radius: 999px;
   overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 .antigravity-progress-fill {
@@ -744,14 +841,18 @@ p {
   min-width: 2px;
   background: linear-gradient(90deg, var(--primary), var(--accent));
   border-radius: inherit;
+  transition: width 0.6s var(--ease-smooth);
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
 }
 
 .antigravity-model.is-low .antigravity-progress-fill {
-  background: var(--warning);
+  background: linear-gradient(90deg, var(--warning), #fbbf24);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
 }
 
 .antigravity-model.is-empty .antigravity-progress-fill {
-  background: var(--danger);
+  background: linear-gradient(90deg, var(--danger), #f87171);
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
 }
 
 /* ===== Rhythm Grid ===== */
@@ -1025,9 +1126,32 @@ p {
 @keyframes shimmer {
   0% {
     background-position: -1000px 0;
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
   }
   100% {
     background-position: 1000px 0;
+    opacity: 0.3;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.3), 0 0 10px rgba(59, 130, 246, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.6), 0 0 30px rgba(59, 130, 246, 0.4);
   }
 }
 

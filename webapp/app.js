@@ -500,6 +500,22 @@ function renderAntigravity(antigravity, hasLoadError, els) {
     const header = document.createElement("div");
     header.className = "antigravity-model-header";
 
+    // Adicionar logo do modelo
+    const logo = document.createElement("img");
+    logo.className = "antigravity-model-logo";
+    logo.alt = model.name;
+
+    // Mapear logos baseado no nome do modelo
+    if (model.name.toLowerCase().includes("gemini")) {
+      logo.src = "/webapp/assets/gemini-svg-13.svg";
+    } else if (model.name.toLowerCase().includes("claude")) {
+      logo.src = "/webapp/assets/codex-color.png";
+    } else if (model.name.toLowerCase().includes("gpt") || model.name.toLowerCase().includes("codex")) {
+      logo.src = "/webapp/assets/codex-color.png";
+    } else {
+      logo.src = "/webapp/assets/logo.png";
+    }
+
     const name = document.createElement("span");
     name.className = "antigravity-model-name";
     name.textContent = model.name;
@@ -508,7 +524,7 @@ function renderAntigravity(antigravity, hasLoadError, els) {
     percent.className = "antigravity-percent";
     percent.textContent = Number.isFinite(model.remainingPercent) ? `${Math.round(model.remainingPercent)}%` : "--";
 
-    header.append(name, percent);
+    header.append(logo, name, percent);
 
     const meta = document.createElement("div");
     meta.className = "antigravity-model-meta";

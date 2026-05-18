@@ -148,19 +148,22 @@ function parsePayloadFromEnv() {
 module.exports = async (req, res) => {
   res.setHeader("Cache-Control", "no-store")
 
-  try {
-    const envPayload = parsePayloadFromEnv()
-    if (envPayload) {
-      return res.status(200).json(enrichPayload(envPayload))
-    }
-  } catch {
-    // segue para o fallback remoto quando env estiver inválida
-  }
-
+  // Prioridade: sempre buscar do GitHub (dados sempre atualizados)
+  // A env var CODEX_USAGE_PAYLOAD agora é apenas um override manual opcional
   try {
     const remotePayload = await fetchRemotePayload()
     return res.status(200).json(enrichPayload(remotePayload))
-  } catch {
+  } catch (remoteError) {
+    // Fallback para env var apenas se GitHub falhar
+    try {
+      const envPayload = parsePayloadFromEnv()
+      if (envPayload) {
+        return res.status(200).json(enrichPayload(envPayload))
+      }
+    } catch {
+      // ignora erro da env var
+    }
+
     return res.status(503).json({
       error: "Usage payload indisponível"
     })

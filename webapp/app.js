@@ -504,17 +504,23 @@ function renderAntigravity(antigravity, hasLoadError, els) {
     const logo = document.createElement("img");
     logo.className = "antigravity-model-logo";
     logo.alt = model.name;
+    logo.loading = "lazy";
 
     // Mapear logos baseado no nome do modelo
     if (model.name.toLowerCase().includes("gemini")) {
       logo.src = "/webapp/assets/gemini-svg-13.svg";
     } else if (model.name.toLowerCase().includes("claude")) {
-      logo.src = "/webapp/assets/codex-color.png";
+      logo.src = "/webapp/assets/claude__.png";
     } else if (model.name.toLowerCase().includes("gpt") || model.name.toLowerCase().includes("codex")) {
-      logo.src = "/webapp/assets/codex-color.png";
+      logo.src = "/webapp/assets/gpt_.png";
     } else {
-      logo.src = "/webapp/assets/logo.png";
+      logo.src = "/webapp/assets/codex-color.png";
     }
+
+    // Fallback para imagem quebrada
+    logo.onerror = () => {
+      logo.src = "/webapp/assets/codex-color.png";
+    };
 
     const name = document.createElement("span");
     name.className = "antigravity-model-name";
@@ -528,7 +534,7 @@ function renderAntigravity(antigravity, hasLoadError, els) {
 
     const meta = document.createElement("div");
     meta.className = "antigravity-model-meta";
-    const refreshLabel = model.refreshDate ? resetTextFromDate(model.refreshDate) : model.refreshText || "refresh nao informado";
+    const refreshLabel = model.refreshDate ? resetTextFromDate(model.refreshDate) : model.refreshText || "Refresh não informado";
     meta.textContent = [model.tier, refreshLabel].filter(Boolean).join(" · ");
 
     const bar = document.createElement("div");

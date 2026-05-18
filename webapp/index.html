@@ -37,11 +37,6 @@
         background-color: var(--bg-base);
         color: var(--text-primary);
       }
-
-      body {
-        overflow-y: scroll;
-        -webkit-overflow-scrolling: touch;
-      }
     </style>
     <link rel="stylesheet" href="./style.css" />
   </head>
@@ -103,7 +98,7 @@
             <div class="card-header">
               <div class="card-header-left">
                 <img src="/webapp/assets/codex-color.png" alt="ChatGPT" class="card-logo" />
-                <h2 class="card-title">Limite de 5 Horas</h2>
+                <h2 class="card-title">⏰ Limite de 5 Horas</h2>
               </div>
               <div class="card-badge">5h</div>
             </div>
@@ -124,14 +119,20 @@
 
             <div class="metrics-grid">
               <div class="metric-item">
-                <span class="metric-label">Usado</span>
-                <span id="fiveHourUsed" class="metric-value">—%</span>
-                <span class="metric-subtitle">Neste ciclo</span>
+                <span class="metric-icon">📊</span>
+                <div class="metric-content">
+                  <span class="metric-label">Usado</span>
+                  <span id="fiveHourUsed" class="metric-value">—%</span>
+                  <span class="metric-subtitle">consumido até agora</span>
+                </div>
               </div>
               <div class="metric-item">
-                <span class="metric-label">Seguro</span>
-                <span id="fiveHourSafeRate" class="metric-value">—/h</span>
-                <span class="metric-subtitle">Taxa horária</span>
+                <span class="metric-icon">⚡</span>
+                <div class="metric-content">
+                  <span class="metric-label">Seguro</span>
+                  <span id="fiveHourSafeRate" class="metric-value">—/h</span>
+                  <span class="metric-subtitle">pode usar por hora</span>
+                </div>
               </div>
             </div>
           </article>
@@ -141,7 +142,7 @@
             <div class="card-header">
               <div class="card-header-left">
                 <img src="/webapp/assets/codex-color.png" alt="ChatGPT" class="card-logo" />
-                <h2 class="card-title">Limite Semanal</h2>
+                <h2 class="card-title">📅 Limite Semanal</h2>
               </div>
               <div class="card-badge">7d</div>
             </div>
@@ -162,14 +163,20 @@
 
             <div class="metrics-grid">
               <div class="metric-item">
-                <span class="metric-label">Usado</span>
-                <span id="weeklyUsed" class="metric-value">—%</span>
-                <span class="metric-subtitle">Desde reset</span>
+                <span class="metric-icon">📊</span>
+                <div class="metric-content">
+                  <span class="metric-label">Usado</span>
+                  <span id="weeklyUsed" class="metric-value">—%</span>
+                  <span class="metric-subtitle">consumido até agora</span>
+                </div>
               </div>
               <div class="metric-item">
-                <span class="metric-label">Até reset</span>
-                <span id="weeklyRemainingDays" class="metric-value">—</span>
-                <span class="metric-subtitle">Dias restantes</span>
+                <span class="metric-icon">⏰</span>
+                <div class="metric-content">
+                  <span class="metric-label">Até Reset</span>
+                  <span id="weeklyRemainingDays" class="metric-value">—</span>
+                  <span class="metric-subtitle">dias restantes</span>
+                </div>
               </div>
             </div>
           </article>
@@ -198,39 +205,63 @@
 
         <!-- Weekly Rhythm Section -->
         <section class="rhythm-section">
-          <h2 class="section-title">Análise Semanal</h2>
-          
+          <h2 class="section-title">📊 Análise Semanal</h2>
+
           <article class="rhythm-card">
             <div class="rhythm-grid">
               <div class="rhythm-item">
-                <span class="rhythm-label">Média Real</span>
-                <span id="weeklyAverage" class="rhythm-value">—</span>
-                <span class="rhythm-unit">%/dia</span>
+                <span class="rhythm-icon">⚡</span>
+                <div class="rhythm-content">
+                  <span class="rhythm-label">Média Real</span>
+                  <span id="weeklyAverage" class="rhythm-value">—</span>
+                  <span class="rhythm-unit">%/dia</span>
+                  <span class="rhythm-subtitle">uso diário até agora</span>
+                </div>
               </div>
               <div class="rhythm-item">
-                <span class="rhythm-label">Ritmo Seguro</span>
-                <span id="weeklySafeRate" class="rhythm-value">—</span>
-                <span class="rhythm-unit">%/dia</span>
+                <span class="rhythm-icon">🎯</span>
+                <div class="rhythm-content">
+                  <span class="rhythm-label">Ritmo Seguro</span>
+                  <span id="weeklySafeRate" class="rhythm-value">—</span>
+                  <span class="rhythm-unit">%/dia</span>
+                  <span class="rhythm-subtitle">pode usar por dia</span>
+                </div>
               </div>
               <div class="rhythm-item">
-                <span class="rhythm-label">Diferença</span>
-                <span id="weeklyDifference" class="rhythm-value">—</span>
-                <span class="rhythm-unit">%/dia</span>
+                <span class="rhythm-icon">📈</span>
+                <div class="rhythm-content">
+                  <span class="rhythm-label">Diferença</span>
+                  <span id="weeklyDifference" class="rhythm-value">—</span>
+                  <span class="rhythm-unit">%/dia</span>
+                  <span class="rhythm-subtitle">acima/abaixo do seguro</span>
+                </div>
               </div>
               <div class="rhythm-item">
-                <span class="rhythm-label">Projeção Final</span>
-                <span id="weeklyProjection" class="rhythm-value">—</span>
-                <span class="rhythm-unit">%</span>
+                <span class="rhythm-icon">🎯</span>
+                <div class="rhythm-content">
+                  <span class="rhythm-label">Projeção Final</span>
+                  <span id="weeklyProjection" class="rhythm-value">—</span>
+                  <span class="rhythm-unit">%</span>
+                  <span class="rhythm-subtitle">saldo ao fim do ciclo</span>
+                </div>
               </div>
               <div class="rhythm-item">
-                <span class="rhythm-label">Zera em</span>
-                <span id="weeklyZeroAt" class="rhythm-value">—</span>
-                <span class="rhythm-unit">data/hora</span>
+                <span class="rhythm-icon">⏰</span>
+                <div class="rhythm-content">
+                  <span class="rhythm-label">Zera em</span>
+                  <span id="weeklyZeroAt" class="rhythm-value">—</span>
+                  <span class="rhythm-unit">data/hora</span>
+                  <span class="rhythm-subtitle">quando esgota</span>
+                </div>
               </div>
               <div class="rhythm-item">
-                <span class="rhythm-label">Início do Ciclo</span>
-                <span id="weeklyCycleStart" class="rhythm-value">—</span>
-                <span class="rhythm-unit">data/hora</span>
+                <span class="rhythm-icon">📅</span>
+                <div class="rhythm-content">
+                  <span class="rhythm-label">Início do Ciclo</span>
+                  <span id="weeklyCycleStart" class="rhythm-value">—</span>
+                  <span class="rhythm-unit">data/hora</span>
+                  <span class="rhythm-subtitle">estimado pelo reset</span>
+                </div>
               </div>
             </div>
 

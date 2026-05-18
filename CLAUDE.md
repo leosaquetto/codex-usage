@@ -13,7 +13,43 @@ This is a **Codex Usage Analytics** project that tracks and visualizes usage met
 
 The project is in **Portuguese (pt-BR)** - all UI text, comments, and documentation use Portuguese.
 
+## Git Workflow
+
+**IMPORTANT**: Always work on the `staging` branch for development. Only merge to `main` when ready to deploy.
+
+- **`staging`**: Development branch - make all commits here
+- **`main`**: Production branch - only receives merges from staging, triggers automatic deploys
+
+### Workflow Steps
+
+1. Make sure you're on `staging`: `git checkout staging`
+2. Make your changes and commit them to `staging`
+3. When ready to deploy: merge `staging` into `main` and push
+4. Deploy happens manually via GitHub Actions workflow
+
 ## Architecture
+
+### Project Structure
+
+```
+codex-usage/
+├── webapp/              # Frontend (deployed to Vercel)
+│   ├── index.html       # Dashboard HTML
+│   ├── style.css        # Responsive CSS with dark/light mode
+│   ├── app.js           # Client-side logic and calculations
+│   ├── api/usage.js     # Vercel serverless function
+│   ├── assets/          # Images and logos
+│   └── vercel.json      # Vercel configuration
+├── scripts/             # Node.js automation scripts
+├── scriptable/          # iOS Scriptable widgets
+│   ├── webview-hidden-auto-update-v3.js  # Manual update via Shortcuts
+│   └── large-widget.js                    # Large widget for home screen
+├── codex_usage.json     # Raw Codex data (root only)
+├── antigravity_usage.json  # Raw Antigravity data (root only)
+└── usage_summary.json   # Combined data (root only)
+```
+
+**CRITICAL**: Files are NOT duplicated. Frontend files live ONLY in `webapp/`, data files live ONLY in root.
 
 ### Data Flow
 
@@ -31,16 +67,19 @@ webapp/index.html (dashboard)
 
 ### Key Files
 
-- **`codex_usage.json`**: Raw Codex usage data (5-hour and weekly limits)
-- **`antigravity_usage.json`**: Antigravity model quotas with refresh times
-- **`usage_summary.json`**: Combined summary of both sources
-- **`webapp/`**: Static web dashboard deployed to Vercel
+- **`codex_usage.json`**: Raw Codex usage data (5-hour and weekly limits) - **root only**
+- **`antigravity_usage.json`**: Antigravity model quotas with refresh times - **root only**
+- **`usage_summary.json`**: Combined summary of both sources - **root only**
+- **`webapp/`**: Static web dashboard deployed to Vercel - **all frontend files here**
   - `index.html`: Semantic HTML5 structure
   - `style.css`: Modern responsive design with CSS custom properties, dark/light mode
   - `app.js`: Vanilla JS with real-time usage calculations (no frameworks)
   - `api/usage.js`: Vercel serverless function that enriches and serves usage data
-- **`scripts/`**: Node.js automation scripts
-- **`scriptable/`**: iOS Scriptable widgets for home screen
+  - `assets/`: Model logos (Claude, GPT, Gemini, Codex)
+- **`scripts/`**: Node.js automation scripts - **root only**
+- **`scriptable/`**: iOS Scriptable widgets for home screen - **root only**
+  - `webview-hidden-auto-update-v3.js`: Manual update script via Shortcuts
+  - `large-widget.js`: Large widget displaying all usage metrics
 
 ### Data Collection Methods
 
@@ -178,6 +217,8 @@ These profiles maintain authentication state for ChatGPT/Codex without storing c
 - **Logic preservation**: The calculation logic in `app.js` and `api/usage.js` is unchanged from the original - only UI was refactored
 - **Automation requires permissions**: macOS Accessibility and Screen Recording permissions needed for Antigravity automation
 - **CDP for efficiency**: Chrome DevTools Protocol allows reusing an already-authenticated browser session
+- **No file duplication**: Frontend files exist ONLY in `webapp/`, data files ONLY in root. Never duplicate files between locations.
+- **Work on staging branch**: All development happens on `staging`. Only merge to `main` when ready to deploy.
 
 ## Testing
 

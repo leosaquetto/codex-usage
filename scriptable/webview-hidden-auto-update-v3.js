@@ -431,83 +431,90 @@ function getGithubToken() {
   return Keychain.get(GITHUB_TOKEN_KEYCHAIN_KEY)
 }
 
-function githubApiUrl(path) {
-  const encodedPath = path.split("/").map(encodeURIComponent).join("/")
-  return `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${encodedPath}`
+function githubGitApiUrl(path) {
+  return `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/git/${path}`
 }
 
-async function getRepoFileSha(path, branch, token) {
-  const req = new Request(`${githubApiUrl(path)}?ref=${encodeURIComponent(branch)}`)
-  req.method = "GET"
-  req.headers = {
-    Authorization: `Bearer ${token}`,
-    Accept: "application/vnd.github+json",
-    "X-GitHub-Api-Version": "2022-11-28"
-  }
-
-  let rawPayload = null
-
-  try {
-    rawPayload = await req.loadString()
-    const payload = rawPayload ? JSON.parse(rawPayload) : null
-    return payload && payload.sha ? payload.sha : null
-  } catch (error) {
-    const statusCode = Number(req.response?.statusCode || 0)
-    if (statusCode === 404) return null
-
-    throw new Error(
-      `Falha ao buscar SHA no GitHub (${statusCode || "sem status"}): ${String(error)} | payload bruto: ${rawPayload || "<vazio>"}`
-    )
-  }
-}
-
-async function upsertRepoJsonFile(path, branch, jsonText) {
+async function githubJsonRequest(url, options = {}) {
   const token = getGithubToken()
-  const existingSha = await getRepoFileSha(path, branch, token)
-
-  const body = {
-    message: `chore(data): update ${path} via Scriptable [skip ci]`,
-    content: Data.fromString(jsonText).toBase64String(),
-    branch
-  }
-
-  if (existingSha) body.sha = existingSha
-
-  const req = new Request(githubApiUrl(path))
-  req.method = "PUT"
+  const req = new Request(url)
+  req.method = options.method || "GET"
   req.headers = {
     Authorization: `Bearer ${token}`,
     Accept: "application/vnd.github+json",
     "Content-Type": "application/json",
     "X-GitHub-Api-Version": "2022-11-28"
   }
-  req.body = JSON.stringify(body)
+  if (options.body) req.body = JSON.stringify(options.body)
 
-  let rawResponse = null
-  let response = null
-
+  let raw = null
   try {
-    rawResponse = await req.loadString()
-    response = rawResponse ? JSON.parse(rawResponse) : null
+    raw = await req.loadString()
   } catch (error) {
     const statusCode = Number(req.response?.statusCode || 0)
     throw new Error(
-      `Falha no PUT do arquivo no GitHub (${statusCode || "sem status"}): ${String(error)} | payload bruto: ${rawResponse || "<vazio>"}`
+      `Falha GitHub API (${statusCode || "sem status"}) em ${url}: ${String(error)} | payload bruto: ${raw || "<vazio>"}`
     )
   }
 
-  if (!response?.commit?.sha) {
-    const statusCode = Number(req.response?.statusCode || 0)
-    throw new Error(
-      `GitHub não retornou commit SHA na atualização do arquivo (${statusCode || "sem status"}): ${JSON.stringify(response)}`
-    )
+  const statusCode = Number(req.response?.statusCode || 0)
+  const payload = raw ? JSON.parse(raw) : null
+  if (statusCode < 200 || statusCode >= 300) {
+    throw new Error(`GitHub API retornou HTTP ${statusCode} em ${url}: ${raw || "<vazio>"}`)
   }
+  return payload
+}
+
+async function publishRepoJsonFilesAtomic(files) {
+  const refName = `heads/${GITHUB_BRANCH}`
+  const ref = await githubJsonRequest(githubGitApiUrl(`ref/${refName}`))
+  const parentSha = ref?.object?.sha
+  if (!parentSha) throw new Error(`GitHub não retornou SHA da branch ${GITHUB_BRANCH}.`)
+
+  const parentCommit = await githubJsonRequest(githubGitApiUrl(`commits/${parentSha}`))
+  const baseTreeSha = parentCommit?.tree?.sha
+  if (!baseTreeSha) throw new Error(`GitHub não retornou tree SHA do commit ${parentSha}.`)
+
+  const tree = files.map(file => ({
+    path: file.path,
+    mode: "100644",
+    type: "blob",
+    content: file.content
+  }))
+
+  const newTree = await githubJsonRequest(githubGitApiUrl("trees"), {
+    method: "POST",
+    body: {
+      base_tree: baseTreeSha,
+      tree
+    }
+  })
+  if (!newTree?.sha) throw new Error("GitHub não retornou SHA da tree com os arquivos de uso.")
+
+  const newCommit = await githubJsonRequest(githubGitApiUrl("commits"), {
+    method: "POST",
+    body: {
+      message: "chore(data): update Codex usage summary via Scriptable [skip ci]",
+      tree: newTree.sha,
+      parents: [parentSha]
+    }
+  })
+  if (!newCommit?.sha) throw new Error("GitHub não retornou SHA do commit atomicamente criado.")
+
+  const updatedRef = await githubJsonRequest(githubGitApiUrl(`refs/${refName}`), {
+    method: "PATCH",
+    body: {
+      sha: newCommit.sha,
+      force: false
+    }
+  })
 
   return {
-    commitSha: response.commit.sha,
-    htmlUrl: response.commit.html_url || null,
-    branch,
-    path
+    commitSha: newCommit.sha,
+    htmlUrl: newCommit.html_url || null,
+    branch: GITHUB_BRANCH,
+    paths: files.map(file => file.path),
+    refSha: updatedRef?.object?.sha || null
   }
 }
 
@@ -542,6 +549,32 @@ function latestIso(...values) {
   return new Date(Math.max(...times)).toISOString()
 }
 
+function validateUsageSummary(summary, codex) {
+  const codexLastUpdated = codex?.lastUpdated || null
+  const summaryLastUpdated = summary?.lastUpdated || null
+  const summaryCodexLastUpdated = summary?.codex?.lastUpdated || null
+  const codexTime = validDateFromISO(codexLastUpdated)?.getTime() || null
+  const summaryTime = validDateFromISO(summaryLastUpdated)?.getTime() || null
+
+  if (!codexTime) {
+    throw new Error("Validação pós-update falhou: codex_usage.lastUpdated ausente ou inválido.")
+  }
+
+  if (summaryCodexLastUpdated !== codexLastUpdated) {
+    throw new Error(
+      `Validação pós-update falhou: usage_summary.codex.lastUpdated (${summaryCodexLastUpdated || "<ausente>"}) ` +
+      `difere de codex_usage.lastUpdated (${codexLastUpdated}).`
+    )
+  }
+
+  if (!summaryTime || summaryTime < codexTime) {
+    throw new Error(
+      `Validação pós-update falhou: usage_summary.lastUpdated (${summaryLastUpdated || "<ausente>"}) ` +
+      `é mais antigo que codex_usage.lastUpdated (${codexLastUpdated}).`
+    )
+  }
+}
+
 async function buildUsageSummary(codex) {
   const antigravity = await fetchRemoteJson(REMOTE_ANTIGRAVITY_USAGE_URL, {
     source: "desktop-automation",
@@ -566,25 +599,25 @@ async function main() {
 
   fm.writeString(filePath, nextJson)
 
-  const repoUpdate = await upsertRepoJsonFile(
-    GITHUB_FILE_PATH,
-    GITHUB_BRANCH,
-    nextJson
-  )
   const summary = await buildUsageSummary(next)
   const summaryJson = JSON.stringify(summary, null, 2)
   JSON.parse(summaryJson)
-  const summaryUpdate = await upsertRepoJsonFile(
-    GITHUB_SUMMARY_FILE_PATH,
-    GITHUB_BRANCH,
-    summaryJson
-  )
+  validateUsageSummary(summary, next)
+  const repoUpdate = await publishRepoJsonFilesAtomic([
+    { path: GITHUB_FILE_PATH, content: nextJson + "\n" },
+    { path: GITHUB_SUMMARY_FILE_PATH, content: summaryJson + "\n" }
+  ])
 
   Script.setShortcutOutput(JSON.stringify({
     ok: true,
     saved: next,
     repoUpdate,
-    summaryUpdate,
+    summaryUpdate: repoUpdate,
+    lastUpdated: {
+      codex_usage: next.lastUpdated,
+      usage_summary: summary.lastUpdated,
+      usage_summary_codex: summary.codex.lastUpdated
+    },
     extracted: {
       fiveHourPercent: extracted.fiveHourPercent,
       fiveHourResetText: extracted.fiveHourResetText,

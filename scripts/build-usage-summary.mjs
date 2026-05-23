@@ -15,16 +15,43 @@ async function readJson(path, fallback) {
   }
 }
 
+function validDateMs(value) {
+  const date = value ? new Date(value) : null;
+  return date && Number.isFinite(date.getTime()) ? date.getTime() : null;
+}
+
 function latestIso(...values) {
   const times = values
-    .map((value) => {
-      const date = value ? new Date(value) : null;
-      return date && Number.isFinite(date.getTime()) ? date.getTime() : null;
-    })
+    .map(validDateMs)
     .filter((value) => value !== null);
 
   if (times.length === 0) return new Date().toISOString();
   return new Date(Math.max(...times)).toISOString();
+}
+
+function validateSummary(summary, codexPayload) {
+  const codexLastUpdated = summary.codex?.lastUpdated || null;
+  const summaryLastUpdated = summary.lastUpdated || null;
+  const codexTime = validDateMs(codexLastUpdated);
+  const summaryTime = validDateMs(summaryLastUpdated);
+
+  if (!codexTime) {
+    throw new Error("usage_summary.json inválido: codex.lastUpdated ausente ou inválido.");
+  }
+
+  if (summary.codex?.lastUpdated !== codexPayload.lastUpdated) {
+    throw new Error(
+      `usage_summary.json desatualizado: codex.lastUpdated=${summary.codex?.lastUpdated || "<ausente>"} ` +
+        `diferente de codex_usage.lastUpdated=${codexPayload.lastUpdated || "<ausente>"}.`,
+    );
+  }
+
+  if (!summaryTime || summaryTime < codexTime) {
+    throw new Error(
+      `usage_summary.json desatualizado: lastUpdated=${summaryLastUpdated || "<ausente>"} ` +
+        `mais antigo que codex_usage.lastUpdated=${codexLastUpdated}.`,
+    );
+  }
 }
 
 const codex = await readJson(codexPath, {
@@ -47,5 +74,6 @@ const summary = {
   antigravity,
 };
 
+validateSummary(summary, codex);
 await writeFile(summaryPath, `${JSON.stringify(summary, null, 2)}\n`);
 console.log(`Wrote ${summaryPath}`);

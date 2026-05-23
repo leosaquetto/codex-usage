@@ -178,6 +178,11 @@ function isoOrNull(value) {
   return Number.isFinite(date.getTime()) ? date.toISOString() : null;
 }
 
+function dateMsOrNull(value) {
+  const date = value ? new Date(value) : null;
+  return date && Number.isFinite(date.getTime()) ? date.getTime() : null;
+}
+
 function normalizeDirectPayload(candidate) {
   if (!candidate || typeof candidate !== "object") return null;
 
@@ -947,6 +952,64 @@ function runSummaryBuilder() {
   }
 }
 
+async function readJsonFile(path, label) {
+  try {
+    return JSON.parse(await readFile(path, "utf8"));
+  } catch (error) {
+    throw new Error(`Falha ao ler ${label}: ${String(error?.message || error)}`);
+  }
+}
+
+async function validateGeneratedSummary() {
+  const codex = await readJsonFile(codexUsagePath, "codex_usage.json");
+  const summary = await readJsonFile(summaryPath, "usage_summary.json");
+  const codexLastUpdated = codex?.lastUpdated || null;
+  const summaryLastUpdated = summary?.lastUpdated || null;
+  const summaryCodexLastUpdated = summary?.codex?.lastUpdated || null;
+  const codexTime = dateMsOrNull(codexLastUpdated);
+  const summaryTime = dateMsOrNull(summaryLastUpdated);
+
+  if (!codexTime) {
+    throw new Error("Validação pós-update falhou: codex_usage.lastUpdated ausente ou inválido.");
+  }
+
+  if (summaryCodexLastUpdated !== codexLastUpdated) {
+    throw new Error(
+      "Validação pós-update falhou: usage_summary.codex.lastUpdated " +
+        `(${summaryCodexLastUpdated || "<ausente>"}) difere de codex_usage.lastUpdated (${codexLastUpdated}).`,
+    );
+  }
+
+  if (!summaryTime || summaryTime < codexTime) {
+    throw new Error(
+      "Validação pós-update falhou: usage_summary.lastUpdated " +
+        `(${summaryLastUpdated || "<ausente>"}) é mais antigo que codex_usage.lastUpdated (${codexLastUpdated}).`,
+    );
+  }
+
+  return {
+    codexLastUpdated,
+    summaryLastUpdated,
+    summaryCodexLastUpdated,
+  };
+}
+
+function changedUsageFiles() {
+  const status = spawnSync("git", ["status", "--porcelain", "--", "codex_usage.json", "usage_summary.json"], {
+    cwd: root,
+    encoding: "utf8",
+  });
+
+  if (status.status !== 0) {
+    throw new Error("Falha ao listar arquivos de uso alterados.");
+  }
+
+  return status.stdout
+    .split("\n")
+    .filter((line) => line.trim())
+    .map((line) => line.slice(3).trim());
+}
+
 function maybeCommit() {
   if (args.has("no-commit")) return false;
   if (!args.has("commit")) return false;
@@ -1001,6 +1064,7 @@ async function writeArtifacts(payload) {
   await writeFile(codexUsagePath, codexJson);
   runSummaryBuilder();
   await syncWebappArtifacts();
+  return validateGeneratedSummary();
 }
 
 async function main() {
@@ -1025,7 +1089,8 @@ async function main() {
           }
         })();
 
-  await writeArtifacts(next);
+  const validation = await writeArtifacts(next);
+  const changedFiles = changedUsageFiles();
   const committed = maybeCommit();
   const pushed = maybePush(committed);
 
@@ -1036,8 +1101,14 @@ async function main() {
         mode: capture.mode,
         browser: capture.browser,
         source: capture.source,
+        lastUpdated: {
+          codex_usage: validation.codexLastUpdated,
+          usage_summary: validation.summaryLastUpdated,
+          usage_summary_codex: validation.summaryCodexLastUpdated,
+        },
         committed,
         pushed,
+        changedFiles,
         saved: next,
         details: capture.details,
       },

@@ -474,29 +474,87 @@ async function githubRequest(url, options = {}) {
   return payload;
 }
 
-async function publishFile(path, content) {
-  const encodedPath = path.split("/").map(encodeURIComponent).join("/");
-  const baseUrl = `https://api.github.com/repos/${githubOwner}/${githubRepo}/contents/${encodedPath}`;
-  let sha = null;
+async function publishFilesAtomic(files) {
+  const refName = `heads/${githubBranch}`;
+  const ref = await githubRequest(
+    `https://api.github.com/repos/${githubOwner}/${githubRepo}/git/ref/${refName}`,
+  );
+  const parentSha = ref?.object?.sha;
+  if (!parentSha) throw new Error(`GitHub não retornou SHA da branch ${githubBranch}.`);
 
-  try {
-    const current = await githubRequest(`${baseUrl}?ref=${encodeURIComponent(githubBranch)}`);
-    sha = current?.sha || null;
-  } catch (error) {
-    if (!String(error.message || error).includes("GitHub API 404")) throw error;
-  }
+  const parentCommit = await githubRequest(
+    `https://api.github.com/repos/${githubOwner}/${githubRepo}/git/commits/${parentSha}`,
+  );
+  const baseTreeSha = parentCommit?.tree?.sha;
+  if (!baseTreeSha) throw new Error(`GitHub não retornou tree SHA do commit ${parentSha}.`);
 
-  const result = await githubRequest(baseUrl, {
-    method: "PUT",
+  const treeResult = await githubRequest(`https://api.github.com/repos/${githubOwner}/${githubRepo}/git/trees`, {
+    method: "POST",
     body: JSON.stringify({
-      message: `chore(data): update ${path} via Chrome sign-in [skip ci]`,
-      content: Buffer.from(content, "utf8").toString("base64"),
-      branch: githubBranch,
-      ...(sha ? { sha } : {}),
+      base_tree: baseTreeSha,
+      tree: files.map((file) => ({
+        path: file.path,
+        mode: "100644",
+        type: "blob",
+        content: file.content,
+      })),
+    }),
+  });
+  if (!treeResult?.sha) throw new Error("GitHub não retornou SHA da tree com os arquivos de uso.");
+
+  const commitResult = await githubRequest(`https://api.github.com/repos/${githubOwner}/${githubRepo}/git/commits`, {
+    method: "POST",
+    body: JSON.stringify({
+      message: "chore(data): update Codex usage summary via Chrome sign-in [skip ci]",
+      tree: treeResult.sha,
+      parents: [parentSha],
+    }),
+  });
+  if (!commitResult?.sha) throw new Error("GitHub não retornou SHA do commit atomicamente criado.");
+
+  await githubRequest(`https://api.github.com/repos/${githubOwner}/${githubRepo}/git/refs/${refName}`, {
+    method: "PATCH",
+    body: JSON.stringify({
+      sha: commitResult.sha,
+      force: false,
     }),
   });
 
-  return result?.commit?.sha || null;
+  return commitResult.sha;
+}
+
+async function validateGeneratedSummary() {
+  const codex = JSON.parse(await readFile(codexUsagePath, "utf8"));
+  const summary = JSON.parse(await readFile(summaryPath, "utf8"));
+  const codexLastUpdated = codex?.lastUpdated || null;
+  const summaryLastUpdated = summary?.lastUpdated || null;
+  const summaryCodexLastUpdated = summary?.codex?.lastUpdated || null;
+  const codexTime = validDateFromISO(codexLastUpdated)?.getTime() || null;
+  const summaryTime = validDateFromISO(summaryLastUpdated)?.getTime() || null;
+
+  if (!codexTime) {
+    throw new Error("Validação pós-update falhou: codex_usage.lastUpdated ausente ou inválido.");
+  }
+
+  if (summaryCodexLastUpdated !== codexLastUpdated) {
+    throw new Error(
+      "Validação pós-update falhou: usage_summary.codex.lastUpdated " +
+        `(${summaryCodexLastUpdated || "<ausente>"}) difere de codex_usage.lastUpdated (${codexLastUpdated}).`,
+    );
+  }
+
+  if (!summaryTime || summaryTime < codexTime) {
+    throw new Error(
+      "Validação pós-update falhou: usage_summary.lastUpdated " +
+        `(${summaryLastUpdated || "<ausente>"}) é mais antigo que codex_usage.lastUpdated (${codexLastUpdated}).`,
+    );
+  }
+
+  return {
+    codexLastUpdated,
+    summaryLastUpdated,
+    summaryCodexLastUpdated,
+  };
 }
 
 async function main() {
@@ -525,16 +583,19 @@ async function main() {
     stdio: "inherit",
   });
   if (summary.status !== 0) process.exit(summary.status || 1);
+  const validation = await validateGeneratedSummary();
 
   if (args.has("publish")) {
     const summaryJson = await readFile(summaryPath, "utf8");
-    const codexSha = await publishFile("codex_usage.json", codexJson);
-    const summarySha = await publishFile("usage_summary.json", summaryJson);
-    console.log(JSON.stringify({ ok: true, published: { codexSha, summarySha }, saved: next }, null, 2));
+    const commitSha = await publishFilesAtomic([
+      { path: "codex_usage.json", content: codexJson },
+      { path: "usage_summary.json", content: summaryJson },
+    ]);
+    console.log(JSON.stringify({ ok: true, published: { commitSha }, lastUpdated: validation, saved: next }, null, 2));
     return;
   }
 
-  console.log(JSON.stringify({ ok: true, saved: next, extracted }, null, 2));
+  console.log(JSON.stringify({ ok: true, lastUpdated: validation, saved: next, extracted }, null, 2));
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] || "").href) {

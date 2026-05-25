@@ -2,6 +2,11 @@
 // Codex + Antigravity — Scriptable Large Widget (Pro Modular 4x2)
 // ------------------------------------------------------
 
+const GITHUB_OWNER = "leosaquetto"
+const GITHUB_REPO = "codex-usage"
+const GITHUB_BRANCH = "main"
+const SUMMARY_PATH = "usage_summary.json"
+const CODEX_USAGE_PATH = "codex_usage.json"
 const SUMMARY_URL = "https://raw.githubusercontent.com/leosaquetto/codex-usage/main/usage_summary.json"
 const CODEX_USAGE_URL = "https://raw.githubusercontent.com/leosaquetto/codex-usage/main/codex_usage.json"
 const CACHE_FILE = "codex-antigravity-usage-summary.json"
@@ -90,7 +95,14 @@ function latestIso(...values) {
 }
 
 function cacheBusted(url) {
-  return `${url}?t=${Date.now()}`
+  const sep = url.includes("?") ? "&" : "?"
+  return `${url}${sep}t=${Date.now()}`
+}
+
+function decodeBase64Json(content) {
+  const normalized = String(content || "").replace(/\s/g, "")
+  const decoded = Data.fromBase64String(normalized).toRawString()
+  return JSON.parse(decoded)
 }
 
 async function fetchJson(url) {
@@ -106,11 +118,36 @@ async function fetchJson(url) {
   return JSON.parse(raw)
 }
 
+async function fetchGithubJson(path, rawFallbackUrl) {
+  const apiUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}?ref=${encodeURIComponent(GITHUB_BRANCH)}`
+  try {
+    const req = new Request(cacheBusted(apiUrl))
+    req.timeoutInterval = 10
+    req.headers = {
+      Accept: "application/vnd.github+json",
+      "Cache-Control": "no-cache",
+      "X-GitHub-Api-Version": "2022-11-28"
+    }
+
+    const raw = await req.loadString()
+    const statusCode = req.response?.statusCode || 0
+    if (statusCode < 200 || statusCode >= 300) throw new Error(`GitHub API HTTP ${statusCode}`)
+
+    const payload = JSON.parse(raw)
+    if (payload && payload.content) return decodeBase64Json(payload.content)
+    throw new Error(`GitHub API sem content para ${path}`)
+  } catch (error) {
+    if (!rawFallbackUrl) throw error
+    return await fetchJson(rawFallbackUrl)
+  }
+}
+
 function mergeFreshCodex(summaryPayload, codexPayload) {
   const summaryCodexTime = validDate(summaryPayload.codex.lastUpdated)?.getTime() || 0
   const codexTime = validDate(codexPayload.lastUpdated)?.getTime() || 0
+  const hasCodexData = codexPayload.fiveHourPercent !== null || codexPayload.weeklyPercent !== null
 
-  if (codexTime > summaryCodexTime || codexPayload.lastUpdated !== summaryPayload.codex.lastUpdated) {
+  if (hasCodexData && (codexTime >= summaryCodexTime || codexPayload.lastUpdated !== summaryPayload.codex.lastUpdated)) {
     summaryPayload.codex = codexPayload
     summaryPayload.lastUpdated = latestIso(
       summaryPayload.lastUpdated,
@@ -123,11 +160,11 @@ function mergeFreshCodex(summaryPayload, codexPayload) {
 }
 
 async function fetchSummary() {
-  const summaryPayload = normalizeSummary(await fetchJson(SUMMARY_URL))
+  const summaryPayload = normalizeSummary(await fetchGithubJson(SUMMARY_PATH, SUMMARY_URL))
   let payload = summaryPayload
 
   try {
-    payload = mergeFreshCodex(summaryPayload, normalizeCodexUsage(await fetchJson(CODEX_USAGE_URL)))
+    payload = mergeFreshCodex(summaryPayload, normalizeCodexUsage(await fetchGithubJson(CODEX_USAGE_PATH, CODEX_USAGE_URL)))
   } catch {
     // Se codex_usage.json falhar, o resumo continua sendo a fonte principal do widget.
   }

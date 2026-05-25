@@ -1,15 +1,15 @@
 {
-  "lastUpdated": "2026-05-25T23:50:16.479Z",
+  "lastUpdated": "2026-05-25T23:52:51.103Z",
   "codex": {
-    "fiveHourPercent": 19,
+    "fiveHourPercent": 18,
     "fiveHourReset": "2026-05-26T03:53:00.000Z",
     "weeklyPercent": 20,
     "weeklyReset": "2026-05-31T01:47:00.000Z",
-    "lastUpdated": "2026-05-25T23:50:16.479Z"
+    "lastUpdated": "2026-05-25T23:52:51.103Z"
   },
   "codexHistory": {
     "version": 1,
-    "lastUpdated": "2026-05-25T23:50:16.479Z",
+    "lastUpdated": "2026-05-25T23:52:51.103Z",
     "samples": [
       {
         "capturedAt": "2026-05-25T20:11:07.164Z",
@@ -61,8 +61,8 @@
         "weeklyReset": "2026-05-31T01:47:00.000Z"
       },
       {
-        "capturedAt": "2026-05-25T23:50:16.479Z",
-        "fiveHourPercent": 19,
+        "capturedAt": "2026-05-25T23:52:51.103Z",
+        "fiveHourPercent": 18,
         "fiveHourReset": "2026-05-26T03:53:00.000Z",
         "weeklyPercent": 20,
         "weeklyReset": "2026-05-31T01:47:00.000Z"

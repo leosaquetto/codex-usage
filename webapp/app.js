@@ -250,9 +250,14 @@ function formatUseWindowCount(value) {
   return `${rounded} ${rounded === 1 ? "uso" : "usos"} de 5h`;
 }
 
+function formatCompactUseWindowCount(value) {
+  if (!Number.isFinite(value) || value <= 0) return "--";
+  return `${Math.max(1, Math.ceil(value))}x de 5h`;
+}
+
 function formatCompareWidth(value, max) {
   if (!Number.isFinite(value) || !Number.isFinite(max) || max <= 0) return "4%";
-  return `${Math.min(100, Math.max(4, (value / max) * 100))}%`;
+  return `${Math.min(100, Math.max(0, (value / max) * 100))}%`;
 }
 
 function capitalizeFirst(value) {
@@ -479,10 +484,10 @@ function buildFiveHourDecision(usage, metrics) {
 function buildWeeklyAdvice(metrics) {
   if (metrics.weeklyRemaining <= 0) return "O limite semanal esgotou. Espere a renovação.";
   if (metrics.effectiveProjectedRemaining < -30 && Number.isFinite(metrics.idealPerWindow)) {
-    return `Reduza para até ${formatPercent(metrics.idealPerWindow)} por janela de 5h.`;
+    return `Use até ${formatPercent(metrics.idealPerWindow)} por janela de 5h para chegar ao reset.`;
   }
   if (metrics.usageBandState.state === "danger" && Number.isFinite(metrics.idealPerWindow)) {
-    return `Desacelere para perto de ${formatPercent(metrics.idealPerWindow)} por janela.`;
+    return `Use até ${formatPercent(metrics.idealPerWindow)} por janela de 5h.`;
   }
   if (metrics.weeklyRemaining <= 20) return "Use só o essencial até o próximo reset.";
   if (metrics.usageBandState.state === "safe") return "Há folga; distribua melhor o saldo restante.";
@@ -511,6 +516,13 @@ function buildWeeklyQuestion(metrics) {
   return "Chega se mantiver o ritmo";
 }
 
+function buildUsageBandTitle(metrics) {
+  if (metrics.usageBandState.state === "danger") return "Ritmo acima do ideal";
+  if (metrics.usageBandState.state === "safe") return "Abaixo do ideal";
+  if (metrics.usageBandState.state === "ok") return "Na faixa ideal";
+  return "Sem leitura suficiente";
+}
+
 function buildLimitViewModel(usage, hasLoadError = false) {
   const metrics = buildLiveMetrics(usage);
   const fiveHour = buildFiveHourDecision(usage, metrics);
@@ -532,7 +544,9 @@ function buildLimitViewModel(usage, hasLoadError = false) {
   const weeklyWindowZero = Number.isFinite(metrics.weeklyZeroInWindows)
     ? `${formatZeroInHours(metrics.effectiveZeroInHours)} · cerca de ${formatWindowCount(metrics.weeklyZeroInWindows)}`
     : "--";
-  const compareMax = Math.max(metrics.effectiveWeeklyRatePerWindow || 0, metrics.idealPerWindow || 0, 1);
+  const compareMax = Number.isFinite(metrics.idealPerWindow) && metrics.idealPerWindow > 0
+    ? metrics.idealPerWindow * 2
+    : Math.max(metrics.effectiveWeeklyRatePerWindow || 0, 1);
 
   return {
     status: resolveStatus(metrics, hasLoadError),
@@ -547,6 +561,10 @@ function buildLimitViewModel(usage, hasLoadError = false) {
     fiveHour: {
       remaining: Math.round(metrics.fiveHourRemaining),
       used: formatUsed(metrics.fiveHourRemaining),
+      usedInline: `${Math.round(metrics.fiveHourUsed)}%`,
+      idealRate: Number.isFinite(metrics.fiveHourMs) && metrics.fiveHourMs > 0
+        ? formatRatePerHour(metrics.fiveHourRemaining / (metrics.fiveHourMs / 3600000))
+        : "--/h",
       renewal: usage.fiveHourResetDate ? formatCountdownMs(metrics.fiveHourMs, { includeDays: false }) : "--",
       countdown: usage.fiveHourResetDate ? formatCountdownMs(metrics.fiveHourMs, { includeDays: false }) : "--",
       question: fiveHour.question,
@@ -559,18 +577,21 @@ function buildLimitViewModel(usage, hasLoadError = false) {
     weekly: {
       remaining: Math.round(metrics.weeklyRemaining),
       used: formatUsed(metrics.weeklyRemaining),
+      usedInline: `${Math.round(metrics.weeklyUsed)}%`,
       renewal: usage.weeklyResetDate ? `${formatDurationMs(metrics.weeklyMs)} · ${formatDateTimePtBr(usage.weeklyResetDate)}` : "--",
       remainingTime: usage.weeklyResetDate ? formatCountdownMs(metrics.weeklyMs) : "--",
       countdown: usage.weeklyResetDate ? formatCountdownMs(metrics.weeklyMs) : "--",
       question: weeklyQuestion,
       advice: weeklyAdvice,
       projection: formatProjectedBalance(metrics.effectiveProjectedRemaining),
-      zeroAt: Number.isFinite(metrics.weeklyZeroInWindows) ? `${weeklyZeroAt} · cerca de ${formatUseWindowCount(metrics.weeklyZeroInWindows)}` : weeklyZeroAt,
+      zeroAt: weeklyZeroAt,
+      windowBadge: Number.isFinite(metrics.weeklyZeroInWindows) ? formatCompactUseWindowCount(metrics.weeklyZeroInWindows) : "--",
       zeroWindowText: weeklyWindowZero,
       windowPlan: Number.isFinite(metrics.weeklyZeroInWindows) ? formatWindowCount(metrics.weeklyZeroInWindows) : "--",
       average: formatPercent(Number.isFinite(metrics.effectiveWeeklyRatePerWindow) ? metrics.effectiveWeeklyRatePerWindow : metrics.weeklyAverageUsedPerWindow),
       averageHourly: formatRatePerHour(Number.isFinite(metrics.effectiveWeeklyRatePerWindow) ? metrics.effectiveWeeklyRatePerWindow / 5 : metrics.weeklyAverageUsedPerWindow / 5),
       dailyAverage: formatRatePerDay(metrics.realDailyRate),
+      sideBadge: formatRatePerDay(metrics.realDailyRate),
       ideal: formatPercent(metrics.idealPerWindow),
       band: metrics.usageBandState.label,
       usePlan: weeklyPlan,
@@ -578,15 +599,19 @@ function buildLimitViewModel(usage, hasLoadError = false) {
     },
     suggestion: {
       title: weeklyAdvice,
-      meta: weeklyQuestion,
+      meta: Number.isFinite(metrics.idealPerWindow) && Number.isFinite(metrics.windowsRemaining)
+        ? `Ainda dá para usar cerca de ${formatPercent(metrics.idealPerWindow)} em cada uma das próximas ${metrics.windowsRemaining} janelas.`
+        : weeklyQuestion,
     },
     compare: {
-      band: metrics.usageBandState.label,
+      band: buildUsageBandTitle(metrics),
       meta: Number.isFinite(metrics.effectiveWeeklyRatePerWindow) && Number.isFinite(metrics.idealPerWindow)
-        ? `Atual ${formatPercent(metrics.effectiveWeeklyRatePerWindow)} por janela · ideal ${formatPercent(metrics.idealPerWindow)}`
+        ? "Consumo semanal por janela de 5h."
         : "Aguardando histórico suficiente.",
       actualText: `Ritmo atual ${formatPercent(metrics.effectiveWeeklyRatePerWindow)}`,
       idealText: `Ideal ${formatPercent(metrics.idealPerWindow)}`,
+      actualValue: formatPercent(metrics.effectiveWeeklyRatePerWindow),
+      idealValue: formatPercent(metrics.idealPerWindow),
       actualWidth: formatCompareWidth(metrics.effectiveWeeklyRatePerWindow, compareMax),
       idealWidth: formatCompareWidth(metrics.idealPerWindow, compareMax),
     },
@@ -660,6 +685,8 @@ function getElements() {
     fiveHourZeroAt: document.getElementById("fiveHourZeroAt"),
     fiveHourRhythm: document.getElementById("fiveHourRhythm"),
     fiveHourAverage: document.getElementById("fiveHourAverage"),
+    fiveHourUsedInline: document.getElementById("fiveHourUsedInline"),
+    fiveHourIdealRate: document.getElementById("fiveHourIdealRate"),
     fiveHourUsePlan: document.getElementById("fiveHourUsePlan"),
     fiveHourUsed: document.getElementById("fiveHourUsed"),
     fiveHourRenewal: document.getElementById("fiveHourRenewal"),
@@ -671,6 +698,8 @@ function getElements() {
     weeklyRemainingDays: document.getElementById("weeklyRemainingDays"),
     weeklyAverage: document.getElementById("weeklyAverage"),
     weeklyDailyAverage: document.getElementById("weeklyDailyAverage"),
+    weeklyUsedInline: document.getElementById("weeklyUsedInline"),
+    weeklySideBadge: document.getElementById("weeklySideBadge"),
     weeklyIdeal: document.getElementById("weeklyIdeal"),
     weeklyBand: document.getElementById("weeklyBand"),
     weeklyRenewal: document.getElementById("weeklyRenewal"),
@@ -679,11 +708,14 @@ function getElements() {
     weeklyCountdown: document.getElementById("weeklyCountdown"),
     weeklyWindowZero: document.getElementById("weeklyWindowZero"),
     weeklyWindowPlan: document.getElementById("weeklyWindowPlan"),
+    weeklyWindowBadge: document.getElementById("weeklyWindowBadge"),
     harvestSuggestion: document.getElementById("harvestSuggestion"),
     usageBandValue: document.getElementById("usageBandValue"),
     usageBandMeta: document.getElementById("usageBandMeta"),
     compareActualText: document.getElementById("compareActualText"),
     compareIdealText: document.getElementById("compareIdealText"),
+    compareActualValue: document.getElementById("compareActualValue"),
+    compareIdealValue: document.getElementById("compareIdealValue"),
     compareActualBar: document.getElementById("compareActualBar"),
     compareIdealBar: document.getElementById("compareIdealBar"),
     chartTitle: document.getElementById("chartTitle"),
@@ -789,6 +821,8 @@ function renderDashboard(els, viewModel) {
   els.fiveHourZeroAt.textContent = viewModel.fiveHour.zeroAt;
   if (els.fiveHourRhythm) els.fiveHourRhythm.textContent = viewModel.fiveHour.rhythm;
   els.fiveHourAverage.textContent = viewModel.fiveHour.average;
+  if (els.fiveHourUsedInline) els.fiveHourUsedInline.textContent = viewModel.fiveHour.usedInline;
+  if (els.fiveHourIdealRate) els.fiveHourIdealRate.textContent = viewModel.fiveHour.idealRate;
   if (els.fiveHourUsePlan) els.fiveHourUsePlan.textContent = viewModel.fiveHour.usePlan;
   if (els.fiveHourUsed) els.fiveHourUsed.textContent = viewModel.fiveHour.used;
   if (els.fiveHourRenewal) els.fiveHourRenewal.textContent = viewModel.fiveHour.renewal;
@@ -798,10 +832,13 @@ function renderDashboard(els, viewModel) {
   els.weeklyPercent.textContent = viewModel.weekly.remaining;
   els.weeklyProjection.textContent = viewModel.weekly.projection;
   els.weeklyZeroAt.textContent = viewModel.weekly.zeroAt;
+  if (els.weeklyWindowBadge) els.weeklyWindowBadge.textContent = viewModel.weekly.windowBadge;
   if (els.weeklyUsed) els.weeklyUsed.textContent = viewModel.weekly.used;
   if (els.weeklyRemainingDays) els.weeklyRemainingDays.textContent = viewModel.weekly.remainingTime;
   if (els.weeklyAverage) els.weeklyAverage.textContent = viewModel.weekly.averageHourly;
   if (els.weeklyDailyAverage) els.weeklyDailyAverage.textContent = viewModel.weekly.dailyAverage;
+  if (els.weeklyUsedInline) els.weeklyUsedInline.textContent = viewModel.weekly.usedInline;
+  if (els.weeklySideBadge) els.weeklySideBadge.textContent = viewModel.weekly.sideBadge;
   if (els.weeklyIdeal) els.weeklyIdeal.textContent = viewModel.weekly.ideal;
   els.weeklyBand.textContent = viewModel.weekly.band;
   if (els.weeklyRenewal) els.weeklyRenewal.textContent = viewModel.weekly.renewal;
@@ -817,8 +854,10 @@ function renderDashboard(els, viewModel) {
   if (els.usageBandMeta) els.usageBandMeta.textContent = viewModel.compare.meta;
   if (els.compareActualText) els.compareActualText.textContent = viewModel.compare.actualText;
   if (els.compareIdealText) els.compareIdealText.textContent = viewModel.compare.idealText;
-  if (els.compareActualBar) els.compareActualBar.style.width = viewModel.compare.actualWidth;
-  if (els.compareIdealBar) els.compareIdealBar.style.width = viewModel.compare.idealWidth;
+  if (els.compareActualValue) els.compareActualValue.textContent = viewModel.compare.actualValue;
+  if (els.compareIdealValue) els.compareIdealValue.textContent = viewModel.compare.idealValue;
+  if (els.compareActualBar) els.compareActualBar.style.left = viewModel.compare.actualWidth;
+  if (els.compareIdealBar) els.compareIdealBar.style.left = viewModel.compare.idealWidth;
   setChartButtons(els);
   renderSparkline(els.usageSparkline, activeChart === "weekly" ? viewModel.charts.weekly : viewModel.charts.fiveHour);
 }
@@ -1039,6 +1078,7 @@ async function init() {
 
   const els = getElements();
   const { usage, hasLoadError } = await loadUsage();
+  document.body.classList.remove("is-loading");
 
   function render() {
     renderDashboard(els, buildLimitViewModel(usage, hasLoadError));

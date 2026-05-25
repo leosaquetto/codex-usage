@@ -36,11 +36,21 @@
         font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
       }
     </style>
-    <link rel="stylesheet" href="./style.css?v=operational_panel_2" />
+    <link rel="stylesheet" href="./style.css?v=operational_panel_12" />
   </head>
 
-  <body>
+  <body class="is-loading">
     <main class="app-shell" aria-live="polite">
+      <section id="loadingOverlay" class="loading-overlay" aria-label="Carregando dados">
+        <div class="loading-card">
+          <span class="loading-spinner" aria-hidden="true"></span>
+          <div>
+            <strong>Carregando dados</strong>
+            <p>Buscando limites e histórico mais recentes.</p>
+          </div>
+        </div>
+      </section>
+
       <header class="topbar">
         <div class="brand">
           <img src="/assets/codex-color.png" alt="Codex Analytics" class="brand-logo" />
@@ -131,6 +141,10 @@
           </div>
           <div class="mini-metrics">
             <div>
+              <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2" /><path d="M9 2h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>Renova em</span>
+              <strong id="fiveHourCountdown">--</strong>
+            </div>
+            <div>
               <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v6l4 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M21 12a9 9 0 1 1-9-9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M18 3v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>Nesse ritmo</span>
               <strong id="fiveHourZeroAt">--</strong>
             </div>
@@ -138,9 +152,13 @@
               <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M8 17v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M13 17V9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M18 17V7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>Média/h</span>
               <strong id="fiveHourAverage">--/h</strong>
             </div>
-            <div class="mini-metric-wide">
-              <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2" /><path d="M9 2h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>Renova em</span>
-              <strong id="fiveHourCountdown">--</strong>
+            <div>
+              <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 20 7v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7l8-4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /><path d="m9 12 2 2 4-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>Usado</span>
+              <strong id="fiveHourUsedInline">--</strong>
+            </div>
+            <div>
+              <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M7 7h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M9 17h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>Ideal/h</span>
+              <strong id="fiveHourIdealRate">--/h</strong>
             </div>
           </div>
         </article>
@@ -166,30 +184,33 @@
             <span id="weeklyPercent" class="percent-number">--</span>
             <span class="percent-unit">%</span>
           </div>
-          <p class="percent-label">Restantes</p>
+          <p class="percent-label percent-label-split">
+            <span>Restantes</span>
+            <span id="weeklySideBadge">--/d</span>
+          </p>
           <div class="progress-track" role="progressbar" aria-label="Uso restante no limite semanal" aria-valuemin="0" aria-valuemax="100">
             <div id="weeklyBar" class="progress-fill"></div>
           </div>
           <div class="mini-metrics">
             <div>
-              <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v6l4 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M21 12a9 9 0 1 1-9-9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M18 3v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>Nesse ritmo</span>
-              <strong id="weeklyZeroAt">--</strong>
+              <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2" /><path d="M9 2h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>Renova em</span>
+              <strong id="weeklyCountdown">--</strong>
             </div>
             <div>
-              <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M7 7h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M9 17h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>Projeção</span>
-              <strong id="weeklyProjection">--</strong>
+              <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v6l4 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M21 12a9 9 0 1 1-9-9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M18 3v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>Nesse ritmo</span>
+              <strong class="metric-value-with-badge"><span id="weeklyZeroAt">--</span><span id="weeklyWindowBadge" class="metric-badge">--</span></strong>
             </div>
             <div>
               <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M8 17v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M13 17V9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M18 17V7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>Média/h</span>
               <strong id="weeklyAverage">--/h</strong>
             </div>
             <div>
-              <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M8 17v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M13 17V9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M18 17V7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>Média/d</span>
-              <strong id="weeklyDailyAverage">--/d</strong>
+              <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 20 7v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7l8-4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /><path d="m9 12 2 2 4-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>Usado</span>
+              <strong id="weeklyUsedInline">--</strong>
             </div>
-            <div class="mini-metric-wide">
-              <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2" /><path d="M9 2h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>Renova em</span>
-              <strong id="weeklyCountdown">--</strong>
+            <div class="mini-metric-wide projection-line">
+              <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M7 7h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M9 17h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>Projeção</span>
+              <strong id="weeklyProjection">--</strong>
             </div>
           </div>
         </article>
@@ -209,14 +230,29 @@
             <path d="M18 17V11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
           </svg>
         </div>
-        <div class="compare-bars">
-          <div>
-            <span id="compareActualText">Ritmo atual --</span>
-            <div class="compare-track"><div id="compareActualBar" class="compare-fill actual"></div></div>
+        <div class="compare-summary">
+          <div class="compare-stat actual">
+            <span>Atual</span>
+            <strong id="compareActualValue">--</strong>
           </div>
-          <div>
-            <span id="compareIdealText">Ideal --</span>
-            <div class="compare-track"><div id="compareIdealBar" class="compare-fill ideal"></div></div>
+          <div class="compare-stat ideal">
+            <span>Ideal</span>
+            <strong id="compareIdealValue">--</strong>
+          </div>
+        </div>
+        <div class="compare-meter" aria-hidden="true">
+          <div class="compare-track">
+            <div class="compare-zone safe"></div>
+            <div class="compare-zone ok"></div>
+            <div class="compare-zone warn"></div>
+            <div class="compare-zone danger"></div>
+            <div id="compareIdealBar" class="compare-marker ideal"></div>
+            <div id="compareActualBar" class="compare-marker actual"></div>
+          </div>
+          <div class="compare-scale">
+            <span>Seguro</span>
+            <span>Ideal</span>
+            <span>Alto</span>
           </div>
         </div>
       </section>
@@ -238,6 +274,6 @@
       </section>
     </main>
 
-    <script src="./app.js?v=operational_panel_2" defer></script>
+    <script src="./app.js?v=operational_panel_12" defer></script>
   </body>
 </html>

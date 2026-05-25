@@ -4,9 +4,11 @@ import { existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { appendCodexUsageSample } from "./codex-usage-history.mjs";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 const codexUsagePath = resolve(root, "codex_usage.json");
+const historyPath = resolve(root, "codex_usage_history.json");
 const summaryPath = resolve(root, "usage_summary.json");
 const analyticsUrl = "https://chatgpt.com/codex/cloud/settings/analytics";
 const githubOwner = "leosaquetto";
@@ -78,6 +80,14 @@ async function readCurrentData() {
       weeklyReset: null,
       lastUpdated: null,
     };
+  }
+}
+
+async function readCurrentHistory() {
+  try {
+    return JSON.parse(await readFile(historyPath, "utf8"));
+  } catch {
+    return { version: 1, lastUpdated: null, samples: [] };
   }
 }
 
@@ -578,6 +588,10 @@ async function main() {
   const codexJson = `${JSON.stringify(next, null, 2)}\n`;
   await writeFile(codexUsagePath, codexJson);
 
+  const history = appendCodexUsageSample(await readCurrentHistory(), next);
+  const historyJson = `${JSON.stringify(history, null, 2)}\n`;
+  await writeFile(historyPath, historyJson);
+
   const summary = spawnSync(process.execPath, [resolve(root, "scripts/build-usage-summary.mjs")], {
     cwd: root,
     stdio: "inherit",
@@ -589,6 +603,7 @@ async function main() {
     const summaryJson = await readFile(summaryPath, "utf8");
     const commitSha = await publishFilesAtomic([
       { path: "codex_usage.json", content: codexJson },
+      { path: "codex_usage_history.json", content: historyJson },
       { path: "usage_summary.json", content: summaryJson },
     ]);
     console.log(JSON.stringify({ ok: true, published: { commitSha }, lastUpdated: validation, saved: next }, null, 2));

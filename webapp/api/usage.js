@@ -10,6 +10,39 @@ function toDate(value) {
   return Number.isNaN(d.getTime()) ? null : d
 }
 
+function normalizeHistory(raw) {
+  const samples = Array.isArray(raw?.samples) ? raw.samples : []
+  const byCapturedAt = new Map()
+
+  for (const sample of samples) {
+    const capturedAt = toDate(sample?.capturedAt || sample?.lastUpdated)
+    const weeklyReset = toDate(sample?.weeklyReset)
+    const fiveHourPercent = Number(sample?.fiveHourPercent)
+    const weeklyPercent = Number(sample?.weeklyPercent)
+
+    if (
+      !capturedAt ||
+      !weeklyReset ||
+      !Number.isFinite(fiveHourPercent) ||
+      !Number.isFinite(weeklyPercent)
+    ) {
+      continue
+    }
+
+    byCapturedAt.set(capturedAt.toISOString(), {
+      capturedAt: capturedAt.toISOString(),
+      fiveHourPercent: toPercent(fiveHourPercent),
+      fiveHourReset: toDate(sample?.fiveHourReset)?.toISOString() || null,
+      weeklyPercent: toPercent(weeklyPercent),
+      weeklyReset: weeklyReset.toISOString()
+    })
+  }
+
+  return [...byCapturedAt.values()]
+    .sort((a, b) => new Date(a.capturedAt).getTime() - new Date(b.capturedAt).getTime())
+    .slice(-500)
+}
+
 function formatRate(value, unit) {
   if (!Number.isFinite(value)) return `--/${unit}`
   return `${value.toFixed(1)}%/${unit}`
@@ -40,7 +73,7 @@ function formatZeroIn(days) {
   return d > 0 ? `${d}d ${h}h` : `${h}h`
 }
 
-function enrichPayload(raw = {}) {
+function enrichPayload(raw = {}, history = null) {
   const now = Date.now()
 
   const fiveHourPercent = toPercent(raw.fiveHourPercent)
@@ -109,19 +142,21 @@ function enrichPayload(raw = {}) {
     zeroIn: formatZeroIn(zeroInDays),
     history: {
       cycleStart: raw.history?.cycleStart || (cycleStart ? cycleStart.toISOString() : null)
-    }
+    },
+    historySamples: normalizeHistory(history)
   }
 }
 
 const REMOTE_USAGE_URL = "https://raw.githubusercontent.com/leosaquetto/codex-usage/main/codex_usage.json"
+const REMOTE_HISTORY_URL = "https://raw.githubusercontent.com/leosaquetto/codex-usage/main/codex_usage_history.json"
 const REMOTE_TIMEOUT_MS = 7000
 
-async function fetchRemotePayload() {
+async function fetchRemoteJson(url, required = true) {
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), REMOTE_TIMEOUT_MS)
 
   try {
-    const response = await fetch(`${REMOTE_USAGE_URL}?t=${Date.now()}`, {
+    const response = await fetch(`${url}?t=${Date.now()}`, {
       signal: controller.signal,
       headers: {
         Accept: "application/json"
@@ -129,6 +164,7 @@ async function fetchRemotePayload() {
     })
 
     if (!response.ok) {
+      if (!required) return null
       throw new Error(`HTTP ${response.status}`)
     }
 
@@ -149,8 +185,9 @@ module.exports = async (req, res) => {
   res.setHeader("Cache-Control", "no-store")
 
   try {
-    const remotePayload = await fetchRemotePayload()
-    return res.status(200).json(enrichPayload(remotePayload))
+    const remotePayload = await fetchRemoteJson(REMOTE_USAGE_URL)
+    const remoteHistory = await fetchRemoteJson(REMOTE_HISTORY_URL, false)
+    return res.status(200).json(enrichPayload(remotePayload, remoteHistory))
   } catch (remoteError) {
     try {
       const envPayload = parsePayloadFromEnv()

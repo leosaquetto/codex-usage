@@ -5,22 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#f5f7fb" />
 
-    <!-- PWA -->
     <link rel="manifest" href="/manifest.json" />
-
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
-    <!-- iOS full screen -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-
-    <!-- SPLASH iOS -->
     <link rel="apple-touch-startup-image" href="/assets/splash.svg" />
-
-    <!-- ICONS -->
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/logo_background.png" />
     <link rel="icon" sizes="192x192" href="/assets/logo_background.png" />
     <link rel="icon" sizes="512x512" href="/assets/logo_background.png" />
@@ -30,234 +22,171 @@
       :root {
         --primary: #3b82f6;
         --bg-base: #f5f7fb;
-        --bg-surface: #ffffff;
         --text-primary: #101828;
       }
 
-      html, body {
+      html,
+      body {
         width: 100%;
         min-height: 100%;
         margin: 0;
         padding: 0;
         background-color: var(--bg-base);
         color: var(--text-primary);
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
       }
     </style>
-    <link rel="stylesheet" href="./style.css?v=refatoracao_final_12" />
+    <link rel="stylesheet" href="./style.css?v=compact_refactor_4" />
   </head>
 
   <body>
-    <div class="background-decorator"></div>
-    
-    <main class="container" aria-live="polite">
-      <!-- Header -->
-      <header class="header">
-        <div class="header-content">
-          <div class="brand">
-            <img src="/assets/codex-color.png" alt="Codex Analytics" class="brand-logo" />
-            <div class="brand-text">
-              <h1>Codex Analytics</h1>
-              <p class="brand-subtitle">Monitoramento em Tempo Real</p>
-            </div>
-          </div>
-
-          <div class="header-actions">
-            <input id="themeColorInput" type="color" value="#3b82f6" aria-label="Selecionar cor do tema" style="position: absolute; opacity: 0; width: 0; height: 0;" />
-            <button type="button" id="notificationButton" class="icon-button" title="Ativar notificações" aria-label="Notificações" aria-pressed="false">
-              <svg id="notificationIcon" class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 3a4 4 0 0 0-4 4v1.2c0 .8-.27 1.57-.76 2.2L5.4 12.8A2 2 0 0 0 7 16h10a2 2 0 0 0 1.6-3.2l-1.84-2.4a3.6 3.6 0 0 1-.76-2.2V7a4 4 0 0 0-4-4Zm0 18a3 3 0 0 0 2.82-2H9.18A3 3 0 0 0 12 21Z" fill="currentColor"/>
-              </svg>
-            </button>
-            <button type="button" id="refreshButton" class="icon-button" title="Recarregar página" aria-label="Recarregar">
-              <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M20 12a8 8 0 1 1-2.34-5.66" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                <path d="M20 4v6h-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
+    <main class="app-shell" aria-live="polite">
+      <header class="topbar">
+        <div class="brand">
+          <img src="/assets/codex-color.png" alt="Codex Analytics" class="brand-logo" />
+          <div class="brand-copy">
+            <h1>Codex Analytics</h1>
+            <p>Uso em tempo real</p>
           </div>
         </div>
 
-        <!-- Status Bar -->
-        <div class="status-bar">
-          <div class="status-indicator">
-            <span id="statusDot" class="status-dot"></span>
-            <span id="statusText" class="status-message">Carregando...</span>
-          </div>
-          <div class="status-timestamp">
-            <span class="timestamp-label">Atualizado</span>
-            <span id="updatedAtText" class="timestamp-value">—</span>
-          </div>
+        <div class="header-actions">
+          <input id="themeColorInput" type="color" value="#3b82f6" aria-label="Selecionar cor do tema" />
+          <button type="button" id="notificationButton" class="icon-button" title="Ativar notificações" aria-label="Notificações" aria-pressed="false">
+            <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3a4 4 0 0 0-4 4v1.2c0 .8-.27 1.57-.76 2.2L5.4 12.8A2 2 0 0 0 7 16h10a2 2 0 0 0 1.6-3.2l-1.84-2.4a3.6 3.6 0 0 1-.76-2.2V7a4 4 0 0 0-4-4Zm0 18a3 3 0 0 0 2.82-2H9.18A3 3 0 0 0 12 21Z" fill="currentColor" />
+            </svg>
+          </button>
+          <button type="button" id="refreshButton" class="icon-button" title="Recarregar página" aria-label="Recarregar">
+            <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20 12a8 8 0 1 1-2.34-5.66" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              <path d="M20 4v6h-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
         </div>
       </header>
 
-      <!-- Main Content -->
-      <section class="content">
-        <!-- Limits Grid -->
-        <div class="limits-grid">
-          <!-- 5-Hour Limit Card -->
-          <article class="limit-card" data-limit="fiveHour" data-title="5 HORAS">
-            <div class="limit-topline">
-              <div class="limit-heading">
-                <img src="/assets/codex-color.png" alt="Codex" class="card-logo" />
-                <div>
-              <p class="card-kicker">Limite de uso</p>
-              <h2 class="card-title">5 horas</h2>
-                </div>
-              </div>
-              <div class="card-badge">5h</div>
-            </div>
-
-            <div class="limit-main">
-              <div class="limit-value">
-                <span id="fiveHourPercent" class="value-number">—</span>
-                <span class="value-unit">%</span>
-              </div>
-              <p class="value-label">restantes</p>
-            </div>
-
-            <div class="progress-bar">
-              <div id="fiveHourBar" class="progress-fill"></div>
-            </div>
-
-            <div class="metric-strip metric-strip-four">
-              <div class="metric-item">
-                <span class="metric-label metric-label-with-icon">
-                  <svg viewBox="0 0 24 24" class="metric-icon-inline" aria-hidden="true"><path d="M4 19h16M7 16V8m5 8V5m5 11v-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                  <span>Usado</span>
-                </span>
-                <span id="fiveHourUsed" class="metric-value">—%</span>
-              </div>
-              <div class="metric-item">
-                <span class="metric-label metric-label-with-icon">
-                  <svg viewBox="0 0 24 24" class="metric-icon-inline" aria-hidden="true"><path d="M3 12h4l3-7 4 14 3-7h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <span>Média</span>
-                </span>
-                <span id="fiveHourAverage" class="metric-value">—/h</span>
-              </div>
-              <div class="metric-item">
-                <span class="metric-label metric-label-with-icon">
-                  <svg viewBox="0 0 24 24" class="metric-icon-inline" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                  <span>Esgota em</span>
-                </span>
-                <span id="fiveHourZeroAt" class="metric-value">—</span>
-              </div>
-              <div class="metric-item">
-                <span class="metric-label metric-label-with-icon">
-                  <svg viewBox="0 0 24 24" class="metric-icon-inline" aria-hidden="true"><path d="M5 14a7 7 0 1 1 14 0" fill="none" stroke="currentColor" stroke-width="2"/><path d="m12 14 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                  <span>Ritmo</span>
-                </span>
-                <span id="fiveHourSafeRate" class="metric-value">—/h</span>
-              </div>
-            </div>
-
-            <div id="fiveHourLine" class="card-info">—</div>
-          </article>
-
-          <!-- Weekly Limit Card -->
-          <article class="limit-card" data-limit="weekly" data-title="SEMANAL">
-            <div class="limit-topline">
-              <div class="limit-heading">
-                <img src="/assets/codex-color.png" alt="Codex" class="card-logo" />
-                <div>
-              <p class="card-kicker">Limite de uso</p>
-              <h2 class="card-title">Semanal</h2>
-                </div>
-              </div>
-              <div class="card-badge">7d</div>
-            </div>
-
-            <div class="limit-main">
-              <div class="limit-value">
-                <span id="weeklyPercent" class="value-number">—</span>
-                <span class="value-unit">%</span>
-              </div>
-              <p class="value-label">restantes</p>
-            </div>
-
-            <div class="progress-bar">
-              <div id="weeklyBar" class="progress-fill"></div>
-            </div>
-
-            <div class="metric-strip metric-strip-three">
-              <div class="metric-item">
-                <span class="metric-label metric-label-with-icon">
-                  <svg viewBox="0 0 24 24" class="metric-icon-inline" aria-hidden="true"><path d="M4 19h16M7 16V8m5 8V5m5 11v-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                  <span>Usado</span>
-                </span>
-                <span id="weeklyUsed" class="metric-value">—%</span>
-              </div>
-              <div class="metric-item">
-                <span class="metric-label metric-label-with-icon">
-                  <svg viewBox="0 0 24 24" class="metric-icon-inline" aria-hidden="true"><path d="M3 12h4l3-7 4 14 3-7h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <span>Média</span>
-                </span>
-                <span id="weeklyAverage" class="metric-value">—</span>
-              </div>
-              <div class="metric-item">
-                <span class="metric-label metric-label-with-icon">
-                  <svg viewBox="0 0 24 24" class="metric-icon-inline" aria-hidden="true"><path d="m12 3 7 4v10l-7 4-7-4V7l7-4Z" fill="none" stroke="currentColor" stroke-width="2"/><path d="m9.5 12 1.7 1.7 3.3-3.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <span>Ideal</span>
-                </span>
-                <span id="weeklySafeRate" class="metric-value">—</span>
-              </div>
-              <div class="metric-item">
-                <span class="metric-label metric-label-with-icon">
-                  <svg viewBox="0 0 24 24" class="metric-icon-inline" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                  <span>Esgota em</span>
-                </span>
-                <span id="weeklyZeroAt" class="metric-value">—</span>
-              </div>
-              <div class="metric-item">
-                <span class="metric-label metric-label-with-icon">
-                  <svg viewBox="0 0 24 24" class="metric-icon-inline" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 3v4M16 3v4M4 10h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                  <span>Redefine em</span>
-                </span>
-                <span id="weeklyRemainingDays" class="metric-value">—</span>
-              </div>
-              <div class="metric-item">
-                <span class="metric-label metric-label-with-icon">
-                  <svg viewBox="0 0 24 24" class="metric-icon-inline" aria-hidden="true"><path d="M4 12h16M12 4l8 8-8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <span>Saldo</span>
-                </span>
-                <span id="weeklyProjection" class="metric-value">—</span>
-              </div>
-              <div class="metric-item">
-                <span class="metric-label metric-label-with-icon">
-                  <svg viewBox="0 0 24 24" class="metric-icon-inline" aria-hidden="true"><path d="M5 14a7 7 0 1 1 14 0" fill="none" stroke="currentColor" stroke-width="2"/><path d="m12 14 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                  <span>Faixa</span>
-                </span>
-                <span id="usageTrend" class="metric-value">—</span>
-              </div>
-              <div class="metric-item metric-item-wide">
-                <span class="metric-label metric-label-with-icon">
-                  <svg viewBox="0 0 24 24" class="metric-icon-inline" aria-hidden="true"><path d="M9 18h6M10 22h4M8 14c-1.3-1-2-2.5-2-4a6 6 0 1 1 12 0c0 1.5-.7 3-2 4l-1 2h-6l-1-2Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <span>Sugestão agora</span>
-                </span>
-                <span id="usageAdvice" class="metric-value metric-value-wrap">—</span>
-              </div>
-            </div>
-
-            <div id="weeklyLine" class="card-info">—</div>
-          </article>
+      <section class="status-panel" aria-label="Status geral">
+        <div class="status-copy">
+          <span id="statusDot" class="status-dot"></span>
+          <div>
+            <p id="statusText" class="status-title">Carregando...</p>
+            <p id="statusMeta" class="status-meta">Aguardando dados.</p>
+          </div>
         </div>
+        <div class="status-updated">
+          <span>Atualizado</span>
+          <strong id="updatedAtText">--</strong>
+        </div>
+      </section>
+
+      <section class="limits-grid" aria-label="Limites do Codex">
+        <article class="limit-card" data-limit="fiveHour">
+          <div class="limit-card-top">
+            <div>
+              <p class="card-kicker">5 horas</p>
+              <h2>Agora</h2>
+            </div>
+            <span id="fiveHourQuestion" class="state-pill">--</span>
+          </div>
+          <div class="compact-readout">
+            <span id="fiveHourPercent" class="percent-number">--</span>
+            <span class="percent-unit">%</span>
+          </div>
+          <p class="percent-label">restantes</p>
+          <div class="progress-track" role="progressbar" aria-label="Uso restante na janela de 5 horas" aria-valuemin="0" aria-valuemax="100">
+            <div id="fiveHourBar" class="progress-fill"></div>
+          </div>
+          <div class="mini-metrics">
+            <div>
+              <span>Zera</span>
+              <strong id="fiveHourZeroAt">--</strong>
+            </div>
+            <div>
+              <span>Média</span>
+              <strong id="fiveHourAverage">--/h</strong>
+            </div>
+          </div>
+        </article>
+
+        <article class="limit-card" data-limit="weekly">
+          <div class="limit-card-top">
+            <div>
+              <p class="card-kicker">Semanal</p>
+              <h2>Semana</h2>
+            </div>
+            <span id="weeklyBand" class="state-pill">--</span>
+          </div>
+          <div class="compact-readout">
+            <span id="weeklyPercent" class="percent-number">--</span>
+            <span class="percent-unit">%</span>
+          </div>
+          <p class="percent-label">restantes</p>
+          <div class="progress-track" role="progressbar" aria-label="Uso restante no limite semanal" aria-valuemin="0" aria-valuemax="100">
+            <div id="weeklyBar" class="progress-fill"></div>
+          </div>
+          <div class="mini-metrics">
+            <div>
+              <span>Saldo</span>
+              <strong id="weeklyProjection">--</strong>
+            </div>
+            <div>
+              <span>Zera</span>
+              <strong id="weeklyZeroAt">--</strong>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="suggestion-card" aria-label="Sugestão de uso">
+        <div>
+          <p class="section-kicker">Sugestão agora</p>
+          <h2 id="usageSuggestion">Aguardando dados</h2>
+          <p id="usageSuggestionMeta">A tela calcula ritmo e saldo assim que carregar.</p>
+        </div>
+      </section>
+
+      <section class="indicator-grid" aria-label="Indicadores principais">
+        <article class="indicator-card">
+          <span>Ritmo 5h</span>
+          <strong id="fiveHourRhythm">--/h</strong>
+          <small id="fiveHourUsePlan">--</small>
+        </article>
+        <article class="indicator-card">
+          <span>Ideal semanal</span>
+          <strong id="weeklyIdeal">--</strong>
+          <small id="weeklyUsePlan">--</small>
+        </article>
+        <article class="indicator-card">
+          <span>Renova 5h</span>
+          <strong id="fiveHourRenewal">--</strong>
+          <small id="fiveHourUsed">--</small>
+        </article>
+        <article class="indicator-card">
+          <span>Renova semana</span>
+          <strong id="weeklyRemainingDays">--</strong>
+          <small id="weeklyUsed">--</small>
+        </article>
+      </section>
+
+      <section class="charts-grid" aria-label="Gráficos de uso">
+        <article class="chart-card">
+          <div>
+            <p class="section-kicker">Histórico 5h</p>
+            <h2>Saldo por captura</h2>
+          </div>
+          <svg id="fiveHourSparkline" class="sparkline" viewBox="0 0 320 96" role="img" aria-label="Linha do saldo restante da janela de 5 horas"></svg>
+        </article>
+        <article class="chart-card">
+          <div>
+            <p class="section-kicker">Histórico semanal</p>
+            <h2>Saldo semanal</h2>
+          </div>
+          <svg id="weeklySparkline" class="sparkline" viewBox="0 0 320 96" role="img" aria-label="Linha do saldo restante semanal"></svg>
+        </article>
       </section>
     </main>
 
-    <script src="./app.js?v=refatoracao_final_12" defer></script>
-    <script>
-      // Service Worker Registration
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then((registration) => {
-              console.log('✅ Service Worker registrado:', registration.scope);
-            })
-            .catch((error) => {
-              console.warn('⚠️ Falha ao registrar Service Worker:', error);
-            });
-        });
-      }
-    </script>
+    <script src="./app.js?v=compact_refactor_4" defer></script>
   </body>
 </html>

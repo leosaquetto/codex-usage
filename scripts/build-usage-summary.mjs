@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { normalizeHistory } from "./codex-usage-history.mjs";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 const codexPath = resolve(root, "codex_usage.json");
+const codexHistoryPath = resolve(root, "codex_usage_history.json");
 const antigravityPath = resolve(root, "antigravity_usage.json");
 const summaryPath = resolve(root, "usage_summary.json");
 
@@ -68,9 +70,16 @@ const antigravity = await readJson(antigravityPath, {
   models: [],
 });
 
+const codexHistory = normalizeHistory(await readJson(codexHistoryPath, {
+  version: 1,
+  lastUpdated: null,
+  samples: [],
+}));
+
 const summary = {
-  lastUpdated: latestIso(codex.lastUpdated, antigravity.lastUpdated),
+  lastUpdated: latestIso(codex.lastUpdated, codexHistory.lastUpdated, antigravity.lastUpdated),
   codex,
+  codexHistory,
   antigravity,
 };
 

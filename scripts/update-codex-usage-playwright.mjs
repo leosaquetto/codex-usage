@@ -9,6 +9,7 @@ import {
   parseCodexAnalyticsText,
   validateNextData,
 } from "./update-codex-usage-from-chrome.mjs";
+import { appendCodexUsageSample } from "./codex-usage-history.mjs";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 const analyticsUrl = "https://chatgpt.com/codex/cloud/settings/analytics";
@@ -18,6 +19,7 @@ const cdpProfileDir = "/Users/leosaquetto/Developer/BrowserProfiles/codex-cdp-pr
 const defaultCdpUrl = "http://127.0.0.1:9222";
 
 const codexUsagePath = resolve(root, "codex_usage.json");
+const historyPath = resolve(root, "codex_usage_history.json");
 const summaryPath = resolve(root, "usage_summary.json");
 
 const args = parseArgs(process.argv.slice(2));
@@ -995,7 +997,7 @@ async function validateGeneratedSummary() {
 }
 
 function changedUsageFiles() {
-  const status = spawnSync("git", ["status", "--porcelain", "--", "codex_usage.json", "usage_summary.json"], {
+  const status = spawnSync("git", ["status", "--porcelain", "--", "codex_usage.json", "codex_usage_history.json", "usage_summary.json"], {
     cwd: root,
     encoding: "utf8",
   });
@@ -1014,7 +1016,7 @@ function maybeCommit() {
   if (args.has("no-commit")) return false;
   if (!args.has("commit")) return false;
 
-  const add = spawnSync("git", ["add", "codex_usage.json", "usage_summary.json"], {
+  const add = spawnSync("git", ["add", "codex_usage.json", "codex_usage_history.json", "usage_summary.json"], {
     cwd: root,
     stdio: "inherit",
   });
@@ -1062,6 +1064,15 @@ function maybePush(committed) {
 async function writeArtifacts(payload) {
   const codexJson = `${JSON.stringify(payload, null, 2)}\n`;
   await writeFile(codexUsagePath, codexJson);
+
+  const currentHistory = await readJsonFile(historyPath, "codex_usage_history.json").catch(() => ({
+    version: 1,
+    lastUpdated: null,
+    samples: [],
+  }));
+  const history = appendCodexUsageSample(currentHistory, payload);
+  await writeFile(historyPath, `${JSON.stringify(history, null, 2)}\n`);
+
   runSummaryBuilder();
   await syncWebappArtifacts();
   return validateGeneratedSummary();

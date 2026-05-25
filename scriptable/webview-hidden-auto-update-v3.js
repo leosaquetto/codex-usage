@@ -15,7 +15,9 @@ const GITHUB_OWNER = "leosaquetto"
 const GITHUB_REPO = "codex-usage"
 const GITHUB_BRANCH = "main"
 const GITHUB_FILE_PATH = "codex_usage.json"
+const GITHUB_HISTORY_FILE_PATH = "codex_usage_history.json"
 const GITHUB_SUMMARY_FILE_PATH = "usage_summary.json"
+const REMOTE_CODEX_HISTORY_URL = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${GITHUB_HISTORY_FILE_PATH}`
 const REMOTE_ANTIGRAVITY_USAGE_URL = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/antigravity_usage.json`
 const GITHUB_TOKEN_KEYCHAIN_KEY = "codex_usage_github_token"
 
@@ -32,6 +34,74 @@ function validDateFromISO(value) {
   if (!value) return null
   const d = new Date(value)
   return Number.isFinite(d.getTime()) ? d : null
+}
+
+function normalizeHistorySample(raw) {
+  const capturedAtDate = validDateFromISO(raw && (raw.capturedAt || raw.lastUpdated))
+  const weeklyResetDate = validDateFromISO(raw && raw.weeklyReset)
+  const fiveHourPercent = clampPercent(raw && raw.fiveHourPercent, null)
+  const weeklyPercent = clampPercent(raw && raw.weeklyPercent, null)
+
+  if (!capturedAtDate || !weeklyResetDate || fiveHourPercent === null || weeklyPercent === null) {
+    return null
+  }
+
+  const fiveHourResetDate = validDateFromISO(raw && raw.fiveHourReset)
+  return {
+    capturedAt: capturedAtDate.toISOString(),
+    fiveHourPercent,
+    fiveHourReset: fiveHourResetDate ? fiveHourResetDate.toISOString() : null,
+    weeklyPercent,
+    weeklyReset: weeklyResetDate.toISOString()
+  }
+}
+
+function normalizeHistory(raw) {
+  const samples = Array.isArray(raw && raw.samples)
+    ? raw.samples.map(normalizeHistorySample).filter(Boolean)
+    : []
+  const byCapturedAt = {}
+
+  for (const sample of samples) {
+    byCapturedAt[sample.capturedAt] = sample
+  }
+
+  const sorted = Object.values(byCapturedAt).sort((a, b) => {
+    return new Date(a.capturedAt).getTime() - new Date(b.capturedAt).getTime()
+  })
+
+  return {
+    version: 1,
+    lastUpdated: sorted.length ? sorted[sorted.length - 1].capturedAt : null,
+    samples: sorted
+  }
+}
+
+function appendCodexUsageSample(history, payload) {
+  const normalized = normalizeHistory(history)
+  const sample = normalizeHistorySample({
+    capturedAt: payload.lastUpdated,
+    fiveHourPercent: payload.fiveHourPercent,
+    fiveHourReset: payload.fiveHourReset,
+    weeklyPercent: payload.weeklyPercent,
+    weeklyReset: payload.weeklyReset
+  })
+
+  if (!sample) throw new Error("Histórico inválido: payload Codex não gerou uma amostra válida.")
+
+  const byCapturedAt = {}
+  for (const current of normalized.samples) byCapturedAt[current.capturedAt] = current
+  byCapturedAt[sample.capturedAt] = sample
+
+  const samples = Object.values(byCapturedAt)
+    .sort((a, b) => new Date(a.capturedAt).getTime() - new Date(b.capturedAt).getTime())
+    .slice(-2000)
+
+  return {
+    version: 1,
+    lastUpdated: samples.length ? samples[samples.length - 1].capturedAt : sample.capturedAt,
+    samples
+  }
 }
 
 function emptyCurrentData() {
@@ -576,6 +646,12 @@ function validateUsageSummary(summary, codex) {
 }
 
 async function buildUsageSummary(codex) {
+  const remoteHistory = await fetchRemoteJson(REMOTE_CODEX_HISTORY_URL, {
+    version: 1,
+    lastUpdated: null,
+    samples: []
+  })
+  const codexHistory = appendCodexUsageSample(remoteHistory, codex)
   const antigravity = await fetchRemoteJson(REMOTE_ANTIGRAVITY_USAGE_URL, {
     source: "desktop-automation",
     lastUpdated: null,
@@ -583,8 +659,9 @@ async function buildUsageSummary(codex) {
   })
 
   return {
-    lastUpdated: latestIso(codex.lastUpdated, antigravity.lastUpdated),
+    lastUpdated: latestIso(codex.lastUpdated, codexHistory.lastUpdated, antigravity.lastUpdated),
     codex,
+    codexHistory,
     antigravity
   }
 }
@@ -600,11 +677,14 @@ async function main() {
   fm.writeString(filePath, nextJson)
 
   const summary = await buildUsageSummary(next)
+  const historyJson = JSON.stringify(summary.codexHistory, null, 2)
+  JSON.parse(historyJson)
   const summaryJson = JSON.stringify(summary, null, 2)
   JSON.parse(summaryJson)
   validateUsageSummary(summary, next)
   const repoUpdate = await publishRepoJsonFilesAtomic([
     { path: GITHUB_FILE_PATH, content: nextJson + "\n" },
+    { path: GITHUB_HISTORY_FILE_PATH, content: historyJson + "\n" },
     { path: GITHUB_SUMMARY_FILE_PATH, content: summaryJson + "\n" }
   ])
 

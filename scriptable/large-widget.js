@@ -3,6 +3,7 @@
 // ------------------------------------------------------
 
 const SUMMARY_URL = "https://raw.githubusercontent.com/leosaquetto/codex-usage/main/usage_summary.json"
+const CODEX_USAGE_URL = "https://raw.githubusercontent.com/leosaquetto/codex-usage/main/codex_usage.json"
 const CACHE_FILE = "codex-antigravity-usage-summary.json"
 const REFRESH_MINUTES = 20
 
@@ -22,7 +23,7 @@ const cachePath = fm.joinPath(fm.documentsDirectory(), CACHE_FILE)
 function emptySummary() {
   return {
     lastUpdated: null,
-    codex: { fiveHourPercent: null, fiveHourReset: null, weeklyPercent: null, weeklyReset: null },
+    codex: { fiveHourPercent: null, fiveHourReset: null, weeklyPercent: null, weeklyReset: null, lastUpdated: null },
     antigravity: { lastUpdated: null, models: [] }
   }
 }
@@ -53,6 +54,7 @@ function normalizeSummary(raw) {
       fiveHourReset: validDate(codex.fiveHourReset)?.toISOString() || null,
       weeklyPercent: clampPercent(codex.weeklyPercent),
       weeklyReset: validDate(codex.weeklyReset)?.toISOString() || null,
+      lastUpdated: validDate(codex.lastUpdated)?.toISOString() || null,
     },
     antigravity: {
       lastUpdated: validDate(ag.lastUpdated)?.toISOString() || null,
@@ -67,14 +69,69 @@ function normalizeSummary(raw) {
   }
 }
 
-async function fetchSummary() {
-  const req = new Request(`${SUMMARY_URL}?t=${Date.now()}`)
+function normalizeCodexUsage(raw) {
+  const source = raw && typeof raw === "object" ? raw : {}
+  return {
+    fiveHourPercent: clampPercent(source.fiveHourPercent),
+    fiveHourReset: validDate(source.fiveHourReset)?.toISOString() || null,
+    weeklyPercent: clampPercent(source.weeklyPercent),
+    weeklyReset: validDate(source.weeklyReset)?.toISOString() || null,
+    lastUpdated: validDate(source.lastUpdated)?.toISOString() || null
+  }
+}
+
+function latestIso(...values) {
+  const times = values
+    .map(value => validDate(value)?.getTime() || null)
+    .filter(value => value !== null)
+
+  if (times.length === 0) return null
+  return new Date(Math.max(...times)).toISOString()
+}
+
+function cacheBusted(url) {
+  return `${url}?t=${Date.now()}`
+}
+
+async function fetchJson(url) {
+  const req = new Request(cacheBusted(url))
   req.timeoutInterval = 8
+  req.headers = {
+    Accept: "application/json",
+    "Cache-Control": "no-cache"
+  }
   const raw = await req.loadString()
   const statusCode = req.response?.statusCode || 0
   if (statusCode < 200 || statusCode >= 300) throw new Error(`HTTP ${statusCode}`)
+  return JSON.parse(raw)
+}
 
-  const payload = normalizeSummary(JSON.parse(raw))
+function mergeFreshCodex(summaryPayload, codexPayload) {
+  const summaryCodexTime = validDate(summaryPayload.codex.lastUpdated)?.getTime() || 0
+  const codexTime = validDate(codexPayload.lastUpdated)?.getTime() || 0
+
+  if (codexTime > summaryCodexTime || codexPayload.lastUpdated !== summaryPayload.codex.lastUpdated) {
+    summaryPayload.codex = codexPayload
+    summaryPayload.lastUpdated = latestIso(
+      summaryPayload.lastUpdated,
+      codexPayload.lastUpdated,
+      summaryPayload.antigravity.lastUpdated
+    )
+  }
+
+  return summaryPayload
+}
+
+async function fetchSummary() {
+  const summaryPayload = normalizeSummary(await fetchJson(SUMMARY_URL))
+  let payload = summaryPayload
+
+  try {
+    payload = mergeFreshCodex(summaryPayload, normalizeCodexUsage(await fetchJson(CODEX_USAGE_URL)))
+  } catch {
+    // Se codex_usage.json falhar, o resumo continua sendo a fonte principal do widget.
+  }
+
   fm.writeString(cachePath, JSON.stringify(payload))
   return { payload }
 }

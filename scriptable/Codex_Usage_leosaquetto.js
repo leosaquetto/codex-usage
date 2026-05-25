@@ -3,9 +3,15 @@
 // Somente leitura/renderização.
 // Fonte única: codex_usage.json público no GitHub.
 
+const GITHUB_OWNER = "leosaquetto"
+const GITHUB_REPO = "codex-usage"
+const GITHUB_BRANCH_PRODUCTION = "main"
+const GITHUB_BRANCH_STAGING = "staging"
+const GITHUB_USAGE_PATH = "codex_usage.json"
 const REMOTE_USAGE_URL_PRODUCTION = "https://raw.githubusercontent.com/leosaquetto/codex-usage/main/codex_usage.json"
 const REMOTE_USAGE_URL_STAGING = "https://raw.githubusercontent.com/leosaquetto/codex-usage/staging/codex_usage.json"
 const REMOTE_USAGE_URL = REMOTE_USAGE_URL_PRODUCTION
+const REMOTE_USAGE_BRANCH = GITHUB_BRANCH_PRODUCTION
 
 const LOGO_URL = "https://i.imgur.com/JuMv8GO.png"
 
@@ -85,8 +91,19 @@ function normalizeUsage(raw = {}) {
   }
 }
 
-async function fetchRemoteUsage() {
-  const req = new Request(`${REMOTE_USAGE_URL}?t=${Date.now()}`)
+function cacheBusted(url) {
+  const sep = url.includes("?") ? "&" : "?"
+  return `${url}${sep}t=${Date.now()}`
+}
+
+function decodeBase64Json(content) {
+  const normalized = String(content || "").replace(/\s/g, "")
+  const decoded = Data.fromBase64String(normalized).toRawString()
+  return JSON.parse(decoded)
+}
+
+async function fetchRawJson(url) {
+  const req = new Request(cacheBusted(url))
   req.timeoutInterval = 8
   req.headers = {
     Accept: "application/json",
@@ -107,13 +124,58 @@ async function fetchRemoteUsage() {
     const apiMessage = payload && payload.error ? String(payload.error) : ""
     const bodySnippet = String(rawBody || "").replace(/\s+/g, " ").slice(0, 120)
     const details = apiMessage || bodySnippet || "sem detalhes"
-    throw new Error(`HTTP ${statusCode || "sem status"} em fonte remota: ${details}`)
+    throw new Error(`HTTP ${statusCode || "sem status"} em fonte raw: ${details}`)
   }
 
   if (!payload || typeof payload !== "object") {
-    throw new Error("Resposta remota inválida: corpo não é JSON objeto")
+    throw new Error("Resposta raw inválida: corpo não é JSON objeto")
   }
 
+  return payload
+}
+
+async function fetchGithubContentsJson(path, branch, fallbackRawUrl) {
+  const apiUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}?ref=${encodeURIComponent(branch)}`
+
+  try {
+    const req = new Request(cacheBusted(apiUrl))
+    req.timeoutInterval = 10
+    req.headers = {
+      Accept: "application/vnd.github+json",
+      "Cache-Control": "no-cache",
+      "X-GitHub-Api-Version": "2022-11-28"
+    }
+
+    const rawBody = await req.loadString()
+    const statusCode = Number(req.response?.statusCode || 0)
+
+    let payload = null
+    try {
+      payload = rawBody ? JSON.parse(rawBody) : null
+    } catch {
+      payload = null
+    }
+
+    if (statusCode < 200 || statusCode >= 300) {
+      const apiMessage = payload && payload.message ? String(payload.message) : ""
+      const bodySnippet = String(rawBody || "").replace(/\s+/g, " ").slice(0, 120)
+      const details = apiMessage || bodySnippet || "sem detalhes"
+      throw new Error(`GitHub API HTTP ${statusCode || "sem status"}: ${details}`)
+    }
+
+    if (!payload || typeof payload !== "object" || !payload.content) {
+      throw new Error("GitHub API não retornou content")
+    }
+
+    return decodeBase64Json(payload.content)
+  } catch (error) {
+    if (!fallbackRawUrl) throw error
+    return await fetchRawJson(fallbackRawUrl)
+  }
+}
+
+async function fetchRemoteUsage() {
+  const payload = await fetchGithubContentsJson(GITHUB_USAGE_PATH, REMOTE_USAGE_BRANCH, REMOTE_USAGE_URL)
   const normalized = normalizeUsage(payload)
 
   if (!hasValidPercentPair(normalized)) {

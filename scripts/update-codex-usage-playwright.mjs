@@ -1048,7 +1048,7 @@ function maybePush(committed) {
   if (!args.has("push")) return false;
   if (!committed) return false;
 
-  const push = spawnSync("git", ["push"], {
+  const push = spawnSync("git", ["push", "origin", "HEAD"], {
     cwd: root,
     stdio: "inherit",
   });

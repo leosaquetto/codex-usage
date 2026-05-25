@@ -12,21 +12,17 @@ const ANTIGRAVITY_FALLBACK = {
   models: [],
 };
 
+const FIVE_HOUR_WINDOW_MS = 5 * 60 * 60 * 1000;
 const WEEK_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
 const THEME_KEY = "codex-theme";
 const THEME_COLOR_KEY = "codex-theme-color";
 const LAST_VALID_USAGE_KEY = "codex-last-valid-usage-payload";
-const RAW_DATA_BASE_URL = "https://raw.githubusercontent.com/leosaquetto/codex-usage/main";
 const DEFAULT_THEME_COLOR = "#3b82f6";
 let viewportRafId = null;
 let activeUsageController = null;
 let lastUsageSignature = "";
 let lastSuspendedAt = 0;
-
-function rawDataUrl(fileName) {
-  return `${RAW_DATA_BASE_URL}/${fileName}?t=${Date.now()}`;
-}
 
 // Funções de validação de contraste WCAG
 function hexToRgb(hex) {
@@ -108,8 +104,7 @@ function applyTheme(theme) {
 }
 
 function initTheme() {
-  const saved = localStorage.getItem(THEME_KEY);
-  applyTheme(saved === "light" ? "light" : "dark");
+  applyTheme("light");
 }
 
 initTheme();
@@ -213,6 +208,12 @@ function formatPercent(value) {
   return `${value.toFixed(1)}%`;
 }
 
+function formatProjectedBalance(value) {
+  if (!Number.isFinite(value)) return "--";
+  if (value >= 0) return `sobra ${value.toFixed(1)}%`;
+  return `falta ${Math.abs(value).toFixed(1)}%`;
+}
+
 function formatDifference(value) {
   if (!Number.isFinite(value)) return "--/d";
   const sign = value > 0 ? "+" : "";
@@ -233,6 +234,18 @@ function formatZeroIn(days) {
   return `${h}h`;
 }
 
+function formatZeroInHours(hours) {
+  if (!Number.isFinite(hours) || hours <= 0) return "agora";
+  const totalMinutes = Math.floor(hours * 60);
+  const days = Math.floor(totalMinutes / 1440);
+  const remMinutes = totalMinutes % 1440;
+  const remHours = Math.floor(remMinutes / 60);
+  const minutes = remMinutes % 60;
+  if (days > 0) return `${days}d ${remHours}h`;
+  if (remHours > 0) return `${remHours}h ${minutes}min`;
+  return `${minutes}min`;
+}
+
 function normalizeUsage(raw) {
   const json = raw && typeof raw === "object" ? raw : {};
 
@@ -243,69 +256,15 @@ function normalizeUsage(raw) {
     weeklyPercent: clampPercent(json.weeklyPercent, SAFE_FALLBACK.weeklyPercent),
     weeklyResetDate: parseDate(json.weeklyReset),
     lastUpdatedDate: parseDate(json.lastUpdated),
+    statusLabel: typeof json.statusLabel === "string" ? json.statusLabel : "",
+    fiveHourSafeRate: typeof json.fiveHourSafeRate === "string" ? json.fiveHourSafeRate : "--/h",
+    weeklyRemaining: typeof json.weeklyRemaining === "string" ? json.weeklyRemaining : "--",
+    realDailyRate: typeof json.realDailyRate === "string" ? json.realDailyRate : "--/d",
+    safeDailyRate: typeof json.safeDailyRate === "string" ? json.safeDailyRate : "--/d",
+    dailyDiff: typeof json.dailyDiff === "string" ? json.dailyDiff : "--/d",
+    weeklyProjection: typeof json.weeklyProjection === "string" ? json.weeklyProjection : "--%",
+    zeroIn: typeof json.zeroIn === "string" ? json.zeroIn : "--",
   };
-}
-
-function normalizeAntigravity(raw) {
-  const json = raw && typeof raw === "object" ? raw : {};
-  const models = Array.isArray(json.models) ? json.models : [];
-
-  return {
-    source: typeof json.source === "string" ? json.source : ANTIGRAVITY_FALLBACK.source,
-    lastUpdatedDate: parseDate(json.lastUpdated),
-    models: models
-      .map((model) => {
-        const name = typeof model.name === "string" ? model.name.trim() : "";
-        if (!name) return null;
-
-        const remainingPercent = clampPercent(
-          model.remainingPercent ?? model.percentRemaining ?? model.percent,
-          NaN,
-        );
-        const status = typeof model.status === "string" ? model.status : resolveAntigravityStatus(remainingPercent);
-        const refreshText = typeof model.refreshText === "string" ? model.refreshText : "";
-        const refreshDate = parseDate(model.refreshAt);
-
-        return {
-          id: typeof model.id === "string" ? model.id : slugify(name),
-          name,
-          tier: typeof model.tier === "string" ? model.tier : "",
-          remainingPercent,
-          status,
-          refreshText,
-          refreshDate,
-        };
-      })
-      .filter(Boolean),
-  };
-}
-
-function resolveAntigravityStatus(percent) {
-  if (!Number.isFinite(percent)) return "unknown";
-  if (percent <= 0) return "empty";
-  if (percent < 20) return "low";
-  return "ok";
-}
-
-function slugify(value) {
-  return String(value)
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-async function loadAntigravityUsage() {
-  try {
-    const response = await fetch(rawDataUrl("antigravity_usage.json"), {
-      cache: "no-store",
-    });
-    if (!response.ok) throw new Error("Falha ao carregar Antigravity");
-
-    const json = await response.json();
-    return { antigravity: normalizeAntigravity(json), hasLoadError: false };
-  } catch {
-    return { antigravity: normalizeAntigravity(ANTIGRAVITY_FALLBACK), hasLoadError: true };
-  }
 }
 
 function setProgress(barId, textId, percent) {
@@ -318,7 +277,7 @@ function setProgress(barId, textId, percent) {
     bar.style.width = `${safePercent}%`;
     bar.style.setProperty('--progress-width', `${safePercent}%`);
   }
-  if (text) text.textContent = `${safePercent}%`;
+  if (text) text.textContent = `${safePercent}`;
   if (progress) progress.setAttribute("aria-valuenow", String(safePercent));
 }
 
@@ -335,38 +294,23 @@ function applyStatusState(state, statusText, statusDot) {
 }
 
 function resolveStatus({ hasLoadError, fiveHourRemaining, weeklyRemaining, realDailyRate, safeDailyRate }) {
-  if (hasLoadError) return { text: "erro ao atualizar", state: "error" };
-  if (fiveHourRemaining <= 0 || weeklyRemaining <= 0) return { text: "limite esgotado", state: "danger" };
-  if (realDailyRate > safeDailyRate) return { text: "ritmo alto", state: "danger" };
-  if (fiveHourRemaining < 20 || weeklyRemaining < 20) return { text: "atenção ao consumo", state: "warn" };
-  return { text: "dentro da margem segura", state: "ok" };
+  if (hasLoadError) return { text: "Erro ao atualizar", state: "error" };
+  if (fiveHourRemaining <= 0 || weeklyRemaining <= 0) return { text: "Limite esgotado", state: "danger" };
+  if (realDailyRate > safeDailyRate) return { text: "Ritmo alto", state: "danger" };
+  if (fiveHourRemaining < 20 || weeklyRemaining < 20) return { text: "Atenção ao consumo", state: "warn" };
+  return { text: "Na faixa segura", state: "ok" };
 }
 
 async function loadUsage() {
   if (activeUsageController) activeUsageController.abort();
   activeUsageController = new AbortController();
-  const endpoints = [rawDataUrl("codex_usage.json"), "./api/usage"];
-
   try {
-    let json = null;
-    let lastError = null;
-
-    for (const endpoint of endpoints) {
-      try {
-        const response = await fetch(`${endpoint}?t=${Date.now()}`, {
-          cache: "no-store",
-          signal: activeUsageController.signal,
-        });
-        if (!response.ok) throw new Error(`Falha ao carregar ${endpoint}: HTTP ${response.status}`);
-        json = await response.json();
-        break;
-      } catch (error) {
-        lastError = error;
-        if (error?.name === "AbortError") throw error;
-      }
-    }
-
-    if (!json) throw lastError || new Error("Falha ao carregar dados de uso");
+    const response = await fetch(`./api/usage?t=${Date.now()}`, {
+      cache: "no-store",
+      signal: activeUsageController.signal,
+    });
+    if (!response.ok) throw new Error(`Falha ao carregar /api/usage: HTTP ${response.status}`);
+    const json = await response.json();
 
     return { usage: normalizeUsage(json), hasLoadError: false };
   } catch (error) {
@@ -414,6 +358,139 @@ function saveLastValidPayload(usage) {
 function resetTextFromDate(date) {
   if (!date) return "--";
   return `${formatDateTimePtBr(date)} (${formatRemainingTime(date)})`;
+}
+
+function formatUsagePercent(remainingPercent) {
+  const remaining = clampPercent(remainingPercent, null);
+  if (remaining === null) return "--% de --%";
+  const used = Math.max(0, Math.min(100, Math.round(100 - remaining)));
+  return `${used}% de 100%`;
+}
+
+function usageLevel(remainingPercent) {
+  const remaining = clampPercent(remainingPercent, null);
+  if (remaining === null) return "warn";
+  if (remaining >= 95) return "safe";
+  if (remaining >= 70) return "ok";
+  if (remaining >= 40) return "warn";
+  return "danger";
+}
+
+function usageTone(remainingPercent) {
+  const remaining = clampPercent(remainingPercent, null);
+  if (remaining === null) return { label: "sem dado", state: "warn" };
+  if (remaining <= 10) return { label: "crítico", state: "danger" };
+  if (remaining <= 20) return { label: "muito alto", state: "danger" };
+  if (remaining <= 40) return { label: "alto", state: "warn" };
+  if (remaining <= 70) return { label: "moderado", state: "ok" };
+  return { label: "seguro", state: "safe" };
+}
+
+function usageBand(realDailyRate, safeDailyRate) {
+  if (!Number.isFinite(realDailyRate) || !Number.isFinite(safeDailyRate) || safeDailyRate <= 0) {
+    return { label: "sem dado", state: "warn" };
+  }
+  if (realDailyRate > safeDailyRate * 1.15) return { label: "acima", state: "danger" };
+  if (realDailyRate < safeDailyRate * 0.7) return { label: "abaixo", state: "safe" };
+  return { label: "na faixa", state: "ok" };
+}
+
+function buildUsageAdvice({
+  weeklyRemaining,
+  weeklyDaysRemaining,
+  fiveHourRemaining,
+  realDailyRate,
+  safeDailyRate,
+  safePerWindow,
+  windowsRemaining,
+  projectedRemaining,
+}) {
+  const weekly = clampPercent(weeklyRemaining, null);
+  const fiveHour = clampPercent(fiveHourRemaining, null);
+  if (weekly === null || fiveHour === null) return "aguarde os dados";
+  if (Number.isFinite(realDailyRate) && Number.isFinite(safeDailyRate) && realDailyRate > safeDailyRate * 1.15) {
+    return "desacelere para chegar ate a renovacao";
+  }
+  if (weekly <= 15 || fiveHour <= 15) return "use so o essencial agora";
+  if (Number.isFinite(weeklyDaysRemaining) && weeklyDaysRemaining <= 2 && Number.isFinite(safePerWindow) && Number.isFinite(windowsRemaining) && weekly > 0) {
+    return `use ate ${safePerWindow.toFixed(1)}% por janela nas ${windowsRemaining} janelas restantes`;
+  }
+  if (weekly <= 25 && fiveHour <= 40) return "espere a janela de 5h renovar";
+  if (Number.isFinite(weeklyDaysRemaining) && weeklyDaysRemaining <= 1) {
+    return weekly > 30 ? "gaste em blocos curtos hoje" : "deve sobrar pouco ate o reset";
+  }
+  if (Number.isFinite(weeklyDaysRemaining) && weeklyDaysRemaining <= 2) {
+    return weekly > 45 ? "segure hoje para nao estourar cedo" : "aproveite em ciclos curtos";
+  }
+  if (Number.isFinite(projectedRemaining) && projectedRemaining > 15) {
+    return `ha folga; ${safePerWindow.toFixed(1)}% por janela aproveita melhor o saldo`;
+  }
+  if (weekly > 70) return "pode usar com folga";
+  if (weekly > 40 && fiveHour > 45) return "mantenha o ritmo atual";
+  return "segure o uso para durar ate o fim";
+}
+
+function buildZeroMessage(weeklyRemaining, realDailyRate, weeklyDaysRemaining) {
+  const remaining = clampPercent(weeklyRemaining, null);
+  if (remaining === null || !Number.isFinite(realDailyRate) || realDailyRate <= 0) return "--";
+  const daysToZero = remaining / realDailyRate;
+  if (Number.isFinite(weeklyDaysRemaining) && daysToZero > weeklyDaysRemaining) {
+    return "nao zera antes do reset";
+  }
+  return formatZeroIn(daysToZero);
+}
+
+function buildLiveSummary(usage) {
+  const now = Date.now();
+  const fiveHourRemaining = usage.fiveHourResetIsNull ? 100 : clampPercent(usage.fiveHourPercent, 100);
+  const fiveHourUsed = clampPercent(100 - fiveHourRemaining);
+  const weeklyRemaining = clampPercent(usage.weeklyPercent, 100);
+  const weeklyUsed = clampPercent(100 - weeklyRemaining);
+
+  const fiveHourMs = usage.fiveHourResetDate ? usage.fiveHourResetDate.getTime() - now : NaN;
+  const weeklyMs = usage.weeklyResetDate ? usage.weeklyResetDate.getTime() - now : NaN;
+  const weeklyDaysRemaining = Number.isFinite(weeklyMs) ? Math.max(0, weeklyMs / 86400000) : NaN;
+  const weeklyCycleStart = usage.weeklyResetDate ? new Date(usage.weeklyResetDate.getTime() - WEEK_WINDOW_MS) : null;
+  const elapsedMs = weeklyCycleStart ? Math.max(0, Math.min(WEEK_WINDOW_MS, now - weeklyCycleStart.getTime())) : NaN;
+  const elapsedDays = Number.isFinite(elapsedMs) ? Math.max(1 / 24, elapsedMs / 86400000) : NaN;
+  const fiveHourCycleStart = usage.fiveHourResetDate ? new Date(usage.fiveHourResetDate.getTime() - FIVE_HOUR_WINDOW_MS) : null;
+  const fiveHourElapsedMs = fiveHourCycleStart ? Math.max(0, Math.min(FIVE_HOUR_WINDOW_MS, now - fiveHourCycleStart.getTime())) : NaN;
+  const fiveHourElapsedHours = Number.isFinite(fiveHourElapsedMs) ? Math.max(1 / 60, fiveHourElapsedMs / 3600000) : NaN;
+  const weeklyWindowsElapsed = Number.isFinite(elapsedMs) ? Math.max(1 / 12, elapsedMs / FIVE_HOUR_WINDOW_MS) : NaN;
+  const weeklyWindowsRemaining = Number.isFinite(weeklyMs) ? Math.max(1, Math.ceil(weeklyMs / FIVE_HOUR_WINDOW_MS)) : NaN;
+  const realDailyRate = Number.isFinite(elapsedDays) ? weeklyUsed / elapsedDays : NaN;
+  const safeDailyRate = Number.isFinite(weeklyDaysRemaining) && weeklyDaysRemaining > 0 ? weeklyRemaining / weeklyDaysRemaining : 0;
+  const weeklyRatePerWindow = Number.isFinite(weeklyWindowsElapsed) ? weeklyUsed / weeklyWindowsElapsed : NaN;
+  const safePerWindow = Number.isFinite(weeklyWindowsRemaining) ? weeklyRemaining / weeklyWindowsRemaining : NaN;
+  const projectedRemaining = Number.isFinite(weeklyRatePerWindow) && Number.isFinite(weeklyWindowsRemaining)
+    ? weeklyRemaining - (weeklyRatePerWindow * weeklyWindowsRemaining)
+    : NaN;
+  const zeroInWindows = Number.isFinite(weeklyRatePerWindow) && weeklyRatePerWindow > 0 ? weeklyRemaining / weeklyRatePerWindow : NaN;
+  const zeroInDays = Number.isFinite(zeroInWindows) ? (zeroInWindows * 5) / 24 : NaN;
+  const fiveHourHourlyRate = Number.isFinite(fiveHourElapsedHours) ? fiveHourUsed / fiveHourElapsedHours : NaN;
+  const fiveHourZeroHours = Number.isFinite(fiveHourHourlyRate) && fiveHourHourlyRate > 0 ? fiveHourRemaining / fiveHourHourlyRate : NaN;
+  const usageBandState = usageBand(weeklyRatePerWindow, safePerWindow);
+
+  return {
+    now,
+    fiveHourRemaining,
+    fiveHourUsed,
+    weeklyRemaining,
+    weeklyUsed,
+    fiveHourMs,
+    weeklyMs,
+    weeklyDaysRemaining,
+    weeklyWindowsRemaining,
+    realDailyRate,
+    safeDailyRate,
+    weeklyRatePerWindow,
+    safePerWindow,
+    projectedRemaining,
+    zeroInDays,
+    fiveHourHourlyRate,
+    fiveHourZeroHours,
+    usageBandState,
+  };
 }
 
 /* ===== Haptic Feedback ===== */
@@ -470,53 +547,196 @@ function requestNotificationPermission() {
   }
 }
 
-function getNotificationThreshold(remaining) {
-  if (remaining <= 5) return 5;
-  if (remaining <= 10) return 10;
-  if (remaining <= 20) return 20;
-  return null;
+function getNotificationThresholds(remaining, kind) {
+  const value = clampPercent(remaining, null);
+  if (value === null) return [];
+
+  const thresholds = kind === "fiveHour" ? [50, 20] : [80, 60, 40, 20];
+  return thresholds.filter((threshold) => value <= threshold);
 }
 
-function checkAndNotify(status, fiveHourRemaining, weeklyRemaining) {
-  if (localStorage.getItem('notificationsEnabled') !== 'true') return;
-  if (Notification.permission !== 'granted') return;
+function notificationStateKey() {
+  return "codex-notification-state-v2";
+}
 
-  const threshold = Math.min(
-    getNotificationThreshold(fiveHourRemaining) ?? 100,
-    getNotificationThreshold(weeklyRemaining) ?? 100,
-  );
-
-  if (threshold === 100) return;
-
-  const key = `codex-notified-threshold-${threshold}`;
-  if (localStorage.getItem(key) === 'true') return;
-
+function readNotificationState() {
   try {
-    const notification = new Notification('⚠️ Codex Analytics - Limite Baixo', {
-      body: `Seu limite atingiu ${threshold}% ou menos. Considere reduzir o uso.`,
-      icon: '/assets/logo_background.png',
-      badge: '/assets/codex-color.png',
-      tag: `codex-threshold-${threshold}`,
+    return JSON.parse(localStorage.getItem(notificationStateKey()) || "{}") || {};
+  } catch {
+    return {};
+  }
+}
+
+function writeNotificationState(next) {
+  localStorage.setItem(notificationStateKey(), JSON.stringify(next));
+}
+
+function canNotify() {
+  return localStorage.getItem("notificationsEnabled") === "true" && "Notification" in window && Notification.permission === "granted";
+}
+
+function sendNotification(title, body, tag) {
+  try {
+    const notification = new Notification(title, {
+      body,
+      icon: "/assets/logo_background.png",
+      badge: "/assets/codex-color.png",
+      tag,
       requireInteraction: false,
       silent: false,
       timestamp: Date.now(),
     });
-
-    // Auto-fechar após 10 segundos
     setTimeout(() => notification.close(), 10000);
-
-    localStorage.setItem(key, 'true');
-    console.log(`🔔 Notificação enviada: limite ${threshold}%`);
-  } catch (e) {
-    console.warn('⚠️ Falha ao enviar notificação:', e);
+    return true;
+  } catch (error) {
+    console.warn("⚠️ Falha ao enviar notificação:", error);
+    return false;
   }
 }
 
-// Limpar flags de notificação quando o limite resetar
+function daysUntil(date) {
+  if (!date) return NaN;
+  return Math.ceil((date.getTime() - Date.now()) / 86400000);
+}
+
+function localDateKey(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function currentUsageSnapshot(usage) {
+  return {
+    fiveHourPercent: clampPercent(usage.fiveHourPercent, null),
+    weeklyPercent: clampPercent(usage.weeklyPercent, null),
+    fiveHourReset: usage.fiveHourResetDate?.toISOString() || null,
+    weeklyReset: usage.weeklyResetDate?.toISOString() || null,
+    lastUpdated: usage.lastUpdatedDate?.toISOString() || null,
+  };
+}
+
+function maybeNotifyThresholds(usage, state) {
+  const fiveHour = clampPercent(usage.fiveHourPercent, null);
+  const weekly = clampPercent(usage.weeklyPercent, null);
+  if (fiveHour === null || weekly === null) return;
+
+  for (const threshold of getNotificationThresholds(weekly, "weekly")) {
+    const key = `weekly-threshold-${threshold}`;
+    if (state[key]) continue;
+    if (sendNotification("Codex semanal", `Limite semanal em ${weekly}%.`, key)) state[key] = true;
+  }
+
+  for (const threshold of getNotificationThresholds(fiveHour, "fiveHour")) {
+    const key = `fiveHour-threshold-${threshold}`;
+    if (state[key]) continue;
+    if (sendNotification("Codex 5 horas", `Limite de 5 horas em ${fiveHour}%.`, key)) state[key] = true;
+  }
+}
+
+function maybeNotifyRenewals(usage, state, previous) {
+  const fiveHour = clampPercent(usage.fiveHourPercent, null);
+  const weekly = clampPercent(usage.weeklyPercent, null);
+  const currentFiveReset = usage.fiveHourResetDate?.toISOString() || null;
+  const currentWeeklyReset = usage.weeklyResetDate?.toISOString() || null;
+
+  if (previous.fiveHourReset && currentFiveReset && previous.fiveHourReset !== currentFiveReset && fiveHour !== null && fiveHour < 100) {
+    state.lastFiveReset = currentFiveReset;
+    sendNotification("Codex 5 horas", `Data de renovação alterada para ${formatDateTimePtBr(usage.fiveHourResetDate)}.`, "five-hour-reset-changed");
+  }
+  if (previous.weeklyReset && currentWeeklyReset && previous.weeklyReset !== currentWeeklyReset && weekly !== null && weekly < 100) {
+    state.lastWeeklyReset = currentWeeklyReset;
+    sendNotification("Codex semanal", `Data de renovação alterada para ${formatDateTimePtBr(usage.weeklyResetDate)}.`, "weekly-reset-changed");
+  }
+
+  if (previous.fiveHourPercent !== null && previous.fiveHourPercent < 100 && fiveHour === 100) {
+    sendNotification("Codex 5 horas", "Limite de 5 horas renovado.", "five-hour-renewed");
+    state.lastFiveHourRenewal = Date.now();
+  }
+
+  if (previous.weeklyPercent !== null && previous.weeklyPercent < 100 && weekly === 100) {
+    sendNotification("Codex semanal", "Limite semanal renovado.", "weekly-renewed");
+    state.lastWeeklyRenewal = Date.now();
+  }
+}
+
+function maybeNotifyDailySummary(usage, state) {
+  const now = new Date();
+  if (now.getHours() !== 9) return;
+  const todayKey = localDateKey(now);
+  if (state.dailySummaryDate === todayKey) return;
+
+  const fiveHourDays = daysUntil(usage.fiveHourResetDate);
+  const weeklyDays = daysUntil(usage.weeklyResetDate);
+  const weekly = clampPercent(usage.weeklyPercent, null);
+  const fiveHour = clampPercent(usage.fiveHourPercent, null);
+
+  const lines = [
+    `5h: ${formatUsagePercent(usage.fiveHourPercent)} · renova ${resetTextFromDate(usage.fiveHourResetDate)}`,
+    `Semanal: ${formatUsagePercent(usage.weeklyPercent)} · renova ${resetTextFromDate(usage.weeklyResetDate)}`,
+  ];
+
+  const dayAlerts = [];
+  const weeklyRules = [
+    { days: 0, limit: 15 },
+    { days: 1, limit: 30 },
+    { days: 2, limit: 45 },
+    { days: 3, limit: 60 },
+    { days: 4, limit: 75 },
+    { days: 5, limit: 90 },
+  ];
+
+  for (const rule of weeklyRules) {
+    if (weeklyDays === rule.days && weekly !== null && weekly > rule.limit) {
+      dayAlerts.push(`Semanal perto da renovação: uso em ${weekly}%, limite de alerta ${rule.limit}% com ${rule.days}d.`);
+    }
+  }
+
+  const fiveHourRules = [
+    { days: 0, limit: 15 },
+    { days: 1, limit: 30 },
+    { days: 2, limit: 45 },
+    { days: 3, limit: 60 },
+    { days: 4, limit: 75 },
+    { days: 5, limit: 90 },
+  ];
+  for (const rule of fiveHourRules) {
+    if (fiveHourDays === rule.days && fiveHour !== null && fiveHour > rule.limit) {
+      dayAlerts.push(`5h perto da renovação: uso em ${fiveHour}%, limite de alerta ${rule.limit}% com ${rule.days}d.`);
+    }
+  }
+
+  const body = [...lines, ...dayAlerts].join(" | ");
+  if (sendNotification("Resumo diário Codex", body, `daily-summary-${todayKey}`)) {
+    state.dailySummaryDate = todayKey;
+  }
+}
+
+function syncNotifications(usage) {
+  if (!canNotify()) return;
+
+  const state = readNotificationState();
+  const previous = {
+    fiveHourPercent: clampPercent(state.lastFiveHourPercent, null),
+    weeklyPercent: clampPercent(state.lastWeeklyPercent, null),
+    fiveHourReset: typeof state.lastFiveReset === "string" ? state.lastFiveReset : null,
+    weeklyReset: typeof state.lastWeeklyReset === "string" ? state.lastWeeklyReset : null,
+  };
+
+  maybeNotifyRenewals(usage, state, previous);
+  maybeNotifyThresholds(usage, state);
+  maybeNotifyDailySummary(usage, state);
+
+  state.lastFiveHourPercent = clampPercent(usage.fiveHourPercent, null);
+  state.lastWeeklyPercent = clampPercent(usage.weeklyPercent, null);
+  state.lastFiveReset = usage.fiveHourResetDate?.toISOString() || null;
+  state.lastWeeklyReset = usage.weeklyResetDate?.toISOString() || null;
+  state.lastSeenUpdatedAt = usage.lastUpdatedDate?.toISOString() || null;
+  writeNotificationState(state);
+}
+
 function resetNotificationFlags() {
-  [5, 10, 20].forEach(threshold => {
-    localStorage.removeItem(`codex-notified-threshold-${threshold}`);
-  });
+  localStorage.removeItem(notificationStateKey());
 }
 
 
@@ -709,18 +929,12 @@ function renderAntigravity(antigravity, hasLoadError, els) {
 
 /* ===== Main Init Function ===== */
 (async function init() {
-  document.querySelectorAll(".rhythm-value").forEach((el) => el.classList.add("is-loading"));
-  const [{ usage, hasLoadError }, { antigravity, hasLoadError: hasAntigravityLoadError }] = await Promise.all([
-    loadUsage(),
-    loadAntigravityUsage(),
-  ]);
+  document.querySelectorAll(".rhythm-value, .insight-value").forEach((el) => el.classList.add("is-loading"));
+  const { usage, hasLoadError } = await loadUsage();
+
   const els = {
-    themeToggleButton: document.getElementById("themeToggleButton"),
-    themeColorButton: document.getElementById("themeColorButton"),
     themeColorInput: document.getElementById("themeColorInput"),
     refreshButton: document.getElementById("refreshButton"),
-    shareButton: document.getElementById("shareButton"),
-    closeButton: document.getElementById("closeButton"),
     statusText: document.getElementById("statusText"),
     statusDot: document.getElementById("statusDot"),
     updatedAtText: document.getElementById("updatedAtText"),
@@ -728,6 +942,8 @@ function renderAntigravity(antigravity, hasLoadError, els) {
     fiveHourBar: document.getElementById("fiveHourBar"),
     fiveHourLine: document.getElementById("fiveHourLine"),
     fiveHourUsed: document.getElementById("fiveHourUsed"),
+    fiveHourAverage: document.getElementById("fiveHourAverage"),
+    fiveHourZeroAt: document.getElementById("fiveHourZeroAt"),
     fiveHourSafeRate: document.getElementById("fiveHourSafeRate"),
     weeklyPercent: document.getElementById("weeklyPercent"),
     weeklyBar: document.getElementById("weeklyBar"),
@@ -736,75 +952,87 @@ function renderAntigravity(antigravity, hasLoadError, els) {
     weeklyRemainingDays: document.getElementById("weeklyRemainingDays"),
     weeklyAverage: document.getElementById("weeklyAverage"),
     weeklySafeRate: document.getElementById("weeklySafeRate"),
-    weeklyDifference: document.getElementById("weeklyDifference"),
     weeklyProjection: document.getElementById("weeklyProjection"),
     weeklyZeroAt: document.getElementById("weeklyZeroAt"),
-    weeklyCycleStart: document.getElementById("weeklyCycleStart"),
-    antigravityUpdatedAt: document.getElementById("antigravityUpdatedAt"),
-    antigravitySummary: document.getElementById("antigravitySummary"),
-    antigravityModels: document.getElementById("antigravityModels"),
+    usageTrend: document.getElementById("usageTrend"),
+    usageAdvice: document.getElementById("usageAdvice"),
   };
 
-  const now = Date.now();
-  const fiveHourRemaining = usage.fiveHourResetIsNull ? 100 : clampPercent(usage.fiveHourPercent, 100);
-  const fiveHourUsed = clampPercent(100 - fiveHourRemaining);
-  const weeklyRemaining = clampPercent(usage.weeklyPercent, 100);
-  const weeklyUsed = clampPercent(100 - weeklyRemaining);
+  const initialSummary = buildLiveSummary(usage);
+  let {
+    fiveHourRemaining,
+    weeklyRemaining,
+    realDailyRate,
+    safeDailyRate,
+    usageBandState,
+  } = initialSummary;
+  document.documentElement.dataset.usageTone = usageBandState.state;
+  document.documentElement.dataset.fiveHourTone = usageLevel(fiveHourRemaining);
+  document.documentElement.dataset.weeklyTone = usageLevel(weeklyRemaining);
 
-  const fiveHourMs = usage.fiveHourResetDate ? usage.fiveHourResetDate.getTime() - now : NaN;
-  const weeklyMs = usage.weeklyResetDate ? usage.weeklyResetDate.getTime() - now : NaN;
-  const weeklyDaysRemaining = Number.isFinite(weeklyMs) ? Math.max(0, weeklyMs / (24 * 60 * 60 * 1000)) : NaN;
-  const weeklyCycleStart = usage.weeklyResetDate ? new Date(usage.weeklyResetDate.getTime() - WEEK_WINDOW_MS) : null;
-  const elapsedMs = weeklyCycleStart ? Math.max(0, Math.min(WEEK_WINDOW_MS, now - weeklyCycleStart.getTime())) : NaN;
-  const elapsedDays = Number.isFinite(elapsedMs) ? Math.max(1 / 24, elapsedMs / (24 * 60 * 60 * 1000)) : NaN;
-  const realDailyRate = Number.isFinite(elapsedDays) ? weeklyUsed / elapsedDays : NaN;
-  const safeDailyRate = Number.isFinite(weeklyDaysRemaining) && weeklyDaysRemaining > 0 ? weeklyRemaining / weeklyDaysRemaining : 0;
-  const dailyDiff = Number.isFinite(realDailyRate) && Number.isFinite(safeDailyRate) ? realDailyRate - safeDailyRate : NaN;
-  const projectedRemaining = Number.isFinite(realDailyRate) && Number.isFinite(weeklyDaysRemaining)
-    ? weeklyRemaining - (realDailyRate * weeklyDaysRemaining)
-    : NaN;
-  const zeroInDays = Number.isFinite(realDailyRate) && realDailyRate > 0 ? weeklyRemaining / realDailyRate : NaN;
-  const fiveHourSafeRate = Number.isFinite(fiveHourMs) && fiveHourMs > 0 ? fiveHourRemaining / (fiveHourMs / (60 * 60 * 1000)) : 0;
+  const renderLiveSummary = () => {
+    const summary = buildLiveSummary(usage);
+    ({
+      fiveHourRemaining,
+      weeklyRemaining,
+      realDailyRate,
+      safeDailyRate,
+      usageBandState,
+    } = summary);
+    document.documentElement.dataset.usageTone = usageBandState.state;
+    document.documentElement.dataset.fiveHourTone = usageLevel(fiveHourRemaining);
+    document.documentElement.dataset.weeklyTone = usageLevel(weeklyRemaining);
 
-  requestAnimationFrame(() => {
-    setProgress("fiveHourBar", "fiveHourPercent", fiveHourRemaining);
-    setProgress("weeklyBar", "weeklyPercent", weeklyRemaining);
-
+    setProgress("fiveHourBar", "fiveHourPercent", summary.fiveHourRemaining);
+    setProgress("weeklyBar", "weeklyPercent", summary.weeklyRemaining);
     els.updatedAtText.textContent = usage.lastUpdatedDate ? formatDateTimePtBr(usage.lastUpdatedDate) : "--";
-    els.fiveHourUsed.textContent = `${Math.round(fiveHourUsed)}%`;
-    els.weeklyUsed.textContent = `${Math.round(weeklyUsed)}%`;
-    renderUsageChart(weeklyUsed, weeklyRemaining);
-    els.weeklyRemainingDays.textContent = formatDays(weeklyDaysRemaining);
-    els.weeklyAverage.textContent = formatRatePerDay(realDailyRate);
-    els.weeklySafeRate.textContent = formatRatePerDay(safeDailyRate);
-    els.weeklyDifference.textContent = formatDifference(dailyDiff);
-    els.weeklyProjection.textContent = formatPercent(projectedRemaining);
-    els.weeklyCycleStart.textContent = weeklyCycleStart ? formatDateTimePtBr(weeklyCycleStart) : "--";
-    renderAntigravity(antigravity, hasAntigravityLoadError, els);
+    els.fiveHourUsed.textContent = formatUsagePercent(summary.fiveHourRemaining);
+    els.fiveHourAverage.textContent = formatRatePerHour(summary.fiveHourHourlyRate);
+    els.fiveHourZeroAt.textContent = Number.isFinite(summary.fiveHourZeroHours)
+      ? (Number.isFinite(summary.fiveHourMs) && summary.fiveHourZeroHours > (summary.fiveHourMs / 3600000) ? "apos redefinicao" : formatZeroInHours(summary.fiveHourZeroHours))
+      : "--";
+    els.weeklyUsed.textContent = formatUsagePercent(summary.weeklyRemaining);
+    els.weeklyRemainingDays.textContent = formatDurationMs(summary.weeklyMs);
+    els.weeklyAverage.textContent = formatPercent(summary.weeklyRatePerWindow);
+    els.weeklySafeRate.textContent = formatPercent(summary.safePerWindow);
+    els.weeklyProjection.textContent = formatProjectedBalance(summary.projectedRemaining);
+    els.usageTrend.textContent = usageBandState.label;
+    els.usageAdvice.textContent = buildUsageAdvice({
+      weeklyRemaining: summary.weeklyRemaining,
+      weeklyDaysRemaining: summary.weeklyDaysRemaining,
+      fiveHourRemaining: summary.fiveHourRemaining,
+      realDailyRate: summary.realDailyRate,
+      safeDailyRate: summary.safeDailyRate,
+      safePerWindow: summary.safePerWindow,
+      windowsRemaining: summary.weeklyWindowsRemaining,
+      projectedRemaining: summary.projectedRemaining,
+    });
 
     els.weeklyLine.textContent = usage.weeklyResetDate
-      ? `Renova ${resetTextFromDate(usage.weeklyResetDate)}`
+      ? `redefine em ${formatDurationMs(summary.weeklyMs)} · ${formatDateTimePtBr(usage.weeklyResetDate)}`
       : "--";
 
-    if (usage.fiveHourResetIsNull && fiveHourRemaining === 100) {
-      els.fiveHourLine.textContent = "Cheio · Sem ciclo ativo";
-      els.fiveHourUsed.textContent = "0%";
+    if (usage.fiveHourResetIsNull && summary.fiveHourRemaining === 100) {
+      els.fiveHourLine.textContent = "Cheio · sem ciclo ativo";
+      els.fiveHourUsed.textContent = "0% de 100%";
       els.fiveHourSafeRate.textContent = "0%/h";
     } else {
       els.fiveHourLine.textContent = usage.fiveHourResetDate
-        ? `Renova em ${formatDurationMs(fiveHourMs)} · ${formatDateTimePtBr(usage.fiveHourResetDate)}`
+        ? `redefine em ${formatDurationMs(summary.fiveHourMs)} · ${formatDateTimePtBr(usage.fiveHourResetDate)}`
         : "--";
-      els.fiveHourSafeRate.textContent = formatRatePerHour(fiveHourSafeRate);
+      els.fiveHourSafeRate.textContent = formatRatePerHour(summary.fiveHourHourlyRate);
     }
 
-    if (Number.isFinite(zeroInDays) && zeroInDays > 0) {
-      const zeroAtDate = new Date(now + (zeroInDays * 24 * 60 * 60 * 1000));
-      els.weeklyZeroAt.textContent = `${formatZeroIn(zeroInDays)} · ${formatDateTimePtBr(zeroAtDate)}`;
+    if (Number.isFinite(summary.zeroInDays) && summary.zeroInDays > 0) {
+      els.weeklyZeroAt.textContent = summary.zeroInDays > summary.weeklyDaysRemaining ? "apos redefinicao" : formatZeroIn(summary.zeroInDays);
     } else {
       els.weeklyZeroAt.textContent = "--";
     }
-    document.querySelectorAll(".rhythm-value").forEach((el) => el.classList.remove("is-loading"));
-  });
+
+    document.querySelectorAll(".rhythm-value, .insight-value").forEach((el) => el.classList.remove("is-loading"));
+  };
+
+  requestAnimationFrame(renderLiveSummary);
 
   const status = resolveStatus({
     hasLoadError,
@@ -816,34 +1044,42 @@ function renderAntigravity(antigravity, hasLoadError, els) {
   els.statusText.textContent = status.text;
   applyStatusState(status.state, els.statusText, els.statusDot);
   if (!hasLoadError) saveLastValidPayload(usage);
+  syncNotifications(usage);
+  setInterval(renderLiveSummary, 1000);
+
+  function updateNotificationButton() {
+    const enabled = localStorage.getItem("notificationsEnabled") === "true";
+    const permission = "Notification" in window ? Notification.permission : "denied";
+
+    if (notificationButton) {
+      notificationButton.setAttribute("aria-pressed", String(enabled && permission === "granted"));
+      notificationButton.classList.toggle("is-enabled", enabled && permission === "granted");
+
+      if (permission === "denied") {
+        notificationButton.title = "Notificações bloqueadas pelo navegador";
+      } else if (enabled && permission === "granted") {
+        notificationButton.title = "Notificações ativadas";
+      } else {
+        notificationButton.title = "Ativar notificações";
+      }
+    }
+  }
+
+  const notificationButton = document.getElementById("notificationButton");
+  updateNotificationButton();
 
   // Resetar flags de notificação se os limites voltarem a valores altos
   if (fiveHourRemaining > 50 && weeklyRemaining > 50) {
     resetNotificationFlags();
   }
 
-  // Verificar e notificar
-  checkAndNotify(status, fiveHourRemaining, weeklyRemaining);
-
   /* ===== Event Listeners ===== */
-  els.themeToggleButton?.addEventListener("click", () => {
-    triggerHaptic(10);
-    const current = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
-    applyTheme(current === "light" ? "dark" : "light");
-  });
-
-  els.themeColorButton?.addEventListener("click", () => {
-    triggerHaptic(10);
-    els.themeColorInput?.click();
-  });
-
   els.themeColorInput?.addEventListener("input", (event) => {
     const value = event?.target?.value;
     if (typeof value === "string") {
       const contrastCheck = validateColorContrast(value);
 
       if (!contrastCheck.isValid) {
-        // Mostrar aviso temporário
         const statusText = document.getElementById("statusText");
         const originalText = statusText?.textContent;
         if (statusText) {
@@ -860,75 +1096,31 @@ function renderAntigravity(antigravity, hasLoadError, els) {
     }
   });
 
-  // Botão de notificações
-  const notificationButton = document.getElementById("notificationButton");
-  const notificationIcon = document.getElementById("notificationIcon");
-
-  function updateNotificationButton() {
-    const enabled = localStorage.getItem('notificationsEnabled') === 'true';
-    const permission = 'Notification' in window ? Notification.permission : 'denied';
-
-    if (notificationButton) {
-      notificationButton.setAttribute('aria-pressed', String(enabled && permission === 'granted'));
-
-      if (permission === 'denied') {
-        notificationButton.title = 'Notificações bloqueadas pelo navegador';
-        if (notificationIcon) notificationIcon.textContent = '🔕';
-      } else if (enabled && permission === 'granted') {
-        notificationButton.title = 'Notificações ativadas';
-        if (notificationIcon) notificationIcon.textContent = '🔔';
-      } else {
-        notificationButton.title = 'Ativar notificações';
-        if (notificationIcon) notificationIcon.textContent = '🔕';
-      }
-    }
-  }
-
-  updateNotificationButton();
-
   notificationButton?.addEventListener("click", () => {
     triggerHaptic(10);
 
-    if (!('Notification' in window)) {
-      alert('Notificações não são suportadas neste navegador.');
+    if (!("Notification" in window)) {
+      alert("Notificações não são suportadas neste navegador.");
       return;
     }
 
-    if (Notification.permission === 'denied') {
-      alert('Notificações foram bloqueadas. Ative nas configurações do navegador.');
+    if (Notification.permission === "denied") {
+      alert("Notificações foram bloqueadas. Ative nas configurações do navegador.");
       return;
     }
 
-    if (Notification.permission === 'granted') {
-      // Toggle on/off
-      const enabled = localStorage.getItem('notificationsEnabled') === 'true';
-      localStorage.setItem('notificationsEnabled', String(!enabled));
+    if (Notification.permission === "granted") {
+      const enabled = localStorage.getItem("notificationsEnabled") === "true";
+      localStorage.setItem("notificationsEnabled", String(!enabled));
       updateNotificationButton();
-
-      const statusText = document.getElementById("statusText");
-      if (statusText) {
-        const originalText = statusText.textContent;
-        statusText.textContent = !enabled ? '🔔 Notificações ativadas' : '🔕 Notificações desativadas';
-        setTimeout(() => {
-          if (statusText.textContent.includes('Notificações')) {
-            statusText.textContent = originalText;
-          }
-        }, 2000);
-      }
     } else {
-      // Solicitar permissão
-      Notification.requestPermission().then(permission => {
-        if (permission === 'granted') {
-          localStorage.setItem('notificationsEnabled', 'true');
+      Notification.requestPermission().then((permission) => {
+        if (permission === "granted") {
+          localStorage.setItem("notificationsEnabled", "true");
           updateNotificationButton();
-
-          // Enviar notificação de teste
-          new Notification('✅ Notificações ativadas', {
-            body: 'Você será alertado quando o limite estiver baixo (20%, 10%, 5%).',
-            icon: '/assets/logo_background.png',
-          });
+          sendNotification("Notificações ativadas", "Você será alertado sobre limites, renovações e mudanças de ciclo.", "notification-test");
         } else {
-          localStorage.setItem('notificationsEnabled', 'false');
+          localStorage.setItem("notificationsEnabled", "false");
           updateNotificationButton();
         }
       });
@@ -945,47 +1137,9 @@ function renderAntigravity(antigravity, hasLoadError, els) {
     }, 160);
   });
 
-  els.shareButton?.addEventListener("click", async () => {
-    triggerHaptic(15);
-    const data = {
-      title: "Analítica do Codex",
-      text: "Dashboard local da Analítica do Codex",
-      url: window.location.href,
-    };
-    if (navigator.share) {
-      try {
-        await navigator.share(data);
-        return;
-      } catch {}
-    }
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      // Feedback visual de cópia
-      const originalText = els.shareButton.textContent;
-      els.shareButton.textContent = "✓";
-      setTimeout(() => {
-        els.shareButton.textContent = originalText;
-      }, 1500);
-    } catch {}
-  });
-
-  els.closeButton?.addEventListener("click", () => {
-    triggerHaptic(10);
-    window.close();
-    setTimeout(() => {
-      if (history.length > 1) {
-        history.back();
-      } else {
-        location.href = "about:blank";
-      }
-    }, 120);
-  });
-
-  // Melhorar interações em mobile
   enhanceMobileInteraction();
-
-  // Solicitar permissão de notificações
   requestNotificationPermission();
+  setInterval(() => syncNotifications(usage), 5 * 60 * 1000);
 })();
 
 /* ===== Service Worker Registration ===== */

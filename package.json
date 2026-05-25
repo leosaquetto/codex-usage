@@ -2,7 +2,7 @@
   "name": "codex-usage",
   "private": true,
   "scripts": {
-    "dev": "http-server webapp -p 8080 -c-1 --cors",
+    "dev": "node scripts/dev-webapp-server.mjs",
     "chrome:cdp": "open -na \"Google Chrome\" --args --remote-debugging-port=9222 --user-data-dir=/Users/leosaquetto/Developer/BrowserProfiles/codex-cdp-profile",
     "update:antigravity-usage:auto": "node scripts/update-antigravity-usage-auto.mjs --commit --push",
     "update:codex-usage:auto": "node scripts/update-codex-usage-playwright.mjs --ensure-cdp --close-cdp --commit --push",

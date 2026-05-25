@@ -187,11 +187,29 @@ input {
   display: block;
 }
 
+.metric-icon,
+.card-icon,
+.suggestion-icon,
+.compare-icon {
+  display: block;
+  flex: 0 0 auto;
+}
+
+.metric-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.status-icon {
+  color: var(--text-muted);
+}
+
 /* =========================================
    Status
 ========================================= */
 .status-panel,
 .suggestion-card,
+.compare-card,
 .limit-card,
 .indicator-card,
 .chart-card {
@@ -213,7 +231,7 @@ input {
 .status-copy {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
 }
 
@@ -273,6 +291,24 @@ input {
   white-space: nowrap;
 }
 
+.updated-parts,
+.updated-parts span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.updated-parts {
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.updated-parts .metric-icon {
+  width: 13px;
+  height: 13px;
+  color: var(--text-muted);
+}
+
 /* =========================================
    Compact Limit Cards
 ========================================= */
@@ -284,6 +320,7 @@ input {
 
 .limit-card {
   --card-tone: var(--primary);
+  border-color: color-mix(in srgb, var(--card-tone) 18%, rgba(15, 23, 42, 0.075));
   display: flex;
   flex-direction: column;
   gap: 9px;
@@ -305,6 +342,29 @@ input {
   min-width: 0;
 }
 
+.card-heading {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.card-icon-shell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  color: var(--card-tone);
+  background: color-mix(in srgb, var(--card-tone) 12%, white);
+}
+
+.card-icon {
+  width: 18px;
+  height: 18px;
+}
+
 .card-kicker,
 .section-kicker,
 .mini-metrics span,
@@ -316,6 +376,14 @@ input {
   letter-spacing: 0.08em;
   line-height: 1.08;
   text-transform: uppercase;
+}
+
+.section-kicker,
+.mini-metrics span,
+.indicator-card span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .limit-card h2 {
@@ -352,7 +420,7 @@ input {
 }
 
 .percent-unit {
-  color: var(--text-primary);
+  color: var(--card-tone);
   font-size: clamp(24px, 5vw, 38px);
   font-weight: 900;
 }
@@ -393,6 +461,10 @@ input {
   background: #fbfcfe;
 }
 
+.mini-metric-wide {
+  grid-column: 1 / -1;
+}
+
 .mini-metrics strong {
   display: block;
   margin-top: 4px;
@@ -407,10 +479,21 @@ input {
    Suggestions and Indicators
 ========================================= */
 .suggestion-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 11px;
   margin-top: 10px;
   padding: 13px 15px;
   border-radius: 18px;
   background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(255, 255, 255, 0.96));
+}
+
+.suggestion-icon {
+  width: 24px;
+  height: 24px;
+  margin-top: 3px;
+  color: var(--tone-danger);
 }
 
 .suggestion-card h2 {
@@ -426,17 +509,142 @@ input {
   font-size: 13px;
 }
 
+.compare-card {
+  --compare-tone: var(--tone-warn);
+  display: grid;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 13px 15px;
+  border-radius: 18px;
+  border-color: color-mix(in srgb, var(--compare-tone) 18%, rgba(15, 23, 42, 0.075));
+}
+
+:root[data-usage-tone="safe"] .compare-card {
+  --compare-tone: var(--tone-safe);
+}
+
+:root[data-usage-tone="ok"] .compare-card {
+  --compare-tone: var(--tone-ok);
+}
+
+:root[data-usage-tone="warn"] .compare-card {
+  --compare-tone: var(--tone-warn);
+}
+
+:root[data-usage-tone="danger"] .compare-card {
+  --compare-tone: var(--tone-danger);
+}
+
+.compare-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.compare-header h2 {
+  margin: 3px 0 2px;
+  color: var(--compare-tone);
+  font-size: clamp(18px, 4vw, 25px);
+  font-weight: 900;
+  line-height: 1.05;
+}
+
+.compare-header p:last-child {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.compare-icon {
+  width: 28px;
+  height: 28px;
+  color: var(--compare-tone);
+}
+
+.compare-bars {
+  display: grid;
+  gap: 9px;
+}
+
+.compare-bars span {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 850;
+  line-height: 1.2;
+}
+
+.compare-track {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e5e7eb;
+}
+
+.compare-fill {
+  width: 4%;
+  height: 100%;
+  border-radius: inherit;
+  transition: width 520ms var(--ease);
+}
+
+.compare-fill.actual {
+  background: var(--compare-tone);
+}
+
+.compare-fill.ideal {
+  background: var(--tone-ok);
+}
+
 .indicator-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 10px;
   margin-top: 10px;
 }
 
 .indicator-card {
+  --indicator-tone: var(--primary);
   min-width: 0;
   padding: 12px;
   border-radius: 16px;
+  border-color: color-mix(in srgb, var(--indicator-tone) 16%, rgba(15, 23, 42, 0.075));
+}
+
+:root[data-five-hour-tone="safe"] .indicator-card[data-tone-source="fiveHour"],
+:root[data-weekly-tone="safe"] .indicator-card[data-tone-source="weekly"],
+:root[data-usage-tone="safe"] .indicator-card[data-tone-source="usage"] {
+  --indicator-tone: var(--tone-safe);
+}
+
+:root[data-five-hour-tone="ok"] .indicator-card[data-tone-source="fiveHour"],
+:root[data-weekly-tone="ok"] .indicator-card[data-tone-source="weekly"],
+:root[data-usage-tone="ok"] .indicator-card[data-tone-source="usage"] {
+  --indicator-tone: var(--tone-ok);
+}
+
+:root[data-five-hour-tone="warn"] .indicator-card[data-tone-source="fiveHour"],
+:root[data-weekly-tone="warn"] .indicator-card[data-tone-source="weekly"],
+:root[data-usage-tone="warn"] .indicator-card[data-tone-source="usage"] {
+  --indicator-tone: var(--tone-warn);
+}
+
+:root[data-five-hour-tone="danger"] .indicator-card[data-tone-source="fiveHour"],
+:root[data-weekly-tone="danger"] .indicator-card[data-tone-source="weekly"],
+:root[data-usage-tone="danger"] .indicator-card[data-tone-source="usage"] {
+  --indicator-tone: var(--tone-danger);
+}
+
+.indicator-card span {
+  color: var(--indicator-tone);
+}
+
+.indicator-card .metric-icon,
+.mini-metrics .metric-icon,
+.section-kicker .metric-icon {
+  color: var(--indicator-tone, var(--card-tone, var(--primary)));
 }
 
 .indicator-card strong {
@@ -462,15 +670,58 @@ input {
 ========================================= */
 .charts-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 10px;
   margin-top: 10px;
 }
 
 .chart-card {
+  --chart-tone: var(--primary);
   min-width: 0;
   padding: 13px;
   border-radius: 18px;
+}
+
+.chart-card:first-child {
+  --chart-tone: var(--tone-danger);
+}
+
+.chart-card:nth-child(2) {
+  --chart-tone: var(--tone-warn);
+}
+
+.chart-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.chart-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 3px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 999px;
+  background: #f8fafc;
+}
+
+.chart-tab {
+  min-width: 58px;
+  height: 28px;
+  border: 0;
+  border-radius: 999px;
+  color: var(--text-muted);
+  background: transparent;
+  font-size: 11px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.chart-tab[aria-pressed="true"] {
+  color: #fff;
+  background: var(--chart-tone);
 }
 
 .chart-card h2 {
@@ -493,19 +744,19 @@ input {
 }
 
 .sparkline .area {
-  fill: color-mix(in srgb, var(--primary) 12%, transparent);
+  fill: color-mix(in srgb, var(--chart-tone) 12%, transparent);
 }
 
 .sparkline .line {
   fill: none;
-  stroke: var(--primary);
+  stroke: var(--chart-tone);
   stroke-width: 4;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
 .sparkline .point {
-  fill: var(--primary);
+  fill: var(--chart-tone);
 }
 
 .sparkline .empty-label {
@@ -519,7 +770,7 @@ input {
 ========================================= */
 @media (max-width: 860px) {
   .indicator-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -572,7 +823,7 @@ input {
     display: none;
   }
 
-  .status-updated span {
+  .status-updated > span {
     display: none;
   }
 
@@ -602,6 +853,21 @@ input {
   .mini-metrics span,
   .indicator-card span {
     font-size: 8px;
+  }
+
+  .card-heading {
+    gap: 7px;
+  }
+
+  .card-icon-shell {
+    width: 28px;
+    height: 28px;
+    border-radius: 9px;
+  }
+
+  .card-icon {
+    width: 16px;
+    height: 16px;
   }
 
   .limit-card h2 {
@@ -642,14 +908,20 @@ input {
     font-size: 18px;
   }
 
-  .indicator-grid,
-  .charts-grid {
+  .indicator-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
     margin-top: 8px;
   }
 
+  .charts-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
   .indicator-card,
+  .compare-card,
   .chart-card {
     padding: 10px;
     border-radius: 15px;
@@ -665,6 +937,16 @@ input {
 
   .sparkline {
     height: 74px;
+  }
+
+  .chart-card-header {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .chart-tabs {
+    align-self: flex-start;
   }
 }
 
@@ -683,6 +965,7 @@ input {
 
   .limits-grid,
   .indicator-grid,
+  .compare-card,
   .charts-grid {
     grid-template-columns: 1fr;
   }

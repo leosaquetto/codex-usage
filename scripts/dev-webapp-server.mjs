@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import http from "node:http";
+import os from "node:os";
 import { readFile } from "node:fs/promises";
 import { createReadStream, existsSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
@@ -7,6 +8,7 @@ import usageHandler from "../webapp/api/usage.js";
 
 const rootDir = new URL("../webapp/", import.meta.url);
 const port = Number(process.env.PORT || 8080);
+const host = process.env.HOST || "0.0.0.0";
 
 const MIME_TYPES = {
   ".css": "text/css; charset=utf-8",
@@ -82,9 +84,23 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(port, "127.0.0.1", async () => {
+function getLocalNetworkUrl() {
+  const interfaces = os.networkInterfaces();
+  for (const entries of Object.values(interfaces)) {
+    for (const entry of entries || []) {
+      if (entry.family === "IPv4" && !entry.internal) {
+        return `http://${entry.address}:${port}`;
+      }
+    }
+  }
+  return null;
+}
+
+server.listen(port, host, async () => {
   const indexHtml = await readFile(new URL("../webapp/index.html", import.meta.url), "utf8");
   const pageTitleMatch = indexHtml.match(/<title>([^<]+)<\/title>/i);
   const pageTitle = pageTitleMatch ? pageTitleMatch[1] : "webapp";
   console.log(`${pageTitle} dev server running at http://127.0.0.1:${port}`);
+  const networkUrl = getLocalNetworkUrl();
+  if (networkUrl) console.log(`Network URL for phone: ${networkUrl}`);
 });

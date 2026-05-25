@@ -16,6 +16,7 @@ let viewportRafId = null;
 let activeUsageController = null;
 let lastUsageSignature = "";
 let lastSuspendedAt = 0;
+let activeChart = "weekly";
 
 /* =========================================
    Theme and Viewport
@@ -177,7 +178,7 @@ function formatDateTimePtBr(date) {
 }
 
 function formatDurationMs(ms) {
-  if (!Number.isFinite(ms) || ms <= 0) return "agora";
+  if (!Number.isFinite(ms) || ms <= 0) return "Agora";
   const totalMinutes = Math.ceil(ms / 60000);
   const days = Math.floor(totalMinutes / 1440);
   const hours = Math.floor((totalMinutes % 1440) / 60);
@@ -187,7 +188,39 @@ function formatDurationMs(ms) {
   if (days > 0) parts.push(`${days}d`);
   if (hours > 0) parts.push(`${hours}h`);
   if (minutes > 0 && days === 0) parts.push(`${minutes}min`);
-  return parts.length > 0 ? parts.join(" ") : "agora";
+  return parts.length > 0 ? parts.join(" ") : "Agora";
+}
+
+function formatDatePartPtBr(date) {
+  if (!date) return "--";
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(date);
+}
+
+function formatTimePartPtBr(date) {
+  if (!date) return "--";
+  return new Intl.DateTimeFormat("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}
+
+function formatCountdownMs(ms, options = {}) {
+  const includeDays = options.includeDays !== false;
+  if (!Number.isFinite(ms) || ms <= 0) return includeDays ? "0d 0h 0m 0s" : "0h 0m 0s";
+  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  if (!includeDays) {
+    const totalHours = Math.floor(totalSeconds / 3600);
+    return `${totalHours}h ${minutes}m ${seconds}s`;
+  }
+  return `${days}d ${hours}h ${minutes}m ${seconds}s`;
 }
 
 function formatRatePerHour(value) {
@@ -195,9 +228,36 @@ function formatRatePerHour(value) {
   return `${value.toFixed(1)}%/h`;
 }
 
+function formatRatePerDay(value) {
+  if (!Number.isFinite(value)) return "--/d";
+  return `${value.toFixed(1)}%/d`;
+}
+
 function formatPercent(value) {
   if (!Number.isFinite(value)) return "--";
   return `${value.toFixed(1)}%`;
+}
+
+function formatWindowCount(value) {
+  if (!Number.isFinite(value) || value <= 0) return "--";
+  const rounded = Math.max(1, Math.ceil(value));
+  return `${rounded} ${rounded === 1 ? "janela" : "janelas"}`;
+}
+
+function formatUseWindowCount(value) {
+  if (!Number.isFinite(value) || value <= 0) return "--";
+  const rounded = Math.max(1, Math.ceil(value));
+  return `${rounded} ${rounded === 1 ? "uso" : "usos"} de 5h`;
+}
+
+function formatCompareWidth(value, max) {
+  if (!Number.isFinite(value) || !Number.isFinite(max) || max <= 0) return "4%";
+  return `${Math.min(100, Math.max(4, (value / max) * 100))}%`;
+}
+
+function capitalizeFirst(value) {
+  if (typeof value !== "string" || value.length === 0) return value;
+  return value.charAt(0).toLocaleUpperCase("pt-BR") + value.slice(1);
 }
 
 function formatUsed(remainingPercent) {
@@ -208,17 +268,17 @@ function formatUsed(remainingPercent) {
 
 function formatProjectedBalance(value) {
   if (!Number.isFinite(value)) return "--";
-  if (value >= 0) return `sobra ${value.toFixed(1)}%`;
-  return `falta ${Math.abs(value).toFixed(1)}%`;
+  if (value >= 0) return `Sobra ${value.toFixed(1)}% no reset`;
+  return "Não chega no ritmo atual";
 }
 
 function formatZeroInDays(days) {
-  if (!Number.isFinite(days) || days <= 0) return "agora";
+  if (!Number.isFinite(days) || days <= 0) return "Agora";
   return formatDurationMs(days * 86400000);
 }
 
 function formatZeroInHours(hours) {
-  if (!Number.isFinite(hours) || hours <= 0) return "agora";
+  if (!Number.isFinite(hours) || hours <= 0) return "Agora";
   return formatDurationMs(hours * 3600000);
 }
 
@@ -236,11 +296,11 @@ function usageLevel(remainingPercent) {
 
 function usageBand(currentRate, idealRate) {
   if (!Number.isFinite(currentRate) || !Number.isFinite(idealRate) || idealRate <= 0) {
-    return { label: "sem dado", state: "warn" };
+    return { label: "Sem dado", state: "warn" };
   }
-  if (currentRate > idealRate * 1.15) return { label: "acima", state: "danger" };
-  if (currentRate < idealRate * 0.7) return { label: "abaixo", state: "safe" };
-  return { label: "na faixa", state: "ok" };
+  if (currentRate > idealRate * 1.15) return { label: "Acima", state: "danger" };
+  if (currentRate < idealRate * 0.7) return { label: "Abaixo", state: "safe" };
+  return { label: "Na faixa", state: "ok" };
 }
 
 function sameIsoDate(a, b) {
@@ -302,6 +362,8 @@ function buildLiveMetrics(usage, now = Date.now()) {
   const fiveHourZeroHours = Number.isFinite(fiveHourRate) && fiveHourRate > 0 ? fiveHourRemaining / fiveHourRate : NaN;
 
   const weeklyRatePerWindow = Number.isFinite(elapsedWindows) ? weeklyUsed / elapsedWindows : NaN;
+  const fiveHourAverageUsed = Number.isFinite(fiveHourElapsedHours) ? fiveHourUsed / fiveHourElapsedHours : NaN;
+  const weeklyAverageUsedPerWindow = Number.isFinite(elapsedWindows) ? weeklyUsed / elapsedWindows : NaN;
   const idealPerWindow = Number.isFinite(windowsRemaining) ? weeklyRemaining / windowsRemaining : NaN;
   const projectedRemaining = Number.isFinite(weeklyRatePerWindow) && Number.isFinite(windowsRemaining)
     ? weeklyRemaining - weeklyRatePerWindow * windowsRemaining
@@ -332,6 +394,9 @@ function buildLiveMetrics(usage, now = Date.now()) {
   const effectiveZeroInHours = Number.isFinite(effectiveWeeklyRatePerWindow) && effectiveWeeklyRatePerWindow > 0
     ? (weeklyRemaining / effectiveWeeklyRatePerWindow) * 5
     : NaN;
+  const weeklyZeroInWindows = Number.isFinite(effectiveZeroInHours) && effectiveZeroInHours > 0
+    ? effectiveZeroInHours / 5
+    : NaN;
 
   return {
     fiveHourRemaining,
@@ -343,6 +408,8 @@ function buildLiveMetrics(usage, now = Date.now()) {
     weeklyDaysRemaining,
     windowsRemaining,
     fiveHourRate,
+    fiveHourAverageUsed,
+    weeklyAverageUsedPerWindow,
     effectiveFiveHourRate,
     fiveHourZeroHours,
     weeklyRatePerWindow,
@@ -352,6 +419,8 @@ function buildLiveMetrics(usage, now = Date.now()) {
     effectiveProjectedRemaining,
     zeroInDays,
     effectiveZeroInDays: Number.isFinite(effectiveZeroInHours) ? effectiveZeroInHours / 24 : NaN,
+    effectiveZeroInHours,
+    weeklyZeroInWindows,
     realDailyRate,
     safeDailyRate,
     historySamples,
@@ -377,7 +446,7 @@ function buildFiveHourDecision(usage, metrics) {
     return {
       question: "Pausar agora",
       advice: "A janela de 5 horas esgotou. Espere renovar antes de concentrar trabalho pesado.",
-      zeroAt: "agora",
+      zeroAt: "Agora",
       rhythm: formatRatePerHour(metrics.effectiveFiveHourRate),
     };
   }
@@ -401,7 +470,7 @@ function buildFiveHourDecision(usage, metrics) {
     question: "Pode usar agora",
     advice: "A janela atual ainda sustenta trabalho normal.",
     zeroAt: Number.isFinite(metrics.fiveHourZeroHours) && Number.isFinite(metrics.fiveHourMs) && metrics.fiveHourZeroHours > metrics.fiveHourMs / 3600000
-      ? "após renovar"
+      ? "Após renovar"
       : formatZeroInHours(metrics.fiveHourRemaining / metrics.effectiveFiveHourRate),
     rhythm: formatRatePerHour(metrics.effectiveFiveHourRate),
   };
@@ -409,14 +478,29 @@ function buildFiveHourDecision(usage, metrics) {
 
 function buildWeeklyAdvice(metrics) {
   if (metrics.weeklyRemaining <= 0) return "O limite semanal esgotou. Espere a renovação.";
-  if (metrics.effectiveProjectedRemaining < -30) return "desacelere para chegar até a renovação";
-  if (metrics.usageBandState.state === "danger") return "reduza o ritmo para o saldo durar a semana";
-  if (metrics.weeklyRemaining <= 20) return "use só o essencial até o próximo reset";
-  if (metrics.usageBandState.state === "safe") return "há folga; você pode distribuir melhor o saldo";
-  if (metrics.effectiveProjectedRemaining > 15 && metrics.weeklyDaysRemaining <= 2) {
-    return "aproveite mais por janela para não desperdiçar saldo";
+  if (metrics.effectiveProjectedRemaining < -30 && Number.isFinite(metrics.idealPerWindow)) {
+    return `Reduza para até ${formatPercent(metrics.idealPerWindow)} por janela de 5h.`;
   }
-  return "mantenha o ritmo atual";
+  if (metrics.usageBandState.state === "danger" && Number.isFinite(metrics.idealPerWindow)) {
+    return `Desacelere para perto de ${formatPercent(metrics.idealPerWindow)} por janela.`;
+  }
+  if (metrics.weeklyRemaining <= 20) return "Use só o essencial até o próximo reset.";
+  if (metrics.usageBandState.state === "safe") return "Há folga; distribua melhor o saldo restante.";
+  if (metrics.effectiveProjectedRemaining > 15 && metrics.weeklyDaysRemaining <= 2) {
+    return "Aproveite mais por janela para não desperdiçar saldo.";
+  }
+  return "Mantenha o ritmo atual.";
+}
+
+function buildHarvestAdvice(metrics) {
+  if (!Number.isFinite(metrics.weeklyDaysRemaining) || !Number.isFinite(metrics.idealPerWindow)) return "--";
+  if (metrics.weeklyDaysRemaining <= 2 && metrics.weeklyRemaining > 20) {
+    return `Use até ${formatPercent(metrics.idealPerWindow)} por janela`;
+  }
+  if (metrics.usageBandState.state === "safe" && metrics.effectiveProjectedRemaining > 10) {
+    return `Folga de ${formatPercent(metrics.effectiveProjectedRemaining)}`;
+  }
+  return "Sem risco de desperdício";
 }
 
 function buildWeeklyQuestion(metrics) {
@@ -433,7 +517,7 @@ function buildLimitViewModel(usage, hasLoadError = false) {
   const weeklyQuestion = buildWeeklyQuestion(metrics);
   const weeklyAdvice = buildWeeklyAdvice(metrics);
   const weeklyZeroAt = Number.isFinite(metrics.effectiveZeroInDays) && metrics.effectiveZeroInDays > 0
-    ? (metrics.effectiveZeroInDays > metrics.weeklyDaysRemaining ? "após renovar" : formatZeroInDays(metrics.effectiveZeroInDays))
+    ? (metrics.effectiveZeroInDays > metrics.weeklyDaysRemaining ? "Após renovar" : formatZeroInDays(metrics.effectiveZeroInDays))
     : "--";
   const safeWindows = Number.isFinite(metrics.windowsRemaining) ? metrics.windowsRemaining : 0;
   const safePerWindowText = Number.isFinite(metrics.idealPerWindow)
@@ -441,10 +525,14 @@ function buildLimitViewModel(usage, hasLoadError = false) {
     : "--";
   const fiveHourPlan = Number.isFinite(metrics.effectiveFiveHourRate) && Number.isFinite(metrics.fiveHourMs)
     ? `Renova em ${formatDurationMs(metrics.fiveHourMs)}`
-    : "sem média suficiente";
+    : "Sem média suficiente";
   const weeklyPlan = safeWindows > 0
     ? `${safePerWindowText} nas ${safeWindows} próximas`
-    : "sem janela calculada";
+    : "Sem janela calculada";
+  const weeklyWindowZero = Number.isFinite(metrics.weeklyZeroInWindows)
+    ? `${formatZeroInHours(metrics.effectiveZeroInHours)} · cerca de ${formatWindowCount(metrics.weeklyZeroInWindows)}`
+    : "--";
+  const compareMax = Math.max(metrics.effectiveWeeklyRatePerWindow || 0, metrics.idealPerWindow || 0, 1);
 
   return {
     status: resolveStatus(metrics, hasLoadError),
@@ -454,34 +542,53 @@ function buildLimitViewModel(usage, hasLoadError = false) {
       usage: metrics.usageBandState.state,
     },
     updatedAt: usage.lastUpdatedDate ? formatDateTimePtBr(usage.lastUpdatedDate) : "--",
+    updatedDate: usage.lastUpdatedDate ? formatDatePartPtBr(usage.lastUpdatedDate) : "--",
+    updatedTime: usage.lastUpdatedDate ? formatTimePartPtBr(usage.lastUpdatedDate) : "--",
     fiveHour: {
       remaining: Math.round(metrics.fiveHourRemaining),
       used: formatUsed(metrics.fiveHourRemaining),
-      renewal: usage.fiveHourResetDate ? formatDurationMs(metrics.fiveHourMs) : "--",
+      renewal: usage.fiveHourResetDate ? formatCountdownMs(metrics.fiveHourMs, { includeDays: false }) : "--",
+      countdown: usage.fiveHourResetDate ? formatCountdownMs(metrics.fiveHourMs, { includeDays: false }) : "--",
       question: fiveHour.question,
       advice: fiveHour.advice,
       zeroAt: fiveHour.zeroAt,
       rhythm: fiveHour.rhythm,
-      average: formatRatePerHour(metrics.effectiveFiveHourRate),
+      average: formatRatePerHour(Number.isFinite(metrics.effectiveFiveHourRate) ? metrics.effectiveFiveHourRate : metrics.fiveHourAverageUsed),
       usePlan: fiveHourPlan,
     },
     weekly: {
       remaining: Math.round(metrics.weeklyRemaining),
       used: formatUsed(metrics.weeklyRemaining),
       renewal: usage.weeklyResetDate ? `${formatDurationMs(metrics.weeklyMs)} · ${formatDateTimePtBr(usage.weeklyResetDate)}` : "--",
-      remainingTime: formatDurationMs(metrics.weeklyMs),
+      remainingTime: usage.weeklyResetDate ? formatCountdownMs(metrics.weeklyMs) : "--",
+      countdown: usage.weeklyResetDate ? formatCountdownMs(metrics.weeklyMs) : "--",
       question: weeklyQuestion,
       advice: weeklyAdvice,
       projection: formatProjectedBalance(metrics.effectiveProjectedRemaining),
-      zeroAt: weeklyZeroAt,
-      average: formatPercent(metrics.effectiveWeeklyRatePerWindow),
+      zeroAt: Number.isFinite(metrics.weeklyZeroInWindows) ? `${weeklyZeroAt} · cerca de ${formatUseWindowCount(metrics.weeklyZeroInWindows)}` : weeklyZeroAt,
+      zeroWindowText: weeklyWindowZero,
+      windowPlan: Number.isFinite(metrics.weeklyZeroInWindows) ? formatWindowCount(metrics.weeklyZeroInWindows) : "--",
+      average: formatPercent(Number.isFinite(metrics.effectiveWeeklyRatePerWindow) ? metrics.effectiveWeeklyRatePerWindow : metrics.weeklyAverageUsedPerWindow),
+      averageHourly: formatRatePerHour(Number.isFinite(metrics.effectiveWeeklyRatePerWindow) ? metrics.effectiveWeeklyRatePerWindow / 5 : metrics.weeklyAverageUsedPerWindow / 5),
+      dailyAverage: formatRatePerDay(metrics.realDailyRate),
       ideal: formatPercent(metrics.idealPerWindow),
       band: metrics.usageBandState.label,
       usePlan: weeklyPlan,
+      harvest: buildHarvestAdvice(metrics),
     },
     suggestion: {
       title: weeklyAdvice,
       meta: weeklyQuestion,
+    },
+    compare: {
+      band: metrics.usageBandState.label,
+      meta: Number.isFinite(metrics.effectiveWeeklyRatePerWindow) && Number.isFinite(metrics.idealPerWindow)
+        ? `Atual ${formatPercent(metrics.effectiveWeeklyRatePerWindow)} por janela · ideal ${formatPercent(metrics.idealPerWindow)}`
+        : "Aguardando histórico suficiente.",
+      actualText: `Ritmo atual ${formatPercent(metrics.effectiveWeeklyRatePerWindow)}`,
+      idealText: `Ideal ${formatPercent(metrics.idealPerWindow)}`,
+      actualWidth: formatCompareWidth(metrics.effectiveWeeklyRatePerWindow, compareMax),
+      idealWidth: formatCompareWidth(metrics.idealPerWindow, compareMax),
     },
     charts: {
       fiveHour: metrics.fiveHourCycleSamples.map((sample) => ({
@@ -545,6 +652,8 @@ function getElements() {
     statusText: document.getElementById("statusText"),
     statusMeta: document.getElementById("statusMeta"),
     updatedAtText: document.getElementById("updatedAtText"),
+    updatedDateText: document.getElementById("updatedDateText"),
+    updatedTimeText: document.getElementById("updatedTimeText"),
     fiveHourPercent: document.getElementById("fiveHourPercent"),
     fiveHourBar: document.getElementById("fiveHourBar"),
     fiveHourQuestion: document.getElementById("fiveHourQuestion"),
@@ -561,14 +670,28 @@ function getElements() {
     weeklyUsed: document.getElementById("weeklyUsed"),
     weeklyRemainingDays: document.getElementById("weeklyRemainingDays"),
     weeklyAverage: document.getElementById("weeklyAverage"),
+    weeklyDailyAverage: document.getElementById("weeklyDailyAverage"),
     weeklyIdeal: document.getElementById("weeklyIdeal"),
     weeklyBand: document.getElementById("weeklyBand"),
     weeklyRenewal: document.getElementById("weeklyRenewal"),
     weeklyUsePlan: document.getElementById("weeklyUsePlan"),
+    fiveHourCountdown: document.getElementById("fiveHourCountdown"),
+    weeklyCountdown: document.getElementById("weeklyCountdown"),
+    weeklyWindowZero: document.getElementById("weeklyWindowZero"),
+    weeklyWindowPlan: document.getElementById("weeklyWindowPlan"),
+    harvestSuggestion: document.getElementById("harvestSuggestion"),
+    usageBandValue: document.getElementById("usageBandValue"),
+    usageBandMeta: document.getElementById("usageBandMeta"),
+    compareActualText: document.getElementById("compareActualText"),
+    compareIdealText: document.getElementById("compareIdealText"),
+    compareActualBar: document.getElementById("compareActualBar"),
+    compareIdealBar: document.getElementById("compareIdealBar"),
+    chartTitle: document.getElementById("chartTitle"),
+    chartWeeklyButton: document.getElementById("chartWeeklyButton"),
+    chartFiveHourButton: document.getElementById("chartFiveHourButton"),
     usageSuggestion: document.getElementById("usageSuggestion"),
     usageSuggestionMeta: document.getElementById("usageSuggestionMeta"),
-    fiveHourSparkline: document.getElementById("fiveHourSparkline"),
-    weeklySparkline: document.getElementById("weeklySparkline"),
+    usageSparkline: document.getElementById("usageSparkline"),
   };
 }
 
@@ -612,7 +735,7 @@ function renderSparkline(svg, points) {
       y: height / 2 + 5,
       "text-anchor": "middle",
     });
-    label.textContent = "histórico após próximas capturas";
+    label.textContent = "Histórico após próximas capturas";
     svg.append(label);
     return;
   }
@@ -642,6 +765,13 @@ function renderSparkline(svg, points) {
   }));
 }
 
+function setChartButtons(els) {
+  const isWeekly = activeChart === "weekly";
+  els.chartTitle.textContent = isWeekly ? "Saldo semanal" : "Saldo da janela de 5h";
+  els.chartWeeklyButton?.setAttribute("aria-pressed", String(isWeekly));
+  els.chartFiveHourButton?.setAttribute("aria-pressed", String(!isWeekly));
+}
+
 function renderDashboard(els, viewModel) {
   document.documentElement.dataset.fiveHourTone = viewModel.tones.fiveHour;
   document.documentElement.dataset.weeklyTone = viewModel.tones.weekly;
@@ -650,33 +780,47 @@ function renderDashboard(els, viewModel) {
   setStatusState(els.statusDot, viewModel.status.state);
   els.statusText.textContent = viewModel.status.text;
   els.statusMeta.textContent = viewModel.status.meta;
-  els.updatedAtText.textContent = viewModel.updatedAt;
+  if (els.updatedAtText) els.updatedAtText.textContent = viewModel.updatedAt;
+  if (els.updatedDateText) els.updatedDateText.textContent = viewModel.updatedDate;
+  if (els.updatedTimeText) els.updatedTimeText.textContent = viewModel.updatedTime;
 
   els.fiveHourPercent.textContent = viewModel.fiveHour.remaining;
   els.fiveHourQuestion.textContent = viewModel.fiveHour.question;
   els.fiveHourZeroAt.textContent = viewModel.fiveHour.zeroAt;
-  els.fiveHourRhythm.textContent = viewModel.fiveHour.rhythm;
+  if (els.fiveHourRhythm) els.fiveHourRhythm.textContent = viewModel.fiveHour.rhythm;
   els.fiveHourAverage.textContent = viewModel.fiveHour.average;
-  els.fiveHourUsePlan.textContent = viewModel.fiveHour.usePlan;
-  els.fiveHourUsed.textContent = viewModel.fiveHour.used;
-  els.fiveHourRenewal.textContent = viewModel.fiveHour.renewal;
+  if (els.fiveHourUsePlan) els.fiveHourUsePlan.textContent = viewModel.fiveHour.usePlan;
+  if (els.fiveHourUsed) els.fiveHourUsed.textContent = viewModel.fiveHour.used;
+  if (els.fiveHourRenewal) els.fiveHourRenewal.textContent = viewModel.fiveHour.renewal;
+  if (els.fiveHourCountdown) els.fiveHourCountdown.textContent = viewModel.fiveHour.countdown;
   setProgress(els.fiveHourBar, viewModel.fiveHour.remaining);
 
   els.weeklyPercent.textContent = viewModel.weekly.remaining;
   els.weeklyProjection.textContent = viewModel.weekly.projection;
   els.weeklyZeroAt.textContent = viewModel.weekly.zeroAt;
-  els.weeklyUsed.textContent = viewModel.weekly.used;
-  els.weeklyRemainingDays.textContent = viewModel.weekly.remainingTime;
-  if (els.weeklyAverage) els.weeklyAverage.textContent = viewModel.weekly.average;
-  els.weeklyIdeal.textContent = viewModel.weekly.ideal;
+  if (els.weeklyUsed) els.weeklyUsed.textContent = viewModel.weekly.used;
+  if (els.weeklyRemainingDays) els.weeklyRemainingDays.textContent = viewModel.weekly.remainingTime;
+  if (els.weeklyAverage) els.weeklyAverage.textContent = viewModel.weekly.averageHourly;
+  if (els.weeklyDailyAverage) els.weeklyDailyAverage.textContent = viewModel.weekly.dailyAverage;
+  if (els.weeklyIdeal) els.weeklyIdeal.textContent = viewModel.weekly.ideal;
   els.weeklyBand.textContent = viewModel.weekly.band;
   if (els.weeklyRenewal) els.weeklyRenewal.textContent = viewModel.weekly.renewal;
-  els.weeklyUsePlan.textContent = viewModel.weekly.usePlan;
+  if (els.weeklyUsePlan) els.weeklyUsePlan.textContent = viewModel.weekly.usePlan;
+  if (els.weeklyCountdown) els.weeklyCountdown.textContent = viewModel.weekly.countdown;
+  if (els.weeklyWindowZero) els.weeklyWindowZero.textContent = viewModel.weekly.zeroWindowText;
+  if (els.weeklyWindowPlan) els.weeklyWindowPlan.textContent = viewModel.weekly.windowPlan;
+  if (els.harvestSuggestion) els.harvestSuggestion.textContent = viewModel.weekly.harvest;
   setProgress(els.weeklyBar, viewModel.weekly.remaining);
-  els.usageSuggestion.textContent = viewModel.suggestion.title;
+  els.usageSuggestion.textContent = capitalizeFirst(viewModel.suggestion.title);
   els.usageSuggestionMeta.textContent = viewModel.suggestion.meta;
-  renderSparkline(els.fiveHourSparkline, viewModel.charts.fiveHour);
-  renderSparkline(els.weeklySparkline, viewModel.charts.weekly);
+  if (els.usageBandValue) els.usageBandValue.textContent = viewModel.compare.band;
+  if (els.usageBandMeta) els.usageBandMeta.textContent = viewModel.compare.meta;
+  if (els.compareActualText) els.compareActualText.textContent = viewModel.compare.actualText;
+  if (els.compareIdealText) els.compareIdealText.textContent = viewModel.compare.idealText;
+  if (els.compareActualBar) els.compareActualBar.style.width = viewModel.compare.actualWidth;
+  if (els.compareIdealBar) els.compareIdealBar.style.width = viewModel.compare.idealWidth;
+  setChartButtons(els);
+  renderSparkline(els.usageSparkline, activeChart === "weekly" ? viewModel.charts.weekly : viewModel.charts.fiveHour);
 }
 
 /* =========================================
@@ -838,7 +982,7 @@ function updateNotificationButton(button) {
 /* =========================================
    Events and Boot
 ========================================= */
-function bindEvents(els, usage) {
+function bindEvents(els, usage, render) {
   els.themeColorInput?.addEventListener("input", (event) => {
     const value = event?.target?.value;
     if (typeof value === "string") setThemeColor(value);
@@ -877,6 +1021,16 @@ function bindEvents(els, usage) {
     els.refreshButton.classList.add("spinning");
     setTimeout(() => location.reload(), 160);
   });
+
+  for (const button of [els.chartWeeklyButton, els.chartFiveHourButton]) {
+    button?.addEventListener("click", () => {
+      const nextChart = button.dataset.chart;
+      if (nextChart !== "weekly" && nextChart !== "fiveHour") return;
+      activeChart = nextChart;
+      triggerHaptic(8);
+      render();
+    });
+  }
 }
 
 async function init() {
@@ -894,7 +1048,7 @@ async function init() {
   if (!hasLoadError) saveLastValidPayload(usage);
   if (usage.fiveHourPercent > 50 && usage.weeklyPercent > 50) resetNotificationFlags();
   updateNotificationButton(els.notificationButton);
-  bindEvents(els, usage);
+  bindEvents(els, usage, render);
   syncNotifications(usage);
   setInterval(render, 1000);
   setInterval(() => syncNotifications(usage), 5 * 60 * 1000);

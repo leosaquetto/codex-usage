@@ -147,11 +147,21 @@ function enrichPayload(raw = {}, history = null) {
   }
 }
 
+const GITHUB_OWNER = "leosaquetto"
+const GITHUB_REPO = "codex-usage"
+const GITHUB_BRANCH = "main"
+const REMOTE_USAGE_PATH = "codex_usage.json"
+const REMOTE_HISTORY_PATH = "codex_usage_history.json"
 const REMOTE_USAGE_URL = "https://raw.githubusercontent.com/leosaquetto/codex-usage/main/codex_usage.json"
 const REMOTE_HISTORY_URL = "https://raw.githubusercontent.com/leosaquetto/codex-usage/main/codex_usage_history.json"
 const REMOTE_TIMEOUT_MS = 7000
 
-async function fetchRemoteJson(url, required = true) {
+function decodeBase64Json(content) {
+  const jsonText = Buffer.from(String(content || "").replace(/\s/g, ""), "base64").toString("utf8")
+  return JSON.parse(jsonText)
+}
+
+async function fetchRawJson(url, required = true) {
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), REMOTE_TIMEOUT_MS)
 
@@ -159,7 +169,8 @@ async function fetchRemoteJson(url, required = true) {
     const response = await fetch(`${url}?t=${Date.now()}`, {
       signal: controller.signal,
       headers: {
-        Accept: "application/json"
+        Accept: "application/json",
+        "Cache-Control": "no-cache"
       }
     })
 
@@ -169,6 +180,39 @@ async function fetchRemoteJson(url, required = true) {
     }
 
     return await response.json()
+  } finally {
+    clearTimeout(timeoutId)
+  }
+}
+
+async function fetchRemoteJson(path, fallbackRawUrl, required = true) {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), REMOTE_TIMEOUT_MS)
+  const apiUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}?ref=${encodeURIComponent(GITHUB_BRANCH)}`
+
+  try {
+    try {
+      const response = await fetch(`${apiUrl}&t=${Date.now()}`, {
+        signal: controller.signal,
+        headers: {
+          Accept: "application/vnd.github+json",
+          "Cache-Control": "no-cache",
+          "X-GitHub-Api-Version": "2022-11-28"
+        }
+      })
+
+      if (!response.ok) {
+        if (!required && response.status === 404) return null
+        throw new Error(`GitHub API HTTP ${response.status}`)
+      }
+
+      const payload = await response.json()
+      if (!payload?.content) throw new Error("GitHub API sem content")
+      return decodeBase64Json(payload.content)
+    } catch (apiError) {
+      if (!fallbackRawUrl) throw apiError
+      return await fetchRawJson(fallbackRawUrl, required)
+    }
   } finally {
     clearTimeout(timeoutId)
   }
@@ -185,8 +229,8 @@ module.exports = async (req, res) => {
   res.setHeader("Cache-Control", "no-store")
 
   try {
-    const remotePayload = await fetchRemoteJson(REMOTE_USAGE_URL)
-    const remoteHistory = await fetchRemoteJson(REMOTE_HISTORY_URL, false)
+    const remotePayload = await fetchRemoteJson(REMOTE_USAGE_PATH, REMOTE_USAGE_URL)
+    const remoteHistory = await fetchRemoteJson(REMOTE_HISTORY_PATH, REMOTE_HISTORY_URL, false)
     return res.status(200).json(enrichPayload(remotePayload, remoteHistory))
   } catch (remoteError) {
     try {

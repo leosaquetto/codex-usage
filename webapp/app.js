@@ -18,6 +18,7 @@ let lastUsageSignature = "";
 let lastSuspendedAt = 0;
 let activeChart = "weekly";
 let activeAccountSort = "renewFirst";
+let hideExhaustedAccounts = false;
 
 /* =========================================
    Theme and Viewport
@@ -768,10 +769,7 @@ function buildAccountRecommendation(accounts) {
 }
 
 function accountRenewalTime(account) {
-  const times = [account.fiveHourResetDate, account.weeklyResetDate]
-    .map((date) => date?.getTime() || null)
-    .filter((time) => time !== null);
-  return times.length ? Math.min(...times) : Number.POSITIVE_INFINITY;
+  return account.weeklyResetDate?.getTime() || Number.POSITIVE_INFINITY;
 }
 
 function accountSortPercent(account) {
@@ -803,10 +801,24 @@ function sortedAccounts(accounts) {
   return list.sort((a, b) => accountRenewalTime(a) - accountRenewalTime(b) || byName(a, b));
 }
 
+function isAccountExhausted(account) {
+  const five = clampPercent(account.fiveHourPercent, null);
+  const weekly = clampPercent(account.weeklyPercent, null);
+  if (five === null || weekly === null) return false;
+  return five <= 0 || weekly <= 0;
+}
+
 function buildAccountCards(accounts, recommendedAccountId = null) {
-  return sortedAccounts(accounts).map((account) => {
-    const nextReset = accountRenewalTime(account);
-    const nextResetDate = Number.isFinite(nextReset) ? new Date(nextReset) : null;
+  const visibleAccounts = hideExhaustedAccounts
+    ? accounts.filter((account) => !isAccountExhausted(account))
+    : accounts;
+
+  return sortedAccounts(visibleAccounts).sort((a, b) => {
+    if (a.id === recommendedAccountId) return -1;
+    if (b.id === recommendedAccountId) return 1;
+    return 0;
+  }).map((account) => {
+    const weeklyResetDate = account.weeklyResetDate || null;
     const fiveParts = formatDateAndTimeParts(account.fiveHourResetDate);
     const weeklyParts = formatDateAndTimeParts(account.weeklyResetDate);
     return {
@@ -825,7 +837,7 @@ function buildAccountCards(accounts, recommendedAccountId = null) {
       weeklyDate: weeklyParts.date,
       weeklyTime: weeklyParts.time,
       expiresAt: account.subscriptionExpiresAtDate ? formatShortDatePtBr(account.subscriptionExpiresAtDate) : "--",
-      nextResetText: nextResetDate ? `${formatDurationMs(nextResetDate.getTime() - Date.now())}` : "--",
+      nextResetText: weeklyResetDate ? `${formatDurationMs(weeklyResetDate.getTime() - Date.now())}` : "--",
       tone: usageLevel(Math.min(
         clampPercent(account.fiveHourPercent, 100),
         clampPercent(account.weeklyPercent, 100),
@@ -879,8 +891,8 @@ function getElements() {
     refreshButton: document.getElementById("refreshButton"),
     notificationButton: document.getElementById("notificationButton"),
     accountSortSelect: document.getElementById("accountSortSelect"),
+    hideExhaustedButton: document.getElementById("hideExhaustedButton"),
     accountsGrid: document.getElementById("accountsGrid"),
-    recommendedAccountName: document.getElementById("recommendedAccountName"),
     totalWeeklyAvailableText: document.getElementById("totalWeeklyAvailableText"),
     totalWeeklyAvailableBar: document.getElementById("totalWeeklyAvailableBar"),
     totalWeeklyAvailableMeta: document.getElementById("totalWeeklyAvailableMeta"),
@@ -1046,7 +1058,7 @@ function renderAccountsGrid(container, accounts) {
 
     const pill = document.createElement("span");
     pill.className = "account-pill";
-    pill.textContent = account.isRecommended ? "Melhor agora" : account.planType;
+    pill.textContent = account.planType;
 
     top.append(logo, titleWrap, pill);
 
@@ -1060,7 +1072,7 @@ function renderAccountsGrid(container, accounts) {
     const footer = document.createElement("div");
     footer.className = "account-footer";
     const next = document.createElement("span");
-    next.textContent = `Próxima: ${account.nextResetText}`;
+    next.textContent = `Semanal: ${account.nextResetText}`;
     const expires = document.createElement("span");
     expires.textContent = `Expira: ${account.expiresAt}`;
     footer.append(next, expires);
@@ -1085,6 +1097,7 @@ function buildAccountCircle(label, percent, date, time) {
 
   const circle = document.createElement("div");
   circle.className = "account-circle";
+  circle.dataset.tone = usageLevel(percent);
   circle.style.setProperty("--circle-value", `${clampPercent(percent, 0) * 3.6}deg`);
   const percentEl = document.createElement("strong");
   percentEl.textContent = percentOrDash(percent);
@@ -1158,7 +1171,6 @@ function renderDashboard(els, viewModel) {
   if (els.weeklyWindowPlan) els.weeklyWindowPlan.textContent = viewModel.weekly.windowPlan;
   if (els.harvestSuggestion) els.harvestSuggestion.textContent = viewModel.weekly.harvest;
   setProgress(els.weeklyBar, viewModel.weekly.remaining);
-  if (els.recommendedAccountName) els.recommendedAccountName.textContent = viewModel.recommendation.accountName;
   if (els.totalWeeklyAvailableText) els.totalWeeklyAvailableText.textContent = viewModel.totalAvailability.weeklyText;
   setProgress(els.totalWeeklyAvailableBar, viewModel.totalAvailability.weeklyPercent);
   if (els.totalWeeklyAvailableMeta) els.totalWeeklyAvailableMeta.textContent = viewModel.totalAvailability.meta;
@@ -1290,6 +1302,14 @@ function bindEvents(els, usage, render) {
       triggerHaptic(8);
       render();
     }
+  });
+
+  els.hideExhaustedButton?.addEventListener("click", () => {
+    hideExhaustedAccounts = !hideExhaustedAccounts;
+    els.hideExhaustedButton.setAttribute("aria-pressed", String(hideExhaustedAccounts));
+    els.hideExhaustedButton.textContent = hideExhaustedAccounts ? "Mostrar esgotadas" : "Ocultar esgotadas";
+    triggerHaptic(8);
+    render();
   });
 
   els.themeColorInput?.addEventListener("input", (event) => {

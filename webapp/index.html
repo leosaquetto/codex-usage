@@ -36,7 +36,7 @@
         font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
       }
     </style>
-    <link rel="stylesheet" href="./style.css?v=badge_header_1" />
+    <link rel="stylesheet" href="./style.css?v=account_cards_3" />
   </head>
 
   <body class="is-loading">
@@ -133,12 +133,10 @@
           <div>
             <p class="section-kicker">Contas</p>
             <h2>Visão geral</h2>
+            <p class="account-method">Primeiro card: melhor combinação de 5h, semanal e renovação.</p>
           </div>
           <div class="accounts-header-side">
-            <div class="recommended-account" aria-label="Melhor conta para usar agora">
-              <span>Melhor conta agora</span>
-              <strong id="recommendedAccountName">--</strong>
-            </div>
+            <button type="button" id="hideExhaustedButton" class="toggle-button" aria-pressed="false">Ocultar esgotadas</button>
             <label class="sort-control" for="accountSortSelect">
               <span>Ordenar</span>
               <select id="accountSortSelect" aria-label="Ordenar contas">
@@ -156,8 +154,8 @@
 
       <details class="indicators-drawer">
         <summary>
-          <span>Indicadores principais</span>
-          <strong>5h e semanal</strong>
+          <span>Resumo agregado do pool</span>
+          <strong>Média 5h/semanal</strong>
         </summary>
 
         <section class="limits-grid" aria-label="Limites do Codex">
@@ -320,6 +318,6 @@
       </section>
     </main>
 
-    <script src="./app.js?v=weekly_notification_only_1" defer></script>
+    <script src="./app.js?v=account_cards_3" defer></script>
   </body>
 </html>

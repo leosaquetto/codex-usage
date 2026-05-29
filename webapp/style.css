@@ -717,6 +717,13 @@ input {
   line-height: 1;
 }
 
+.account-method {
+  margin: 5px 0 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.25;
+}
+
 .accounts-header-side {
   display: flex;
   align-items: flex-end;
@@ -725,38 +732,25 @@ input {
   min-width: 0;
 }
 
-.recommended-account {
-  display: inline-grid;
-  grid-template-columns: auto auto;
+.toggle-button {
+  display: inline-flex;
   align-items: center;
-  gap: 7px;
-  width: max-content;
-  max-width: 260px;
+  justify-content: center;
   min-height: 36px;
-  padding: 0 10px;
-  border: 1px solid color-mix(in srgb, var(--tone-ok) 22%, rgba(15, 23, 42, 0.07));
+  padding: 0 12px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--tone-ok) 6%, white);
+  color: var(--text-secondary);
+  background: #f8fafc;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
 }
 
-.recommended-account span {
-  color: var(--tone-ok);
-  font-size: 8px;
-  font-weight: 850;
-  letter-spacing: 0.08em;
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-.recommended-account strong {
-  min-width: 0;
-  color: var(--text-primary);
-  font-size: 13px;
-  font-weight: 900;
-  line-height: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.toggle-button[aria-pressed="true"] {
+  color: #fff;
+  border-color: var(--primary);
+  background: var(--primary);
 }
 
 .sort-control {
@@ -793,22 +787,18 @@ input {
 .account-card {
   --account-tone: var(--tone-ok);
   display: grid;
-  gap: 9px;
+  gap: 11px;
   min-width: 0;
-  padding: 12px;
+  padding: 13px;
   border: 1px solid color-mix(in srgb, var(--account-tone) 18%, rgba(15, 23, 42, 0.08));
   border-radius: 12px;
   background: #fff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.045);
 }
 
 .account-card[data-recommended="true"] {
-  border-color: color-mix(in srgb, var(--tone-ok) 42%, rgba(15, 23, 42, 0.08));
-  box-shadow: 0 14px 28px rgba(22, 163, 74, 0.12);
-}
-
-.account-card[data-recommended="true"] .account-pill {
-  color: #fff;
-  background: var(--tone-ok);
+  border-color: color-mix(in srgb, var(--account-tone) 54%, rgba(15, 23, 42, 0.08));
+  box-shadow: 0 14px 30px color-mix(in srgb, var(--account-tone) 13%, transparent);
 }
 
 .account-card[data-tone="safe"] {
@@ -835,7 +825,7 @@ input {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
   min-width: 0;
 }
 
@@ -851,9 +841,9 @@ input {
 
 .account-title h3 {
   margin: 0;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 850;
-  line-height: 1;
+  line-height: 1.1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -871,7 +861,9 @@ input {
 }
 
 .account-pill {
-  padding: 4px 6px;
+  align-self: start;
+  justify-self: end;
+  padding: 4px 7px;
   border-radius: 999px;
   color: var(--account-tone);
   background: color-mix(in srgb, var(--account-tone) 10%, white);
@@ -883,57 +875,89 @@ input {
 .account-meters {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 14px;
 }
 
 .account-circle-meter {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  align-items: start;
   gap: 9px;
   min-width: 0;
 }
 
 .account-circle {
   --circle-value: 0deg;
+  --circle-tone: var(--account-tone);
   position: relative;
   display: grid;
   place-items: center;
-  width: 54px;
+  width: clamp(74px, 8.6vw, 92px);
   aspect-ratio: 1;
   border-radius: 999px;
   background:
-    radial-gradient(circle at center, #fff 0 58%, transparent 59%),
-    conic-gradient(var(--account-tone) var(--circle-value), #e5e7eb 0);
+    radial-gradient(circle at center, #fff 0 57%, transparent 58%),
+    conic-gradient(var(--circle-tone) var(--circle-value), #e5e7eb 0);
   box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.04);
 }
 
+.account-circle[data-tone="safe"] {
+  --circle-tone: var(--tone-safe);
+}
+
+.account-circle[data-tone="ok"] {
+  --circle-tone: var(--tone-ok);
+}
+
+.account-circle[data-tone="warn"] {
+  --circle-tone: var(--tone-warn);
+}
+
+.account-circle[data-tone="caution"] {
+  --circle-tone: var(--tone-caution);
+}
+
+.account-circle[data-tone="danger"] {
+  --circle-tone: var(--tone-danger);
+}
+
 .account-circle strong {
-  color: var(--account-tone);
-  font-size: 13px;
-  font-weight: 850;
+  color: var(--circle-tone);
+  font-size: clamp(16px, 1.35vw, 20px);
+  font-weight: 800;
   line-height: 1;
 }
 
 .account-circle-meta {
   display: grid;
-  gap: 4px;
+  gap: 5px;
   min-width: 0;
+  width: 100%;
+  text-align: center;
 }
 
 .account-circle-meta > span {
   color: var(--text-muted);
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 800;
-  line-height: 1;
+  line-height: 1.05;
 }
 
-.account-reset,
+.account-reset {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
 .account-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  padding-top: 2px;
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
 }
 
 .account-reset,
@@ -1550,22 +1574,6 @@ input {
     min-width: 0;
   }
 
-  .recommended-account {
-    max-width: 138px;
-    min-height: 32px;
-    padding: 0 8px;
-    grid-template-columns: 1fr;
-    gap: 2px;
-  }
-
-  .recommended-account span {
-    font-size: 7px;
-  }
-
-  .recommended-account strong {
-    font-size: 12px;
-  }
-
   .sort-control {
     display: none;
   }
@@ -1576,12 +1584,12 @@ input {
   }
 
   .account-card {
-    gap: 8px;
-    padding: 9px;
+    gap: 9px;
+    padding: 10px;
   }
 
   .account-top {
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: auto minmax(0, 1fr) auto;
   }
 
   .account-logo {
@@ -1590,22 +1598,17 @@ input {
     border-radius: 7px;
   }
 
-  .account-pill {
-    grid-column: 1 / -1;
-    justify-self: start;
-  }
-
   .account-meters {
-    grid-template-columns: 1fr;
-    gap: 8px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
   }
 
   .account-circle {
-    width: 48px;
+    width: clamp(62px, 17vw, 78px);
   }
 
   .account-circle strong {
-    font-size: 12px;
+    font-size: clamp(14px, 3.8vw, 17px);
   }
 
   .account-reset,

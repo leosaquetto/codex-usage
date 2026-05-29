@@ -94,14 +94,17 @@ function formatPercent(value) {
 }
 
 function formatResetDuration(ms) {
-  if (!Number.isFinite(ms) || ms <= 0) return "reset agora"
+  if (!Number.isFinite(ms) || ms <= 0) return "agora"
   const totalMins = Math.floor(ms / 60000)
   const d = Math.floor(totalMins / 1440)
   const h = Math.floor((totalMins % 1440) / 60)
   const m = totalMins % 60
-  if (d > 0) return `reset em ${d}d ${h}h`
-  if (h > 0) return `reset em ${h}h ${m}m`
-  return `reset em ${m}m`
+  const parts = []
+  if (d > 0) parts.push(`${d} ${d === 1 ? "dia" : "dias"}`)
+  if (h > 0) parts.push(`${h} ${h === 1 ? "hora" : "horas"}`)
+  if (parts.length === 0) parts.push(`${m} ${m === 1 ? "minuto" : "minutos"}`)
+  if (parts.length === 1) return parts[0]
+  return `${parts[0]} e ${parts[1]}`
 }
 
 function getBadgeText(dateString) {
@@ -120,9 +123,11 @@ function getBadgeText(dateString) {
 function colorFor(percent) {
   const n = Number(percent)
   if (!Number.isFinite(n)) return new Color("#ffffff", 0.4)
-  if (n <= 10) return new Color("#ff453a")
-  if (n <= 30) return new Color("#ff9f0a")
-  return new Color("#3ade68")
+  if (n >= 95) return new Color("#4f8cff")
+  if (n >= 75) return new Color("#3ade68")
+  if (n >= 50) return new Color("#ff9f0a")
+  if (n >= 25) return new Color("#ffd60a")
+  return new Color("#ff453a")
 }
 
 function progressWidth(percent, barWidth) {
@@ -131,19 +136,36 @@ function progressWidth(percent, barWidth) {
   return Math.max(4, barWidth * (Math.max(0, Math.min(100, n)) / 100))
 }
 
-const cards = payload.accounts.slice(0, 8).map((account) => {
+function weeklyResetTime(account) {
+  return validDate(account.weeklyReset)?.getTime() || Number.POSITIVE_INFINITY
+}
+
+function dailyPoolAverage(accounts) {
+  const total = accounts
+    .map((account) => clampPercent(account.weeklyPercent))
+    .filter((value) => value !== null)
+    .reduce((sum, value) => sum + value, 0)
+  if (!Number.isFinite(total) || total <= 0) return "--%/dia"
+  return `${Math.round(total / 7)}%/dia`
+}
+
+const avgDaily = dailyPoolAverage(payload.accounts)
+
+const cards = [...payload.accounts].sort((a, b) => weeklyResetTime(a) - weeklyResetTime(b)).slice(0, 8).map((account) => {
   const weeklyReset = validDate(account.weeklyReset)
   return {
-    title: `${account.name}\n5h ${formatPercent(account.fiveHourPercent)}`,
+    title: account.name,
     logo,
-    percent: account.weeklyPercent,
+    weeklyPercent: account.weeklyPercent,
+    fiveHourPercent: account.fiveHourPercent,
     resetStr: weeklyReset ? formatResetDuration(weeklyReset.getTime() - now.getTime()) : "sem ciclo",
+    avgDaily,
     badgeStr: getBadgeText(account.weeklyReset)
   }
 })
 
 while (cards.length < 8) {
-  cards.push({ title: "Aguardando\n5h --%", logo, percent: null, resetStr: "sem dados", badgeStr: "--" })
+  cards.push({ title: "Aguardando", logo, weeklyPercent: null, fiveHourPercent: null, resetStr: "sem dados", avgDaily, badgeStr: "--" })
 }
 
 const w = new ListWidget()
@@ -187,15 +209,15 @@ function buildCard(parent, data) {
   }
 
   const title = topRow.addText(data.title)
-  title.font = Font.systemFont(8)
+  title.font = Font.boldSystemFont(10)
   title.textColor = Color.white()
-  title.lineLimit = 2
+  title.lineLimit = 1
 
   topRow.addSpacer()
 
-  const perc = topRow.addText(formatPercent(data.percent))
-  perc.font = Font.boldSystemFont(18)
-  perc.textColor = colorFor(data.percent)
+  const perc = topRow.addText(formatPercent(data.weeklyPercent))
+  perc.font = Font.boldSystemFont(19)
+  perc.textColor = colorFor(data.weeklyPercent)
   perc.minimumScaleFactor = 0.8
 
   card.addSpacer(7)
@@ -207,16 +229,43 @@ function buildCard(parent, data) {
   barBg.backgroundColor = new Color("#ffffff", 0.2)
   barBg.cornerRadius = 2.5
 
-  const fillW = progressWidth(data.percent, barW)
+  const fillW = progressWidth(data.weeklyPercent, barW)
   if (fillW > 0) {
     const fill = barBg.addStack()
     fill.size = new Size(fillW, 5)
-    fill.backgroundColor = colorFor(data.percent)
+    fill.backgroundColor = colorFor(data.weeklyPercent)
     fill.cornerRadius = 2.5
   }
   barBg.addSpacer()
 
-  card.addSpacer(7)
+  card.addSpacer(5)
+
+  const fiveRow = card.addStack()
+  fiveRow.centerAlignContent()
+  const fiveBadge = fiveRow.addStack()
+  fiveBadge.backgroundColor = new Color("#ffffff", 0.13)
+  fiveBadge.cornerRadius = 5
+  fiveBadge.setPadding(2, 5, 2, 5)
+  const fiveText = fiveBadge.addText(`5h ${formatPercent(data.fiveHourPercent)}`)
+  fiveText.font = Font.mediumSystemFont(8)
+  fiveText.textColor = colorFor(data.fiveHourPercent)
+  fiveRow.addSpacer(6)
+  const miniW = 76
+  const miniBar = fiveRow.addStack()
+  miniBar.layoutHorizontally()
+  miniBar.size = new Size(miniW, 4)
+  miniBar.backgroundColor = new Color("#ffffff", 0.16)
+  miniBar.cornerRadius = 2
+  const miniFillW = progressWidth(data.fiveHourPercent, miniW)
+  if (miniFillW > 0) {
+    const miniFill = miniBar.addStack()
+    miniFill.size = new Size(miniFillW, 4)
+    miniFill.backgroundColor = colorFor(data.fiveHourPercent)
+    miniFill.cornerRadius = 2
+  }
+  miniBar.addSpacer()
+
+  card.addSpacer(5)
 
   const footRow = card.addStack()
   footRow.centerAlignContent()
@@ -235,6 +284,13 @@ function buildCard(parent, data) {
   resetTxt.lineLimit = 1
 
   footRow.addSpacer()
+
+  const avgTxt = footRow.addText(data.avgDaily)
+  avgTxt.font = Font.mediumSystemFont(7)
+  avgTxt.textColor = new Color("#ffffff", 0.68)
+  avgTxt.lineLimit = 1
+
+  footRow.addSpacer(4)
 
   if (data.badgeStr !== "--") {
     const badge = footRow.addStack()

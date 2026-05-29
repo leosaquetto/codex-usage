@@ -36,7 +36,7 @@
         font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
       }
     </style>
-    <link rel="stylesheet" href="./style.css?v=switcher_accounts_1" />
+    <link rel="stylesheet" href="./style.css?v=badge_header_1" />
   </head>
 
   <body class="is-loading">
@@ -76,6 +76,19 @@
         </div>
       </header>
 
+      <section class="pool-panel" aria-label="Disponibilidade semanal total">
+        <div class="pool-panel-top">
+          <div>
+            <p class="section-kicker">Pool semanal total</p>
+            <h2 id="totalWeeklyAvailableText">--%</h2>
+          </div>
+          <p id="totalWeeklyAvailableMeta">Soma normalizada do semanal de todas as contas.</p>
+        </div>
+        <div class="total-availability-track" role="progressbar" aria-label="Total semanal disponível em todas as contas" aria-valuemin="0" aria-valuemax="100">
+          <div id="totalWeeklyAvailableBar" class="total-availability-fill"></div>
+        </div>
+      </section>
+
       <section class="status-panel" aria-label="Status geral">
         <div class="status-copy">
           <span id="statusDot" class="status-dot"></span>
@@ -109,7 +122,7 @@
           <path d="m9 12 2 2 4-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
         <div>
-          <p class="section-kicker">Insight agora</p>
+          <p class="section-kicker">Ritmo</p>
           <h2 id="usageSuggestion">Aguardando dados</h2>
           <p id="usageSuggestionMeta">A tela calcula ritmo e saldo assim que carregar.</p>
         </div>
@@ -121,22 +134,34 @@
             <p class="section-kicker">Contas</p>
             <h2>Visão geral</h2>
           </div>
-          <label class="sort-control" for="accountSortSelect">
-            <span>Ordenar</span>
-            <select id="accountSortSelect" aria-label="Ordenar contas">
-              <option value="renewFirst">Renovam primeiro</option>
-              <option value="renewLast">Renovam por último</option>
-              <option value="highestPercent">Maior %</option>
-              <option value="lowestPercent">Menor %</option>
-              <option value="expiry">Data de expiração</option>
-            </select>
-          </label>
+          <div class="accounts-header-side">
+            <div class="recommended-account" aria-label="Melhor conta para usar agora">
+              <span>Melhor conta agora</span>
+              <strong id="recommendedAccountName">--</strong>
+            </div>
+            <label class="sort-control" for="accountSortSelect">
+              <span>Ordenar</span>
+              <select id="accountSortSelect" aria-label="Ordenar contas">
+                <option value="renewFirst">Renovam primeiro</option>
+                <option value="renewLast">Renovam por último</option>
+                <option value="highestPercent">Maior %</option>
+                <option value="lowestPercent">Menor %</option>
+                <option value="expiry">Data de expiração</option>
+              </select>
+            </label>
+          </div>
         </div>
         <div id="accountsGrid" class="accounts-grid"></div>
       </section>
 
-      <section class="limits-grid" aria-label="Limites do Codex">
-        <article class="limit-card" data-limit="fiveHour">
+      <details class="indicators-drawer">
+        <summary>
+          <span>Indicadores principais</span>
+          <strong>5h e semanal</strong>
+        </summary>
+
+        <section class="limits-grid" aria-label="Limites do Codex">
+          <article class="limit-card" data-limit="fiveHour">
           <div class="limit-card-top">
             <div class="card-heading">
               <span class="card-icon-shell">
@@ -181,9 +206,9 @@
               <strong id="fiveHourIdealRate">--/h</strong>
             </div>
           </div>
-        </article>
+          </article>
 
-        <article class="limit-card" data-limit="weekly">
+          <article class="limit-card" data-limit="weekly">
           <div class="limit-card-top">
             <div class="card-heading">
               <span class="card-icon-shell">
@@ -233,8 +258,9 @@
               <strong id="weeklyProjection">--</strong>
             </div>
           </div>
-        </article>
-      </section>
+          </article>
+        </section>
+      </details>
 
       <section class="compare-card" aria-label="Comparativo de ritmo semanal">
         <div class="compare-header">
@@ -294,6 +320,6 @@
       </section>
     </main>
 
-    <script src="./app.js?v=switcher_accounts_2" defer></script>
+    <script src="./app.js?v=weekly_notification_only_1" defer></script>
   </body>
 </html>

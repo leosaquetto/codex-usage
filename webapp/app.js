@@ -313,6 +313,11 @@ function formatCompareWidth(value, max) {
   return `${Math.min(100, Math.max(0, (value / max) * 100))}%`;
 }
 
+function formatAccountPercent(value) {
+  const n = clampPercent(value, null);
+  return n === null ? "--%" : `${Math.round(n)}%`;
+}
+
 function capitalizeFirst(value) {
   if (typeof value !== "string" || value.length === 0) return value;
   return value.charAt(0).toLocaleUpperCase("pt-BR") + value.slice(1);
@@ -352,8 +357,9 @@ function usageLevel(remainingPercent) {
   const remaining = clampPercent(remainingPercent, null);
   if (remaining === null) return "warn";
   if (remaining >= 95) return "safe";
-  if (remaining >= 70) return "ok";
-  if (remaining >= 40) return "warn";
+  if (remaining >= 75) return "ok";
+  if (remaining >= 50) return "warn";
+  if (remaining >= 25) return "caution";
   return "danger";
 }
 
@@ -583,6 +589,8 @@ function buildUsageBandTitle(metrics) {
 
 function buildLimitViewModel(usage, hasLoadError = false) {
   const metrics = buildLiveMetrics(usage);
+  const recommendation = buildAccountRecommendation(usage.accounts || []);
+  const accountCards = buildAccountCards(usage.accounts || [], recommendation?.account?.id || null);
   const fiveHour = buildFiveHourDecision(usage, metrics);
   const weeklyQuestion = buildWeeklyQuestion(metrics);
   const weeklyAdvice = buildWeeklyAdvice(metrics);
@@ -655,10 +663,22 @@ function buildLimitViewModel(usage, hasLoadError = false) {
       usePlan: weeklyPlan,
       harvest: buildHarvestAdvice(metrics),
     },
+    totalAvailability: {
+      weeklyPercent: Math.round(metrics.weeklyRemaining),
+      weeklyText: percentOrDash(metrics.weeklyRemaining),
+      meta: buildPoolAvailabilityText(usage.accounts || [], metrics.weeklyRemaining),
+    },
+    recommendation: recommendation ? {
+      accountName: recommendation.account.name,
+      meta: recommendation.reason,
+    } : {
+      accountName: "--",
+      meta: "Nenhuma conta com 5h e semanal disponíveis agora.",
+    },
     suggestion: {
       title: weeklyAdvice,
       meta: Number.isFinite(metrics.idealPerWindow) && Number.isFinite(metrics.windowsRemaining)
-        ? `Ainda dá para usar cerca de ${formatPercent(metrics.idealPerWindow)} em cada uma das próximas ${metrics.windowsRemaining} janelas.`
+        ? `Ritmo calculado sobre o agregado semanal das contas: cerca de ${formatPercent(metrics.idealPerWindow)} por janela nas próximas ${metrics.windowsRemaining}.`
         : weeklyQuestion,
     },
     compare: {
@@ -683,8 +703,67 @@ function buildLimitViewModel(usage, hasLoadError = false) {
         y: sample.weeklyPercent,
       })),
     },
-    accounts: buildAccountCards(usage.accounts || []),
+    accounts: accountCards,
     metrics,
+  };
+}
+
+function buildPoolAvailabilityText(accounts, fallbackPercent) {
+  const weeklyValues = accounts
+    .map((account) => clampPercent(account.weeklyPercent, null))
+    .filter((value) => value !== null);
+  if (!weeklyValues.length) return "Soma normalizada do semanal de todas as contas.";
+
+  const available = weeklyValues.reduce((sum, value) => sum + value, 0);
+  const capacity = weeklyValues.length * 100;
+  const normalized = Number.isFinite(fallbackPercent)
+    ? Math.round(fallbackPercent)
+    : Math.round((available / capacity) * 100);
+  return `${Math.round(available)} pontos disponíveis de ${capacity} no pool semanal (${normalized}%).`;
+}
+
+function hoursUntil(date) {
+  if (!date) return Number.POSITIVE_INFINITY;
+  return (date.getTime() - Date.now()) / 3600000;
+}
+
+function scoreAccountForNow(account) {
+  if (account.status === "error") return null;
+  const five = clampPercent(account.fiveHourPercent, null);
+  const weekly = clampPercent(account.weeklyPercent, null);
+  if (five === null || weekly === null) return null;
+
+  const limiting = Math.min(five, weekly);
+  const weeklyHours = hoursUntil(account.weeklyResetDate);
+  const fiveHours = hoursUntil(account.fiveHourResetDate);
+  const soonWeeklyResetBoost = weekly > 25 && weeklyHours > 0 && weeklyHours <= 30
+    ? Math.max(0, 10 - weeklyHours / 3)
+    : 0;
+  const soonFiveResetNudge = five < 25 && fiveHours > 0 && fiveHours <= 1 ? 3 : 0;
+  const lowFivePenalty = five < 15 ? 22 : five < 30 ? 8 : 0;
+  const lowWeeklyPenalty = weekly < 15 ? 28 : weekly < 30 ? 10 : 0;
+
+  return (five * 0.42) + (weekly * 0.42) + (limiting * 0.16) + soonWeeklyResetBoost + soonFiveResetNudge - lowFivePenalty - lowWeeklyPenalty;
+}
+
+function buildAccountRecommendation(accounts) {
+  const ranked = accounts
+    .map((account) => ({ account, score: scoreAccountForNow(account) }))
+    .filter((item) => Number.isFinite(item.score))
+    .sort((a, b) => b.score - a.score);
+
+  const best = ranked[0];
+  if (!best) return null;
+
+  const five = formatAccountPercent(best.account.fiveHourPercent);
+  const weekly = formatAccountPercent(best.account.weeklyPercent);
+  const fiveReset = best.account.fiveHourResetDate ? formatDurationMs(best.account.fiveHourResetDate.getTime() - Date.now()) : "--";
+  const weeklyReset = best.account.weeklyResetDate ? formatDurationMs(best.account.weeklyResetDate.getTime() - Date.now()) : "--";
+
+  return {
+    account: best.account,
+    score: best.score,
+    reason: `${five} em 5h, ${weekly} semanal. 5h renova em ${fiveReset}; semanal em ${weeklyReset}.`,
   };
 }
 
@@ -724,7 +803,7 @@ function sortedAccounts(accounts) {
   return list.sort((a, b) => accountRenewalTime(a) - accountRenewalTime(b) || byName(a, b));
 }
 
-function buildAccountCards(accounts) {
+function buildAccountCards(accounts, recommendedAccountId = null) {
   return sortedAccounts(accounts).map((account) => {
     const nextReset = accountRenewalTime(account);
     const nextResetDate = Number.isFinite(nextReset) ? new Date(nextReset) : null;
@@ -738,6 +817,7 @@ function buildAccountCards(accounts) {
       isActive: account.isActive,
       status: account.status,
       error: account.error,
+      isRecommended: account.id === recommendedAccountId,
       fiveHourPercent: account.fiveHourPercent,
       weeklyPercent: account.weeklyPercent,
       fiveHourDate: fiveParts.date,
@@ -800,6 +880,10 @@ function getElements() {
     notificationButton: document.getElementById("notificationButton"),
     accountSortSelect: document.getElementById("accountSortSelect"),
     accountsGrid: document.getElementById("accountsGrid"),
+    recommendedAccountName: document.getElementById("recommendedAccountName"),
+    totalWeeklyAvailableText: document.getElementById("totalWeeklyAvailableText"),
+    totalWeeklyAvailableBar: document.getElementById("totalWeeklyAvailableBar"),
+    totalWeeklyAvailableMeta: document.getElementById("totalWeeklyAvailableMeta"),
     statusDot: document.getElementById("statusDot"),
     statusText: document.getElementById("statusText"),
     statusMeta: document.getElementById("statusMeta"),
@@ -941,6 +1025,7 @@ function renderAccountsGrid(container, accounts) {
     const card = document.createElement("article");
     card.className = "account-card";
     card.dataset.tone = account.tone;
+    if (account.isRecommended) card.dataset.recommended = "true";
 
     const top = document.createElement("div");
     top.className = "account-top";
@@ -961,15 +1046,15 @@ function renderAccountsGrid(container, accounts) {
 
     const pill = document.createElement("span");
     pill.className = "account-pill";
-    pill.textContent = account.planType;
+    pill.textContent = account.isRecommended ? "Melhor agora" : account.planType;
 
     top.append(logo, titleWrap, pill);
 
     const meters = document.createElement("div");
     meters.className = "account-meters";
     meters.append(
-      buildAccountMeter("5h", account.fiveHourPercent, account.fiveHourDate, account.fiveHourTime),
-      buildAccountMeter("Semanal", account.weeklyPercent, account.weeklyDate, account.weeklyTime),
+      buildAccountCircle("5h", account.fiveHourPercent, account.fiveHourDate, account.fiveHourTime),
+      buildAccountCircle("Semanal", account.weeklyPercent, account.weeklyDate, account.weeklyTime),
     );
 
     const footer = document.createElement("div");
@@ -994,24 +1079,21 @@ function renderAccountsGrid(container, accounts) {
   container.append(fragment);
 }
 
-function buildAccountMeter(label, percent, date, time) {
+function buildAccountCircle(label, percent, date, time) {
   const wrap = document.createElement("div");
-  wrap.className = "account-meter";
+  wrap.className = "account-circle-meter";
 
-  const row = document.createElement("div");
-  row.className = "account-meter-row";
-  const labelEl = document.createElement("span");
-  labelEl.textContent = label;
+  const circle = document.createElement("div");
+  circle.className = "account-circle";
+  circle.style.setProperty("--circle-value", `${clampPercent(percent, 0) * 3.6}deg`);
   const percentEl = document.createElement("strong");
   percentEl.textContent = percentOrDash(percent);
-  row.append(labelEl, percentEl);
+  circle.append(percentEl);
 
-  const track = document.createElement("div");
-  track.className = "account-progress";
-  const fill = document.createElement("div");
-  fill.style.width = `${clampPercent(percent, 0)}%`;
-  track.append(fill);
-
+  const meta = document.createElement("div");
+  meta.className = "account-circle-meta";
+  const labelEl = document.createElement("span");
+  labelEl.textContent = label;
   const reset = document.createElement("div");
   reset.className = "account-reset";
   const dateEl = document.createElement("span");
@@ -1019,8 +1101,9 @@ function buildAccountMeter(label, percent, date, time) {
   const timeEl = document.createElement("span");
   timeEl.textContent = time;
   reset.append(dateEl, timeEl);
+  meta.append(labelEl, reset);
 
-  wrap.append(row, track, reset);
+  wrap.append(circle, meta);
   return wrap;
 }
 
@@ -1075,6 +1158,10 @@ function renderDashboard(els, viewModel) {
   if (els.weeklyWindowPlan) els.weeklyWindowPlan.textContent = viewModel.weekly.windowPlan;
   if (els.harvestSuggestion) els.harvestSuggestion.textContent = viewModel.weekly.harvest;
   setProgress(els.weeklyBar, viewModel.weekly.remaining);
+  if (els.recommendedAccountName) els.recommendedAccountName.textContent = viewModel.recommendation.accountName;
+  if (els.totalWeeklyAvailableText) els.totalWeeklyAvailableText.textContent = viewModel.totalAvailability.weeklyText;
+  setProgress(els.totalWeeklyAvailableBar, viewModel.totalAvailability.weeklyPercent);
+  if (els.totalWeeklyAvailableMeta) els.totalWeeklyAvailableMeta.textContent = viewModel.totalAvailability.meta;
   els.usageSuggestion.textContent = capitalizeFirst(viewModel.suggestion.title);
   els.usageSuggestionMeta.textContent = viewModel.suggestion.meta;
   if (els.usageBandValue) els.usageBandValue.textContent = viewModel.compare.band;
@@ -1098,7 +1185,7 @@ function triggerHaptic(duration = 10) {
 }
 
 function notificationStateKey() {
-  return "codex-notification-state-v2";
+  return "codex-notification-state-v3";
 }
 
 function readNotificationState() {
@@ -1135,92 +1222,38 @@ function sendNotification(title, body, tag) {
   }
 }
 
-function getNotificationThresholds(remaining, kind) {
-  const value = clampPercent(remaining, null);
-  if (value === null) return [];
-  const thresholds = kind === "fiveHour" ? [50, 20] : [80, 60, 40, 20];
-  return thresholds.filter((threshold) => value <= threshold);
-}
-
-function localDateKey(date = new Date()) {
-  return [
-    date.getFullYear(),
-    String(date.getMonth() + 1).padStart(2, "0"),
-    String(date.getDate()).padStart(2, "0"),
-  ].join("-");
-}
-
-function maybeNotifyThresholds(usage, state) {
-  for (const threshold of getNotificationThresholds(usage.weeklyPercent, "weekly")) {
-    const key = `weekly-threshold-${threshold}`;
-    if (!state[key] && sendNotification("Codex semanal", `Limite semanal em ${usage.weeklyPercent}%.`, key)) {
-      state[key] = true;
-    }
-  }
-
-  for (const threshold of getNotificationThresholds(usage.fiveHourPercent, "fiveHour")) {
-    const key = `fiveHour-threshold-${threshold}`;
-    if (!state[key] && sendNotification("Codex 5 horas", `Janela de 5 horas em ${usage.fiveHourPercent}%.`, key)) {
-      state[key] = true;
-    }
-  }
-}
-
-function maybeNotifyRenewals(usage, state, previous) {
-  const fiveHour = clampPercent(usage.fiveHourPercent, null);
-  const weekly = clampPercent(usage.weeklyPercent, null);
-  const currentFiveReset = usage.fiveHourResetDate?.toISOString() || null;
-  const currentWeeklyReset = usage.weeklyResetDate?.toISOString() || null;
-
-  if (previous.fiveHourReset && currentFiveReset && previous.fiveHourReset !== currentFiveReset && fiveHour !== null && fiveHour < 100) {
-    sendNotification("Codex 5 horas", `Renovação ajustada para ${formatDateTimePtBr(usage.fiveHourResetDate)}.`, "five-hour-reset-changed");
-  }
-  if (previous.weeklyReset && currentWeeklyReset && previous.weeklyReset !== currentWeeklyReset && weekly !== null && weekly < 100) {
-    sendNotification("Codex semanal", `Renovação ajustada para ${formatDateTimePtBr(usage.weeklyResetDate)}.`, "weekly-reset-changed");
-  }
-  if (previous.fiveHourPercent !== null && previous.fiveHourPercent < 100 && fiveHour === 100) {
-    sendNotification("Codex 5 horas", "Janela de 5 horas renovada.", "five-hour-renewed");
-  }
-  if (previous.weeklyPercent !== null && previous.weeklyPercent < 100 && weekly === 100) {
-    sendNotification("Codex semanal", "Limite semanal renovado.", "weekly-renewed");
-  }
-}
-
-function maybeNotifyDailySummary(usage, state) {
-  const now = new Date();
-  if (now.getHours() !== 9) return;
-  const todayKey = localDateKey(now);
-  if (state.dailySummaryDate === todayKey) return;
-
-  const body = [
-    `5h: ${formatUsed(usage.fiveHourPercent)} · renova ${formatDateTimePtBr(usage.fiveHourResetDate)}`,
-    `Semanal: ${formatUsed(usage.weeklyPercent)} · renova ${formatDateTimePtBr(usage.weeklyResetDate)}`,
-  ].join(" | ");
-
-  if (sendNotification("Resumo diário Codex", body, `daily-summary-${todayKey}`)) {
-    state.dailySummaryDate = todayKey;
-  }
-}
-
 function syncNotifications(usage) {
   if (!canNotify()) return;
 
   const state = readNotificationState();
-  const previous = {
-    fiveHourPercent: clampPercent(state.lastFiveHourPercent, null),
-    weeklyPercent: clampPercent(state.lastWeeklyPercent, null),
-    fiveHourReset: typeof state.lastFiveReset === "string" ? state.lastFiveReset : null,
-    weeklyReset: typeof state.lastWeeklyReset === "string" ? state.lastWeeklyReset : null,
-  };
+  const byAccount = state.weeklyByAccount && typeof state.weeklyByAccount === "object"
+    ? state.weeklyByAccount
+    : {};
 
-  maybeNotifyRenewals(usage, state, previous);
-  maybeNotifyThresholds(usage, state);
-  maybeNotifyDailySummary(usage, state);
+  for (const account of usage.accounts || []) {
+    const accountKey = account.id || account.name;
+    if (!accountKey) continue;
 
-  state.lastFiveHourPercent = clampPercent(usage.fiveHourPercent, null);
-  state.lastWeeklyPercent = clampPercent(usage.weeklyPercent, null);
-  state.lastFiveReset = usage.fiveHourResetDate?.toISOString() || null;
-  state.lastWeeklyReset = usage.weeklyResetDate?.toISOString() || null;
+    const currentReset = account.weeklyResetDate?.toISOString() || null;
+    const currentPercent = clampPercent(account.weeklyPercent, null);
+    const previous = byAccount[accountKey] || {};
+    const previousReset = typeof previous.weeklyReset === "string" ? previous.weeklyReset : null;
+    const previousPercent = clampPercent(previous.weeklyPercent, null);
+    const resetChanged = Boolean(previousReset && currentReset && previousReset !== currentReset);
+    const refilled = previousPercent !== null && previousPercent < 95 && currentPercent !== null && currentPercent >= 95;
+
+    if (resetChanged || refilled) {
+      const message = `Período semanal da conta ${account.name} renova agora!`;
+      sendNotification(message, "", `weekly-renewed-${accountKey}-${currentReset || "full"}`);
+    }
+
+    byAccount[accountKey] = {
+      weeklyReset: currentReset,
+      weeklyPercent: currentPercent,
+    };
+  }
+
+  state.weeklyByAccount = byAccount;
   state.lastSeenUpdatedAt = usage.lastUpdatedDate?.toISOString() || null;
   writeNotificationState(state);
 }
@@ -1284,7 +1317,6 @@ function bindEvents(els, usage, render) {
       localStorage.setItem("notificationsEnabled", String(permission === "granted"));
       updateNotificationButton(els.notificationButton);
       if (permission === "granted") {
-        sendNotification("Notificações ativadas", "Você será alertado sobre limites e renovações.", "notification-test");
         syncNotifications(usage);
       }
     });
@@ -1323,7 +1355,6 @@ async function init() {
 
   render();
   if (!hasLoadError) saveLastValidPayload(usage);
-  if (usage.fiveHourPercent > 50 && usage.weeklyPercent > 50) resetNotificationFlags();
   updateNotificationButton(els.notificationButton);
   bindEvents(els, usage, render);
   syncNotifications(usage);

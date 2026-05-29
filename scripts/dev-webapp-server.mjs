@@ -9,6 +9,7 @@ import usageHandler from "../webapp/api/usage.js";
 const rootDir = new URL("../webapp/", import.meta.url);
 const port = Number(process.env.PORT || 8080);
 const host = process.env.HOST || "0.0.0.0";
+process.env.CODEX_USAGE_USE_LOCAL_FILES ||= "1";
 
 const MIME_TYPES = {
   ".css": "text/css; charset=utf-8",

@@ -17,6 +17,7 @@ let activeUsageController = null;
 let lastUsageSignature = "";
 let lastSuspendedAt = 0;
 let activeChart = "weekly";
+let activeAccountSort = "renewFirst";
 
 /* =========================================
    Theme and Viewport
@@ -105,17 +106,40 @@ function normalizeHistorySamples(rawSamples) {
 
 function normalizeUsage(raw) {
   const json = raw && typeof raw === "object" ? raw : {};
+  const aggregate = json.aggregate && typeof json.aggregate === "object" ? json.aggregate : json;
   const fiveHourResetIsNull = json.fiveHourReset === null;
 
   return {
-    fiveHourPercent: clampPercent(json.fiveHourPercent, SAFE_FALLBACK.fiveHourPercent),
+    source: typeof json.source === "string" ? json.source : null,
+    accountCount: Number.isFinite(Number(json.accountCount)) ? Number(json.accountCount) : 0,
+    okCount: Number.isFinite(Number(json.okCount)) ? Number(json.okCount) : 0,
+    accounts: normalizeAccounts(json.accounts),
+    fiveHourPercent: clampPercent(aggregate.fiveHourPercent, SAFE_FALLBACK.fiveHourPercent),
     fiveHourResetIsNull,
-    fiveHourResetDate: fiveHourResetIsNull ? null : parseDate(json.fiveHourReset),
-    weeklyPercent: clampPercent(json.weeklyPercent, SAFE_FALLBACK.weeklyPercent),
-    weeklyResetDate: parseDate(json.weeklyReset),
+    fiveHourResetDate: fiveHourResetIsNull ? null : parseDate(aggregate.fiveHourReset),
+    weeklyPercent: clampPercent(aggregate.weeklyPercent, SAFE_FALLBACK.weeklyPercent),
+    weeklyResetDate: parseDate(aggregate.weeklyReset),
     lastUpdatedDate: parseDate(json.lastUpdated),
     historySamples: normalizeHistorySamples(json.historySamples),
   };
+}
+
+function normalizeAccounts(rawAccounts) {
+  if (!Array.isArray(rawAccounts)) return [];
+  return rawAccounts.map((account) => ({
+    id: String(account?.id || account?.name || crypto.randomUUID?.() || Math.random()),
+    name: String(account?.name || account?.displayName || "Conta"),
+    email: typeof account?.email === "string" ? account.email : "",
+    planType: typeof account?.planType === "string" ? account.planType : "",
+    subscriptionExpiresAtDate: parseDate(account?.subscriptionExpiresAt),
+    isActive: Boolean(account?.isActive),
+    fiveHourPercent: clampPercent(account?.fiveHourPercent, null),
+    fiveHourResetDate: parseDate(account?.fiveHourReset),
+    weeklyPercent: clampPercent(account?.weeklyPercent, null),
+    weeklyResetDate: parseDate(account?.weeklyReset),
+    status: account?.status === "error" ? "error" : "ok",
+    error: typeof account?.error === "string" ? account.error : "",
+  })).filter((account) => account.name);
 }
 
 async function loadUsage() {
@@ -158,6 +182,20 @@ function saveLastValidPayload(usage) {
       fiveHourReset: sample.fiveHourResetDate?.toISOString() || null,
       weeklyPercent: sample.weeklyPercent,
       weeklyReset: sample.weeklyResetDate.toISOString(),
+    })) || [],
+    accounts: usage.accounts?.map((account) => ({
+      id: account.id,
+      name: account.name,
+      email: account.email,
+      planType: account.planType,
+      subscriptionExpiresAt: account.subscriptionExpiresAtDate?.toISOString() || null,
+      isActive: account.isActive,
+      fiveHourPercent: account.fiveHourPercent,
+      fiveHourReset: account.fiveHourResetDate?.toISOString() || null,
+      weeklyPercent: account.weeklyPercent,
+      weeklyReset: account.weeklyResetDate?.toISOString() || null,
+      status: account.status,
+      error: account.error,
     })) || [],
   };
   const signature = JSON.stringify(payload);
@@ -206,6 +244,21 @@ function formatTimePartPtBr(date) {
     hour: "2-digit",
     minute: "2-digit",
   }).format(date);
+}
+
+function formatShortDatePtBr(date) {
+  if (!date) return "--";
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+  }).format(date);
+}
+
+function formatDateAndTimeParts(date) {
+  return {
+    date: formatDatePartPtBr(date),
+    time: formatTimePartPtBr(date),
+  };
 }
 
 function formatCountdownMs(ms, options = {}) {
@@ -269,6 +322,11 @@ function formatUsed(remainingPercent) {
   const remaining = clampPercent(remainingPercent, null);
   if (remaining === null) return "--";
   return `${Math.round(100 - remaining)}% de 100%`;
+}
+
+function percentOrDash(value) {
+  const n = clampPercent(value, null);
+  return n === null ? "--" : `${Math.round(n)}%`;
 }
 
 function formatProjectedBalance(value) {
@@ -625,8 +683,75 @@ function buildLimitViewModel(usage, hasLoadError = false) {
         y: sample.weeklyPercent,
       })),
     },
+    accounts: buildAccountCards(usage.accounts || []),
     metrics,
   };
+}
+
+function accountRenewalTime(account) {
+  const times = [account.fiveHourResetDate, account.weeklyResetDate]
+    .map((date) => date?.getTime() || null)
+    .filter((time) => time !== null);
+  return times.length ? Math.min(...times) : Number.POSITIVE_INFINITY;
+}
+
+function accountSortPercent(account) {
+  const values = [account.fiveHourPercent, account.weeklyPercent].filter((value) => value !== null);
+  if (values.length === 0) return -1;
+  return Math.min(...values);
+}
+
+function sortedAccounts(accounts) {
+  const list = [...accounts];
+  const byName = (a, b) => a.name.localeCompare(b.name, "pt-BR");
+
+  if (activeAccountSort === "renewLast") {
+    return list.sort((a, b) => accountRenewalTime(b) - accountRenewalTime(a) || byName(a, b));
+  }
+  if (activeAccountSort === "highestPercent") {
+    return list.sort((a, b) => accountSortPercent(b) - accountSortPercent(a) || byName(a, b));
+  }
+  if (activeAccountSort === "lowestPercent") {
+    return list.sort((a, b) => accountSortPercent(a) - accountSortPercent(b) || byName(a, b));
+  }
+  if (activeAccountSort === "expiry") {
+    return list.sort((a, b) => {
+      const aTime = a.subscriptionExpiresAtDate?.getTime() || Number.POSITIVE_INFINITY;
+      const bTime = b.subscriptionExpiresAtDate?.getTime() || Number.POSITIVE_INFINITY;
+      return aTime - bTime || byName(a, b);
+    });
+  }
+  return list.sort((a, b) => accountRenewalTime(a) - accountRenewalTime(b) || byName(a, b));
+}
+
+function buildAccountCards(accounts) {
+  return sortedAccounts(accounts).map((account) => {
+    const nextReset = accountRenewalTime(account);
+    const nextResetDate = Number.isFinite(nextReset) ? new Date(nextReset) : null;
+    const fiveParts = formatDateAndTimeParts(account.fiveHourResetDate);
+    const weeklyParts = formatDateAndTimeParts(account.weeklyResetDate);
+    return {
+      id: account.id,
+      name: account.name,
+      email: account.email,
+      planType: account.planType ? account.planType.toUpperCase() : "--",
+      isActive: account.isActive,
+      status: account.status,
+      error: account.error,
+      fiveHourPercent: account.fiveHourPercent,
+      weeklyPercent: account.weeklyPercent,
+      fiveHourDate: fiveParts.date,
+      fiveHourTime: fiveParts.time,
+      weeklyDate: weeklyParts.date,
+      weeklyTime: weeklyParts.time,
+      expiresAt: account.subscriptionExpiresAtDate ? formatShortDatePtBr(account.subscriptionExpiresAtDate) : "--",
+      nextResetText: nextResetDate ? `${formatDurationMs(nextResetDate.getTime() - Date.now())}` : "--",
+      tone: usageLevel(Math.min(
+        clampPercent(account.fiveHourPercent, 100),
+        clampPercent(account.weeklyPercent, 100),
+      )),
+    };
+  });
 }
 
 function resolveStatus(metrics, hasLoadError) {
@@ -673,6 +798,8 @@ function getElements() {
     themeColorInput: document.getElementById("themeColorInput"),
     refreshButton: document.getElementById("refreshButton"),
     notificationButton: document.getElementById("notificationButton"),
+    accountSortSelect: document.getElementById("accountSortSelect"),
+    accountsGrid: document.getElementById("accountsGrid"),
     statusDot: document.getElementById("statusDot"),
     statusText: document.getElementById("statusText"),
     statusMeta: document.getElementById("statusMeta"),
@@ -797,6 +924,106 @@ function renderSparkline(svg, points) {
   }));
 }
 
+function renderAccountsGrid(container, accounts) {
+  if (!container) return;
+  container.replaceChildren();
+
+  if (!accounts.length) {
+    const empty = document.createElement("p");
+    empty.className = "accounts-empty";
+    empty.textContent = "Nenhuma conta do Codex Switcher publicada ainda.";
+    container.append(empty);
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+  for (const account of accounts) {
+    const card = document.createElement("article");
+    card.className = "account-card";
+    card.dataset.tone = account.tone;
+
+    const top = document.createElement("div");
+    top.className = "account-top";
+
+    const logo = document.createElement("img");
+    logo.className = "account-logo";
+    logo.src = "/assets/codex-color.png";
+    logo.alt = "";
+    logo.loading = "lazy";
+
+    const titleWrap = document.createElement("div");
+    titleWrap.className = "account-title";
+    const title = document.createElement("h3");
+    title.textContent = account.name;
+    const meta = document.createElement("p");
+    meta.textContent = account.isActive ? "Ativa no Switcher" : "Codex Switcher";
+    titleWrap.append(title, meta);
+
+    const pill = document.createElement("span");
+    pill.className = "account-pill";
+    pill.textContent = account.planType;
+
+    top.append(logo, titleWrap, pill);
+
+    const meters = document.createElement("div");
+    meters.className = "account-meters";
+    meters.append(
+      buildAccountMeter("5h", account.fiveHourPercent, account.fiveHourDate, account.fiveHourTime),
+      buildAccountMeter("Semanal", account.weeklyPercent, account.weeklyDate, account.weeklyTime),
+    );
+
+    const footer = document.createElement("div");
+    footer.className = "account-footer";
+    const next = document.createElement("span");
+    next.textContent = `Próxima: ${account.nextResetText}`;
+    const expires = document.createElement("span");
+    expires.textContent = `Expira: ${account.expiresAt}`;
+    footer.append(next, expires);
+
+    if (account.status === "error") {
+      const error = document.createElement("p");
+      error.className = "account-error";
+      error.textContent = account.error || "Falha ao atualizar.";
+      card.append(top, error, footer);
+    } else {
+      card.append(top, meters, footer);
+    }
+    fragment.append(card);
+  }
+
+  container.append(fragment);
+}
+
+function buildAccountMeter(label, percent, date, time) {
+  const wrap = document.createElement("div");
+  wrap.className = "account-meter";
+
+  const row = document.createElement("div");
+  row.className = "account-meter-row";
+  const labelEl = document.createElement("span");
+  labelEl.textContent = label;
+  const percentEl = document.createElement("strong");
+  percentEl.textContent = percentOrDash(percent);
+  row.append(labelEl, percentEl);
+
+  const track = document.createElement("div");
+  track.className = "account-progress";
+  const fill = document.createElement("div");
+  fill.style.width = `${clampPercent(percent, 0)}%`;
+  track.append(fill);
+
+  const reset = document.createElement("div");
+  reset.className = "account-reset";
+  const dateEl = document.createElement("span");
+  dateEl.textContent = date;
+  const timeEl = document.createElement("span");
+  timeEl.textContent = time;
+  reset.append(dateEl, timeEl);
+
+  wrap.append(row, track, reset);
+  return wrap;
+}
+
 function setChartButtons(els) {
   const isWeekly = activeChart === "weekly";
   els.chartTitle.textContent = isWeekly ? "Saldo semanal" : "Saldo da janela de 5h";
@@ -858,6 +1085,7 @@ function renderDashboard(els, viewModel) {
   if (els.compareIdealValue) els.compareIdealValue.textContent = viewModel.compare.idealValue;
   if (els.compareActualBar) els.compareActualBar.style.left = viewModel.compare.actualWidth;
   if (els.compareIdealBar) els.compareIdealBar.style.left = viewModel.compare.idealWidth;
+  renderAccountsGrid(els.accountsGrid, viewModel.accounts);
   setChartButtons(els);
   renderSparkline(els.usageSparkline, activeChart === "weekly" ? viewModel.charts.weekly : viewModel.charts.fiveHour);
 }
@@ -1022,6 +1250,15 @@ function updateNotificationButton(button) {
    Events and Boot
 ========================================= */
 function bindEvents(els, usage, render) {
+  els.accountSortSelect?.addEventListener("change", (event) => {
+    const value = event?.target?.value;
+    if (["renewFirst", "renewLast", "highestPercent", "lowestPercent", "expiry"].includes(value)) {
+      activeAccountSort = value;
+      triggerHaptic(8);
+      render();
+    }
+  });
+
   els.themeColorInput?.addEventListener("input", (event) => {
     const value = event?.target?.value;
     if (typeof value === "string") setThemeColor(value);

@@ -1,3 +1,6 @@
+const { readFile } = require("fs/promises")
+const { resolve } = require("path")
+
 function toPercent(value) {
   const n = Number(value)
   if (Number.isNaN(n)) return 0
@@ -43,6 +46,31 @@ function normalizeHistory(raw) {
     .slice(-500)
 }
 
+function normalizeAccounts(rawAccounts) {
+  if (!Array.isArray(rawAccounts)) return []
+
+  return rawAccounts.map((account) => ({
+    id: String(account?.id || ""),
+    name: String(account?.displayName || account?.name || "Conta"),
+    rawName: String(account?.name || ""),
+    email: account?.email || null,
+    planType: account?.planType || account?.plan_type || null,
+    subscriptionExpiresAt: toDate(account?.subscriptionExpiresAt || account?.subscription_expires_at)?.toISOString() || null,
+    isActive: Boolean(account?.isActive),
+    fiveHourPercent: Number.isFinite(Number(account?.fiveHourPercent)) ? toPercent(account.fiveHourPercent) : null,
+    fiveHourUsedPercent: Number.isFinite(Number(account?.fiveHourUsedPercent)) ? toPercent(account.fiveHourUsedPercent) : null,
+    fiveHourReset: toDate(account?.fiveHourReset)?.toISOString() || null,
+    fiveHourWindowMinutes: Number.isFinite(Number(account?.fiveHourWindowMinutes)) ? Number(account.fiveHourWindowMinutes) : null,
+    weeklyPercent: Number.isFinite(Number(account?.weeklyPercent)) ? toPercent(account.weeklyPercent) : null,
+    weeklyUsedPercent: Number.isFinite(Number(account?.weeklyUsedPercent)) ? toPercent(account.weeklyUsedPercent) : null,
+    weeklyReset: toDate(account?.weeklyReset)?.toISOString() || null,
+    weeklyWindowMinutes: Number.isFinite(Number(account?.weeklyWindowMinutes)) ? Number(account.weeklyWindowMinutes) : null,
+    lastUpdated: toDate(account?.lastUpdated)?.toISOString() || null,
+    status: account?.status === "error" ? "error" : "ok",
+    error: account?.error || null
+  })).filter((account) => account.id || account.name)
+}
+
 function formatRate(value, unit) {
   if (!Number.isFinite(value)) return `--/${unit}`
   return `${value.toFixed(1)}%/${unit}`
@@ -75,11 +103,12 @@ function formatZeroIn(days) {
 
 function enrichPayload(raw = {}, history = null) {
   const now = Date.now()
+  const aggregate = raw.aggregate && typeof raw.aggregate === "object" ? raw.aggregate : raw
 
-  const fiveHourPercent = toPercent(raw.fiveHourPercent)
-  const weeklyPercent = toPercent(raw.weeklyPercent)
-  const fiveHourResetDate = toDate(raw.fiveHourReset)
-  const weeklyResetDate = toDate(raw.weeklyReset)
+  const fiveHourPercent = toPercent(aggregate.fiveHourPercent)
+  const weeklyPercent = toPercent(aggregate.weeklyPercent)
+  const fiveHourResetDate = toDate(aggregate.fiveHourReset)
+  const weeklyResetDate = toDate(aggregate.weeklyReset)
   const lastUpdated = raw.lastUpdated || new Date().toISOString()
 
   const fiveHourMs = fiveHourResetDate ? fiveHourResetDate.getTime() - now : NaN
@@ -131,6 +160,10 @@ function enrichPayload(raw = {}, history = null) {
     weeklyPercent,
     weeklyReset: weeklyResetDate ? weeklyResetDate.toISOString() : null,
     lastUpdated,
+    source: raw.source || null,
+    accountCount: Number.isFinite(Number(raw.accountCount)) ? Number(raw.accountCount) : normalizeAccounts(raw.accounts).length,
+    okCount: Number.isFinite(Number(raw.okCount)) ? Number(raw.okCount) : normalizeAccounts(raw.accounts).filter((account) => account.status === "ok").length,
+    accounts: normalizeAccounts(raw.accounts),
     statusLabel,
     // Métricas derivadas sempre recalculadas para refletir o estado real atual.
     fiveHourSafeRate: formatRate(fiveHourSafeRateNumber, "h"),
@@ -155,6 +188,12 @@ const REMOTE_HISTORY_PATH = "codex_usage_history.json"
 const REMOTE_USAGE_URL = "https://raw.githubusercontent.com/leosaquetto/codex-usage/main/codex_usage.json"
 const REMOTE_HISTORY_URL = "https://raw.githubusercontent.com/leosaquetto/codex-usage/main/codex_usage_history.json"
 const REMOTE_TIMEOUT_MS = 7000
+const LOCAL_USAGE_PATH = resolve(__dirname, "../../codex_usage.json")
+const LOCAL_HISTORY_PATH = resolve(__dirname, "../../codex_usage_history.json")
+
+async function readLocalJson(path) {
+  return JSON.parse(await readFile(path, "utf8"))
+}
 
 function decodeBase64Json(content) {
   const jsonText = Buffer.from(String(content || "").replace(/\s/g, ""), "base64").toString("utf8")
@@ -229,6 +268,12 @@ module.exports = async (req, res) => {
   res.setHeader("Cache-Control", "no-store")
 
   try {
+    if (process.env.CODEX_USAGE_USE_LOCAL_FILES === "1") {
+      const localPayload = await readLocalJson(LOCAL_USAGE_PATH)
+      const localHistory = await readLocalJson(LOCAL_HISTORY_PATH)
+      return res.status(200).json(enrichPayload(localPayload, localHistory))
+    }
+
     const remotePayload = await fetchRemoteJson(REMOTE_USAGE_PATH, REMOTE_USAGE_URL)
     const remoteHistory = await fetchRemoteJson(REMOTE_HISTORY_PATH, REMOTE_HISTORY_URL, false)
     return res.status(200).json(enrichPayload(remotePayload, remoteHistory))

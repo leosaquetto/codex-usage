@@ -36,7 +36,7 @@
         font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
       }
     </style>
-    <link rel="stylesheet" href="./style.css?v=account_cards_3" />
+    <link rel="stylesheet" href="./style.css?v=paid_pool_2" />
   </head>
 
   <body class="is-loading">
@@ -76,19 +76,6 @@
         </div>
       </header>
 
-      <section class="pool-panel" aria-label="Disponibilidade semanal total">
-        <div class="pool-panel-top">
-          <div>
-            <p class="section-kicker">Pool semanal total</p>
-            <h2 id="totalWeeklyAvailableText">--%</h2>
-          </div>
-          <p id="totalWeeklyAvailableMeta">Soma normalizada do semanal de todas as contas.</p>
-        </div>
-        <div class="total-availability-track" role="progressbar" aria-label="Total semanal disponível em todas as contas" aria-valuemin="0" aria-valuemax="100">
-          <div id="totalWeeklyAvailableBar" class="total-availability-fill"></div>
-        </div>
-      </section>
-
       <section class="status-panel" aria-label="Status geral">
         <div class="status-copy">
           <span id="statusDot" class="status-dot"></span>
@@ -116,17 +103,32 @@
         </div>
       </section>
 
-      <section class="suggestion-card" aria-label="Sugestão de uso">
-        <svg class="suggestion-icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M12 3 20 7v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7l8-4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
-          <path d="m9 12 2 2 4-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-        <div>
-          <p class="section-kicker">Ritmo</p>
-          <h2 id="usageSuggestion">Aguardando dados</h2>
-          <p id="usageSuggestionMeta">A tela calcula ritmo e saldo assim que carregar.</p>
-        </div>
-      </section>
+      <div class="pool-rhythm-grid">
+        <section class="pool-panel" aria-label="Disponibilidade semanal total">
+          <div class="pool-panel-top">
+            <div>
+              <p class="section-kicker">Pool semanal total</p>
+              <h2 id="totalWeeklyAvailableText">--%</h2>
+            </div>
+            <p id="totalWeeklyAvailableMeta">Soma normalizada do semanal de todas as contas.</p>
+          </div>
+          <div class="total-availability-track" role="progressbar" aria-label="Total semanal disponível em todas as contas" aria-valuemin="0" aria-valuemax="100">
+            <div id="totalWeeklyAvailableBar" class="total-availability-fill"></div>
+          </div>
+        </section>
+
+        <section class="suggestion-card" aria-label="Sugestão de uso">
+          <svg class="suggestion-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3 20 7v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7l8-4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+            <path d="m9 12 2 2 4-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <div>
+            <p class="section-kicker">Ritmo por janela</p>
+            <h2 id="usageSuggestion">Aguardando</h2>
+            <p id="usageSuggestionMeta">A tela calcula ritmo e saldo assim que carregar.</p>
+          </div>
+        </section>
+      </div>
 
       <section class="accounts-panel" aria-label="Contas do Codex">
         <div class="section-header">
@@ -135,19 +137,23 @@
             <h2>Visão geral</h2>
             <p class="account-method">Primeiro card: melhor combinação de 5h, semanal e renovação.</p>
           </div>
-          <div class="accounts-header-side">
-            <button type="button" id="hideExhaustedButton" class="toggle-button" aria-pressed="false">Ocultar esgotadas</button>
-            <label class="sort-control" for="accountSortSelect">
-              <span>Ordenar</span>
-              <select id="accountSortSelect" aria-label="Ordenar contas">
-                <option value="renewFirst">Renovam primeiro</option>
-                <option value="renewLast">Renovam por último</option>
-                <option value="highestPercent">Maior %</option>
-                <option value="lowestPercent">Menor %</option>
-                <option value="expiry">Data de expiração</option>
-              </select>
-            </label>
-          </div>
+          <details class="accounts-filter-box">
+            <summary>Filtros</summary>
+            <div class="accounts-header-side">
+              <button type="button" id="hideExhaustedButton" class="toggle-button" aria-pressed="false">Ocultar esgotadas</button>
+              <button type="button" id="hideFreeGoButton" class="toggle-button" aria-pressed="false">Ocultar FREE/GO</button>
+              <label class="sort-control" for="accountSortSelect">
+                <span>Ordenar</span>
+                <select id="accountSortSelect" aria-label="Ordenar contas">
+                  <option value="renewFirst">Renovam primeiro</option>
+                  <option value="renewLast">Renovam por último</option>
+                  <option value="highestPercent">Maior %</option>
+                  <option value="lowestPercent">Menor %</option>
+                  <option value="expiry">Data de expiração</option>
+                </select>
+              </label>
+            </div>
+          </details>
         </div>
         <div id="accountsGrid" class="accounts-grid"></div>
       </section>
@@ -236,24 +242,12 @@
           </div>
           <div class="mini-metrics">
             <div>
-              <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2" /><path d="M9 2h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>Renova em</span>
-              <strong id="weeklyCountdown">--</strong>
-            </div>
-            <div>
               <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v6l4 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M21 12a9 9 0 1 1-9-9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M18 3v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>Nesse ritmo</span>
               <strong class="metric-value-with-badge"><span id="weeklyZeroAt">--</span><span id="weeklyWindowBadge" class="metric-badge">--</span></strong>
             </div>
             <div>
               <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M8 17v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M13 17V9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M18 17V7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>Média/h</span>
               <strong id="weeklyAverage">--/h</strong>
-            </div>
-            <div>
-              <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 20 7v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7l8-4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /><path d="m9 12 2 2 4-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>Usado</span>
-              <strong id="weeklyUsedInline">--</strong>
-            </div>
-            <div class="mini-metric-wide projection-line">
-              <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M7 7h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M9 17h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>Projeção</span>
-              <strong id="weeklyProjection">--</strong>
             </div>
           </div>
           </article>
@@ -289,6 +283,7 @@
             <div class="compare-zone safe"></div>
             <div class="compare-zone ok"></div>
             <div class="compare-zone warn"></div>
+            <div class="compare-zone caution"></div>
             <div class="compare-zone danger"></div>
             <div id="compareIdealBar" class="compare-marker ideal"></div>
             <div id="compareActualBar" class="compare-marker actual"></div>
@@ -306,7 +301,7 @@
           <div class="chart-card-header">
             <div>
               <p class="section-kicker"><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18 9 12l4 3 7-9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>Histórico</p>
-              <h2 id="chartTitle">Saldo semanal</h2>
+              <h2 id="chartTitle">Uso semanal</h2>
             </div>
             <div class="chart-tabs" role="tablist" aria-label="Selecionar histórico">
               <button type="button" class="chart-tab" id="chartWeeklyButton" data-chart="weekly" aria-pressed="true">Semana</button>
@@ -318,6 +313,6 @@
       </section>
     </main>
 
-    <script src="./app.js?v=account_cards_3" defer></script>
+    <script src="./app.js?v=paid_pool_2" defer></script>
   </body>
 </html>

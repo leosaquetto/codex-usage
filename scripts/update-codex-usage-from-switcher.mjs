@@ -51,6 +51,7 @@ function usage() {
     "Usage:",
     "  node scripts/update-codex-usage-from-switcher.mjs",
     "  node scripts/update-codex-usage-from-switcher.mjs --publish",
+    "  node scripts/update-codex-usage-from-switcher.mjs --commit --push",
     "  node scripts/update-codex-usage-from-switcher.mjs --accounts ~/.codex-switcher/accounts.json",
     "",
     "Lê contas ChatGPT do Codex Switcher local e publica codex_usage.json,",
@@ -286,29 +287,74 @@ function earliestIso(accounts, key) {
   return times.length ? new Date(Math.min(...times)).toISOString() : null;
 }
 
+function isFreeGoAccount(account) {
+  const plan = String(account?.planType || "").trim().toLowerCase();
+  return plan === "free" || plan === "go";
+}
+
 function buildPayload(accounts, nowIso, activeAccountId) {
   const okAccounts = accounts.filter((account) => account.status === "ok");
-  const active = okAccounts.find((account) => account.isActive) || okAccounts[0] || null;
+  const paidOkAccounts = okAccounts.filter((account) => !isFreeGoAccount(account));
+  const aggregateAccounts = paidOkAccounts.length ? paidOkAccounts : okAccounts;
 
   return {
     source: "codex-switcher",
     lastUpdated: nowIso,
-    accountCount: accounts.length,
-    okCount: okAccounts.length,
+    accountCount: aggregateAccounts.length,
+    okCount: aggregateAccounts.filter((account) => account.status === "ok").length,
     activeAccountId,
     aggregate: {
-      fiveHourPercent: averagePercent(okAccounts, "fiveHourPercent"),
-      fiveHourReset: earliestIso(okAccounts, "fiveHourReset"),
-      weeklyPercent: averagePercent(okAccounts, "weeklyPercent"),
-      weeklyReset: earliestIso(okAccounts, "weeklyReset"),
+      fiveHourPercent: averagePercent(aggregateAccounts, "fiveHourPercent"),
+      fiveHourReset: earliestIso(aggregateAccounts, "fiveHourReset"),
+      weeklyPercent: averagePercent(aggregateAccounts, "weeklyPercent"),
+      weeklyReset: earliestIso(aggregateAccounts, "weeklyReset"),
       lastUpdated: nowIso,
     },
-    fiveHourPercent: active?.fiveHourPercent ?? averagePercent(okAccounts, "fiveHourPercent"),
-    fiveHourReset: active?.fiveHourReset ?? earliestIso(okAccounts, "fiveHourReset"),
-    weeklyPercent: active?.weeklyPercent ?? averagePercent(okAccounts, "weeklyPercent"),
-    weeklyReset: active?.weeklyReset ?? earliestIso(okAccounts, "weeklyReset"),
+    fiveHourPercent: averagePercent(aggregateAccounts, "fiveHourPercent"),
+    fiveHourReset: earliestIso(aggregateAccounts, "fiveHourReset"),
+    weeklyPercent: averagePercent(aggregateAccounts, "weeklyPercent"),
+    weeklyReset: earliestIso(aggregateAccounts, "weeklyReset"),
     accounts,
   };
+}
+
+function usageSignature(payload) {
+  const aggregate = payload?.aggregate || {};
+  return JSON.stringify({
+    accountCount: payload?.accountCount ?? null,
+    okCount: payload?.okCount ?? null,
+    activeAccountId: payload?.activeAccountId ?? null,
+    aggregate: {
+      fiveHourPercent: aggregate.fiveHourPercent ?? null,
+      fiveHourReset: aggregate.fiveHourReset ?? null,
+      weeklyPercent: aggregate.weeklyPercent ?? null,
+      weeklyReset: aggregate.weeklyReset ?? null,
+    },
+    accounts: (payload?.accounts || []).map((account) => ({
+      id: account.id,
+      chatgptAccountId: account.chatgptAccountId,
+      displayName: account.displayName,
+      planType: account.planType,
+      subscriptionExpiresAt: account.subscriptionExpiresAt,
+      isActive: account.isActive,
+      lastUsedAt: account.lastUsedAt,
+      fiveHourPercent: account.fiveHourPercent,
+      fiveHourUsedPercent: account.fiveHourUsedPercent,
+      fiveHourReset: account.fiveHourReset,
+      fiveHourWindowMinutes: account.fiveHourWindowMinutes,
+      weeklyPercent: account.weeklyPercent,
+      weeklyUsedPercent: account.weeklyUsedPercent,
+      weeklyReset: account.weeklyReset,
+      weeklyWindowMinutes: account.weeklyWindowMinutes,
+      credits: account.credits,
+      status: account.status,
+      error: account.error,
+    })),
+  });
+}
+
+async function readCurrentUsage() {
+  return readJson(codexUsagePath, null);
 }
 
 async function readCurrentHistory() {
@@ -427,6 +473,43 @@ async function publishFilesAtomic(files) {
   return commitResult.sha;
 }
 
+function maybeCommit() {
+  if (!args.has("commit")) return false;
+
+  const add = spawnSync("git", ["add", "codex_usage.json", "codex_usage_history.json", "usage_summary.json"], {
+    cwd: root,
+    stdio: "inherit",
+  });
+  if (add.status !== 0) throw new Error("Falha no git add dos arquivos de uso do Codex.");
+
+  const diff = spawnSync("git", ["diff", "--cached", "--quiet"], {
+    cwd: root,
+    stdio: "inherit",
+  });
+  if (diff.status === 0) return false;
+  if (diff.status !== 1) throw new Error("Falha ao verificar diff staged dos arquivos de uso do Codex.");
+
+  const commit = spawnSync("git", ["commit", "-m", "Update Codex usage from Switcher"], {
+    cwd: root,
+    stdio: "inherit",
+  });
+  if (commit.status !== 0) throw new Error("Falha no git commit dos arquivos de uso do Codex.");
+
+  return true;
+}
+
+function maybePush(committed) {
+  if (!args.has("push") || !committed) return false;
+
+  const push = spawnSync("git", ["push", "origin", "HEAD"], {
+    cwd: root,
+    stdio: "inherit",
+  });
+  if (push.status !== 0) throw new Error("Falha no git push dos arquivos de uso do Codex.");
+
+  return true;
+}
+
 async function main() {
   if (args.has("help")) {
     console.log(usage());
@@ -469,6 +552,18 @@ async function main() {
   const payload = buildPayload(results.map((result) => result.publicAccount), nowIso, store.activeAccountId);
   if (!payload.okCount) throw new Error("Nenhuma conta retornou uso válido.");
 
+  const currentPayload = await readCurrentUsage();
+  if (currentPayload && usageSignature(currentPayload) === usageSignature(payload)) {
+    console.log(JSON.stringify({
+      ok: true,
+      skipped: "unchanged",
+      lastUpdated: currentPayload.lastUpdated || null,
+      accountCount: currentPayload.accountCount || payload.accountCount,
+      okCount: currentPayload.okCount || payload.okCount,
+    }, null, 2));
+    return;
+  }
+
   const codexJson = `${JSON.stringify(payload, null, 2)}\n`;
   await writeFile(codexUsagePath, codexJson);
 
@@ -494,8 +589,13 @@ async function main() {
     return;
   }
 
+  const committed = maybeCommit();
+  const pushed = maybePush(committed);
+
   console.log(JSON.stringify({
     ok: true,
+    committed,
+    pushed,
     lastUpdated: validation,
     accountCount: payload.accountCount,
     okCount: payload.okCount,

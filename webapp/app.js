@@ -8,6 +8,8 @@ const SAFE_FALLBACK = {
 
 const FIVE_HOUR_WINDOW_MS = 5 * 60 * 60 * 1000;
 const WEEK_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+const WEEK_HOURS = 7 * 24;
+const WEEK_FIVE_HOUR_WINDOWS = WEEK_HOURS / 5;
 const THEME_COLOR_KEY = "codex-theme-color";
 const LAST_VALID_USAGE_KEY = "codex-last-valid-usage-payload";
 const DEFAULT_THEME_COLOR = "#3b82f6";
@@ -19,6 +21,7 @@ let lastSuspendedAt = 0;
 let activeChart = "weekly";
 let activeAccountSort = "renewFirst";
 let hideExhaustedAccounts = false;
+let hideFreeGoAccounts = false;
 
 /* =========================================
    Theme and Viewport
@@ -257,7 +260,7 @@ function formatShortDatePtBr(date) {
 
 function formatDateAndTimeParts(date) {
   return {
-    date: formatDatePartPtBr(date),
+    date: formatShortDatePtBr(date),
     time: formatTimePartPtBr(date),
   };
 }
@@ -405,6 +408,29 @@ function consumptionRate(samples, key) {
   return consumed / elapsedHours;
 }
 
+function averageAccountPercent(accounts, key, fallback = 100) {
+  const values = accounts
+    .map((account) => clampPercent(account[key], null))
+    .filter((value) => value !== null);
+  if (!values.length) return fallback;
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
+
+function billableAccounts(accounts) {
+  return (accounts || []).filter((account) => !isFreeGoAccount(account));
+}
+
+function scopeUsageToBillableAccounts(usage) {
+  const accounts = billableAccounts(usage.accounts);
+  if (!accounts.length) return { ...usage, accounts: [] };
+  return {
+    ...usage,
+    accounts,
+    fiveHourPercent: averageAccountPercent(accounts, "fiveHourPercent", usage.fiveHourPercent),
+    weeklyPercent: averageAccountPercent(accounts, "weeklyPercent", usage.weeklyPercent),
+  };
+}
+
 function buildLiveMetrics(usage, now = Date.now()) {
   const fiveHourRemaining = usage.fiveHourResetIsNull ? 100 : clampPercent(usage.fiveHourPercent, 100);
   const weeklyRemaining = clampPercent(usage.weeklyPercent, 100);
@@ -431,10 +457,10 @@ function buildLiveMetrics(usage, now = Date.now()) {
   const fiveHourRate = Number.isFinite(fiveHourElapsedHours) ? fiveHourUsed / fiveHourElapsedHours : NaN;
   const fiveHourZeroHours = Number.isFinite(fiveHourRate) && fiveHourRate > 0 ? fiveHourRemaining / fiveHourRate : NaN;
 
-  const weeklyRatePerWindow = Number.isFinite(elapsedWindows) ? weeklyUsed / elapsedWindows : NaN;
+  const weeklyRatePerWindow = weeklyUsed / WEEK_FIVE_HOUR_WINDOWS;
   const fiveHourAverageUsed = Number.isFinite(fiveHourElapsedHours) ? fiveHourUsed / fiveHourElapsedHours : NaN;
-  const weeklyAverageUsedPerWindow = Number.isFinite(elapsedWindows) ? weeklyUsed / elapsedWindows : NaN;
-  const idealPerWindow = Number.isFinite(windowsRemaining) ? weeklyRemaining / windowsRemaining : NaN;
+  const weeklyAverageUsedPerWindow = weeklyUsed / WEEK_FIVE_HOUR_WINDOWS;
+  const idealPerWindow = weeklyRemaining / WEEK_FIVE_HOUR_WINDOWS;
   const projectedRemaining = Number.isFinite(weeklyRatePerWindow) && Number.isFinite(windowsRemaining)
     ? weeklyRemaining - weeklyRatePerWindow * windowsRemaining
     : NaN;
@@ -442,7 +468,7 @@ function buildLiveMetrics(usage, now = Date.now()) {
     ? weeklyRemaining / weeklyRatePerWindow
     : NaN;
   const zeroInDays = Number.isFinite(zeroInWindows) ? (zeroInWindows * 5) / 24 : NaN;
-  const realDailyRate = Number.isFinite(elapsedDays) ? weeklyUsed / elapsedDays : NaN;
+  const realDailyRate = weeklyUsed / 7;
   const safeDailyRate = Number.isFinite(weeklyDaysRemaining) && weeklyDaysRemaining > 0
     ? weeklyRemaining / weeklyDaysRemaining
     : NaN;
@@ -453,7 +479,7 @@ function buildLiveMetrics(usage, now = Date.now()) {
   });
   const weeklyCycleSamples = historySamples.filter((sample) => sameIsoDate(sample.weeklyResetDate, usage.weeklyResetDate));
   const historicalFiveHourRate = consumptionRate(fiveHourCycleSamples, "fiveHourPercent");
-  const historicalWeeklyHourlyRate = consumptionRate(weeklyCycleSamples, "weeklyPercent");
+  const historicalWeeklyHourlyRate = NaN;
   const effectiveFiveHourRate = Number.isFinite(historicalFiveHourRate) ? historicalFiveHourRate : fiveHourRate;
   const effectiveWeeklyRatePerWindow = Number.isFinite(historicalWeeklyHourlyRate)
     ? historicalWeeklyHourlyRate * 5
@@ -589,14 +615,15 @@ function buildUsageBandTitle(metrics) {
 }
 
 function buildLimitViewModel(usage, hasLoadError = false) {
-  const metrics = buildLiveMetrics(usage);
-  const recommendation = buildAccountRecommendation(usage.accounts || []);
+  const billableUsage = scopeUsageToBillableAccounts(usage);
+  const metrics = buildLiveMetrics(billableUsage);
+  const recommendation = buildAccountRecommendation(billableUsage.accounts || []);
   const accountCards = buildAccountCards(usage.accounts || [], recommendation?.account?.id || null);
-  const fiveHour = buildFiveHourDecision(usage, metrics);
+  const fiveHour = buildFiveHourDecision(billableUsage, metrics);
   const weeklyQuestion = buildWeeklyQuestion(metrics);
   const weeklyAdvice = buildWeeklyAdvice(metrics);
   const weeklyZeroAt = Number.isFinite(metrics.effectiveZeroInDays) && metrics.effectiveZeroInDays > 0
-    ? (metrics.effectiveZeroInDays > metrics.weeklyDaysRemaining ? "Após renovar" : formatZeroInDays(metrics.effectiveZeroInDays))
+    ? (metrics.effectiveZeroInDays > 7 ? "Mais de 7 dias" : formatZeroInDays(metrics.effectiveZeroInDays))
     : "--";
   const safeWindows = Number.isFinite(metrics.windowsRemaining) ? metrics.windowsRemaining : 0;
   const safePerWindowText = Number.isFinite(metrics.idealPerWindow)
@@ -632,8 +659,8 @@ function buildLimitViewModel(usage, hasLoadError = false) {
       idealRate: Number.isFinite(metrics.fiveHourMs) && metrics.fiveHourMs > 0
         ? formatRatePerHour(metrics.fiveHourRemaining / (metrics.fiveHourMs / 3600000))
         : "--/h",
-      renewal: usage.fiveHourResetDate ? formatCountdownMs(metrics.fiveHourMs, { includeDays: false }) : "--",
-      countdown: usage.fiveHourResetDate ? formatCountdownMs(metrics.fiveHourMs, { includeDays: false }) : "--",
+      renewal: billableUsage.fiveHourResetDate ? formatCountdownMs(metrics.fiveHourMs, { includeDays: false }) : "--",
+      countdown: billableUsage.fiveHourResetDate ? formatCountdownMs(metrics.fiveHourMs, { includeDays: false }) : "--",
       question: fiveHour.question,
       advice: fiveHour.advice,
       zeroAt: fiveHour.zeroAt,
@@ -645,9 +672,9 @@ function buildLimitViewModel(usage, hasLoadError = false) {
       remaining: Math.round(metrics.weeklyRemaining),
       used: formatUsed(metrics.weeklyRemaining),
       usedInline: `${Math.round(metrics.weeklyUsed)}%`,
-      renewal: usage.weeklyResetDate ? `${formatDurationMs(metrics.weeklyMs)} · ${formatDateTimePtBr(usage.weeklyResetDate)}` : "--",
-      remainingTime: usage.weeklyResetDate ? formatCountdownMs(metrics.weeklyMs) : "--",
-      countdown: usage.weeklyResetDate ? formatCountdownMs(metrics.weeklyMs) : "--",
+      renewal: "--",
+      remainingTime: "--",
+      countdown: "--",
       question: weeklyQuestion,
       advice: weeklyAdvice,
       projection: formatProjectedBalance(metrics.effectiveProjectedRemaining),
@@ -656,7 +683,7 @@ function buildLimitViewModel(usage, hasLoadError = false) {
       zeroWindowText: weeklyWindowZero,
       windowPlan: Number.isFinite(metrics.weeklyZeroInWindows) ? formatWindowCount(metrics.weeklyZeroInWindows) : "--",
       average: formatPercent(Number.isFinite(metrics.effectiveWeeklyRatePerWindow) ? metrics.effectiveWeeklyRatePerWindow : metrics.weeklyAverageUsedPerWindow),
-      averageHourly: formatRatePerHour(Number.isFinite(metrics.effectiveWeeklyRatePerWindow) ? metrics.effectiveWeeklyRatePerWindow / 5 : metrics.weeklyAverageUsedPerWindow / 5),
+      averageHourly: formatRatePerHour(metrics.weeklyUsed / WEEK_HOURS),
       dailyAverage: formatRatePerDay(metrics.realDailyRate),
       sideBadge: formatRatePerDay(metrics.realDailyRate),
       ideal: formatPercent(metrics.idealPerWindow),
@@ -667,7 +694,7 @@ function buildLimitViewModel(usage, hasLoadError = false) {
     totalAvailability: {
       weeklyPercent: Math.round(metrics.weeklyRemaining),
       weeklyText: percentOrDash(metrics.weeklyRemaining),
-      meta: buildPoolAvailabilityText(usage.accounts || [], metrics.weeklyRemaining),
+      meta: buildPoolAvailabilityText(billableUsage.accounts || [], metrics.weeklyRemaining),
     },
     recommendation: recommendation ? {
       accountName: recommendation.account.name,
@@ -677,15 +704,15 @@ function buildLimitViewModel(usage, hasLoadError = false) {
       meta: "Nenhuma conta com 5h e semanal disponíveis agora.",
     },
     suggestion: {
-      title: weeklyAdvice,
-      meta: Number.isFinite(metrics.idealPerWindow) && Number.isFinite(metrics.windowsRemaining)
-        ? `Ritmo calculado sobre o agregado semanal das contas: cerca de ${formatPercent(metrics.idealPerWindow)} por janela nas próximas ${metrics.windowsRemaining}.`
+      title: safePerWindowText,
+      meta: Number.isFinite(metrics.idealPerWindow)
+        ? "Base fixa: 7 dias, somente contas pagas."
         : weeklyQuestion,
     },
     compare: {
       band: buildUsageBandTitle(metrics),
       meta: Number.isFinite(metrics.effectiveWeeklyRatePerWindow) && Number.isFinite(metrics.idealPerWindow)
-        ? "Consumo semanal por janela de 5h."
+        ? "Atual = uso semanal/33,6 janelas. Ideal = saldo semanal/33,6 janelas."
         : "Aguardando histórico suficiente.",
       actualText: `Ritmo atual ${formatPercent(metrics.effectiveWeeklyRatePerWindow)}`,
       idealText: `Ideal ${formatPercent(metrics.idealPerWindow)}`,
@@ -697,11 +724,11 @@ function buildLimitViewModel(usage, hasLoadError = false) {
     charts: {
       fiveHour: metrics.fiveHourCycleSamples.map((sample) => ({
         x: sample.capturedAtDate.getTime(),
-        y: sample.fiveHourPercent,
+        y: clampPercent(100 - sample.fiveHourPercent),
       })),
       weekly: metrics.weeklyCycleSamples.map((sample) => ({
         x: sample.capturedAtDate.getTime(),
-        y: sample.weeklyPercent,
+        y: clampPercent(100 - sample.weeklyPercent),
       })),
     },
     accounts: accountCards,
@@ -713,14 +740,14 @@ function buildPoolAvailabilityText(accounts, fallbackPercent) {
   const weeklyValues = accounts
     .map((account) => clampPercent(account.weeklyPercent, null))
     .filter((value) => value !== null);
-  if (!weeklyValues.length) return "Soma normalizada do semanal de todas as contas.";
+  if (!weeklyValues.length) return "Soma normalizada do semanal das contas pagas.";
 
   const available = weeklyValues.reduce((sum, value) => sum + value, 0);
   const capacity = weeklyValues.length * 100;
   const normalized = Number.isFinite(fallbackPercent)
     ? Math.round(fallbackPercent)
     : Math.round((available / capacity) * 100);
-  return `${Math.round(available)} pontos disponíveis de ${capacity} no pool semanal (${normalized}%).`;
+  return `${Math.round(available)} pontos disponíveis de ${capacity} no pool semanal pago (${normalized}%).`;
 }
 
 function hoursUntil(date) {
@@ -808,10 +835,17 @@ function isAccountExhausted(account) {
   return five <= 0 || weekly <= 0;
 }
 
+function isFreeGoAccount(account) {
+  const plan = String(account.planType || "").trim().toUpperCase();
+  return plan === "FREE" || plan === "GO";
+}
+
 function buildAccountCards(accounts, recommendedAccountId = null) {
-  const visibleAccounts = hideExhaustedAccounts
-    ? accounts.filter((account) => !isAccountExhausted(account))
-    : accounts;
+  const visibleAccounts = accounts.filter((account) => {
+    if (hideExhaustedAccounts && isAccountExhausted(account)) return false;
+    if (hideFreeGoAccounts && isFreeGoAccount(account)) return false;
+    return true;
+  });
 
   return sortedAccounts(visibleAccounts).sort((a, b) => {
     if (a.id === recommendedAccountId) return -1;
@@ -838,6 +872,7 @@ function buildAccountCards(accounts, recommendedAccountId = null) {
       weeklyTime: weeklyParts.time,
       expiresAt: account.subscriptionExpiresAtDate ? formatShortDatePtBr(account.subscriptionExpiresAtDate) : "--",
       nextResetText: weeklyResetDate ? `${formatDurationMs(weeklyResetDate.getTime() - Date.now())}` : "--",
+      hideFiveHourPercent: clampPercent(account.weeklyPercent, 100) < 5,
       tone: usageLevel(Math.min(
         clampPercent(account.fiveHourPercent, 100),
         clampPercent(account.weeklyPercent, 100),
@@ -892,6 +927,7 @@ function getElements() {
     notificationButton: document.getElementById("notificationButton"),
     accountSortSelect: document.getElementById("accountSortSelect"),
     hideExhaustedButton: document.getElementById("hideExhaustedButton"),
+    hideFreeGoButton: document.getElementById("hideFreeGoButton"),
     accountsGrid: document.getElementById("accountsGrid"),
     totalWeeklyAvailableText: document.getElementById("totalWeeklyAvailableText"),
     totalWeeklyAvailableBar: document.getElementById("totalWeeklyAvailableBar"),
@@ -959,6 +995,7 @@ function setProgress(bar, percent) {
   const value = clampPercent(percent);
   if (!bar) return;
   bar.style.width = `${value}%`;
+  bar.dataset.tone = usageLevel(value);
   bar.parentElement?.setAttribute("aria-valuenow", String(Math.round(value)));
 }
 
@@ -1059,13 +1096,16 @@ function renderAccountsGrid(container, accounts) {
     const pill = document.createElement("span");
     pill.className = "account-pill";
     pill.textContent = account.planType;
+    pill.dataset.plan = account.planType.toLowerCase();
 
     top.append(logo, titleWrap, pill);
 
     const meters = document.createElement("div");
     meters.className = "account-meters";
     meters.append(
-      buildAccountCircle("5h", account.fiveHourPercent, account.fiveHourDate, account.fiveHourTime),
+      buildAccountCircle("5h", account.fiveHourPercent, account.fiveHourDate, account.fiveHourTime, {
+        hidePercent: account.hideFiveHourPercent,
+      }),
       buildAccountCircle("Semanal", account.weeklyPercent, account.weeklyDate, account.weeklyTime),
     );
 
@@ -1091,16 +1131,17 @@ function renderAccountsGrid(container, accounts) {
   container.append(fragment);
 }
 
-function buildAccountCircle(label, percent, date, time) {
+function buildAccountCircle(label, percent, date, time, options = {}) {
+  const visiblePercent = options.hidePercent ? null : percent;
   const wrap = document.createElement("div");
   wrap.className = "account-circle-meter";
 
   const circle = document.createElement("div");
   circle.className = "account-circle";
-  circle.dataset.tone = usageLevel(percent);
-  circle.style.setProperty("--circle-value", `${clampPercent(percent, 0) * 3.6}deg`);
+  circle.dataset.tone = usageLevel(visiblePercent);
+  circle.style.setProperty("--circle-value", `${clampPercent(visiblePercent, 0) * 3.6}deg`);
   const percentEl = document.createElement("strong");
-  percentEl.textContent = percentOrDash(percent);
+  percentEl.textContent = percentOrDash(visiblePercent);
   circle.append(percentEl);
 
   const meta = document.createElement("div");
@@ -1122,7 +1163,7 @@ function buildAccountCircle(label, percent, date, time) {
 
 function setChartButtons(els) {
   const isWeekly = activeChart === "weekly";
-  els.chartTitle.textContent = isWeekly ? "Saldo semanal" : "Saldo da janela de 5h";
+  els.chartTitle.textContent = isWeekly ? "Uso semanal" : "Uso da janela de 5h";
   els.chartWeeklyButton?.setAttribute("aria-pressed", String(isWeekly));
   els.chartFiveHourButton?.setAttribute("aria-pressed", String(!isWeekly));
 }
@@ -1153,7 +1194,7 @@ function renderDashboard(els, viewModel) {
   setProgress(els.fiveHourBar, viewModel.fiveHour.remaining);
 
   els.weeklyPercent.textContent = viewModel.weekly.remaining;
-  els.weeklyProjection.textContent = viewModel.weekly.projection;
+  if (els.weeklyProjection) els.weeklyProjection.textContent = viewModel.weekly.projection;
   els.weeklyZeroAt.textContent = viewModel.weekly.zeroAt;
   if (els.weeklyWindowBadge) els.weeklyWindowBadge.textContent = viewModel.weekly.windowBadge;
   if (els.weeklyUsed) els.weeklyUsed.textContent = viewModel.weekly.used;
@@ -1308,6 +1349,14 @@ function bindEvents(els, usage, render) {
     hideExhaustedAccounts = !hideExhaustedAccounts;
     els.hideExhaustedButton.setAttribute("aria-pressed", String(hideExhaustedAccounts));
     els.hideExhaustedButton.textContent = hideExhaustedAccounts ? "Mostrar esgotadas" : "Ocultar esgotadas";
+    triggerHaptic(8);
+    render();
+  });
+
+  els.hideFreeGoButton?.addEventListener("click", () => {
+    hideFreeGoAccounts = !hideFreeGoAccounts;
+    els.hideFreeGoButton.setAttribute("aria-pressed", String(hideFreeGoAccounts));
+    els.hideFreeGoButton.textContent = hideFreeGoAccounts ? "Mostrar FREE/GO" : "Ocultar FREE/GO";
     triggerHaptic(8);
     render();
   });

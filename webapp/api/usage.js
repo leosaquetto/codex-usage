@@ -71,6 +71,19 @@ function normalizeAccounts(rawAccounts) {
   })).filter((account) => account.id || account.name)
 }
 
+function isFreeGoAccount(account) {
+  const plan = String(account?.planType || "").trim().toLowerCase()
+  return plan === "free" || plan === "go"
+}
+
+function averageAccountPercent(accounts, key, fallback = 0) {
+  const values = accounts
+    .map((account) => Number(account?.[key]))
+    .filter((value) => Number.isFinite(value))
+  if (!values.length) return fallback
+  return values.reduce((sum, value) => sum + value, 0) / values.length
+}
+
 function formatRate(value, unit) {
   if (!Number.isFinite(value)) return `--/${unit}`
   return `${value.toFixed(1)}%/${unit}`
@@ -104,9 +117,11 @@ function formatZeroIn(days) {
 function enrichPayload(raw = {}, history = null) {
   const now = Date.now()
   const aggregate = raw.aggregate && typeof raw.aggregate === "object" ? raw.aggregate : raw
+  const accounts = normalizeAccounts(raw.accounts)
+  const paidAccounts = accounts.filter((account) => !isFreeGoAccount(account))
 
-  const fiveHourPercent = toPercent(aggregate.fiveHourPercent)
-  const weeklyPercent = toPercent(aggregate.weeklyPercent)
+  const fiveHourPercent = toPercent(averageAccountPercent(paidAccounts, "fiveHourPercent", aggregate.fiveHourPercent))
+  const weeklyPercent = toPercent(averageAccountPercent(paidAccounts, "weeklyPercent", aggregate.weeklyPercent))
   const fiveHourResetDate = toDate(aggregate.fiveHourReset)
   const weeklyResetDate = toDate(aggregate.weeklyReset)
   const lastUpdated = raw.lastUpdated || new Date().toISOString()
@@ -161,9 +176,9 @@ function enrichPayload(raw = {}, history = null) {
     weeklyReset: weeklyResetDate ? weeklyResetDate.toISOString() : null,
     lastUpdated,
     source: raw.source || null,
-    accountCount: Number.isFinite(Number(raw.accountCount)) ? Number(raw.accountCount) : normalizeAccounts(raw.accounts).length,
-    okCount: Number.isFinite(Number(raw.okCount)) ? Number(raw.okCount) : normalizeAccounts(raw.accounts).filter((account) => account.status === "ok").length,
-    accounts: normalizeAccounts(raw.accounts),
+    accountCount: paidAccounts.length,
+    okCount: paidAccounts.filter((account) => account.status === "ok").length,
+    accounts,
     statusLabel,
     // Métricas derivadas sempre recalculadas para refletir o estado real atual.
     fiveHourSafeRate: formatRate(fiveHourSafeRateNumber, "h"),

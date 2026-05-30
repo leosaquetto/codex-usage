@@ -6,8 +6,8 @@
   --primary: #3b82f6;
   --tone-safe: #2563eb;
   --tone-ok: #16a34a;
-  --tone-warn: #d97706;
-  --tone-caution: #eab308;
+  --tone-warn: #eab308;
+  --tone-caution: #f97316;
   --tone-danger: #ef4444;
   --tone-error: #b91c1c;
 
@@ -295,9 +295,16 @@ input {
 .pool-panel {
   display: grid;
   gap: 8px;
-  margin: 14px 0 12px;
+  margin: 0;
   padding: 12px 14px;
   border-radius: 18px;
+}
+
+.pool-rhythm-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.65fr);
+  gap: 12px;
+  margin: 0 0 12px;
 }
 
 .pool-panel-top {
@@ -330,7 +337,7 @@ input {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
-  margin: 0 0 14px;
+  margin: 14px 0 10px;
   padding: 12px 14px;
   border-radius: 18px;
 }
@@ -651,10 +658,9 @@ input {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  gap: 10px;
-  margin-top: 10px;
-  margin-bottom: 12px;
-  padding: 12px 14px;
+  gap: 9px;
+  margin: 0;
+  padding: 11px 12px;
   border-radius: 18px;
   background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(255, 255, 255, 0.96));
 }
@@ -667,8 +673,8 @@ input {
 }
 
 .suggestion-card h2 {
-  margin: 5px 0 3px;
-  font-size: clamp(17px, 3vw, 22px);
+  margin: 4px 0 2px;
+  font-size: clamp(15px, 2.2vw, 18px);
   font-weight: 900;
   line-height: 1.1;
 }
@@ -676,7 +682,8 @@ input {
 .suggestion-card p:last-child {
   margin: 0;
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: 11px;
+  line-height: 1.25;
 }
 
 .total-availability-track {
@@ -688,11 +695,32 @@ input {
 }
 
 .total-availability-fill {
+  --availability-tone: var(--tone-warn);
   width: 0%;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--tone-danger), var(--tone-caution), var(--tone-warn), var(--tone-ok), var(--tone-safe));
+  background: var(--availability-tone);
   transition: width 520ms var(--ease);
+}
+
+.total-availability-fill[data-tone="safe"] {
+  --availability-tone: var(--tone-safe);
+}
+
+.total-availability-fill[data-tone="ok"] {
+  --availability-tone: var(--tone-ok);
+}
+
+.total-availability-fill[data-tone="warn"] {
+  --availability-tone: var(--tone-warn);
+}
+
+.total-availability-fill[data-tone="caution"] {
+  --availability-tone: var(--tone-caution);
+}
+
+.total-availability-fill[data-tone="danger"] {
+  --availability-tone: var(--tone-danger);
 }
 
 .accounts-panel {
@@ -726,10 +754,50 @@ input {
 
 .accounts-header-side {
   display: flex;
-  align-items: flex-end;
+  align-items: stretch;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 8px;
+  flex-wrap: wrap;
   min-width: 0;
+}
+
+.accounts-filter-box {
+  justify-self: end;
+  min-width: 210px;
+  border: 1px solid rgba(15, 23, 42, 0.09);
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.accounts-filter-box summary {
+  min-height: 34px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 850;
+  cursor: pointer;
+  list-style: none;
+}
+
+.accounts-filter-box summary::-webkit-details-marker {
+  display: none;
+}
+
+.accounts-filter-box summary::after {
+  content: "▾";
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.accounts-filter-box[open] summary::after {
+  transform: rotate(180deg);
+}
+
+.accounts-filter-box .accounts-header-side {
+  padding: 0 8px 8px;
 }
 
 .toggle-button {
@@ -786,6 +854,7 @@ input {
 
 .account-card {
   --account-tone: var(--tone-ok);
+  position: relative;
   display: grid;
   gap: 11px;
   min-width: 0;
@@ -797,8 +866,26 @@ input {
 }
 
 .account-card[data-recommended="true"] {
-  border-color: color-mix(in srgb, var(--account-tone) 54%, rgba(15, 23, 42, 0.08));
-  box-shadow: 0 14px 30px color-mix(in srgb, var(--account-tone) 13%, transparent);
+  border-width: 2px;
+  border-color: var(--tone-safe);
+  background:
+    linear-gradient(#fff, #fff) padding-box,
+    linear-gradient(135deg, rgba(37, 99, 235, 0.18), rgba(22, 163, 74, 0.1)) border-box;
+  box-shadow: 0 16px 34px rgba(37, 99, 235, 0.16);
+}
+
+.account-card[data-recommended="true"]::before {
+  content: "Melhor agora";
+  position: absolute;
+  top: -10px;
+  left: 12px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: #fff;
+  background: var(--tone-safe);
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .account-card[data-tone="safe"] {
@@ -823,10 +910,11 @@ input {
 
 .account-top {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: 9px;
   min-width: 0;
+  padding-right: 54px;
 }
 
 .account-logo {
@@ -841,7 +929,7 @@ input {
 
 .account-title h3 {
   margin: 0;
-  font-size: 13.5px;
+  font-size: 12.5px;
   font-weight: 850;
   line-height: 1.1;
   white-space: nowrap;
@@ -852,7 +940,7 @@ input {
 .account-title p {
   margin: 3px 0 0;
   color: var(--text-muted);
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 600;
   line-height: 1.1;
   white-space: nowrap;
@@ -861,15 +949,26 @@ input {
 }
 
 .account-pill {
-  align-self: start;
-  justify-self: end;
+  position: absolute;
+  top: 12px;
+  right: 12px;
   padding: 4px 7px;
   border-radius: 999px;
-  color: var(--account-tone);
-  background: color-mix(in srgb, var(--account-tone) 10%, white);
+  color: #111827;
+  background: linear-gradient(135deg, #f8fafc, #cbd5e1);
   font-size: 9px;
   font-weight: 800;
   line-height: 1;
+}
+
+.account-pill[data-plan="free"] {
+  color: #475569;
+  background: #e5e7eb;
+}
+
+.account-pill[data-plan="go"] {
+  color: #64748b;
+  background: #f1f5f9;
 }
 
 .account-meters {
@@ -945,10 +1044,12 @@ input {
 }
 
 .account-reset {
-  display: flex;
+  display: grid;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 2px;
+  min-width: 0;
+  text-align: center;
 }
 
 .account-footer {
@@ -1137,7 +1238,7 @@ input {
 .compare-track {
   position: relative;
   display: grid;
-  grid-template-columns: 35% 25% 20% 20%;
+  grid-template-columns: 25% 25% 20% 15% 15%;
   height: 16px;
   border-radius: 999px;
   overflow: visible;
@@ -1153,7 +1254,7 @@ input {
   border-radius: 999px 0 0 999px;
 }
 
-.compare-zone:nth-child(4) {
+.compare-zone:nth-child(5) {
   border-radius: 0 999px 999px 0;
 }
 
@@ -1167,6 +1268,10 @@ input {
 
 .compare-zone.warn {
   background: color-mix(in srgb, var(--tone-warn) 78%, white);
+}
+
+.compare-zone.caution {
+  background: color-mix(in srgb, var(--tone-caution) 78%, white);
 }
 
 .compare-zone.danger {
@@ -1450,8 +1555,13 @@ input {
     border-radius: 16px;
   }
 
+  .pool-rhythm-grid {
+    grid-template-columns: 1fr 0.82fr;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
   .pool-panel {
-    margin: 12px 0 10px;
     padding: 11px 12px;
     border-radius: 16px;
   }
@@ -1465,6 +1575,28 @@ input {
   .pool-panel p:last-child {
     justify-self: stretch;
     text-align: left;
+    font-size: 10px;
+  }
+
+  .suggestion-card {
+    min-height: 0;
+    padding: 10px;
+    border-radius: 16px;
+    grid-template-columns: 1fr;
+    align-content: center;
+    gap: 4px;
+  }
+
+  .suggestion-icon {
+    display: none;
+  }
+
+  .suggestion-card h2 {
+    font-size: 15px;
+  }
+
+  .suggestion-card p:last-child {
+    font-size: 10px;
   }
 
   .status-meta {
@@ -1563,19 +1695,40 @@ input {
   }
 
   .section-header {
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: end;
+    grid-template-columns: 1fr;
+    align-items: stretch;
     gap: 8px;
   }
 
+  .accounts-filter-box {
+    justify-self: stretch;
+    min-width: 0;
+  }
+
+  .accounts-filter-box summary {
+    min-height: 32px;
+    font-size: 11px;
+  }
+
   .accounts-header-side {
-    align-items: flex-end;
+    align-items: stretch;
     flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: stretch;
     min-width: 0;
   }
 
   .sort-control {
-    display: none;
+    display: grid;
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .toggle-button {
+    flex: 1 1 calc(50% - 4px);
+    min-height: 32px;
+    padding: 0 9px;
+    font-size: 10.5px;
   }
 
   .accounts-grid {
@@ -1589,7 +1742,8 @@ input {
   }
 
   .account-top {
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-columns: auto minmax(0, 1fr);
+    padding-right: 46px;
   }
 
   .account-logo {
@@ -1600,7 +1754,7 @@ input {
 
   .account-meters {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 9px;
+    gap: 7px;
   }
 
   .account-circle {
@@ -1609,6 +1763,21 @@ input {
 
   .account-circle strong {
     font-size: clamp(14px, 3.8vw, 17px);
+  }
+
+  .account-title h3 {
+    font-size: 11.5px;
+  }
+
+  .account-title p {
+    font-size: 9px;
+  }
+
+  .account-pill {
+    top: 10px;
+    right: 10px;
+    padding: 4px 6px;
+    font-size: 8px;
   }
 
   .account-reset,

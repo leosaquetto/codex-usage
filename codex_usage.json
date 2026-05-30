@@ -1,18 +1,18 @@
 {
   "source": "codex-switcher",
-  "lastUpdated": "2026-05-30T21:03:21.666Z",
+  "lastUpdated": "2026-05-30T21:18:24.474Z",
   "accountCount": 5,
   "okCount": 5,
   "activeAccountId": "daffbb33-0094-4edd-80f1-9d5ff4e3e3e2",
   "aggregate": {
-    "fiveHourPercent": 79,
-    "fiveHourReset": "2026-05-30T21:15:44.000Z",
+    "fiveHourPercent": 98,
+    "fiveHourReset": "2026-05-31T01:22:40.000Z",
     "weeklyPercent": 39,
     "weeklyReset": "2026-05-31T01:47:07.000Z",
-    "lastUpdated": "2026-05-30T21:03:21.666Z"
+    "lastUpdated": "2026-05-30T21:18:24.474Z"
   },
-  "fiveHourPercent": 79,
-  "fiveHourReset": "2026-05-30T21:15:44.000Z",
+  "fiveHourPercent": 98,
+  "fiveHourReset": "2026-05-31T01:22:40.000Z",
   "weeklyPercent": 39,
   "weeklyReset": "2026-05-31T01:47:07.000Z",
   "accounts": [
@@ -28,7 +28,7 @@
       "lastUsedAt": "2026-05-29T23:28:32.215Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-05-31T02:03:22.000Z",
+      "fiveHourReset": "2026-05-31T02:18:25.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 0,
       "weeklyUsedPercent": 100,
@@ -39,7 +39,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-05-30T21:03:21.666Z",
+      "lastUpdated": "2026-05-30T21:18:24.474Z",
       "status": "ok",
       "error": null
     },
@@ -55,7 +55,7 @@
       "lastUsedAt": "2026-05-30T00:01:47.252Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-05-31T02:03:22.000Z",
+      "fiveHourReset": "2026-05-31T02:18:25.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 0,
       "weeklyUsedPercent": 100,
@@ -66,7 +66,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-05-30T21:03:21.666Z",
+      "lastUpdated": "2026-05-30T21:18:24.474Z",
       "status": "ok",
       "error": null
     },
@@ -93,7 +93,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-05-30T21:03:21.666Z",
+      "lastUpdated": "2026-05-30T21:18:24.474Z",
       "status": "ok",
       "error": null
     },
@@ -120,7 +120,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-05-30T21:03:21.666Z",
+      "lastUpdated": "2026-05-30T21:18:24.474Z",
       "status": "ok",
       "error": null
     },
@@ -136,7 +136,7 @@
       "lastUsedAt": "2026-05-30T03:01:17.021Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-05-31T02:03:22.000Z",
+      "fiveHourReset": "2026-05-31T02:18:25.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 55,
       "weeklyUsedPercent": 45,
@@ -147,7 +147,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-05-30T21:03:21.666Z",
+      "lastUpdated": "2026-05-30T21:18:24.474Z",
       "status": "ok",
       "error": null
     },
@@ -174,7 +174,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-05-30T21:03:21.666Z",
+      "lastUpdated": "2026-05-30T21:18:24.474Z",
       "status": "ok",
       "error": null
     },
@@ -188,9 +188,9 @@
       "subscriptionExpiresAt": "2026-06-22T14:22:14.000Z",
       "isActive": false,
       "lastUsedAt": "2026-05-30T15:31:10.695Z",
-      "fiveHourPercent": 0,
-      "fiveHourUsedPercent": 100,
-      "fiveHourReset": "2026-05-30T21:15:44.000Z",
+      "fiveHourPercent": 99,
+      "fiveHourUsedPercent": 1,
+      "fiveHourReset": "2026-05-31T02:18:25.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 69,
       "weeklyUsedPercent": 31,
@@ -201,7 +201,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-05-30T21:03:21.666Z",
+      "lastUpdated": "2026-05-30T21:18:24.474Z",
       "status": "ok",
       "error": null
     },
@@ -228,7 +228,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-05-30T21:03:21.666Z",
+      "lastUpdated": "2026-05-30T21:18:24.474Z",
       "status": "ok",
       "error": null
     }

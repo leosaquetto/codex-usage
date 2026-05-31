@@ -197,7 +197,7 @@ function enrichPayload(raw = {}, history = null) {
 
 const GITHUB_OWNER = process.env.CODEX_USAGE_GITHUB_OWNER || "leosaquetto"
 const GITHUB_REPO = process.env.CODEX_USAGE_GITHUB_REPO || "codex-usage"
-const GITHUB_BRANCH = process.env.CODEX_USAGE_GITHUB_BRANCH || "main"
+const GITHUB_BRANCH = process.env.CODEX_USAGE_GITHUB_BRANCH || "usage-data"
 const REMOTE_USAGE_PATH = "codex_usage.json"
 const REMOTE_HISTORY_PATH = "codex_usage_history.json"
 const REMOTE_USAGE_URL = process.env.CODEX_USAGE_REMOTE_USAGE_URL

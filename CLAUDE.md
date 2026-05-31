@@ -19,6 +19,7 @@ The project is in **Portuguese (pt-BR)** - all UI text, comments, and documentat
 
 - **`staging`**: Development branch - make all commits here
 - **`main`**: Production branch - only receives merges from staging, triggers automatic deploys
+- **`usage-data`**: Automated JSON snapshots - receives updater commits and never deploys to Vercel
 
 ### Workflow Steps
 
@@ -56,7 +57,7 @@ codex-usage/
 ```
 ChatGPT Codex Analytics Page
     ↓ (Playwright automation)
-codex_usage.json (root)
+codex_usage.json (root of usage-data branch)
     ↓
 usage_summary.json (combines codex + antigravity)
     ↓
@@ -67,9 +68,9 @@ webapp/index.html (dashboard)
 
 ### Key Files
 
-- **`codex_usage.json`**: Raw Codex usage data (5-hour and weekly limits) - **root only**
-- **`antigravity_usage.json`**: Antigravity model quotas with refresh times - **root only**
-- **`usage_summary.json`**: Combined summary of both sources - **root only**
+- **`codex_usage.json`**: Raw Codex usage data (5-hour and weekly limits) - **root of `usage-data`**
+- **`antigravity_usage.json`**: Antigravity model quotas with refresh times - **root of `usage-data`**
+- **`usage_summary.json`**: Combined summary of both sources - **root of `usage-data`**
 - **`webapp/`**: Static web dashboard deployed to Vercel - **all frontend files here**
   - `index.html`: Semantic HTML5 structure
   - `style.css`: Modern responsive design with CSS custom properties, dark/light mode
@@ -88,6 +89,7 @@ webapp/index.html (dashboard)
 - Scrapes `https://chatgpt.com/codex/cloud/settings/analytics`
 - Requires authenticated Chrome session (no API keys stored)
 - Runs via `npm run update:codex-usage:auto`
+- Uses `scripts/run-usage-data-update.mjs` so automatic commits land on `usage-data`, never on `main`
 
 **Antigravity:**
 - Desktop UI automation using macOS accessibility APIs

@@ -7,9 +7,8 @@
 	<key>ProgramArguments</key>
 	<array>
 		<string>/usr/local/bin/node</string>
-		<string>/Users/leosaquetto/Developer/GitHub/codex-usage/scripts/update-antigravity-usage-auto.mjs</string>
-		<string>--commit</string>
-		<string>--push</string>
+		<string>/Users/leosaquetto/Developer/GitHub/codex-usage/scripts/run-usage-data-update.mjs</string>
+		<string>antigravity</string>
 	</array>
 	<key>RunAtLoad</key>
 	<false/>

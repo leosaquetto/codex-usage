@@ -17,7 +17,7 @@ const tokenUrl = "https://auth.openai.com/oauth/token";
 const clientId = "app_EMoamEEZ73f0CkXaXp7hrann";
 const githubOwner = "leosaquetto";
 const githubRepo = "codex-usage";
-const githubBranch = "main";
+const githubBranch = "usage-data";
 const githubTokenKeychainService = "codex_usage_github_token";
 
 const DISPLAY_NAMES = new Map([
@@ -50,27 +50,13 @@ function usage() {
   return [
     "Usage:",
     "  node scripts/update-codex-usage-from-switcher.mjs",
-    "  CODEX_USAGE_ALLOW_GIT_PUBLISH=1 node scripts/update-codex-usage-from-switcher.mjs --publish",
-    "  CODEX_USAGE_ALLOW_GIT_PUBLISH=1 node scripts/update-codex-usage-from-switcher.mjs --commit --push",
+    "  node scripts/update-codex-usage-from-switcher.mjs --publish",
+    "  node scripts/update-codex-usage-from-switcher.mjs --commit --push",
     "  node scripts/update-codex-usage-from-switcher.mjs --accounts ~/.codex-switcher/accounts.json",
     "",
-    "Lê contas ChatGPT do Codex Switcher local e atualiza codex_usage.json,",
-    "codex_usage_history.json e usage_summary.json no disco local.",
-    "",
-    "Publicar estes arquivos no main dispara a integração GitHub da Vercel,",
-    "mesmo quando o build é cancelado por ignoreCommand. Por isso --publish,",
-    "--commit e --push exigem CODEX_USAGE_ALLOW_GIT_PUBLISH=1 ou",
-    "--allow-git-publish.",
+    "Lê contas ChatGPT do Codex Switcher local e publica codex_usage.json,",
+    "codex_usage_history.json e usage_summary.json de forma atômica.",
   ].join("\n");
-}
-
-function assertGitPublishAllowed(action) {
-  const allowed = args.has("allow-git-publish") || process.env.CODEX_USAGE_ALLOW_GIT_PUBLISH === "1";
-  if (allowed) return;
-  throw new Error(
-    `${action} bloqueado: publicar no main do codex-usage dispara deploys da Vercel e queima a cota. ` +
-      "Use CODEX_USAGE_ALLOW_GIT_PUBLISH=1 ou --allow-git-publish apenas para uma publicação manual intencional.",
-  );
 }
 
 function clampPercent(value, fallback = null) {
@@ -489,6 +475,7 @@ async function publishFilesAtomic(files) {
 
 function maybeCommit() {
   if (!args.has("commit")) return false;
+  assertDataBranchForGitPublish();
 
   const add = spawnSync("git", ["add", "codex_usage.json", "codex_usage_history.json", "usage_summary.json"], {
     cwd: root,
@@ -512,6 +499,19 @@ function maybeCommit() {
   return true;
 }
 
+function assertDataBranchForGitPublish() {
+  const branch = spawnSync("git", ["branch", "--show-current"], {
+    cwd: root,
+    encoding: "utf8",
+  });
+  if (branch.status !== 0 || branch.stdout.trim() !== githubBranch) {
+    throw new Error(
+      `Commit automático bloqueado fora da branch ${githubBranch}. ` +
+        "Use node scripts/run-usage-data-update.mjs switcher.",
+    );
+  }
+}
+
 function maybePush(committed) {
   if (!args.has("push") || !committed) return false;
 
@@ -529,9 +529,7 @@ async function main() {
     console.log(usage());
     return;
   }
-  if (args.has("publish") || args.has("commit") || args.has("push")) {
-    assertGitPublishAllowed(args.has("publish") ? "--publish" : "--commit/--push");
-  }
+  if (args.has("commit") || args.has("push")) assertDataBranchForGitPublish();
 
   const nowIso = new Date().toISOString();
   const store = await readSwitcherAccounts();

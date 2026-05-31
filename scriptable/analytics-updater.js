@@ -9,7 +9,7 @@
 // Este script NÃO publica no GitHub.
 // Este script NÃO edita percentuais manualmente.
 
-const REMOTE_USAGE_URL_PRODUCTION = "https://raw.githubusercontent.com/leosaquetto/codex-usage/main/codex_usage.json"
+const REMOTE_USAGE_URL_PRODUCTION = "https://raw.githubusercontent.com/leosaquetto/codex-usage/usage-data/codex_usage.json"
 const REMOTE_USAGE_URL_STAGING = "https://raw.githubusercontent.com/leosaquetto/codex-usage/staging/codex_usage.json"
 const REMOTE_USAGE_URL = REMOTE_USAGE_URL_PRODUCTION
 

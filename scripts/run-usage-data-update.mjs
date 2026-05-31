@@ -1,0 +1,119 @@
+#!/usr/bin/env node
+import { existsSync } from "node:fs";
+import { mkdir, readFile } from "node:fs/promises";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
+import { spawnSync } from "node:child_process";
+
+const root = resolve(new URL("..", import.meta.url).pathname);
+const dataBranch = "usage-data";
+const dataWorktree = resolve(root, ".local/usage-data-worktree");
+
+const modes = {
+  switcher: "scripts/update-codex-usage-from-switcher.mjs",
+  playwright: "scripts/update-codex-usage-playwright.mjs",
+  antigravity: "scripts/update-antigravity-usage-auto.mjs",
+};
+
+function usage() {
+  return [
+    "Usage:",
+    "  node scripts/run-usage-data-update.mjs switcher",
+    "  node scripts/run-usage-data-update.mjs playwright --ensure-cdp --close-cdp",
+    "  node scripts/run-usage-data-update.mjs antigravity",
+    "",
+    "Runs the selected updater inside a dedicated usage-data worktree,",
+    "so automated JSON commits never land on the Vercel production branch.",
+  ].join("\n");
+}
+
+function run(command, args, options = {}) {
+  const result = spawnSync(command, args, {
+    cwd: root,
+    encoding: "utf8",
+    ...options,
+  });
+
+  if (result.error) throw result.error;
+  if (!options.allowFailure && result.status !== 0) {
+    const detail = [result.stderr, result.stdout].filter(Boolean).join("\n").trim();
+    throw new Error(`${command} ${args.join(" ")} falhou: ${detail || `exit ${result.status}`}`);
+  }
+  return result;
+}
+
+function git(args, options = {}) {
+  return run("git", args, options);
+}
+
+function remoteDataBranchExists() {
+  return git(["show-ref", "--verify", "--quiet", `refs/remotes/origin/${dataBranch}`], {
+    allowFailure: true,
+  }).status === 0;
+}
+
+async function assertVercelDataBranchGuard() {
+  const config = JSON.parse(await readFile(resolve(dataWorktree, "webapp/vercel.json"), "utf8"));
+  if (config?.git?.deploymentEnabled?.[dataBranch] !== false) {
+    throw new Error(`webapp/vercel.json precisa desativar deployments Git para a branch ${dataBranch}.`);
+  }
+}
+
+async function ensureDataWorktree() {
+  await mkdir(resolve(root, ".local"), { recursive: true });
+  git(["fetch", "origin", "main"]);
+  git(["fetch", "origin", `${dataBranch}:refs/remotes/origin/${dataBranch}`], { allowFailure: true });
+
+  const hasRemoteDataBranch = remoteDataBranchExists();
+  if (!existsSync(resolve(dataWorktree, ".git"))) {
+    git(["worktree", "prune"]);
+    if (hasRemoteDataBranch) {
+      git(["worktree", "add", "--force", "-B", dataBranch, dataWorktree, `origin/${dataBranch}`]);
+    } else {
+      git(["worktree", "add", "-b", dataBranch, dataWorktree, "origin/main"]);
+    }
+  } else {
+    const currentBranch = git(["branch", "--show-current"], { cwd: dataWorktree }).stdout.trim();
+    if (currentBranch !== dataBranch) {
+      throw new Error(`Worktree de dados está na branch ${currentBranch || "<detached>"}, esperado ${dataBranch}.`);
+    }
+    if (hasRemoteDataBranch) {
+      git(["pull", "--ff-only", "origin", dataBranch], { cwd: dataWorktree });
+    }
+  }
+
+  git(["merge", "--no-edit", "origin/main"], { cwd: dataWorktree });
+  await assertVercelDataBranchGuard();
+  git(["push", "--set-upstream", "origin", `HEAD:refs/heads/${dataBranch}`], { cwd: dataWorktree });
+}
+
+async function main() {
+  const [mode, ...updaterArgs] = process.argv.slice(2);
+  if (!mode || mode === "--help" || mode === "help" || !modes[mode]) {
+    console.log(usage());
+    if (!mode || mode === "--help" || mode === "help") return;
+    process.exitCode = 1;
+    return;
+  }
+
+  await ensureDataWorktree();
+
+  const updater = resolve(dataWorktree, modes[mode]);
+  const result = run(process.execPath, [updater, ...updaterArgs, "--commit", "--push"], {
+    cwd: dataWorktree,
+    stdio: "inherit",
+  });
+  if (result.status !== 0) process.exit(result.status || 1);
+
+  // Also publish a main -> usage-data merge when the updater skipped unchanged data.
+  git(["push", "origin", `HEAD:refs/heads/${dataBranch}`], { cwd: dataWorktree });
+}
+
+if (import.meta.url === pathToFileURL(process.argv[1] || "").href) {
+  try {
+    await main();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exit(1);
+  }
+}

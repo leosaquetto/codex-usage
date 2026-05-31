@@ -7,6 +7,7 @@ import { pathToFileURL } from "node:url";
 const root = resolve(new URL("..", import.meta.url).pathname);
 const outputPath = resolve(root, "antigravity_usage.json");
 const summaryPath = resolve(root, "usage_summary.json");
+const dataBranch = "usage-data";
 
 function parseArgs(argv = process.argv.slice(2)) {
   const parsed = new Map();
@@ -236,9 +237,8 @@ function validateModels(models) {
 }
 
 async function syncWebappArtifacts() {
-  // Data JSONs are intentionally kept at repo root only.
-  // The deployed /webapp reads them from raw GitHub to avoid Vercel redeploys
-  // on every usage refresh.
+  // Data JSONs are intentionally kept on the usage-data branch only.
+  // The deployed /webapp reads them from raw GitHub without redeploying.
 }
 
 function runSummaryBuilder() {
@@ -254,6 +254,7 @@ function runSummaryBuilder() {
 
 function maybeCommit(enabled) {
   if (!enabled) return false;
+  assertDataBranchForGitPublish();
   const add = spawnSync("git", ["add", "antigravity_usage.json", "usage_summary.json"], {
     cwd: root,
     stdio: "inherit",
@@ -274,6 +275,19 @@ function maybeCommit(enabled) {
   if (commit.status !== 0) throw new Error("Failed to commit Antigravity usage files.");
 
   return true;
+}
+
+function assertDataBranchForGitPublish() {
+  const branch = spawnSync("git", ["branch", "--show-current"], {
+    cwd: root,
+    encoding: "utf8",
+  });
+  if (branch.status !== 0 || branch.stdout.trim() !== dataBranch) {
+    throw new Error(
+      `Automatic commit blocked outside ${dataBranch}. ` +
+        "Use node scripts/run-usage-data-update.mjs antigravity.",
+    );
+  }
 }
 
 function maybePush(enabled, committed) {
@@ -313,6 +327,7 @@ async function buildPayloadFromArgs(now = new Date()) {
 
 async function writeAntigravityUsage(payload, options = {}) {
   validateModels(payload.models);
+  if (options.commit || options.push) assertDataBranchForGitPublish();
 
   const next = {
     source: payload.source || "desktop-automation",

@@ -2,8 +2,8 @@
 // Codex + Antigravity — Scriptable Large Widget (Pro Modular 4x2)
 // ------------------------------------------------------
 
-const SUMMARY_URL = "https://raw.githubusercontent.com/leosaquetto/codex-usage/main/usage_summary.json"
-const CODEX_USAGE_URL = "https://raw.githubusercontent.com/leosaquetto/codex-usage/main/codex_usage.json"
+const SUMMARY_URL = "https://raw.githubusercontent.com/leosaquetto/codex-usage/usage-data/usage_summary.json"
+const CODEX_USAGE_URL = "https://raw.githubusercontent.com/leosaquetto/codex-usage/usage-data/codex_usage.json"
 const CACHE_FILE = "codex-antigravity-usage-summary.json"
 const REFRESH_MINUTES = 20
 

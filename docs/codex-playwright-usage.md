@@ -85,7 +85,7 @@ npm run chrome:cdp
 
 Depois faca login no Chrome visivel que abriu e confirme que a pagina de analytics carrega. As execucoes automaticas seguintes usam esse mesmo profile em um Chrome oculto via CDP.
 
-O LaunchAgent local roda o updater sem `--commit` e sem `--push`, para evitar que atualizações de uso acordem a integração da Vercel a cada execução. Os logs ficam em:
+O LaunchAgent local roda `scripts/run-usage-data-update.mjs switcher`. Esse wrapper publica os JSONs na branch `usage-data`, separada da branch `main` monitorada pela Vercel para produção. Os logs ficam em:
 
 - `.local/logs/codex-usage-launchd.out.log`
 - `.local/logs/codex-usage-launchd.err.log`
@@ -122,16 +122,10 @@ Rodar o fluxo automatico silencioso:
 npm run update:codex-usage:auto
 ```
 
-Atualizar e commitar os JSONs gerados manualmente:
+Atualizar, commitar e fazer push na branch de dados:
 
 ```bash
-CODEX_USAGE_ALLOW_GIT_PUBLISH=1 node scripts/update-codex-usage-playwright.mjs --headed --commit
-```
-
-Atualizar, commitar e fazer push manualmente:
-
-```bash
-CODEX_USAGE_ALLOW_GIT_PUBLISH=1 node scripts/update-codex-usage-playwright.mjs --ensure-cdp --commit --push
+node scripts/run-usage-data-update.mjs playwright --ensure-cdp --close-cdp
 ```
 
 ## Arquivos atualizados
@@ -142,14 +136,7 @@ O script grava:
 - `usage_summary.json`
 - `codex_usage_history.json`
 
-O summary é regenerado via `scripts/build-usage-summary.mjs`. Os JSONs ficam no root do repo; o `webapp/` lê dados via API/raw GitHub e não recebe espelho local a cada refresh.
-
-Para publicar sem acionar deploys no projeto `codex-usage`, a API do `webapp/` também aceita uma origem externa configurada por env:
-
-- `CODEX_USAGE_REMOTE_USAGE_URL`
-- `CODEX_USAGE_REMOTE_HISTORY_URL`
-
-Quando essas envs existem, `/api/usage` busca os JSONs diretamente dessas URLs em vez de consultar o repo ligado à Vercel.
+O summary é regenerado via `scripts/build-usage-summary.mjs`. Os JSONs ficam no root da branch `usage-data`; o `webapp/` lê dados via API/raw GitHub dessa branch e não recebe espelho local a cada refresh.
 
 ## Sessão persistente
 

@@ -21,6 +21,7 @@ const defaultCdpUrl = "http://127.0.0.1:9222";
 const codexUsagePath = resolve(root, "codex_usage.json");
 const historyPath = resolve(root, "codex_usage_history.json");
 const summaryPath = resolve(root, "usage_summary.json");
+const dataBranch = "usage-data";
 
 const args = parseArgs(process.argv.slice(2));
 
@@ -47,8 +48,8 @@ function usage() {
     "  node scripts/update-codex-usage-playwright.mjs",
     "  node scripts/update-codex-usage-playwright.mjs --headed",
     "  node scripts/update-codex-usage-playwright.mjs --headless",
-    "  CODEX_USAGE_ALLOW_GIT_PUBLISH=1 node scripts/update-codex-usage-playwright.mjs --headed --commit",
-    "  CODEX_USAGE_ALLOW_GIT_PUBLISH=1 node scripts/update-codex-usage-playwright.mjs --ensure-cdp --commit --push",
+    "  node scripts/update-codex-usage-playwright.mjs --headed --commit",
+    "  node scripts/update-codex-usage-playwright.mjs --ensure-cdp --commit --push",
     "  node scripts/update-codex-usage-playwright.mjs --cdp",
     "  node scripts/update-codex-usage-playwright.mjs --ensure-cdp",
     "  node scripts/update-codex-usage-playwright.mjs --headless --cdp-profile",
@@ -62,20 +63,11 @@ function usage() {
     "  - Tries network JSON first, then falls back to visible page text parsing.",
     "  - Can connect to an already-open Chrome via CDP to reuse a warmed session.",
     "  - Can start a hidden Chrome CDP session with --ensure-cdp.",
-    "  - Updates root JSON files only; publishing to main requires explicit opt-in.",
+    "  - Updates root JSON files only; /webapp stays as the Vercel root.",
     "",
     "Tip:",
     `  - Start CDP Chrome with: npm run chrome:cdp`,
   ].join("\n");
-}
-
-function assertGitPublishAllowed(action) {
-  const allowed = args.has("allow-git-publish") || process.env.CODEX_USAGE_ALLOW_GIT_PUBLISH === "1";
-  if (allowed) return;
-  throw new Error(
-    `${action} bloqueado: publicar no main do codex-usage dispara deploys da Vercel e queima a cota. ` +
-      "Use CODEX_USAGE_ALLOW_GIT_PUBLISH=1 ou --allow-git-publish apenas para uma publicação manual intencional.",
-  );
 }
 
 function determineMode() {
@@ -947,9 +939,8 @@ async function captureAnalytics(mode) {
 }
 
 async function syncWebappArtifacts() {
-  // Data JSONs are intentionally kept at repo root only.
-  // The deployed /webapp reads them from raw GitHub to avoid Vercel redeploys
-  // on every usage refresh.
+  // Data JSONs are intentionally kept on the usage-data branch only.
+  // The deployed /webapp reads them from raw GitHub without redeploying.
 }
 
 function runSummaryBuilder() {
@@ -1024,6 +1015,7 @@ function changedUsageFiles() {
 function maybeCommit() {
   if (args.has("no-commit")) return false;
   if (!args.has("commit")) return false;
+  assertDataBranchForGitPublish();
 
   const add = spawnSync("git", ["add", "codex_usage.json", "codex_usage_history.json", "usage_summary.json"], {
     cwd: root,
@@ -1053,6 +1045,19 @@ function maybeCommit() {
   }
 
   return true;
+}
+
+function assertDataBranchForGitPublish() {
+  const branch = spawnSync("git", ["branch", "--show-current"], {
+    cwd: root,
+    encoding: "utf8",
+  });
+  if (branch.status !== 0 || branch.stdout.trim() !== dataBranch) {
+    throw new Error(
+      `Commit automático bloqueado fora da branch ${dataBranch}. ` +
+        "Use node scripts/run-usage-data-update.mjs playwright.",
+    );
+  }
 }
 
 function maybePush(committed) {
@@ -1092,9 +1097,7 @@ async function main() {
     console.log(usage());
     return;
   }
-  if (args.has("commit") || args.has("push")) {
-    assertGitPublishAllowed("--commit/--push");
-  }
+  if (args.has("commit") || args.has("push")) assertDataBranchForGitPublish();
 
   const mode = determineMode();
   const current = await readCurrentData();

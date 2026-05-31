@@ -2,7 +2,7 @@
 // Codex Accounts — Scriptable Large Widget (8 contas)
 // ------------------------------------------------------
 
-const CODEX_USAGE_URL = "https://raw.githubusercontent.com/leosaquetto/codex-usage/main/codex_usage.json"
+const CODEX_USAGE_URL = "https://raw.githubusercontent.com/leosaquetto/codex-usage/usage-data/codex_usage.json"
 const CACHE_FILE = "codex-accounts-usage.json"
 const REFRESH_MINUTES = 15
 const LOGO_OPENAI = "https://i.imgur.com/qBlxQ5P.png"

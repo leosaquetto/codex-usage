@@ -4,10 +4,11 @@
   "scripts": {
     "dev": "node scripts/dev-webapp-server.mjs",
     "chrome:cdp": "open -na \"Google Chrome\" --args --remote-debugging-port=9222 --user-data-dir=/Users/leosaquetto/Developer/BrowserProfiles/codex-cdp-profile",
-    "update:antigravity-usage:auto": "node scripts/update-antigravity-usage-auto.mjs --commit --push",
+    "update:antigravity-usage:auto": "node scripts/run-usage-data-update.mjs antigravity",
     "update:codex-usage:switcher": "node scripts/update-codex-usage-from-switcher.mjs",
+    "update:codex-usage:switcher:auto": "node scripts/run-usage-data-update.mjs switcher",
     "update:codex-usage:switcher:publish": "node scripts/update-codex-usage-from-switcher.mjs --publish",
-    "update:codex-usage:auto": "node scripts/update-codex-usage-playwright.mjs --ensure-cdp --close-cdp --no-commit",
+    "update:codex-usage:auto": "node scripts/run-usage-data-update.mjs playwright --ensure-cdp --close-cdp",
     "update:codex-usage:cdp": "node scripts/update-codex-usage-playwright.mjs --cdp --no-commit",
     "update:codex-usage:playwright": "node scripts/update-codex-usage-playwright.mjs",
     "update:codex-usage:login": "node scripts/update-codex-usage-playwright.mjs --headed --no-cdp-fallback --no-commit",

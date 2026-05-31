@@ -5,10 +5,10 @@
 
 const GITHUB_OWNER = "leosaquetto"
 const GITHUB_REPO = "codex-usage"
-const GITHUB_BRANCH_PRODUCTION = "main"
+const GITHUB_BRANCH_PRODUCTION = "usage-data"
 const GITHUB_BRANCH_STAGING = "staging"
 const GITHUB_USAGE_PATH = "codex_usage.json"
-const REMOTE_USAGE_URL_PRODUCTION = "https://raw.githubusercontent.com/leosaquetto/codex-usage/main/codex_usage.json"
+const REMOTE_USAGE_URL_PRODUCTION = "https://raw.githubusercontent.com/leosaquetto/codex-usage/usage-data/codex_usage.json"
 const REMOTE_USAGE_URL_STAGING = "https://raw.githubusercontent.com/leosaquetto/codex-usage/staging/codex_usage.json"
 const REMOTE_USAGE_URL = REMOTE_USAGE_URL_PRODUCTION
 const REMOTE_USAGE_BRANCH = GITHUB_BRANCH_PRODUCTION

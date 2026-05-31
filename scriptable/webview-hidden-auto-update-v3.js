@@ -13,7 +13,7 @@ const DEFAULT_WEEKLY_RESET = "2026-04-28T19:35:00-03:00"
 
 const GITHUB_OWNER = "leosaquetto"
 const GITHUB_REPO = "codex-usage"
-const GITHUB_BRANCH = "main"
+const GITHUB_BRANCH = "usage-data"
 const GITHUB_FILE_PATH = "codex_usage.json"
 const GITHUB_HISTORY_FILE_PATH = "codex_usage_history.json"
 const GITHUB_SUMMARY_FILE_PATH = "usage_summary.json"

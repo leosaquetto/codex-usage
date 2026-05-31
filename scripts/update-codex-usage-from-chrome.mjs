@@ -13,7 +13,7 @@ const summaryPath = resolve(root, "usage_summary.json");
 const analyticsUrl = "https://chatgpt.com/codex/cloud/settings/analytics";
 const githubOwner = "leosaquetto";
 const githubRepo = "codex-usage";
-const githubBranch = "main";
+const githubBranch = "usage-data";
 const githubTokenKeychainService = "codex_usage_github_token";
 
 const args = new Map();

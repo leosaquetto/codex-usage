@@ -47,8 +47,8 @@ function usage() {
     "  node scripts/update-codex-usage-playwright.mjs",
     "  node scripts/update-codex-usage-playwright.mjs --headed",
     "  node scripts/update-codex-usage-playwright.mjs --headless",
-    "  node scripts/update-codex-usage-playwright.mjs --headed --commit",
-    "  node scripts/update-codex-usage-playwright.mjs --ensure-cdp --commit --push",
+    "  CODEX_USAGE_ALLOW_GIT_PUBLISH=1 node scripts/update-codex-usage-playwright.mjs --headed --commit",
+    "  CODEX_USAGE_ALLOW_GIT_PUBLISH=1 node scripts/update-codex-usage-playwright.mjs --ensure-cdp --commit --push",
     "  node scripts/update-codex-usage-playwright.mjs --cdp",
     "  node scripts/update-codex-usage-playwright.mjs --ensure-cdp",
     "  node scripts/update-codex-usage-playwright.mjs --headless --cdp-profile",
@@ -62,11 +62,20 @@ function usage() {
     "  - Tries network JSON first, then falls back to visible page text parsing.",
     "  - Can connect to an already-open Chrome via CDP to reuse a warmed session.",
     "  - Can start a hidden Chrome CDP session with --ensure-cdp.",
-    "  - Updates root and webapp JSON files.",
+    "  - Updates root JSON files only; publishing to main requires explicit opt-in.",
     "",
     "Tip:",
     `  - Start CDP Chrome with: npm run chrome:cdp`,
   ].join("\n");
+}
+
+function assertGitPublishAllowed(action) {
+  const allowed = args.has("allow-git-publish") || process.env.CODEX_USAGE_ALLOW_GIT_PUBLISH === "1";
+  if (allowed) return;
+  throw new Error(
+    `${action} bloqueado: publicar no main do codex-usage dispara deploys da Vercel e queima a cota. ` +
+      "Use CODEX_USAGE_ALLOW_GIT_PUBLISH=1 ou --allow-git-publish apenas para uma publicação manual intencional.",
+  );
 }
 
 function determineMode() {
@@ -1082,6 +1091,9 @@ async function main() {
   if (args.has("help")) {
     console.log(usage());
     return;
+  }
+  if (args.has("commit") || args.has("push")) {
+    assertGitPublishAllowed("--commit/--push");
   }
 
   const mode = determineMode();

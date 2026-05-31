@@ -9,8 +9,6 @@
   <array>
     <string>/usr/local/bin/node</string>
     <string>/Users/leosaquetto/Developer/GitHub/codex-usage/scripts/update-codex-usage-from-switcher.mjs</string>
-    <string>--commit</string>
-    <string>--push</string>
   </array>
 
   <key>WorkingDirectory</key>

@@ -50,13 +50,27 @@ function usage() {
   return [
     "Usage:",
     "  node scripts/update-codex-usage-from-switcher.mjs",
-    "  node scripts/update-codex-usage-from-switcher.mjs --publish",
-    "  node scripts/update-codex-usage-from-switcher.mjs --commit --push",
+    "  CODEX_USAGE_ALLOW_GIT_PUBLISH=1 node scripts/update-codex-usage-from-switcher.mjs --publish",
+    "  CODEX_USAGE_ALLOW_GIT_PUBLISH=1 node scripts/update-codex-usage-from-switcher.mjs --commit --push",
     "  node scripts/update-codex-usage-from-switcher.mjs --accounts ~/.codex-switcher/accounts.json",
     "",
-    "Lê contas ChatGPT do Codex Switcher local e publica codex_usage.json,",
-    "codex_usage_history.json e usage_summary.json de forma atômica.",
+    "Lê contas ChatGPT do Codex Switcher local e atualiza codex_usage.json,",
+    "codex_usage_history.json e usage_summary.json no disco local.",
+    "",
+    "Publicar estes arquivos no main dispara a integração GitHub da Vercel,",
+    "mesmo quando o build é cancelado por ignoreCommand. Por isso --publish,",
+    "--commit e --push exigem CODEX_USAGE_ALLOW_GIT_PUBLISH=1 ou",
+    "--allow-git-publish.",
   ].join("\n");
+}
+
+function assertGitPublishAllowed(action) {
+  const allowed = args.has("allow-git-publish") || process.env.CODEX_USAGE_ALLOW_GIT_PUBLISH === "1";
+  if (allowed) return;
+  throw new Error(
+    `${action} bloqueado: publicar no main do codex-usage dispara deploys da Vercel e queima a cota. ` +
+      "Use CODEX_USAGE_ALLOW_GIT_PUBLISH=1 ou --allow-git-publish apenas para uma publicação manual intencional.",
+  );
 }
 
 function clampPercent(value, fallback = null) {
@@ -514,6 +528,9 @@ async function main() {
   if (args.has("help")) {
     console.log(usage());
     return;
+  }
+  if (args.has("publish") || args.has("commit") || args.has("push")) {
+    assertGitPublishAllowed(args.has("publish") ? "--publish" : "--commit/--push");
   }
 
   const nowIso = new Date().toISOString();

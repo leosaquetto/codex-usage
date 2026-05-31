@@ -85,7 +85,7 @@ npm run chrome:cdp
 
 Depois faca login no Chrome visivel que abriu e confirme que a pagina de analytics carrega. As execucoes automaticas seguintes usam esse mesmo profile em um Chrome oculto via CDP.
 
-O LaunchAgent local `com.leosaquetto.codexusage.autoupdate` foi configurado para rodar o updater nos minutos `17` e `47` de cada hora com `--commit --push`. Os logs ficam em:
+O LaunchAgent local roda o updater sem `--commit` e sem `--push`, para evitar que atualizações de uso acordem a integração da Vercel a cada execução. Os logs ficam em:
 
 - `.local/logs/codex-usage-launchd.out.log`
 - `.local/logs/codex-usage-launchd.err.log`
@@ -122,16 +122,16 @@ Rodar o fluxo automatico silencioso:
 npm run update:codex-usage:auto
 ```
 
-Atualizar e commitar os JSONs gerados:
+Atualizar e commitar os JSONs gerados manualmente:
 
 ```bash
-node scripts/update-codex-usage-playwright.mjs --headed --commit
+CODEX_USAGE_ALLOW_GIT_PUBLISH=1 node scripts/update-codex-usage-playwright.mjs --headed --commit
 ```
 
-Atualizar, commitar e fazer push:
+Atualizar, commitar e fazer push manualmente:
 
 ```bash
-node scripts/update-codex-usage-playwright.mjs --ensure-cdp --commit --push
+CODEX_USAGE_ALLOW_GIT_PUBLISH=1 node scripts/update-codex-usage-playwright.mjs --ensure-cdp --commit --push
 ```
 
 ## Arquivos atualizados
@@ -140,10 +140,16 @@ O script grava:
 
 - `codex_usage.json`
 - `usage_summary.json`
-- `webapp/codex_usage.json`
-- `webapp/usage_summary.json`
+- `codex_usage_history.json`
 
-O summary é regenerado via `scripts/build-usage-summary.mjs` e depois espelhado para `webapp/`.
+O summary é regenerado via `scripts/build-usage-summary.mjs`. Os JSONs ficam no root do repo; o `webapp/` lê dados via API/raw GitHub e não recebe espelho local a cada refresh.
+
+Para publicar sem acionar deploys no projeto `codex-usage`, a API do `webapp/` também aceita uma origem externa configurada por env:
+
+- `CODEX_USAGE_REMOTE_USAGE_URL`
+- `CODEX_USAGE_REMOTE_HISTORY_URL`
+
+Quando essas envs existem, `/api/usage` busca os JSONs diretamente dessas URLs em vez de consultar o repo ligado à Vercel.
 
 ## Sessão persistente
 

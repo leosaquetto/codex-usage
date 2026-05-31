@@ -195,13 +195,16 @@ function enrichPayload(raw = {}, history = null) {
   }
 }
 
-const GITHUB_OWNER = "leosaquetto"
-const GITHUB_REPO = "codex-usage"
-const GITHUB_BRANCH = "main"
+const GITHUB_OWNER = process.env.CODEX_USAGE_GITHUB_OWNER || "leosaquetto"
+const GITHUB_REPO = process.env.CODEX_USAGE_GITHUB_REPO || "codex-usage"
+const GITHUB_BRANCH = process.env.CODEX_USAGE_GITHUB_BRANCH || "main"
 const REMOTE_USAGE_PATH = "codex_usage.json"
 const REMOTE_HISTORY_PATH = "codex_usage_history.json"
-const REMOTE_USAGE_URL = "https://raw.githubusercontent.com/leosaquetto/codex-usage/main/codex_usage.json"
-const REMOTE_HISTORY_URL = "https://raw.githubusercontent.com/leosaquetto/codex-usage/main/codex_usage_history.json"
+const REMOTE_USAGE_URL = process.env.CODEX_USAGE_REMOTE_USAGE_URL
+  || `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/codex_usage.json`
+const REMOTE_HISTORY_URL = process.env.CODEX_USAGE_REMOTE_HISTORY_URL
+  || `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/codex_usage_history.json`
+const HAS_CUSTOM_REMOTE_URLS = Boolean(process.env.CODEX_USAGE_REMOTE_USAGE_URL)
 const REMOTE_TIMEOUT_MS = 7000
 const LOCAL_USAGE_PATH = resolve(__dirname, "../../codex_usage.json")
 const LOCAL_HISTORY_PATH = resolve(__dirname, "../../codex_usage_history.json")
@@ -289,8 +292,12 @@ module.exports = async (req, res) => {
       return res.status(200).json(enrichPayload(localPayload, localHistory))
     }
 
-    const remotePayload = await fetchRemoteJson(REMOTE_USAGE_PATH, REMOTE_USAGE_URL)
-    const remoteHistory = await fetchRemoteJson(REMOTE_HISTORY_PATH, REMOTE_HISTORY_URL, false)
+    const remotePayload = HAS_CUSTOM_REMOTE_URLS
+      ? await fetchRawJson(REMOTE_USAGE_URL)
+      : await fetchRemoteJson(REMOTE_USAGE_PATH, REMOTE_USAGE_URL)
+    const remoteHistory = HAS_CUSTOM_REMOTE_URLS
+      ? await fetchRawJson(REMOTE_HISTORY_URL, false)
+      : await fetchRemoteJson(REMOTE_HISTORY_PATH, REMOTE_HISTORY_URL, false)
     return res.status(200).json(enrichPayload(remotePayload, remoteHistory))
   } catch (remoteError) {
     try {

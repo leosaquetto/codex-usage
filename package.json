@@ -7,7 +7,7 @@
     "update:antigravity-usage:auto": "node scripts/update-antigravity-usage-auto.mjs --commit --push",
     "update:codex-usage:switcher": "node scripts/update-codex-usage-from-switcher.mjs",
     "update:codex-usage:switcher:publish": "node scripts/update-codex-usage-from-switcher.mjs --publish",
-    "update:codex-usage:auto": "node scripts/update-codex-usage-playwright.mjs --ensure-cdp --close-cdp --commit --push",
+    "update:codex-usage:auto": "node scripts/update-codex-usage-playwright.mjs --ensure-cdp --close-cdp --no-commit",
     "update:codex-usage:cdp": "node scripts/update-codex-usage-playwright.mjs --cdp --no-commit",
     "update:codex-usage:playwright": "node scripts/update-codex-usage-playwright.mjs",
     "update:codex-usage:login": "node scripts/update-codex-usage-playwright.mjs --headed --no-cdp-fallback --no-commit",

@@ -21,6 +21,8 @@ The project is in **Portuguese (pt-BR)** - all UI text, comments, and documentat
 - **`main`**: Production branch - only receives merges from staging, triggers automatic deploys
 - **`usage-data`**: Automated JSON snapshots - receives updater commits and never deploys to Vercel
 
+Before changing any automated JSON publication, read `docs/vercel-data-branch-rule.md`.
+
 ### Workflow Steps
 
 1. Make sure you're on `staging`: `git checkout staging`

@@ -1,21 +1,21 @@
 {
-  "lastUpdated": "2026-06-02T18:44:34.974Z",
+  "lastUpdated": "2026-06-02T18:59:48.975Z",
   "codex": {
     "source": "codex-switcher",
-    "lastUpdated": "2026-06-02T18:44:34.974Z",
-    "accountCount": 5,
-    "okCount": 5,
+    "lastUpdated": "2026-06-02T18:59:48.975Z",
+    "accountCount": 3,
+    "okCount": 3,
     "activeAccountId": "a53ccefe-8f96-49ec-92eb-da5f7af21896",
     "aggregate": {
       "fiveHourPercent": 99,
-      "fiveHourReset": "2026-06-02T23:44:35.000Z",
-      "weeklyPercent": 34,
+      "fiveHourReset": "2026-06-02T23:59:49.000Z",
+      "weeklyPercent": 37,
       "weeklyReset": "2026-06-07T17:12:17.000Z",
-      "lastUpdated": "2026-06-02T18:44:34.974Z"
+      "lastUpdated": "2026-06-02T18:59:48.975Z"
     },
     "fiveHourPercent": 99,
-    "fiveHourReset": "2026-06-02T23:44:35.000Z",
-    "weeklyPercent": 34,
+    "fiveHourReset": "2026-06-02T23:59:49.000Z",
+    "weeklyPercent": 37,
     "weeklyReset": "2026-06-07T17:12:17.000Z",
     "accounts": [
       {
@@ -37,7 +37,7 @@
         "weeklyReset": null,
         "weeklyWindowMinutes": null,
         "credits": null,
-        "lastUpdated": "2026-06-02T18:44:34.974Z",
+        "lastUpdated": "2026-06-02T18:59:48.975Z",
         "status": "error",
         "error": "refresh HTTP 401: {\n  \"error\": {\n    \"message\": \"Your refresh token has already been used to generate a new access token. Please try signing in again.\",\n    \"type\": \"invalid_request_error\",\n    \"param\": null,\n    \"code"
       },
@@ -51,22 +51,18 @@
         "subscriptionExpiresAt": "2026-06-25T20:50:41.000Z",
         "isActive": false,
         "lastUsedAt": "2026-06-02T01:51:32.831Z",
-        "fiveHourPercent": 99,
-        "fiveHourUsedPercent": 1,
-        "fiveHourReset": "2026-06-02T23:44:35.000Z",
-        "fiveHourWindowMinutes": 300,
-        "weeklyPercent": 30,
-        "weeklyUsedPercent": 70,
-        "weeklyReset": "2026-06-07T20:17:53.000Z",
-        "weeklyWindowMinutes": 10080,
-        "credits": {
-          "hasCredits": false,
-          "unlimited": false,
-          "balance": "0"
-        },
-        "lastUpdated": "2026-06-02T18:44:34.974Z",
-        "status": "ok",
-        "error": null
+        "fiveHourPercent": null,
+        "fiveHourUsedPercent": null,
+        "fiveHourReset": null,
+        "fiveHourWindowMinutes": null,
+        "weeklyPercent": null,
+        "weeklyUsedPercent": null,
+        "weeklyReset": null,
+        "weeklyWindowMinutes": null,
+        "credits": null,
+        "lastUpdated": "2026-06-02T18:59:48.975Z",
+        "status": "error",
+        "error": "refresh HTTP 401: {\n  \"error\": {\n    \"message\": \"Your refresh token has already been used to generate a new access token. Please try signing in again.\",\n    \"type\": \"invalid_request_error\",\n    \"param\": null,\n    \"code"
       },
       {
         "id": "4c935703-4003-4728-8d30-b0072e09f5b2",
@@ -91,7 +87,7 @@
           "unlimited": false,
           "balance": null
         },
-        "lastUpdated": "2026-06-02T18:44:34.974Z",
+        "lastUpdated": "2026-06-02T18:59:48.975Z",
         "status": "ok",
         "error": null
       },
@@ -118,7 +114,7 @@
           "unlimited": false,
           "balance": null
         },
-        "lastUpdated": "2026-06-02T18:44:34.974Z",
+        "lastUpdated": "2026-06-02T18:59:48.975Z",
         "status": "ok",
         "error": null
       },
@@ -134,7 +130,7 @@
         "lastUsedAt": "2026-06-01T18:29:50.581Z",
         "fiveHourPercent": 99,
         "fiveHourUsedPercent": 1,
-        "fiveHourReset": "2026-06-02T23:44:35.000Z",
+        "fiveHourReset": "2026-06-02T23:59:49.000Z",
         "fiveHourWindowMinutes": 300,
         "weeklyPercent": 38,
         "weeklyUsedPercent": 62,
@@ -145,7 +141,7 @@
           "unlimited": false,
           "balance": "0"
         },
-        "lastUpdated": "2026-06-02T18:44:34.974Z",
+        "lastUpdated": "2026-06-02T18:59:48.975Z",
         "status": "ok",
         "error": null
       },
@@ -161,7 +157,7 @@
         "lastUsedAt": "2026-06-01T22:43:21.164Z",
         "fiveHourPercent": 99,
         "fiveHourUsedPercent": 1,
-        "fiveHourReset": "2026-06-02T23:44:35.000Z",
+        "fiveHourReset": "2026-06-02T23:59:50.000Z",
         "fiveHourWindowMinutes": 300,
         "weeklyPercent": 37,
         "weeklyUsedPercent": 63,
@@ -172,7 +168,7 @@
           "unlimited": false,
           "balance": "0"
         },
-        "lastUpdated": "2026-06-02T18:44:34.974Z",
+        "lastUpdated": "2026-06-02T18:59:48.975Z",
         "status": "ok",
         "error": null
       },
@@ -199,7 +195,7 @@
           "unlimited": false,
           "balance": null
         },
-        "lastUpdated": "2026-06-02T18:44:34.974Z",
+        "lastUpdated": "2026-06-02T18:59:48.975Z",
         "status": "ok",
         "error": null
       },
@@ -215,7 +211,7 @@
         "lastUsedAt": "2026-06-02T01:06:30.719Z",
         "fiveHourPercent": 99,
         "fiveHourUsedPercent": 1,
-        "fiveHourReset": "2026-06-02T23:44:35.000Z",
+        "fiveHourReset": "2026-06-02T23:59:50.000Z",
         "fiveHourWindowMinutes": 300,
         "weeklyPercent": 37,
         "weeklyUsedPercent": 63,
@@ -226,7 +222,7 @@
           "unlimited": false,
           "balance": "0"
         },
-        "lastUpdated": "2026-06-02T18:44:34.974Z",
+        "lastUpdated": "2026-06-02T18:59:48.975Z",
         "status": "ok",
         "error": null
       },
@@ -240,28 +236,24 @@
         "subscriptionExpiresAt": "2026-06-25T20:50:41.000Z",
         "isActive": true,
         "lastUsedAt": "2026-06-02T18:42:30.389Z",
-        "fiveHourPercent": 99,
-        "fiveHourUsedPercent": 1,
-        "fiveHourReset": "2026-06-02T23:44:35.000Z",
-        "fiveHourWindowMinutes": 300,
-        "weeklyPercent": 30,
-        "weeklyUsedPercent": 70,
-        "weeklyReset": "2026-06-07T20:17:53.000Z",
-        "weeklyWindowMinutes": 10080,
-        "credits": {
-          "hasCredits": false,
-          "unlimited": false,
-          "balance": "0"
-        },
-        "lastUpdated": "2026-06-02T18:44:34.974Z",
-        "status": "ok",
-        "error": null
+        "fiveHourPercent": null,
+        "fiveHourUsedPercent": null,
+        "fiveHourReset": null,
+        "fiveHourWindowMinutes": null,
+        "weeklyPercent": null,
+        "weeklyUsedPercent": null,
+        "weeklyReset": null,
+        "weeklyWindowMinutes": null,
+        "credits": null,
+        "lastUpdated": "2026-06-02T18:59:48.975Z",
+        "status": "error",
+        "error": "refresh HTTP 401: {\n  \"error\": {\n    \"message\": \"Your refresh token has already been used to generate a new access token. Please try signing in again.\",\n    \"type\": \"invalid_request_error\",\n    \"param\": null,\n    \"code"
       }
     ]
   },
   "codexHistory": {
     "version": 1,
-    "lastUpdated": "2026-06-02T18:44:34.974Z",
+    "lastUpdated": "2026-06-02T18:59:48.975Z",
     "samples": [
       {
         "capturedAt": "2026-05-25T20:11:07.164Z",
@@ -2907,6 +2899,13 @@
         "fiveHourPercent": 99,
         "fiveHourReset": "2026-06-02T23:44:35.000Z",
         "weeklyPercent": 34,
+        "weeklyReset": "2026-06-07T17:12:17.000Z"
+      },
+      {
+        "capturedAt": "2026-06-02T18:59:48.975Z",
+        "fiveHourPercent": 99,
+        "fiveHourReset": "2026-06-02T23:59:49.000Z",
+        "weeklyPercent": 37,
         "weeklyReset": "2026-06-07T17:12:17.000Z"
       }
     ]

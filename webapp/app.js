@@ -10,8 +10,11 @@ const FIVE_HOUR_WINDOW_MS = 5 * 60 * 60 * 1000;
 const WEEK_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 const WEEK_HOURS = 7 * 24;
 const WEEK_FIVE_HOUR_WINDOWS = WEEK_HOURS / 5;
+const ACTIVE_ACCOUNT_WINDOW_MS = 60 * 60 * 1000;
 const THEME_COLOR_KEY = "codex-theme-color";
 const LAST_VALID_USAGE_KEY = "codex-last-valid-usage-payload";
+const NOTIFICATION_PREFERENCES_KEY = "codex-notification-preferences-v1";
+const NOTIFICATION_STATE_KEY = "codex-notification-state-v4";
 const DEFAULT_THEME_COLOR = "#3b82f6";
 
 let viewportRafId = null;
@@ -115,6 +118,7 @@ function normalizeUsage(raw) {
 
   return {
     source: typeof json.source === "string" ? json.source : null,
+    activeAccountId: typeof json.activeAccountId === "string" ? json.activeAccountId : null,
     accountCount: Number.isFinite(Number(json.accountCount)) ? Number(json.accountCount) : 0,
     okCount: Number.isFinite(Number(json.okCount)) ? Number(json.okCount) : 0,
     accounts: normalizeAccounts(json.accounts),
@@ -137,6 +141,7 @@ function normalizeAccounts(rawAccounts) {
     planType: typeof account?.planType === "string" ? account.planType : "",
     subscriptionExpiresAtDate: parseDate(account?.subscriptionExpiresAt),
     isActive: Boolean(account?.isActive),
+    lastUsedAtDate: parseDate(account?.lastUsedAt),
     fiveHourPercent: clampPercent(account?.fiveHourPercent, null),
     fiveHourResetDate: parseDate(account?.fiveHourReset),
     weeklyPercent: clampPercent(account?.weeklyPercent, null),
@@ -175,6 +180,7 @@ async function loadUsage() {
 
 function saveLastValidPayload(usage) {
   const payload = {
+    activeAccountId: usage.activeAccountId || null,
     fiveHourPercent: usage.fiveHourPercent,
     fiveHourReset: usage.fiveHourResetDate?.toISOString() || null,
     weeklyPercent: usage.weeklyPercent,
@@ -194,6 +200,7 @@ function saveLastValidPayload(usage) {
       planType: account.planType,
       subscriptionExpiresAt: account.subscriptionExpiresAtDate?.toISOString() || null,
       isActive: account.isActive,
+      lastUsedAt: account.lastUsedAtDate?.toISOString() || null,
       fiveHourPercent: account.fiveHourPercent,
       fiveHourReset: account.fiveHourResetDate?.toISOString() || null,
       weeklyPercent: account.weeklyPercent,
@@ -231,6 +238,23 @@ function formatDurationMs(ms) {
   if (hours > 0) parts.push(`${hours}h`);
   if (minutes > 0 && days === 0) parts.push(`${minutes}min`);
   return parts.length > 0 ? parts.join(" ") : "Agora";
+}
+
+function formatAgo(date) {
+  if (!date) return "--";
+  const elapsedMs = Date.now() - date.getTime();
+  if (!Number.isFinite(elapsedMs) || elapsedMs < 0) return "agora";
+  if (elapsedMs < 60_000) return "agora";
+  if (elapsedMs < 3_600_000) {
+    const minutes = Math.max(1, Math.round(elapsedMs / 60_000));
+    return `${minutes}min atrás`;
+  }
+  if (elapsedMs < 86_400_000) {
+    const hours = Math.max(1, Math.round(elapsedMs / 3_600_000));
+    return `${hours}h atrás`;
+  }
+  const days = Math.max(1, Math.round(elapsedMs / 86_400_000));
+  return `${days}d atrás`;
 }
 
 function formatDatePartPtBr(date) {
@@ -696,6 +720,7 @@ function buildLimitViewModel(usage, hasLoadError = false) {
       weeklyText: percentOrDash(metrics.weeklyRemaining),
       meta: buildPoolAvailabilityText(billableUsage.accounts || [], metrics.weeklyRemaining),
     },
+    activeAccount: buildActiveAccountView(usage),
     recommendation: recommendation ? {
       accountName: recommendation.account.name,
       meta: recommendation.reason,
@@ -881,6 +906,73 @@ function buildAccountCards(accounts, recommendedAccountId = null) {
   });
 }
 
+function accountHasAnyLimit(account) {
+  return clampPercent(account?.fiveHourPercent, null) !== null
+    || clampPercent(account?.weeklyPercent, null) !== null;
+}
+
+function selectFocusedAccount(usage) {
+  const accounts = usage.accounts || [];
+  const activeAccount = accounts.find((account) => account.isActive || account.id === usage.activeAccountId);
+  if (activeAccount) {
+    return { account: activeAccount, source: "active" };
+  }
+
+  const now = Date.now();
+  const recentAccount = accounts
+    .filter((account) => account.lastUsedAtDate && accountHasAnyLimit(account))
+    .filter((account) => now - account.lastUsedAtDate.getTime() <= ACTIVE_ACCOUNT_WINDOW_MS)
+    .sort((a, b) => b.lastUsedAtDate.getTime() - a.lastUsedAtDate.getTime())[0];
+
+  return recentAccount ? { account: recentAccount, source: "recent" } : null;
+}
+
+function buildActiveLimitView(account, key, resetKey) {
+  const percent = clampPercent(account?.[key], null);
+  const resetDate = account?.[resetKey] || null;
+  return {
+    percent,
+    text: percentOrDash(percent),
+    tone: usageLevel(percent),
+    resetText: resetDate ? `Renova em ${formatDurationMs(resetDate.getTime() - Date.now())}` : "Reset não publicado",
+  };
+}
+
+function buildActiveAccountView(usage) {
+  const focused = selectFocusedAccount(usage);
+  if (!focused) {
+    return {
+      empty: true,
+      state: "empty",
+      name: "Nenhuma conta recente",
+      meta: "Aguardando conta ativa ou uso na última 1h.",
+      badge: "sem foco",
+      fiveHour: { percent: null, text: "--", tone: "warn", resetText: "--" },
+      weekly: { percent: null, text: "--", tone: "warn", resetText: "--" },
+    };
+  }
+
+  const { account, source } = focused;
+  const fiveHour = buildActiveLimitView(account, "fiveHourPercent", "fiveHourResetDate");
+  const weekly = buildActiveLimitView(account, "weeklyPercent", "weeklyResetDate");
+  const tone = usageLevel(Math.min(
+    clampPercent(fiveHour.percent, 100),
+    clampPercent(weekly.percent, 100),
+  ));
+  const usageMeta = account.lastUsedAtDate ? `Usada ${formatAgo(account.lastUsedAtDate)}` : "Sem registro de uso recente";
+  const sourceMeta = source === "active" ? "Ativa no Switcher" : "Última usada na última 1h";
+
+  return {
+    empty: false,
+    state: tone,
+    name: account.name,
+    meta: `${sourceMeta} · ${usageMeta}`,
+    badge: source === "active" ? "ativa" : "última 1h",
+    fiveHour,
+    weekly,
+  };
+}
+
 function resolveStatus(metrics, hasLoadError) {
   if (hasLoadError) {
     return {
@@ -924,7 +1016,17 @@ function getElements() {
   return {
     themeColorInput: document.getElementById("themeColorInput"),
     refreshButton: document.getElementById("refreshButton"),
+    notificationMenu: document.getElementById("notificationMenu"),
     notificationButton: document.getElementById("notificationButton"),
+    notificationPermissionButton: document.getElementById("notificationPermissionButton"),
+    notificationPermissionText: document.getElementById("notificationPermissionText"),
+    notificationViewAllButton: document.getElementById("notificationViewAllButton"),
+    notificationViewAccountsButton: document.getElementById("notificationViewAccountsButton"),
+    notificationAllPanel: document.getElementById("notificationAllPanel"),
+    notificationAccountsPanel: document.getElementById("notificationAccountsPanel"),
+    notificationRulesList: document.getElementById("notificationRulesList"),
+    notificationAccountsList: document.getElementById("notificationAccountsList"),
+    notificationRecentEvents: document.getElementById("notificationRecentEvents"),
     accountSortSelect: document.getElementById("accountSortSelect"),
     hideExhaustedButton: document.getElementById("hideExhaustedButton"),
     hideFreeGoButton: document.getElementById("hideFreeGoButton"),
@@ -932,6 +1034,16 @@ function getElements() {
     totalWeeklyAvailableText: document.getElementById("totalWeeklyAvailableText"),
     totalWeeklyAvailableBar: document.getElementById("totalWeeklyAvailableBar"),
     totalWeeklyAvailableMeta: document.getElementById("totalWeeklyAvailableMeta"),
+    activeAccountPanel: document.getElementById("activeAccountPanel"),
+    activeAccountName: document.getElementById("activeAccountName"),
+    activeAccountMeta: document.getElementById("activeAccountMeta"),
+    activeAccountBadge: document.getElementById("activeAccountBadge"),
+    activeFiveHourText: document.getElementById("activeFiveHourText"),
+    activeFiveHourBar: document.getElementById("activeFiveHourBar"),
+    activeFiveHourMeta: document.getElementById("activeFiveHourMeta"),
+    activeWeeklyText: document.getElementById("activeWeeklyText"),
+    activeWeeklyBar: document.getElementById("activeWeeklyBar"),
+    activeWeeklyMeta: document.getElementById("activeWeeklyMeta"),
     statusDot: document.getElementById("statusDot"),
     statusText: document.getElementById("statusText"),
     statusMeta: document.getElementById("statusMeta"),
@@ -997,6 +1109,29 @@ function setProgress(bar, percent) {
   bar.style.width = `${value}%`;
   bar.dataset.tone = usageLevel(value);
   bar.parentElement?.setAttribute("aria-valuenow", String(Math.round(value)));
+}
+
+function setActiveProgress(bar, percent, tone) {
+  if (!bar) return;
+  const value = clampPercent(percent, 0);
+  bar.style.width = `${value}%`;
+  bar.dataset.tone = tone || usageLevel(percent);
+  bar.parentElement?.setAttribute("aria-valuenow", String(Math.round(value)));
+}
+
+function renderActiveAccountPanel(els, activeAccount) {
+  if (!els.activeAccountPanel || !activeAccount) return;
+  els.activeAccountPanel.dataset.state = activeAccount.state;
+  els.activeAccountPanel.classList.toggle("is-empty", Boolean(activeAccount.empty));
+  if (els.activeAccountName) els.activeAccountName.textContent = activeAccount.name;
+  if (els.activeAccountMeta) els.activeAccountMeta.textContent = activeAccount.meta;
+  if (els.activeAccountBadge) els.activeAccountBadge.textContent = activeAccount.badge;
+  if (els.activeFiveHourText) els.activeFiveHourText.textContent = activeAccount.fiveHour.text;
+  if (els.activeFiveHourMeta) els.activeFiveHourMeta.textContent = activeAccount.fiveHour.resetText;
+  if (els.activeWeeklyText) els.activeWeeklyText.textContent = activeAccount.weekly.text;
+  if (els.activeWeeklyMeta) els.activeWeeklyMeta.textContent = activeAccount.weekly.resetText;
+  setActiveProgress(els.activeFiveHourBar, activeAccount.fiveHour.percent, activeAccount.fiveHour.tone);
+  setActiveProgress(els.activeWeeklyBar, activeAccount.weekly.percent, activeAccount.weekly.tone);
 }
 
 function svgEl(name, attrs = {}) {
@@ -1215,6 +1350,7 @@ function renderDashboard(els, viewModel) {
   if (els.totalWeeklyAvailableText) els.totalWeeklyAvailableText.textContent = viewModel.totalAvailability.weeklyText;
   setProgress(els.totalWeeklyAvailableBar, viewModel.totalAvailability.weeklyPercent);
   if (els.totalWeeklyAvailableMeta) els.totalWeeklyAvailableMeta.textContent = viewModel.totalAvailability.meta;
+  renderActiveAccountPanel(els, viewModel.activeAccount);
   els.usageSuggestion.textContent = capitalizeFirst(viewModel.suggestion.title);
   els.usageSuggestionMeta.textContent = viewModel.suggestion.meta;
   if (els.usageBandValue) els.usageBandValue.textContent = viewModel.compare.band;
@@ -1237,28 +1373,145 @@ function triggerHaptic(duration = 10) {
   if (window.navigator?.vibrate) window.navigator.vibrate(duration);
 }
 
-function notificationStateKey() {
-  return "codex-notification-state-v3";
+const NOTIFICATION_RULES = [
+  {
+    id: "weeklyResetShift",
+    title: "Reset semanal mudou",
+    description: "Avisa quando o dia/horário semanal de uma conta muda fora do padrão.",
+    defaultEnabled: true,
+    accountScoped: true,
+  },
+  {
+    id: "weeklyRefill",
+    title: "Semanal recarregado",
+    description: "Avisa quando a conta volta para 95% ou mais.",
+    defaultEnabled: true,
+    accountScoped: true,
+  },
+  {
+    id: "weeklyLow",
+    title: "Semanal baixo",
+    description: "Avisa quando uma conta cai para 20% ou menos.",
+    defaultEnabled: true,
+    accountScoped: true,
+  },
+  {
+    id: "dataStale",
+    title: "Dados atrasados",
+    description: "Avisa quando a captura passa de 1h sem atualizar ou falha.",
+    defaultEnabled: true,
+    accountScoped: false,
+  },
+  {
+    id: "fiveHourLow",
+    title: "5h baixo",
+    description: "Avisa quando a janela de 5h cai para 15% ou menos.",
+    defaultEnabled: false,
+    accountScoped: true,
+  },
+];
+
+let activeNotificationView = "all";
+
+function defaultNotificationRules() {
+  return Object.fromEntries(NOTIFICATION_RULES.map((rule) => [rule.id, rule.defaultEnabled]));
+}
+
+function normalizeNotificationPreferences(raw = {}) {
+  const legacyEnabled = localStorage.getItem("notificationsEnabled") === "true";
+  const rules = { ...defaultNotificationRules(), ...(raw.rules && typeof raw.rules === "object" ? raw.rules : {}) };
+  const accountRules = raw.accountRules && typeof raw.accountRules === "object" ? raw.accountRules : {};
+  return {
+    globalEnabled: Boolean(raw.globalEnabled ?? legacyEnabled),
+    rules,
+    accountRules,
+  };
+}
+
+function readNotificationPreferences() {
+  try {
+    return normalizeNotificationPreferences(JSON.parse(localStorage.getItem(NOTIFICATION_PREFERENCES_KEY) || "{}"));
+  } catch {
+    return normalizeNotificationPreferences();
+  }
+}
+
+function writeNotificationPreferences(next) {
+  const preferences = normalizeNotificationPreferences(next);
+  localStorage.setItem(NOTIFICATION_PREFERENCES_KEY, JSON.stringify(preferences));
+  localStorage.setItem("notificationsEnabled", String(preferences.globalEnabled));
 }
 
 function readNotificationState() {
   try {
-    return JSON.parse(localStorage.getItem(notificationStateKey()) || "{}") || {};
+    return JSON.parse(localStorage.getItem(NOTIFICATION_STATE_KEY) || "{}") || {};
   } catch {
     return {};
   }
 }
 
 function writeNotificationState(next) {
-  localStorage.setItem(notificationStateKey(), JSON.stringify(next));
+  localStorage.setItem(NOTIFICATION_STATE_KEY, JSON.stringify(next));
 }
 
-function canNotify() {
-  return localStorage.getItem("notificationsEnabled") === "true" && "Notification" in window && Notification.permission === "granted";
+function notificationPermission() {
+  if (!("Notification" in window)) return "unsupported";
+  return Notification.permission;
 }
 
-function sendNotification(title, body, tag) {
+function accountNotificationKey(account) {
+  return account?.id || account?.name || "account";
+}
+
+function isNotificationRuleEnabled(ruleId, preferences = readNotificationPreferences(), accountKey = null) {
+  if (!preferences.globalEnabled) return false;
+  if (preferences.rules?.[ruleId] !== true) return false;
+  if (!accountKey) return true;
+  const accountRules = preferences.accountRules?.[accountKey];
+  if (!accountRules || !(ruleId in accountRules)) return true;
+  return accountRules[ruleId] !== false;
+}
+
+function resetPatternKey(value) {
+  const date = parseDate(value);
+  if (!date) return null;
+  return `${date.getDay()}-${date.getHours()}-${date.getMinutes()}`;
+}
+
+function shouldCooldown(previousAt, cooldownMs) {
+  const previousDate = parseDate(previousAt);
+  return Boolean(previousDate && Date.now() - previousDate.getTime() < cooldownMs);
+}
+
+function recordNotificationEvent(state, event) {
+  const recent = Array.isArray(state.recent) ? state.recent : [];
+  recent.unshift({
+    at: new Date().toISOString(),
+    ...event,
+  });
+  state.recent = recent.slice(0, 8);
+}
+
+async function sendNotification(title, body, tag) {
   try {
+    if (navigator.serviceWorker?.ready) {
+      const registration = await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise((resolve) => setTimeout(() => resolve(null), 700)),
+      ]);
+      if (registration?.showNotification) {
+        await registration.showNotification(title, {
+          body,
+          icon: "/assets/logo_background.png",
+          badge: "/assets/codex-color.png",
+          tag,
+          requireInteraction: false,
+          silent: false,
+          timestamp: Date.now(),
+        });
+        return true;
+      }
+    }
     const notification = new Notification(title, {
       body,
       icon: "/assets/logo_background.png",
@@ -1275,61 +1528,343 @@ function sendNotification(title, body, tag) {
   }
 }
 
-function syncNotifications(usage) {
-  if (!canNotify()) return;
+async function maybeNotify(ruleId, preferences, accountKey, title, body, tag, state, event) {
+  if (!isNotificationRuleEnabled(ruleId, preferences, accountKey) || notificationPermission() !== "granted") return false;
+  const sent = await sendNotification(title, body, tag);
+  if (sent) {
+    recordNotificationEvent(state, {
+      ruleId,
+      accountKey,
+      title,
+      meta: body,
+      ...event,
+    });
+  }
+  return sent;
+}
+
+async function syncNotifications(usage, hasLoadError = false) {
+  const preferences = readNotificationPreferences();
+  if (!preferences.globalEnabled) {
+    updateNotificationButton(document.getElementById("notificationButton"));
+    return;
+  }
 
   const state = readNotificationState();
-  const byAccount = state.weeklyByAccount && typeof state.weeklyByAccount === "object"
-    ? state.weeklyByAccount
+  const byAccount = state.byAccount && typeof state.byAccount === "object"
+    ? state.byAccount
     : {};
 
+  const isStale = hasLoadError
+    || !usage.lastUpdatedDate
+    || Date.now() - usage.lastUpdatedDate.getTime() > ACTIVE_ACCOUNT_WINDOW_MS;
+  if (isStale && !shouldCooldown(state.lastDataStaleAt, 30 * 60 * 1000)) {
+    const lastUpdatedText = usage.lastUpdatedDate ? `Última atualização: ${formatDateTimePtBr(usage.lastUpdatedDate)}.` : "Sem data de atualização válida.";
+    const sent = await maybeNotify(
+      "dataStale",
+      preferences,
+      null,
+      "Dados do Codex atrasados",
+      lastUpdatedText,
+      `codex-data-stale-${usage.lastUpdatedDate?.toISOString() || "unknown"}`,
+      state,
+      { type: "global" },
+    );
+    if (sent) state.lastDataStaleAt = new Date().toISOString();
+  }
+
   for (const account of usage.accounts || []) {
-    const accountKey = account.id || account.name;
+    const accountKey = accountNotificationKey(account);
     if (!accountKey) continue;
 
     const currentReset = account.weeklyResetDate?.toISOString() || null;
+    const currentResetPattern = resetPatternKey(currentReset);
     const currentPercent = clampPercent(account.weeklyPercent, null);
+    const currentFiveHourPercent = clampPercent(account.fiveHourPercent, null);
     const previous = byAccount[accountKey] || {};
     const previousReset = typeof previous.weeklyReset === "string" ? previous.weeklyReset : null;
+    const previousResetPattern = typeof previous.weeklyResetPattern === "string" ? previous.weeklyResetPattern : null;
     const previousPercent = clampPercent(previous.weeklyPercent, null);
-    const resetChanged = Boolean(previousReset && currentReset && previousReset !== currentReset);
+    const previousFiveHourPercent = clampPercent(previous.fiveHourPercent, null);
+    const firstSeen = !previous.seen;
     const refilled = previousPercent !== null && previousPercent < 95 && currentPercent !== null && currentPercent >= 95;
+    const resetPatternChanged = Boolean(previousResetPattern && currentResetPattern && previousResetPattern !== currentResetPattern);
+    const resetChanged = Boolean(previousReset && currentReset && previousReset !== currentReset);
 
-    if (resetChanged || refilled) {
-      const message = `Período semanal da conta ${account.name} renova agora!`;
-      sendNotification(message, "", `weekly-renewed-${accountKey}-${currentReset || "full"}`);
+    if (!firstSeen && resetPatternChanged) {
+      await maybeNotify(
+        "weeklyResetShift",
+        preferences,
+        accountKey,
+        "Reset semanal mudou",
+        `${account.name}: novo reset em ${formatDateTimePtBr(account.weeklyResetDate)}.`,
+        `weekly-reset-shift-${accountKey}-${currentReset || "unknown"}`,
+        state,
+        { type: "account" },
+      );
+    } else if (!firstSeen && (refilled || (resetChanged && currentPercent !== null && currentPercent >= 95))) {
+      await maybeNotify(
+        "weeklyRefill",
+        preferences,
+        accountKey,
+        "Semanal recarregado",
+        `${account.name} voltou para ${percentOrDash(currentPercent)}.`,
+        `weekly-refill-${accountKey}-${currentReset || "full"}`,
+        state,
+        { type: "account" },
+      );
+    }
+
+    if (
+      !firstSeen
+      && currentPercent !== null
+      && currentPercent <= 20
+      && previousPercent !== null
+      && previousPercent > 20
+      && !shouldCooldown(previous.lastWeeklyLowAt, 12 * 60 * 60 * 1000)
+    ) {
+      const sent = await maybeNotify(
+        "weeklyLow",
+        preferences,
+        accountKey,
+        "Semanal baixo",
+        `${account.name}: ${percentOrDash(currentPercent)} restante no semanal.`,
+        `weekly-low-${accountKey}-${currentReset || "unknown"}`,
+        state,
+        { type: "account" },
+      );
+      if (sent) previous.lastWeeklyLowAt = new Date().toISOString();
+    }
+
+    if (
+      !firstSeen
+      && currentFiveHourPercent !== null
+      && currentFiveHourPercent <= 15
+      && previousFiveHourPercent !== null
+      && previousFiveHourPercent > 15
+      && !shouldCooldown(previous.lastFiveHourLowAt, 3 * 60 * 60 * 1000)
+    ) {
+      const sent = await maybeNotify(
+        "fiveHourLow",
+        preferences,
+        accountKey,
+        "5h baixo",
+        `${account.name}: ${percentOrDash(currentFiveHourPercent)} restante na janela de 5h.`,
+        `five-hour-low-${accountKey}-${account.fiveHourResetDate?.toISOString() || "unknown"}`,
+        state,
+        { type: "account" },
+      );
+      if (sent) previous.lastFiveHourLowAt = new Date().toISOString();
     }
 
     byAccount[accountKey] = {
+      ...previous,
+      seen: true,
       weeklyReset: currentReset,
+      weeklyResetPattern: currentResetPattern,
       weeklyPercent: currentPercent,
+      fiveHourPercent: currentFiveHourPercent,
     };
   }
 
-  state.weeklyByAccount = byAccount;
+  state.byAccount = byAccount;
   state.lastSeenUpdatedAt = usage.lastUpdatedDate?.toISOString() || null;
   writeNotificationState(state);
-}
-
-function resetNotificationFlags() {
-  localStorage.removeItem(notificationStateKey());
+  updateNotificationButton(document.getElementById("notificationButton"));
 }
 
 function updateNotificationButton(button) {
   if (!button) return;
-  const enabled = localStorage.getItem("notificationsEnabled") === "true";
-  const permission = "Notification" in window ? Notification.permission : "denied";
+  const preferences = readNotificationPreferences();
+  const enabled = preferences.globalEnabled;
+  const permission = notificationPermission();
   const active = enabled && permission === "granted";
 
   button.setAttribute("aria-pressed", String(active));
   button.classList.toggle("is-enabled", active);
+  button.classList.toggle("has-warning", enabled && permission !== "granted");
   if (permission === "denied") {
     button.title = "Notificações bloqueadas pelo navegador";
+  } else if (permission === "unsupported") {
+    button.title = "Notificações indisponíveis neste navegador";
   } else if (active) {
     button.title = "Notificações ativadas";
   } else {
-    button.title = "Ativar notificações";
+    button.title = "Abrir notificações";
   }
+}
+
+function buildNotificationSwitch({ title, description, checked, disabled = false, onChange }) {
+  const label = document.createElement("label");
+  label.className = "notification-toggle-row";
+  if (disabled) label.classList.add("is-disabled");
+
+  const text = document.createElement("span");
+  text.className = "notification-toggle-copy";
+  const strong = document.createElement("strong");
+  strong.textContent = title;
+  const small = document.createElement("small");
+  small.textContent = description;
+  text.append(strong, small);
+
+  const input = document.createElement("input");
+  input.type = "checkbox";
+  input.checked = Boolean(checked);
+  input.disabled = Boolean(disabled);
+  input.addEventListener("change", () => onChange?.(input.checked));
+
+  const control = document.createElement("span");
+  control.className = "switch-control";
+  control.setAttribute("aria-hidden", "true");
+
+  label.append(text, input, control);
+  return label;
+}
+
+function updateNotificationPreference(mutator) {
+  const preferences = readNotificationPreferences();
+  mutator(preferences);
+  writeNotificationPreferences(preferences);
+  updateNotificationButton(document.getElementById("notificationButton"));
+}
+
+function setNotificationView(els, view) {
+  activeNotificationView = view === "accounts" ? "accounts" : "all";
+  const showAccounts = activeNotificationView === "accounts";
+  if (els.notificationAllPanel) els.notificationAllPanel.hidden = showAccounts;
+  if (els.notificationAccountsPanel) els.notificationAccountsPanel.hidden = !showAccounts;
+  els.notificationViewAllButton?.setAttribute("aria-pressed", String(!showAccounts));
+  els.notificationViewAccountsButton?.setAttribute("aria-pressed", String(showAccounts));
+}
+
+function renderNotificationRecent(target) {
+  if (!target) return;
+  const state = readNotificationState();
+  const recent = Array.isArray(state.recent) ? state.recent.slice(0, 3) : [];
+  if (!recent.length) {
+    target.textContent = "Aguardando novos sinais.";
+    return;
+  }
+  target.textContent = recent
+    .map((event) => `${event.title} · ${formatAgo(parseDate(event.at))}`)
+    .join(" / ");
+}
+
+function renderNotificationRulesList(els, usage, preferences) {
+  const container = els.notificationRulesList;
+  if (!container) return;
+  container.replaceChildren();
+  const permission = notificationPermission();
+  const unsupported = permission === "unsupported";
+
+  container.append(buildNotificationSwitch({
+    title: "Notificações ativas",
+    description: unsupported ? "Este navegador não suporta notificações." : "Liga ou desliga todos os alertas do painel.",
+    checked: preferences.globalEnabled,
+    disabled: unsupported,
+    onChange: (checked) => {
+      updateNotificationPreference((next) => {
+        next.globalEnabled = checked;
+      });
+      renderNotificationPanel(els, usage);
+      if (checked) void syncNotifications(usage);
+    },
+  }));
+
+  for (const rule of NOTIFICATION_RULES) {
+    container.append(buildNotificationSwitch({
+      title: rule.title,
+      description: rule.description,
+      checked: preferences.rules?.[rule.id] === true,
+      disabled: unsupported,
+      onChange: (checked) => {
+        updateNotificationPreference((next) => {
+          next.rules[rule.id] = checked;
+        });
+        renderNotificationPanel(els, usage);
+      },
+    }));
+  }
+}
+
+function renderNotificationAccountsList(els, usage, preferences) {
+  const container = els.notificationAccountsList;
+  if (!container) return;
+  container.replaceChildren();
+
+  const accounts = usage.accounts || [];
+  if (!accounts.length) {
+    const empty = document.createElement("p");
+    empty.className = "notification-empty";
+    empty.textContent = "Nenhuma conta publicada ainda.";
+    container.append(empty);
+    return;
+  }
+
+  for (const account of accounts) {
+    const accountKey = accountNotificationKey(account);
+    const card = document.createElement("section");
+    card.className = "notification-account-row";
+
+    const top = document.createElement("div");
+    top.className = "notification-account-top";
+    const title = document.createElement("strong");
+    title.textContent = account.name;
+    const meta = document.createElement("span");
+    meta.textContent = account.lastUsedAtDate ? `Usada ${formatAgo(account.lastUsedAtDate)}` : (account.isActive ? "Ativa no Switcher" : "Sem uso recente");
+    top.append(title, meta);
+    card.append(top);
+
+    const list = document.createElement("div");
+    list.className = "notification-account-switches";
+    for (const rule of NOTIFICATION_RULES.filter((item) => item.accountScoped)) {
+      const accountRule = preferences.accountRules?.[accountKey]?.[rule.id];
+      list.append(buildNotificationSwitch({
+        title: rule.title,
+        description: accountRule === false ? "Desligado só para esta conta." : "Segue o alerta desta conta.",
+        checked: accountRule !== false,
+        disabled: false,
+        onChange: (checked) => {
+          updateNotificationPreference((next) => {
+            next.accountRules[accountKey] = {
+              ...(next.accountRules[accountKey] || {}),
+              [rule.id]: checked,
+            };
+          });
+          renderNotificationPanel(els, usage);
+        },
+      }));
+    }
+    card.append(list);
+    container.append(card);
+  }
+}
+
+function renderNotificationPanel(els, usage) {
+  const preferences = readNotificationPreferences();
+  const permission = notificationPermission();
+  const permissionText = {
+    unsupported: "Este navegador não suporta notificações.",
+    denied: "Bloqueadas pelo navegador. Libere nas configurações para receber alertas.",
+    granted: preferences.globalEnabled ? "Ativas e prontas para alertar por conta." : "Permissão concedida; alertas gerais desligados.",
+    default: "Permissão pendente. Ative para liberar os alertas.",
+  }[permission] || "Permissão pendente. Ative para liberar os alertas.";
+
+  if (els.notificationPermissionText) els.notificationPermissionText.textContent = permissionText;
+  if (els.notificationPermissionButton) {
+    els.notificationPermissionButton.disabled = permission === "unsupported" || permission === "denied";
+    els.notificationPermissionButton.textContent = permission === "granted"
+      ? (preferences.globalEnabled ? "Desativar" : "Ativar")
+      : permission === "denied"
+        ? "Bloqueado"
+        : "Permitir";
+  }
+
+  renderNotificationRulesList(els, usage, preferences);
+  renderNotificationAccountsList(els, usage, preferences);
+  renderNotificationRecent(els.notificationRecentEvents);
+  setNotificationView(els, activeNotificationView);
+  updateNotificationButton(els.notificationButton);
 }
 
 /* =========================================
@@ -1366,29 +1901,45 @@ function bindEvents(els, usage, render) {
     if (typeof value === "string") setThemeColor(value);
   });
 
-  els.notificationButton?.addEventListener("click", () => {
+  els.notificationPermissionButton?.addEventListener("click", () => {
     triggerHaptic(10);
     if (!("Notification" in window)) {
-      alert("Notificações não são suportadas neste navegador.");
+      renderNotificationPanel(els, usage);
       return;
     }
     if (Notification.permission === "denied") {
-      alert("Notificações foram bloqueadas. Ative nas configurações do navegador.");
+      renderNotificationPanel(els, usage);
       return;
     }
     if (Notification.permission === "granted") {
-      const enabled = localStorage.getItem("notificationsEnabled") === "true";
-      localStorage.setItem("notificationsEnabled", String(!enabled));
+      const preferences = readNotificationPreferences();
+      preferences.globalEnabled = !preferences.globalEnabled;
+      writeNotificationPreferences(preferences);
       updateNotificationButton(els.notificationButton);
+      renderNotificationPanel(els, usage);
+      if (preferences.globalEnabled) void syncNotifications(usage);
       return;
     }
     Notification.requestPermission().then((permission) => {
-      localStorage.setItem("notificationsEnabled", String(permission === "granted"));
+      const preferences = readNotificationPreferences();
+      preferences.globalEnabled = permission === "granted";
+      writeNotificationPreferences(preferences);
       updateNotificationButton(els.notificationButton);
+      renderNotificationPanel(els, usage);
       if (permission === "granted") {
-        syncNotifications(usage);
+        void syncNotifications(usage);
       }
     });
+  });
+
+  els.notificationViewAllButton?.addEventListener("click", () => {
+    triggerHaptic(8);
+    setNotificationView(els, "all");
+  });
+
+  els.notificationViewAccountsButton?.addEventListener("click", () => {
+    triggerHaptic(8);
+    setNotificationView(els, "accounts");
   });
 
   els.refreshButton?.addEventListener("click", () => {
@@ -1420,15 +1971,16 @@ async function init() {
 
   function render() {
     renderDashboard(els, buildLimitViewModel(usage, hasLoadError));
+    renderNotificationPanel(els, usage);
   }
 
   render();
   if (!hasLoadError) saveLastValidPayload(usage);
   updateNotificationButton(els.notificationButton);
   bindEvents(els, usage, render);
-  syncNotifications(usage);
+  void syncNotifications(usage, hasLoadError);
   setInterval(render, 1000);
-  setInterval(() => syncNotifications(usage), 5 * 60 * 1000);
+  setInterval(() => void syncNotifications(usage, hasLoadError), 5 * 60 * 1000);
 }
 
 if ("serviceWorker" in navigator) {

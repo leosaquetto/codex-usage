@@ -36,7 +36,7 @@
         font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
       }
     </style>
-    <link rel="stylesheet" href="./style.css?v=paid_pool_2" />
+    <link rel="stylesheet" href="./style.css?v=account_focus_notifications_3" />
   </head>
 
   <body class="is-loading">
@@ -62,11 +62,37 @@
 
         <div class="header-actions">
           <input id="themeColorInput" type="color" value="#3b82f6" aria-label="Selecionar cor do tema" />
-          <button type="button" id="notificationButton" class="icon-button" title="Ativar notificações" aria-label="Notificações" aria-pressed="false">
-            <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 3a4 4 0 0 0-4 4v1.2c0 .8-.27 1.57-.76 2.2L5.4 12.8A2 2 0 0 0 7 16h10a2 2 0 0 0 1.6-3.2l-1.84-2.4a3.6 3.6 0 0 1-.76-2.2V7a4 4 0 0 0-4-4Zm0 18a3 3 0 0 0 2.82-2H9.18A3 3 0 0 0 12 21Z" fill="currentColor" />
-            </svg>
-          </button>
+          <details id="notificationMenu" class="notification-menu">
+            <summary id="notificationButton" class="icon-button" title="Abrir notificações" aria-label="Notificações" aria-pressed="false">
+              <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3a4 4 0 0 0-4 4v1.2c0 .8-.27 1.57-.76 2.2L5.4 12.8A2 2 0 0 0 7 16h10a2 2 0 0 0 1.6-3.2l-1.84-2.4a3.6 3.6 0 0 1-.76-2.2V7a4 4 0 0 0-4-4Zm0 18a3 3 0 0 0 2.82-2H9.18A3 3 0 0 0 12 21Z" fill="currentColor" />
+              </svg>
+            </summary>
+            <div class="notification-popover" role="menu" aria-label="Preferências de notificações">
+              <div class="notification-popover-top">
+                <div>
+                  <p class="section-kicker">Notificações</p>
+                  <h2>Alertas do Codex</h2>
+                </div>
+                <button type="button" id="notificationPermissionButton" class="menu-action">Ativar</button>
+              </div>
+              <p id="notificationPermissionText" class="notification-status">Permissão ainda não verificada.</p>
+              <div class="notification-tabs" role="tablist" aria-label="Ver notificações">
+                <button type="button" id="notificationViewAllButton" class="notification-tab" aria-pressed="true">Todas</button>
+                <button type="button" id="notificationViewAccountsButton" class="notification-tab" aria-pressed="false">Por conta</button>
+              </div>
+              <div id="notificationAllPanel" class="notification-panel" role="tabpanel">
+                <div id="notificationRulesList" class="notification-list"></div>
+                <div class="notification-recent">
+                  <span>Últimos eventos</span>
+                  <p id="notificationRecentEvents">Aguardando novos sinais.</p>
+                </div>
+              </div>
+              <div id="notificationAccountsPanel" class="notification-panel" role="tabpanel" hidden>
+                <div id="notificationAccountsList" class="notification-accounts-list"></div>
+              </div>
+            </div>
+          </details>
           <button type="button" id="refreshButton" class="icon-button" title="Recarregar página" aria-label="Recarregar">
             <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M20 12a8 8 0 1 1-2.34-5.66" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
@@ -129,6 +155,39 @@
           </div>
         </section>
       </div>
+
+      <section id="activeAccountPanel" class="active-account-panel" aria-label="Conta em uso" data-state="empty">
+        <div class="active-account-head">
+          <div class="active-account-title">
+            <p class="section-kicker">Conta em uso</p>
+            <h2 id="activeAccountName">Nenhuma conta recente</h2>
+            <p id="activeAccountMeta">Aguardando conta ativa ou uso na última 1h.</p>
+          </div>
+          <span id="activeAccountBadge" class="active-account-badge">--</span>
+        </div>
+        <div class="active-account-bars" aria-label="Uso da conta em foco">
+          <div class="active-usage-row" data-limit="fiveHour">
+            <div class="active-usage-line">
+              <span>5h</span>
+              <strong id="activeFiveHourText">--</strong>
+            </div>
+            <div class="active-progress-track" role="progressbar" aria-label="Saldo de 5 horas da conta em uso" aria-valuemin="0" aria-valuemax="100">
+              <div id="activeFiveHourBar" class="active-progress-fill"></div>
+            </div>
+            <p id="activeFiveHourMeta">--</p>
+          </div>
+          <div class="active-usage-row" data-limit="weekly">
+            <div class="active-usage-line">
+              <span>Semanal</span>
+              <strong id="activeWeeklyText">--</strong>
+            </div>
+            <div class="active-progress-track" role="progressbar" aria-label="Saldo semanal da conta em uso" aria-valuemin="0" aria-valuemax="100">
+              <div id="activeWeeklyBar" class="active-progress-fill"></div>
+            </div>
+            <p id="activeWeeklyMeta">--</p>
+          </div>
+        </div>
+      </section>
 
       <section class="accounts-panel" aria-label="Contas do Codex">
         <div class="section-header">
@@ -313,6 +372,6 @@
       </section>
     </main>
 
-    <script src="./app.js?v=paid_pool_2" defer></script>
+    <script src="./app.js?v=account_focus_notifications_3" defer></script>
   </body>
 </html>

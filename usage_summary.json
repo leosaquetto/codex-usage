@@ -1,8 +1,8 @@
 {
-  "lastUpdated": "2026-06-03T21:41:50.036Z",
+  "lastUpdated": "2026-06-03T21:57:29.928Z",
   "codex": {
     "source": "codex-switcher",
-    "lastUpdated": "2026-06-03T21:41:50.036Z",
+    "lastUpdated": "2026-06-03T21:57:29.928Z",
     "accountCount": 4,
     "okCount": 4,
     "activeAccountId": "907a56aa-e98e-4b62-9e2f-3c994918dbad",
@@ -11,7 +11,7 @@
       "fiveHourReset": "2026-06-03T22:34:19.000Z",
       "weeklyPercent": 28,
       "weeklyReset": "2026-06-07T15:26:55.000Z",
-      "lastUpdated": "2026-06-03T21:41:50.036Z"
+      "lastUpdated": "2026-06-03T21:57:29.928Z"
     },
     "fiveHourPercent": 50,
     "fiveHourReset": "2026-06-03T22:34:19.000Z",
@@ -41,7 +41,7 @@
           "unlimited": false,
           "balance": null
         },
-        "lastUpdated": "2026-06-03T21:41:50.036Z",
+        "lastUpdated": "2026-06-03T21:57:29.928Z",
         "status": "ok",
         "error": null
       },
@@ -68,7 +68,7 @@
           "unlimited": false,
           "balance": "0"
         },
-        "lastUpdated": "2026-06-03T21:41:50.036Z",
+        "lastUpdated": "2026-06-03T21:57:29.928Z",
         "status": "ok",
         "error": null
       },
@@ -91,7 +91,7 @@
         "weeklyReset": null,
         "weeklyWindowMinutes": null,
         "credits": null,
-        "lastUpdated": "2026-06-03T21:41:50.036Z",
+        "lastUpdated": "2026-06-03T21:57:29.928Z",
         "status": "error",
         "error": "refresh HTTP 401: {\n  \"error\": {\n    \"message\": \"Your refresh token has already been used to generate a new access token. Please try signing in again.\",\n    \"type\": \"invalid_request_error\",\n    \"param\": null,\n    \"code"
       },
@@ -118,7 +118,7 @@
           "unlimited": false,
           "balance": "0"
         },
-        "lastUpdated": "2026-06-03T21:41:50.036Z",
+        "lastUpdated": "2026-06-03T21:57:29.928Z",
         "status": "ok",
         "error": null
       },
@@ -145,7 +145,7 @@
           "unlimited": false,
           "balance": "0"
         },
-        "lastUpdated": "2026-06-03T21:41:50.036Z",
+        "lastUpdated": "2026-06-03T21:57:29.928Z",
         "status": "ok",
         "error": null
       },
@@ -161,7 +161,7 @@
         "lastUsedAt": "2026-06-03T19:49:36.580Z",
         "fiveHourPercent": 99,
         "fiveHourUsedPercent": 1,
-        "fiveHourReset": "2026-06-04T02:15:24.000Z",
+        "fiveHourReset": "2026-06-04T02:15:25.000Z",
         "fiveHourWindowMinutes": 300,
         "weeklyPercent": 14,
         "weeklyUsedPercent": 86,
@@ -172,7 +172,7 @@
           "unlimited": false,
           "balance": "0"
         },
-        "lastUpdated": "2026-06-03T21:41:50.036Z",
+        "lastUpdated": "2026-06-03T21:57:29.928Z",
         "status": "ok",
         "error": null
       },
@@ -199,7 +199,7 @@
           "unlimited": false,
           "balance": null
         },
-        "lastUpdated": "2026-06-03T21:41:50.036Z",
+        "lastUpdated": "2026-06-03T21:57:29.928Z",
         "status": "ok",
         "error": null
       },
@@ -226,7 +226,7 @@
           "unlimited": false,
           "balance": null
         },
-        "lastUpdated": "2026-06-03T21:41:50.036Z",
+        "lastUpdated": "2026-06-03T21:57:29.928Z",
         "status": "ok",
         "error": null
       }
@@ -234,7 +234,7 @@
   },
   "codexHistory": {
     "version": 1,
-    "lastUpdated": "2026-06-03T21:41:50.036Z",
+    "lastUpdated": "2026-06-03T21:57:29.928Z",
     "samples": [
       {
         "capturedAt": "2026-05-25T20:11:07.164Z",
@@ -3626,6 +3626,13 @@
       },
       {
         "capturedAt": "2026-06-03T21:41:50.036Z",
+        "fiveHourPercent": 50,
+        "fiveHourReset": "2026-06-03T22:34:19.000Z",
+        "weeklyPercent": 28,
+        "weeklyReset": "2026-06-07T15:26:55.000Z"
+      },
+      {
+        "capturedAt": "2026-06-03T21:57:29.928Z",
         "fiveHourPercent": 50,
         "fiveHourReset": "2026-06-03T22:34:19.000Z",
         "weeklyPercent": 28,

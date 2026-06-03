@@ -1,21 +1,21 @@
 {
-  "lastUpdated": "2026-06-03T19:37:10.130Z",
+  "lastUpdated": "2026-06-03T19:52:17.880Z",
   "codex": {
     "source": "codex-switcher",
-    "lastUpdated": "2026-06-03T19:37:10.130Z",
+    "lastUpdated": "2026-06-03T19:52:17.880Z",
     "accountCount": 4,
     "okCount": 4,
-    "activeAccountId": "6622d3dc-6f91-435f-b9b7-611e6465ffdc",
+    "activeAccountId": "db75a2f7-f6b7-4f75-84af-2b134e7a5cbc",
     "aggregate": {
-      "fiveHourPercent": 74,
-      "fiveHourReset": "2026-06-03T22:34:19.000Z",
-      "weeklyPercent": 37,
+      "fiveHourPercent": 50,
+      "fiveHourReset": "2026-06-03T21:14:49.000Z",
+      "weeklyPercent": 31,
       "weeklyReset": "2026-06-07T15:26:55.000Z",
-      "lastUpdated": "2026-06-03T19:37:10.130Z"
+      "lastUpdated": "2026-06-03T19:52:17.880Z"
     },
-    "fiveHourPercent": 74,
-    "fiveHourReset": "2026-06-03T22:34:19.000Z",
-    "weeklyPercent": 37,
+    "fiveHourPercent": 50,
+    "fiveHourReset": "2026-06-03T21:14:49.000Z",
+    "weeklyPercent": 31,
     "weeklyReset": "2026-06-07T15:26:55.000Z",
     "accounts": [
       {
@@ -41,34 +41,7 @@
           "unlimited": false,
           "balance": null
         },
-        "lastUpdated": "2026-06-03T19:37:10.130Z",
-        "status": "ok",
-        "error": null
-      },
-      {
-        "id": "a7bcbdd9-9ebd-4771-bc1b-1a056032f086",
-        "chatgptAccountId": "5c7b9515-bd18-4b07-a490-f4aff6e0f44b",
-        "name": "Free #2",
-        "displayName": "FREE #2",
-        "email": null,
-        "planType": "free",
-        "subscriptionExpiresAt": null,
-        "isActive": false,
-        "lastUsedAt": "2026-06-01T17:04:25.407Z",
-        "fiveHourPercent": 0,
-        "fiveHourUsedPercent": 100,
-        "fiveHourReset": "2026-07-01T17:05:34.000Z",
-        "fiveHourWindowMinutes": 43200,
-        "weeklyPercent": 0,
-        "weeklyUsedPercent": 100,
-        "weeklyReset": "2026-07-01T17:05:34.000Z",
-        "weeklyWindowMinutes": 43200,
-        "credits": {
-          "hasCredits": false,
-          "unlimited": false,
-          "balance": null
-        },
-        "lastUpdated": "2026-06-03T19:37:10.130Z",
+        "lastUpdated": "2026-06-03T19:52:17.880Z",
         "status": "ok",
         "error": null
       },
@@ -84,7 +57,7 @@
         "lastUsedAt": "2026-06-01T18:29:50.581Z",
         "fiveHourPercent": 99,
         "fiveHourUsedPercent": 1,
-        "fiveHourReset": "2026-06-04T00:37:13.000Z",
+        "fiveHourReset": "2026-06-04T00:51:04.000Z",
         "fiveHourWindowMinutes": 300,
         "weeklyPercent": 38,
         "weeklyUsedPercent": 62,
@@ -95,7 +68,7 @@
           "unlimited": false,
           "balance": "0"
         },
-        "lastUpdated": "2026-06-03T19:37:10.130Z",
+        "lastUpdated": "2026-06-03T19:52:17.880Z",
         "status": "ok",
         "error": null
       },
@@ -109,22 +82,18 @@
         "subscriptionExpiresAt": "2026-06-22T14:22:14.000Z",
         "isActive": false,
         "lastUsedAt": "2026-06-01T22:43:21.164Z",
-        "fiveHourPercent": 99,
-        "fiveHourUsedPercent": 1,
-        "fiveHourReset": "2026-06-04T00:37:13.000Z",
-        "fiveHourWindowMinutes": 300,
-        "weeklyPercent": 37,
-        "weeklyUsedPercent": 63,
-        "weeklyReset": "2026-06-07T17:12:17.000Z",
-        "weeklyWindowMinutes": 10080,
-        "credits": {
-          "hasCredits": false,
-          "unlimited": false,
-          "balance": "0"
-        },
-        "lastUpdated": "2026-06-03T19:37:10.130Z",
-        "status": "ok",
-        "error": null
+        "fiveHourPercent": null,
+        "fiveHourUsedPercent": null,
+        "fiveHourReset": null,
+        "fiveHourWindowMinutes": null,
+        "weeklyPercent": null,
+        "weeklyUsedPercent": null,
+        "weeklyReset": null,
+        "weeklyWindowMinutes": null,
+        "credits": null,
+        "lastUpdated": "2026-06-03T19:52:17.880Z",
+        "status": "error",
+        "error": "refresh HTTP 401: {\n  \"error\": {\n    \"message\": \"Your refresh token has already been used to generate a new access token. Please try signing in again.\",\n    \"type\": \"invalid_request_error\",\n    \"param\": null,\n    \"code"
       },
       {
         "id": "e952c88c-f286-4cdd-8ab0-dcb40cfd485d",
@@ -149,7 +118,7 @@
           "unlimited": false,
           "balance": null
         },
-        "lastUpdated": "2026-06-03T19:37:10.130Z",
+        "lastUpdated": "2026-06-03T19:52:17.880Z",
         "status": "ok",
         "error": null
       },
@@ -165,7 +134,7 @@
         "lastUsedAt": "2026-06-02T01:06:30.719Z",
         "fiveHourPercent": 99,
         "fiveHourUsedPercent": 1,
-        "fiveHourReset": "2026-06-04T00:37:13.000Z",
+        "fiveHourReset": "2026-06-04T00:51:04.000Z",
         "fiveHourWindowMinutes": 300,
         "weeklyPercent": 37,
         "weeklyUsedPercent": 63,
@@ -176,32 +145,9 @@
           "unlimited": false,
           "balance": "0"
         },
-        "lastUpdated": "2026-06-03T19:37:10.130Z",
+        "lastUpdated": "2026-06-03T19:52:17.880Z",
         "status": "ok",
         "error": null
-      },
-      {
-        "id": "6622d3dc-6f91-435f-b9b7-611e6465ffdc",
-        "chatgptAccountId": "f2cd8745-9c1f-4cbe-abbe-c71401086454",
-        "name": "Leo AP",
-        "displayName": "LEO AP",
-        "email": null,
-        "planType": "plus",
-        "subscriptionExpiresAt": "2026-06-26T02:50:41.000Z",
-        "isActive": true,
-        "lastUsedAt": "2026-06-03T19:32:01.896Z",
-        "fiveHourPercent": null,
-        "fiveHourUsedPercent": null,
-        "fiveHourReset": null,
-        "fiveHourWindowMinutes": null,
-        "weeklyPercent": null,
-        "weeklyUsedPercent": null,
-        "weeklyReset": null,
-        "weeklyWindowMinutes": null,
-        "credits": null,
-        "lastUpdated": "2026-06-03T19:37:10.130Z",
-        "status": "error",
-        "error": "refresh HTTP 401: {\n  \"error\": {\n    \"message\": \"Your refresh token has already been used to generate a new access token. Please try signing in again.\",\n    \"type\": \"invalid_request_error\",\n    \"param\": null,\n    \"code"
       },
       {
         "id": "57afe8a3-38df-41c7-9419-2a08c993de85",
@@ -210,7 +156,7 @@
         "displayName": "LEO GC",
         "email": null,
         "planType": "plus",
-        "subscriptionExpiresAt": "2026-06-18T12:58:46.000Z",
+        "subscriptionExpiresAt": "2026-06-18T18:58:46.000Z",
         "isActive": false,
         "lastUsedAt": "2026-06-03T17:06:00.324Z",
         "fiveHourPercent": 0,
@@ -226,7 +172,34 @@
           "unlimited": false,
           "balance": "0"
         },
-        "lastUpdated": "2026-06-03T19:37:10.130Z",
+        "lastUpdated": "2026-06-03T19:52:17.880Z",
+        "status": "ok",
+        "error": null
+      },
+      {
+        "id": "db75a2f7-f6b7-4f75-84af-2b134e7a5cbc",
+        "chatgptAccountId": "f2cd8745-9c1f-4cbe-abbe-c71401086454",
+        "name": "Google",
+        "displayName": "GOOGLE",
+        "email": null,
+        "planType": "plus",
+        "subscriptionExpiresAt": "2026-06-25T20:50:41.000Z",
+        "isActive": true,
+        "lastUsedAt": "2026-06-03T19:49:36.580Z",
+        "fiveHourPercent": 0,
+        "fiveHourUsedPercent": 100,
+        "fiveHourReset": "2026-06-03T21:14:49.000Z",
+        "fiveHourWindowMinutes": 300,
+        "weeklyPercent": 14,
+        "weeklyUsedPercent": 86,
+        "weeklyReset": "2026-06-07T20:17:54.000Z",
+        "weeklyWindowMinutes": 10080,
+        "credits": {
+          "hasCredits": false,
+          "unlimited": false,
+          "balance": "0"
+        },
+        "lastUpdated": "2026-06-03T19:52:17.880Z",
         "status": "ok",
         "error": null
       }
@@ -234,7 +207,7 @@
   },
   "codexHistory": {
     "version": 1,
-    "lastUpdated": "2026-06-03T19:37:10.130Z",
+    "lastUpdated": "2026-06-03T19:52:17.880Z",
     "samples": [
       {
         "capturedAt": "2026-05-25T20:11:07.164Z",
@@ -3573,6 +3546,13 @@
         "fiveHourPercent": 74,
         "fiveHourReset": "2026-06-03T22:34:19.000Z",
         "weeklyPercent": 37,
+        "weeklyReset": "2026-06-07T15:26:55.000Z"
+      },
+      {
+        "capturedAt": "2026-06-03T19:52:17.880Z",
+        "fiveHourPercent": 50,
+        "fiveHourReset": "2026-06-03T21:14:49.000Z",
+        "weeklyPercent": 31,
         "weeklyReset": "2026-06-07T15:26:55.000Z"
       }
     ]

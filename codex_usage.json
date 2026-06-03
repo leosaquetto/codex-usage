@@ -1,18 +1,18 @@
 {
   "source": "codex-switcher",
-  "lastUpdated": "2026-06-03T17:25:28.914Z",
+  "lastUpdated": "2026-06-03T17:31:53.785Z",
   "accountCount": 4,
   "okCount": 4,
   "activeAccountId": "57afe8a3-38df-41c7-9419-2a08c993de85",
   "aggregate": {
     "fiveHourPercent": 99,
-    "fiveHourReset": "2026-06-03T22:25:29.000Z",
+    "fiveHourReset": "2026-06-03T22:32:03.000Z",
     "weeklyPercent": 41,
     "weeklyReset": "2026-06-07T15:26:55.000Z",
-    "lastUpdated": "2026-06-03T17:25:28.914Z"
+    "lastUpdated": "2026-06-03T17:31:53.785Z"
   },
   "fiveHourPercent": 99,
-  "fiveHourReset": "2026-06-03T22:25:29.000Z",
+  "fiveHourReset": "2026-06-03T22:32:03.000Z",
   "weeklyPercent": 41,
   "weeklyReset": "2026-06-07T15:26:55.000Z",
   "accounts": [
@@ -39,7 +39,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-03T17:25:28.914Z",
+      "lastUpdated": "2026-06-03T17:31:53.785Z",
       "status": "ok",
       "error": null
     },
@@ -66,7 +66,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-03T17:25:28.914Z",
+      "lastUpdated": "2026-06-03T17:31:53.785Z",
       "status": "ok",
       "error": null
     },
@@ -82,7 +82,7 @@
       "lastUsedAt": "2026-06-01T18:29:50.581Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-03T22:25:29.000Z",
+      "fiveHourReset": "2026-06-03T22:32:04.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 38,
       "weeklyUsedPercent": 62,
@@ -93,7 +93,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-03T17:25:28.914Z",
+      "lastUpdated": "2026-06-03T17:31:53.785Z",
       "status": "ok",
       "error": null
     },
@@ -109,7 +109,7 @@
       "lastUsedAt": "2026-06-01T22:43:21.164Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-03T22:25:29.000Z",
+      "fiveHourReset": "2026-06-03T22:32:03.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 37,
       "weeklyUsedPercent": 63,
@@ -120,7 +120,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-03T17:25:28.914Z",
+      "lastUpdated": "2026-06-03T17:31:53.785Z",
       "status": "ok",
       "error": null
     },
@@ -147,7 +147,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-03T17:25:28.914Z",
+      "lastUpdated": "2026-06-03T17:31:53.785Z",
       "status": "ok",
       "error": null
     },
@@ -163,7 +163,7 @@
       "lastUsedAt": "2026-06-02T01:06:30.719Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-03T22:25:29.000Z",
+      "fiveHourReset": "2026-06-03T22:32:03.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 37,
       "weeklyUsedPercent": 63,
@@ -174,7 +174,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-03T17:25:28.914Z",
+      "lastUpdated": "2026-06-03T17:31:53.785Z",
       "status": "ok",
       "error": null
     },
@@ -197,7 +197,7 @@
       "weeklyReset": null,
       "weeklyWindowMinutes": null,
       "credits": null,
-      "lastUpdated": "2026-06-03T17:25:28.914Z",
+      "lastUpdated": "2026-06-03T17:31:53.785Z",
       "status": "error",
       "error": "refresh HTTP 401: {\n  \"error\": {\n    \"message\": \"Your refresh token has already been used to generate a new access token. Please try signing in again.\",\n    \"type\": \"invalid_request_error\",\n    \"param\": null,\n    \"code"
     },
@@ -213,7 +213,7 @@
       "lastUsedAt": "2026-06-03T17:06:00.324Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-03T22:25:29.000Z",
+      "fiveHourReset": "2026-06-03T22:32:03.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 52,
       "weeklyUsedPercent": 48,
@@ -224,7 +224,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-03T17:25:28.914Z",
+      "lastUpdated": "2026-06-03T17:31:53.785Z",
       "status": "ok",
       "error": null
     }

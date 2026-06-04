@@ -1,6 +1,8 @@
 const { readFile } = require("fs/promises")
 const { resolve } = require("path")
 
+const STALE_AFTER_MS = 60 * 60 * 1000
+
 function toPercent(value) {
   const n = Number(value)
   if (Number.isNaN(n)) return 0
@@ -46,6 +48,18 @@ function normalizeHistory(raw) {
     .slice(-500)
 }
 
+function publicAccountError(value) {
+  const raw = String(value || "").trim()
+  if (!raw) return null
+  if (/refresh token has already been used|app_session_terminated|session has ended|sign in again|login novamente/i.test(raw)) {
+    return "Sessão precisa ser renovada no Codex Switcher."
+  }
+  if (/refresh HTTP 40[01]|HTTP 40[01]/i.test(raw)) {
+    return "Não foi possível atualizar esta conta. Revise a sessão no Codex Switcher."
+  }
+  return raw.length > 160 ? `${raw.slice(0, 157)}...` : raw
+}
+
 function normalizeAccounts(rawAccounts) {
   if (!Array.isArray(rawAccounts)) return []
 
@@ -68,7 +82,7 @@ function normalizeAccounts(rawAccounts) {
     weeklyWindowMinutes: Number.isFinite(Number(account?.weeklyWindowMinutes)) ? Number(account.weeklyWindowMinutes) : null,
     lastUpdated: toDate(account?.lastUpdated)?.toISOString() || null,
     status: account?.status === "error" ? "error" : "ok",
-    error: account?.error || null
+    error: publicAccountError(account?.error)
   })).filter((account) => account.id || account.name)
 }
 
@@ -125,7 +139,12 @@ function enrichPayload(raw = {}, history = null) {
   const weeklyPercent = toPercent(averageAccountPercent(paidAccounts, "weeklyPercent", aggregate.weeklyPercent))
   const fiveHourResetDate = toDate(aggregate.fiveHourReset)
   const weeklyResetDate = toDate(aggregate.weeklyReset)
-  const lastUpdated = raw.lastUpdated || new Date().toISOString()
+  const lastUpdatedDate = toDate(raw.lastUpdated)
+  const lastUpdated = lastUpdatedDate?.toISOString() || null
+  const dataAgeMinutes = lastUpdatedDate
+    ? Math.max(0, Math.floor((now - lastUpdatedDate.getTime()) / 60000))
+    : null
+  const isStale = !lastUpdatedDate || now - lastUpdatedDate.getTime() > STALE_AFTER_MS
 
   const fiveHourMs = fiveHourResetDate ? fiveHourResetDate.getTime() - now : NaN
   const weeklyMs = weeklyResetDate ? weeklyResetDate.getTime() - now : NaN
@@ -176,6 +195,9 @@ function enrichPayload(raw = {}, history = null) {
     weeklyPercent,
     weeklyReset: weeklyResetDate ? weeklyResetDate.toISOString() : null,
     lastUpdated,
+    dataAgeMinutes,
+    staleAfterMinutes: STALE_AFTER_MS / 60000,
+    isStale,
     source: raw.source || null,
     activeAccountId: raw.activeAccountId || raw.active_account_id || null,
     accountCount: paidAccounts.length,

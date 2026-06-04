@@ -11,11 +11,13 @@ const WEEK_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 const WEEK_HOURS = 7 * 24;
 const WEEK_FIVE_HOUR_WINDOWS = WEEK_HOURS / 5;
 const ACTIVE_ACCOUNT_WINDOW_MS = 60 * 60 * 1000;
+const STALE_AFTER_MS = 60 * 60 * 1000;
 const THEME_COLOR_KEY = "codex-theme-color";
 const LAST_VALID_USAGE_KEY = "codex-last-valid-usage-payload";
 const NOTIFICATION_PREFERENCES_KEY = "codex-notification-preferences-v1";
 const NOTIFICATION_STATE_KEY = "codex-notification-state-v4";
 const DEFAULT_THEME_COLOR = "#3b82f6";
+const notificationEnginePromise = import("./notification-engine.mjs?v=repo_closure_5");
 
 let viewportRafId = null;
 let activeUsageController = null;
@@ -115,6 +117,20 @@ function normalizeUsage(raw) {
   const json = raw && typeof raw === "object" ? raw : {};
   const aggregate = json.aggregate && typeof json.aggregate === "object" ? json.aggregate : json;
   const fiveHourResetIsNull = json.fiveHourReset === null;
+  const lastUpdatedDate = parseDate(json.lastUpdated);
+  const dataAgeMinutes = json.dataAgeMinutes !== null
+    && json.dataAgeMinutes !== undefined
+    && Number.isFinite(Number(json.dataAgeMinutes))
+    ? Math.max(0, Number(json.dataAgeMinutes))
+    : lastUpdatedDate
+      ? Math.max(0, (Date.now() - lastUpdatedDate.getTime()) / 60000)
+      : null;
+  const staleAfterMinutes = json.staleAfterMinutes !== null
+    && json.staleAfterMinutes !== undefined
+    && Number.isFinite(Number(json.staleAfterMinutes))
+    ? Math.max(1, Number(json.staleAfterMinutes))
+    : STALE_AFTER_MS / 60000;
+  const calculatedIsStale = !lastUpdatedDate || dataAgeMinutes > staleAfterMinutes;
 
   return {
     source: typeof json.source === "string" ? json.source : null,
@@ -127,7 +143,10 @@ function normalizeUsage(raw) {
     fiveHourResetDate: fiveHourResetIsNull ? null : parseDate(aggregate.fiveHourReset),
     weeklyPercent: clampPercent(aggregate.weeklyPercent, SAFE_FALLBACK.weeklyPercent),
     weeklyResetDate: parseDate(aggregate.weeklyReset),
-    lastUpdatedDate: parseDate(json.lastUpdated),
+    lastUpdatedDate,
+    dataAgeMinutes,
+    staleAfterMinutes,
+    isStale: json.isStale === true || calculatedIsStale,
     historySamples: normalizeHistorySamples(json.historySamples),
   };
 }
@@ -186,6 +205,9 @@ function saveLastValidPayload(usage) {
     weeklyPercent: usage.weeklyPercent,
     weeklyReset: usage.weeklyResetDate?.toISOString() || null,
     lastUpdated: usage.lastUpdatedDate?.toISOString() || null,
+    dataAgeMinutes: usage.dataAgeMinutes,
+    staleAfterMinutes: usage.staleAfterMinutes,
+    isStale: usage.isStale,
     historySamples: usage.historySamples?.map((sample) => ({
       capturedAt: sample.capturedAtDate.toISOString(),
       fiveHourPercent: sample.fiveHourPercent,
@@ -667,7 +689,7 @@ function buildLimitViewModel(usage, hasLoadError = false) {
     : Math.max(metrics.effectiveWeeklyRatePerWindow || 0, 1);
 
   return {
-    status: resolveStatus(metrics, hasLoadError),
+    status: resolveStatus(metrics, usage, hasLoadError),
     tones: {
       fiveHour: usageLevel(metrics.fiveHourRemaining),
       weekly: usageLevel(metrics.weeklyRemaining),
@@ -973,11 +995,23 @@ function buildActiveAccountView(usage) {
   };
 }
 
-function resolveStatus(metrics, hasLoadError) {
+function resolveStatus(metrics, usage, hasLoadError) {
   if (hasLoadError) {
     return {
       text: "Dados em cache",
       meta: "Não foi possível atualizar agora; mostrando o último estado salvo.",
+      state: "error",
+    };
+  }
+  const liveAgeMs = usage.lastUpdatedDate ? Date.now() - usage.lastUpdatedDate.getTime() : NaN;
+  const isStale = usage.isStale || !usage.lastUpdatedDate || liveAgeMs > STALE_AFTER_MS;
+  if (isStale) {
+    const ageText = Number.isFinite(liveAgeMs)
+      ? formatDurationMs(liveAgeMs)
+      : "tempo desconhecido";
+    return {
+      text: "Dados atrasados",
+      meta: `A última captura foi há ${ageText}; os saldos podem ter mudado.`,
       state: "error",
     };
   }
@@ -1454,7 +1488,14 @@ function writeNotificationState(next) {
   localStorage.setItem(NOTIFICATION_STATE_KEY, JSON.stringify(next));
 }
 
+function localNotificationTestSetting(key) {
+  if (!["localhost", "127.0.0.1"].includes(location.hostname)) return null;
+  return new URLSearchParams(location.search).get(key);
+}
+
 function notificationPermission() {
+  const override = localNotificationTestSetting("notificationPermission");
+  if (["granted", "denied", "default", "unsupported"].includes(override)) return override;
   if (!("Notification" in window)) return "unsupported";
   return Notification.permission;
 }
@@ -1472,17 +1513,6 @@ function isNotificationRuleEnabled(ruleId, preferences = readNotificationPrefere
   return accountRules[ruleId] !== false;
 }
 
-function resetPatternKey(value) {
-  const date = parseDate(value);
-  if (!date) return null;
-  return `${date.getDay()}-${date.getHours()}-${date.getMinutes()}`;
-}
-
-function shouldCooldown(previousAt, cooldownMs) {
-  const previousDate = parseDate(previousAt);
-  return Boolean(previousDate && Date.now() - previousDate.getTime() < cooldownMs);
-}
-
 function recordNotificationEvent(state, event) {
   const recent = Array.isArray(state.recent) ? state.recent : [];
   recent.unshift({
@@ -1493,6 +1523,7 @@ function recordNotificationEvent(state, event) {
 }
 
 async function sendNotification(title, body, tag) {
+  if (localNotificationTestSetting("notificationDryRun") === "1") return true;
   try {
     if (navigator.serviceWorker?.ready) {
       const registration = await Promise.race([
@@ -1545,131 +1576,33 @@ async function maybeNotify(ruleId, preferences, accountKey, title, body, tag, st
 
 async function syncNotifications(usage, hasLoadError = false) {
   const preferences = readNotificationPreferences();
-  if (!preferences.globalEnabled) {
-    updateNotificationButton(document.getElementById("notificationButton"));
-    return;
-  }
-
   const state = readNotificationState();
-  const byAccount = state.byAccount && typeof state.byAccount === "object"
-    ? state.byAccount
-    : {};
+  const {
+    evaluateNotificationSignals,
+    markNotificationSignalSent,
+  } = await notificationEnginePromise;
+  const { signals, nextState } = evaluateNotificationSignals({
+    usage,
+    state,
+    hasLoadError,
+    staleAfterMs: STALE_AFTER_MS,
+  });
 
-  const isStale = hasLoadError
-    || !usage.lastUpdatedDate
-    || Date.now() - usage.lastUpdatedDate.getTime() > ACTIVE_ACCOUNT_WINDOW_MS;
-  if (isStale && !shouldCooldown(state.lastDataStaleAt, 30 * 60 * 1000)) {
-    const lastUpdatedText = usage.lastUpdatedDate ? `Última atualização: ${formatDateTimePtBr(usage.lastUpdatedDate)}.` : "Sem data de atualização válida.";
+  for (const signal of signals) {
     const sent = await maybeNotify(
-      "dataStale",
+      signal.ruleId,
       preferences,
-      null,
-      "Dados do Codex atrasados",
-      lastUpdatedText,
-      `codex-data-stale-${usage.lastUpdatedDate?.toISOString() || "unknown"}`,
-      state,
-      { type: "global" },
+      signal.accountKey,
+      signal.title,
+      signal.body,
+      signal.tag,
+      nextState,
+      { type: signal.type },
     );
-    if (sent) state.lastDataStaleAt = new Date().toISOString();
+    if (sent) markNotificationSignalSent(nextState, signal);
   }
 
-  for (const account of usage.accounts || []) {
-    const accountKey = accountNotificationKey(account);
-    if (!accountKey) continue;
-
-    const currentReset = account.weeklyResetDate?.toISOString() || null;
-    const currentResetPattern = resetPatternKey(currentReset);
-    const currentPercent = clampPercent(account.weeklyPercent, null);
-    const currentFiveHourPercent = clampPercent(account.fiveHourPercent, null);
-    const previous = byAccount[accountKey] || {};
-    const previousReset = typeof previous.weeklyReset === "string" ? previous.weeklyReset : null;
-    const previousResetPattern = typeof previous.weeklyResetPattern === "string" ? previous.weeklyResetPattern : null;
-    const previousPercent = clampPercent(previous.weeklyPercent, null);
-    const previousFiveHourPercent = clampPercent(previous.fiveHourPercent, null);
-    const firstSeen = !previous.seen;
-    const refilled = previousPercent !== null && previousPercent < 95 && currentPercent !== null && currentPercent >= 95;
-    const resetPatternChanged = Boolean(previousResetPattern && currentResetPattern && previousResetPattern !== currentResetPattern);
-    const resetChanged = Boolean(previousReset && currentReset && previousReset !== currentReset);
-
-    if (!firstSeen && resetPatternChanged) {
-      await maybeNotify(
-        "weeklyResetShift",
-        preferences,
-        accountKey,
-        "Reset semanal mudou",
-        `${account.name}: novo reset em ${formatDateTimePtBr(account.weeklyResetDate)}.`,
-        `weekly-reset-shift-${accountKey}-${currentReset || "unknown"}`,
-        state,
-        { type: "account" },
-      );
-    } else if (!firstSeen && (refilled || (resetChanged && currentPercent !== null && currentPercent >= 95))) {
-      await maybeNotify(
-        "weeklyRefill",
-        preferences,
-        accountKey,
-        "Semanal recarregado",
-        `${account.name} voltou para ${percentOrDash(currentPercent)}.`,
-        `weekly-refill-${accountKey}-${currentReset || "full"}`,
-        state,
-        { type: "account" },
-      );
-    }
-
-    if (
-      !firstSeen
-      && currentPercent !== null
-      && currentPercent <= 20
-      && previousPercent !== null
-      && previousPercent > 20
-      && !shouldCooldown(previous.lastWeeklyLowAt, 12 * 60 * 60 * 1000)
-    ) {
-      const sent = await maybeNotify(
-        "weeklyLow",
-        preferences,
-        accountKey,
-        "Semanal baixo",
-        `${account.name}: ${percentOrDash(currentPercent)} restante no semanal.`,
-        `weekly-low-${accountKey}-${currentReset || "unknown"}`,
-        state,
-        { type: "account" },
-      );
-      if (sent) previous.lastWeeklyLowAt = new Date().toISOString();
-    }
-
-    if (
-      !firstSeen
-      && currentFiveHourPercent !== null
-      && currentFiveHourPercent <= 15
-      && previousFiveHourPercent !== null
-      && previousFiveHourPercent > 15
-      && !shouldCooldown(previous.lastFiveHourLowAt, 3 * 60 * 60 * 1000)
-    ) {
-      const sent = await maybeNotify(
-        "fiveHourLow",
-        preferences,
-        accountKey,
-        "5h baixo",
-        `${account.name}: ${percentOrDash(currentFiveHourPercent)} restante na janela de 5h.`,
-        `five-hour-low-${accountKey}-${account.fiveHourResetDate?.toISOString() || "unknown"}`,
-        state,
-        { type: "account" },
-      );
-      if (sent) previous.lastFiveHourLowAt = new Date().toISOString();
-    }
-
-    byAccount[accountKey] = {
-      ...previous,
-      seen: true,
-      weeklyReset: currentReset,
-      weeklyResetPattern: currentResetPattern,
-      weeklyPercent: currentPercent,
-      fiveHourPercent: currentFiveHourPercent,
-    };
-  }
-
-  state.byAccount = byAccount;
-  state.lastSeenUpdatedAt = usage.lastUpdatedDate?.toISOString() || null;
-  writeNotificationState(state);
+  writeNotificationState(nextState);
   updateNotificationButton(document.getElementById("notificationButton"));
 }
 
@@ -1791,6 +1724,7 @@ function renderNotificationAccountsList(els, usage, preferences) {
   const container = els.notificationAccountsList;
   if (!container) return;
   container.replaceChildren();
+  const unsupported = notificationPermission() === "unsupported";
 
   const accounts = usage.accounts || [];
   if (!accounts.length) {
@@ -1821,9 +1755,13 @@ function renderNotificationAccountsList(els, usage, preferences) {
       const accountRule = preferences.accountRules?.[accountKey]?.[rule.id];
       list.append(buildNotificationSwitch({
         title: rule.title,
-        description: accountRule === false ? "Desligado só para esta conta." : "Segue o alerta desta conta.",
+        description: unsupported
+          ? "Indisponível neste navegador."
+          : accountRule === false
+            ? "Desligado só para esta conta."
+            : "Segue o alerta desta conta.",
         checked: accountRule !== false,
-        disabled: false,
+        disabled: unsupported,
         onChange: (checked) => {
           updateNotificationPreference((next) => {
             next.accountRules[accountKey] = {
@@ -1855,6 +1793,8 @@ function renderNotificationPanel(els, usage) {
     els.notificationPermissionButton.disabled = permission === "unsupported" || permission === "denied";
     els.notificationPermissionButton.textContent = permission === "granted"
       ? (preferences.globalEnabled ? "Desativar" : "Ativar")
+      : permission === "unsupported"
+        ? "Indisponível"
       : permission === "denied"
         ? "Bloqueado"
         : "Permitir";
@@ -1903,15 +1843,16 @@ function bindEvents(els, usage, render) {
 
   els.notificationPermissionButton?.addEventListener("click", () => {
     triggerHaptic(10);
-    if (!("Notification" in window)) {
+    const permission = notificationPermission();
+    if (permission === "unsupported") {
       renderNotificationPanel(els, usage);
       return;
     }
-    if (Notification.permission === "denied") {
+    if (permission === "denied") {
       renderNotificationPanel(els, usage);
       return;
     }
-    if (Notification.permission === "granted") {
+    if (permission === "granted") {
       const preferences = readNotificationPreferences();
       preferences.globalEnabled = !preferences.globalEnabled;
       writeNotificationPreferences(preferences);

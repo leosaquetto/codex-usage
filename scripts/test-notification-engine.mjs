@@ -1,0 +1,101 @@
+#!/usr/bin/env node
+import assert from "node:assert/strict";
+import {
+  evaluateNotificationSignals,
+  markNotificationSignalSent,
+} from "../webapp/notification-engine.mjs";
+
+const nowMs = new Date("2026-06-03T18:00:00.000Z").getTime();
+const baseAccount = {
+  id: "account-a",
+  name: "Conta A",
+  fiveHourPercent: 80,
+  fiveHourReset: "2026-06-03T20:00:00.000Z",
+  weeklyPercent: 70,
+  weeklyReset: "2026-06-08T20:00:00.000Z",
+};
+const freshUsage = {
+  lastUpdated: "2026-06-03T17:50:00.000Z",
+  accounts: [baseAccount],
+};
+
+const firstSeen = evaluateNotificationSignals({ usage: freshUsage, nowMs });
+assert.deepEqual(firstSeen.signals, []);
+assert.equal(firstSeen.nextState.byAccount["account-a"].seen, true);
+
+const weeklyLow = evaluateNotificationSignals({
+  usage: {
+    ...freshUsage,
+    accounts: [{ ...baseAccount, weeklyPercent: 20 }],
+  },
+  state: firstSeen.nextState,
+  nowMs,
+});
+assert.deepEqual(weeklyLow.signals.map((signal) => signal.ruleId), ["weeklyLow"]);
+markNotificationSignalSent(weeklyLow.nextState, weeklyLow.signals[0], new Date(nowMs).toISOString());
+
+const weeklyLowRepeat = evaluateNotificationSignals({
+  usage: {
+    ...freshUsage,
+    accounts: [{ ...baseAccount, weeklyPercent: 19 }],
+  },
+  state: weeklyLow.nextState,
+  nowMs: nowMs + 60_000,
+});
+assert.deepEqual(weeklyLowRepeat.signals, []);
+
+const fiveHourLow = evaluateNotificationSignals({
+  usage: {
+    ...freshUsage,
+    accounts: [{ ...baseAccount, fiveHourPercent: 15 }],
+  },
+  state: firstSeen.nextState,
+  nowMs,
+});
+assert.deepEqual(fiveHourLow.signals.map((signal) => signal.ruleId), ["fiveHourLow"]);
+
+const refill = evaluateNotificationSignals({
+  usage: {
+    ...freshUsage,
+    accounts: [{
+      ...baseAccount,
+      weeklyPercent: 100,
+      weeklyReset: "2026-06-15T20:00:00.000Z",
+    }],
+  },
+  state: weeklyLow.nextState,
+  nowMs,
+});
+assert.deepEqual(refill.signals.map((signal) => signal.ruleId), ["weeklyRefill"]);
+
+const resetShift = evaluateNotificationSignals({
+  usage: {
+    ...freshUsage,
+    accounts: [{
+      ...baseAccount,
+      weeklyReset: "2026-06-09T22:30:00.000Z",
+    }],
+  },
+  state: firstSeen.nextState,
+  nowMs,
+});
+assert.deepEqual(resetShift.signals.map((signal) => signal.ruleId), ["weeklyResetShift"]);
+
+const stale = evaluateNotificationSignals({
+  usage: {
+    lastUpdated: "2026-06-03T15:00:00.000Z",
+    accounts: [],
+  },
+  nowMs,
+});
+assert.equal(stale.isStale, true);
+assert.deepEqual(stale.signals.map((signal) => signal.ruleId), ["dataStale"]);
+
+const loadError = evaluateNotificationSignals({
+  usage: freshUsage,
+  hasLoadError: true,
+  nowMs,
+});
+assert.deepEqual(loadError.signals.map((signal) => signal.ruleId), ["dataStale"]);
+
+console.log("notification engine tests ok");

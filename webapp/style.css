@@ -1961,19 +1961,28 @@ input {
   }
 
   .icon-button {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
   }
 
   .notification-popover {
     position: fixed;
     top: max(74px, calc(env(safe-area-inset-top) + 62px));
+    bottom: max(12px, env(safe-area-inset-bottom));
     right: 14px;
     left: 14px;
     width: auto;
-    max-height: min(70vh, 620px);
+    max-height: none;
     padding: 11px;
     border-radius: 15px;
+  }
+
+  .menu-action {
+    min-height: 40px;
+  }
+
+  .notification-tab {
+    min-height: 38px;
   }
 
   .notification-toggle-row {
@@ -2178,7 +2187,7 @@ input {
   }
 
   .accounts-filter-box summary {
-    min-height: 32px;
+    min-height: 40px;
     font-size: 11px;
   }
 
@@ -2198,7 +2207,7 @@ input {
 
   .toggle-button {
     flex: 1 1 calc(50% - 4px);
-    min-height: 32px;
+    min-height: 40px;
     padding: 0 9px;
     font-size: 10.5px;
   }
@@ -2215,7 +2224,7 @@ input {
 
   .account-top {
     grid-template-columns: auto minmax(0, 1fr);
-    padding-right: 46px;
+    padding-right: 38px;
   }
 
   .account-logo {
@@ -2242,14 +2251,14 @@ input {
   }
 
   .account-title p {
-    font-size: 9px;
+    font-size: 8px;
   }
 
   .account-pill {
-    top: 10px;
-    right: 10px;
-    padding: 4px 6px;
-    font-size: 8px;
+    top: 9px;
+    right: 9px;
+    padding: 3px 5px;
+    font-size: 7.5px;
   }
 
   .account-reset,

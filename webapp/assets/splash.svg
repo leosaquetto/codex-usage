@@ -21,7 +21,7 @@
   <rect width="1170" height="2532" fill="url(#r1)"/>
   <rect width="1170" height="2532" fill="url(#r2)"/>
   <g transform="translate(585 1162)" text-anchor="middle">
-    <image href="/webapp/assets/logo_background.png" x="-110" y="-150" width="220" height="220" preserveAspectRatio="xMidYMid meet" filter="url(#shadow)"/>
+    <image href="/assets/logo_background.png" x="-110" y="-150" width="220" height="220" preserveAspectRatio="xMidYMid meet" filter="url(#shadow)"/>
     <text y="160" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif" font-size="54" font-weight="800" fill="#ffffff" opacity="0.98">Analítica do Codex</text>
     <text y="218" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" font-size="30" font-weight="650" fill="#ffffff" opacity="0.74">dashboard local</text>
   </g>

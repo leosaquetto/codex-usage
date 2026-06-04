@@ -86,6 +86,7 @@ function isAntigravityRunning() {
   ]);
   if (result.status !== 0) {
     const detail = [result.stderr, result.stdout].filter(Boolean).join("\n").trim();
+    if (/-600|nao esta sendo executado|não está sendo executado|not running/i.test(detail)) return false;
     throw new Error(`Failed to check whether Antigravity is running: ${detail || `exit ${result.status}`}`);
   }
   return result.stdout.trim() === "true";

@@ -12,8 +12,13 @@
     "update:codex-usage:cdp": "node scripts/update-codex-usage-playwright.mjs --cdp --no-commit",
     "update:codex-usage:playwright": "node scripts/update-codex-usage-playwright.mjs",
     "update:codex-usage:login": "node scripts/update-codex-usage-playwright.mjs --headed --no-cdp-fallback --no-commit",
+    "audit:automation": "node scripts/audit-automation-health.mjs",
     "test:antigravity-usage-parser": "node scripts/test-antigravity-usage-parser.mjs",
     "test:codex-usage-parser": "node scripts/test-codex-usage-parser.mjs",
+    "test:notifications": "node scripts/test-notification-engine.mjs",
+    "test:usage-api": "node scripts/test-usage-api.mjs",
+    "validate:static": "node scripts/validate-static-contracts.mjs",
+    "validate": "node scripts/validate-repo.mjs",
     "update:codex-usage:headless": "node scripts/update-codex-usage-playwright.mjs --headless --no-cdp-fallback --no-commit"
   },
   "dependencies": {

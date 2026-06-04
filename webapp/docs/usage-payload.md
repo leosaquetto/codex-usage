@@ -1,55 +1,64 @@
-# Payload esperado em `/api/usage`
+# Contrato de `/api/usage`
 
-O endpoint `/api/usage` deve responder com `application/json` no formato abaixo:
+O endpoint responde com `application/json` e `Cache-Control: no-store`.
+
+## Exemplo
 
 ```json
 {
-  "fiveHourPercent": 56,
-  "fiveHourReset": "2026-04-24T20:00:00.000Z",
-  "weeklyPercent": 62,
-  "weeklyReset": "2026-04-28T19:35:00.000Z",
-  "lastUpdated": "2026-04-24T14:36:00.000Z",
-  "statusLabel": "acima do seguro",
-  "fiveHourSafeRate": "8.2%/h",
-  "weeklyRemaining": "4.2d",
-  "realDailyRate": "15.6%/d",
-  "safeDailyRate": "13.4%/d",
-  "dailyDiff": "+2.3%/d",
-  "weeklyProjection": "-9.5%",
-  "zeroIn": "3d 13h",
-  "history": {
-    "cycleStart": "2026-04-21T19:35:00.000Z"
-  }
+  "activeAccountId": "account-id",
+  "fiveHourPercent": 82,
+  "fiveHourReset": "2026-06-04T05:47:26.000Z",
+  "weeklyPercent": 71,
+  "weeklyReset": "2026-06-11T00:47:26.000Z",
+  "lastUpdated": "2026-06-04T01:03:44.679Z",
+  "dataAgeMinutes": 12,
+  "staleAfterMinutes": 60,
+  "isStale": false,
+  "accountCount": 6,
+  "okCount": 5,
+  "accounts": [
+    {
+      "id": "account-id",
+      "name": "Conta",
+      "email": null,
+      "planType": "plus",
+      "subscriptionExpiresAt": null,
+      "isActive": true,
+      "lastUsedAt": "2026-06-04T00:58:00.000Z",
+      "fiveHourPercent": 82,
+      "fiveHourReset": "2026-06-04T05:47:26.000Z",
+      "weeklyPercent": 71,
+      "weeklyReset": "2026-06-11T00:47:26.000Z",
+      "lastUpdated": "2026-06-04T01:03:44.679Z",
+      "status": "ok",
+      "error": null
+    }
+  ],
+  "historySamples": []
 }
 ```
 
-## Campos obrigatórios
+## Regras
 
-- `fiveHourPercent`: número de 0 a 100.
-- `fiveHourReset`: data ISO-8601 do próximo reset de 5h.
-- `weeklyPercent`: número de 0 a 100.
-- `weeklyReset`: data ISO-8601 do próximo reset semanal.
-- `lastUpdated`: data ISO-8601 da última atualização do payload.
-- `history`: objeto contendo histórico mínimo usado pelo frontend.
+- Percentuais são limitados a `0..100`.
+- Datas válidas são normalizadas para ISO-8601; datas inválidas viram `null`.
+- `activeAccountId` e `lastUsedAt` são preservados do Switcher.
+- Agregados de 5h/semanal usam somente contas pagas; FREE/GO continuam em `accounts`.
+- `isStale` fica verdadeiro quando `lastUpdated` está ausente ou tem mais de 60 minutos.
+- `status: "error"` mantém a conta visível e publica uma mensagem segura em `error`.
+- `historySamples` contém no máximo 500 amostras normalizadas.
 
-## Campos opcionais (UI complementar)
+## Fontes
 
-- `statusLabel`, `fiveHourSafeRate`, `weeklyRemaining`, `realDailyRate`, `safeDailyRate`, `dailyDiff`, `weeklyProjection`, `zeroIn`, `history.cycleStart`.
+- Produção: `codex_usage.json` e `codex_usage_history.json` da branch `usage-data`.
+- Desenvolvimento com `CODEX_USAGE_USE_LOCAL_FILES=1`: JSONs da raiz do repo.
+- Fallback opcional: `CODEX_USAGE_PAYLOAD`.
 
-Quando os opcionais não são enviados, o frontend mostra fallback seguro (`--`).
+Falha total de fonte retorna:
 
-## Atualizacao autenticada via Chrome
-
-O fluxo principal para atualizar `codex_usage.json` e:
-
-```bash
-node scripts/update-codex-usage-from-chrome.mjs
+```json
+{ "error": "Usage payload indisponível" }
 ```
 
-Ele abre a pagina oficial `https://chatgpt.com/codex/cloud/settings/analytics` no Chrome ja logado, extrai os limites renderizados pela UI e regenera `usage_summary.json`. Nao usa chave de API da OpenAI e nao persiste credenciais do ChatGPT no repositorio.
-
-Para publicar no GitHub:
-
-```bash
-CODEX_USAGE_GITHUB_TOKEN=ghp_xxx node scripts/update-codex-usage-from-chrome.mjs --publish
-```
+com status `503`.

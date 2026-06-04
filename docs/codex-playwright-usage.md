@@ -1,6 +1,6 @@
 # Codex usage via Playwright persistente
 
-Este fluxo adiciona uma alternativa ao `scripts/update-codex-usage-from-chrome.mjs` sem substituir o fluxo atual com Chrome + AppleScript.
+Este fluxo e um fallback para o coletor principal via Codex Switcher. Ele continua disponivel para diagnostico ou para ambientes sem dados validos no Switcher.
 
 ## Diferença entre os fluxos
 
@@ -147,6 +147,6 @@ O summary é regenerado via `scripts/build-usage-summary.mjs`. Os JSONs ficam no
 
 ## Observações
 
-- O LaunchAgent local foi atualizado para usar o fluxo Playwright/CDP.
+- O LaunchAgent principal usa `scripts/run-usage-data-update.mjs switcher`; Playwright/CDP deve ser acionado manualmente quando necessario.
 - O script antigo em `_scripts` nao foi alterado.
 - Este trabalho não altera Antigravity nem o visual do dashboard.

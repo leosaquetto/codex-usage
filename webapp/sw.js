@@ -1,12 +1,13 @@
-const CACHE_VERSION = 'codex-usage-v26';
+const CACHE_VERSION = 'codex-usage-v31';
 const CACHE_NAME = `${CACHE_VERSION}`;
 
 const CRITICAL_ASSETS = [
   '/',
   '/index.html',
   '/offline.html',
-  '/style.css?v=account_focus_notifications_3',
-  '/app.js?v=account_focus_notifications_3',
+  '/style.css?v=repo_closure_5',
+  '/app.js?v=repo_closure_5',
+  '/notification-engine.mjs?v=repo_closure_5',
   '/assets/codex-color.webp',
   '/assets/claude__.png',
   '/assets/gpt_.png',

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastUpdated": "2026-06-08T21:56:44.802Z",
+  "lastUpdated": "2026-06-08T22:11:51.624Z",
   "samples": [
     {
       "capturedAt": "2026-05-25T20:11:07.164Z",
@@ -6684,6 +6684,13 @@
       "capturedAt": "2026-06-08T21:56:44.802Z",
       "fiveHourPercent": 99,
       "fiveHourReset": "2026-06-09T02:56:48.000Z",
+      "weeklyPercent": 54,
+      "weeklyReset": "2026-06-11T00:44:44.000Z"
+    },
+    {
+      "capturedAt": "2026-06-08T22:11:51.624Z",
+      "fiveHourPercent": 99,
+      "fiveHourReset": "2026-06-09T03:11:55.000Z",
       "weeklyPercent": 54,
       "weeklyReset": "2026-06-11T00:44:44.000Z"
     }

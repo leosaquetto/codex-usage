@@ -1,17 +1,17 @@
 {
   "source": "codex-switcher",
-  "lastUpdated": "2026-06-09T16:45:30.054Z",
+  "lastUpdated": "2026-06-09T17:00:49.853Z",
   "accountCount": 4,
   "okCount": 4,
   "activeAccountId": "43f419c5-23bc-4438-b232-c9ca88fe687e",
   "aggregate": {
-    "fiveHourPercent": 97,
+    "fiveHourPercent": 92,
     "fiveHourReset": "2026-06-09T20:57:00.000Z",
     "weeklyPercent": 53,
     "weeklyReset": "2026-06-11T00:44:44.000Z",
-    "lastUpdated": "2026-06-09T16:45:30.054Z"
+    "lastUpdated": "2026-06-09T17:00:49.853Z"
   },
-  "fiveHourPercent": 97,
+  "fiveHourPercent": 92,
   "fiveHourReset": "2026-06-09T20:57:00.000Z",
   "weeklyPercent": 53,
   "weeklyReset": "2026-06-11T00:44:44.000Z",
@@ -35,7 +35,7 @@
       "weeklyReset": null,
       "weeklyWindowMinutes": null,
       "credits": null,
-      "lastUpdated": "2026-06-09T16:45:30.054Z",
+      "lastUpdated": "2026-06-09T17:00:49.853Z",
       "status": "error",
       "error": "refresh HTTP 401: {\n  \"error\": {\n    \"message\": \"Your refresh token has already been used to generate a new access token. Please try signing in again.\",\n    \"type\": \"invalid_request_error\",\n    \"param\": null,\n    \"code"
     },
@@ -51,7 +51,7 @@
       "lastUsedAt": "2026-06-04T08:13:34.177Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-09T21:45:33.000Z",
+      "fiveHourReset": "2026-06-09T22:00:51.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 78,
       "weeklyUsedPercent": 22,
@@ -62,7 +62,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-09T16:45:30.054Z",
+      "lastUpdated": "2026-06-09T17:00:49.853Z",
       "status": "ok",
       "error": null
     },
@@ -78,18 +78,18 @@
       "lastUsedAt": "2026-06-03T20:27:42.983Z",
       "fiveHourPercent": 95,
       "fiveHourUsedPercent": 5,
-      "fiveHourReset": "2026-07-09T16:45:34.000Z",
+      "fiveHourReset": "2026-07-09T17:00:51.000Z",
       "fiveHourWindowMinutes": 43200,
       "weeklyPercent": 95,
       "weeklyUsedPercent": 5,
-      "weeklyReset": "2026-07-09T16:45:34.000Z",
+      "weeklyReset": "2026-07-09T17:00:51.000Z",
       "weeklyWindowMinutes": 43200,
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-09T16:45:30.054Z",
+      "lastUpdated": "2026-06-09T17:00:49.853Z",
       "status": "ok",
       "error": null
     },
@@ -105,7 +105,7 @@
       "lastUsedAt": "2026-06-04T00:37:47.201Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-09T21:45:34.000Z",
+      "fiveHourReset": "2026-06-09T22:00:51.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 84,
       "weeklyUsedPercent": 16,
@@ -116,7 +116,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-09T16:45:30.054Z",
+      "lastUpdated": "2026-06-09T17:00:49.853Z",
       "status": "ok",
       "error": null
     },
@@ -143,7 +143,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-09T16:45:30.054Z",
+      "lastUpdated": "2026-06-09T17:00:49.853Z",
       "status": "ok",
       "error": null
     },
@@ -157,12 +157,12 @@
       "subscriptionExpiresAt": "2026-06-25T20:50:41.000Z",
       "isActive": true,
       "lastUsedAt": "2026-06-09T16:38:04.481Z",
-      "fiveHourPercent": 90,
-      "fiveHourUsedPercent": 10,
+      "fiveHourPercent": 70,
+      "fiveHourUsedPercent": 30,
       "fiveHourReset": "2026-06-09T21:40:47.000Z",
       "fiveHourWindowMinutes": 300,
-      "weeklyPercent": 51,
-      "weeklyUsedPercent": 49,
+      "weeklyPercent": 48,
+      "weeklyUsedPercent": 52,
       "weeklyReset": "2026-06-11T06:53:52.000Z",
       "weeklyWindowMinutes": 10080,
       "credits": {
@@ -170,7 +170,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-09T16:45:30.054Z",
+      "lastUpdated": "2026-06-09T17:00:49.853Z",
       "status": "ok",
       "error": null
     }

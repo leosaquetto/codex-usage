@@ -18,6 +18,7 @@ The main Codex collector is the Switcher flow. Playwright/CDP and Chrome/AppleSc
 - Never publish automatic data commits from `main`.
 - `webapp/vercel.json` must keep Git deployments disabled for `usage-data`.
 - Widgets and the production API must continue reading `usage-data`.
+- Treat `usage-data` as the only live source for `codex_usage.json`, `codex_usage_history.json` and `usage_summary.json`. Repo-root JSONs on `main` are stale-capable local snapshots and are only valid when explicitly testing with `CODEX_USAGE_USE_LOCAL_FILES=1`.
 
 ## Main commands
 
@@ -37,12 +38,14 @@ npm run update:antigravity-usage:auto
 - The active-account strip precedes the account overview.
 - Paid-only aggregates exclude FREE/GO; those accounts remain visible and filterable.
 - Data older than one hour is stale and must be visibly identified.
-- Notifications are local browser/PWA notifications, configurable globally, by rule and by account.
+- Notifications use Web Push when permission and a subscription are available, with local browser notifications only as fallback while the app is active.
+- Web Push subscriptions and dedupe state live in private Vercel Blob objects; never commit VAPID keys, Blob tokens or the dispatch secret.
 - The UI must remain dense, readable and verified at `390x844`.
 
 ## Automation behavior
 
 - Switcher updates run through `scripts/run-usage-data-update.mjs switcher`.
+- The Switcher wrapper dispatches background Push only after the `usage-data` update has completed.
 - Antigravity only captures while the app is open and requires macOS Accessibility and Screen Recording permissions.
 - Do not print or commit access tokens, refresh tokens, cookies or local account-store contents.
 - Use `npm run audit:automation` before diagnosing old snapshots.

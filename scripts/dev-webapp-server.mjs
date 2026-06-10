@@ -4,12 +4,16 @@ import os from "node:os";
 import { readFile } from "node:fs/promises";
 import { createReadStream, existsSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
+import { createRequire } from "node:module";
 import usageHandler from "../webapp/api/usage.js";
 
+const require = createRequire(import.meta.url);
+const pushConfigHandler = require("../webapp/api/push-config.js");
+const pushSubscriptionHandler = require("../webapp/api/push-subscription.js");
+const pushDispatchHandler = require("../webapp/api/push-dispatch.js");
 const rootDir = new URL("../webapp/", import.meta.url);
 const port = Number(process.env.PORT || 8080);
 const host = process.env.HOST || "0.0.0.0";
-process.env.CODEX_USAGE_USE_LOCAL_FILES ||= "1";
 
 const MIME_TYPES = {
   ".css": "text/css; charset=utf-8",
@@ -74,8 +78,15 @@ const server = http.createServer(async (req, res) => {
   try {
     const { pathname } = new URL(req.url, "http://127.0.0.1");
 
-    if (pathname === "/api/usage") {
-      await usageHandler(req, createApiResponse(res));
+    const apiHandlers = new Map([
+      ["/api/usage", usageHandler],
+      ["/api/push-config", pushConfigHandler],
+      ["/api/push-subscription", pushSubscriptionHandler],
+      ["/api/push-dispatch", pushDispatchHandler],
+    ]);
+    const apiHandler = apiHandlers.get(pathname);
+    if (apiHandler) {
+      await apiHandler(req, createApiResponse(res));
       return;
     }
 

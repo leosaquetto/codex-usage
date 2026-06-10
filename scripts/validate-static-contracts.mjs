@@ -35,6 +35,7 @@ const splash = await read("webapp/assets/splash.svg");
 const api = await read("webapp/api/usage.js");
 const devServer = await read("scripts/dev-webapp-server.mjs");
 const vercel = JSON.parse(await read("webapp/vercel.json"));
+const webappPackage = JSON.parse(await read("webapp/package.json"));
 
 const htmlLocalUrls = [...html.matchAll(/\b(?:href|src)="([^"]+)"/g)]
   .map((match) => match[1])
@@ -43,10 +44,15 @@ for (const url of htmlLocalUrls) await assertWebappUrlExists(url, "webapp/index.
 
 for (const icon of manifest.icons || []) await assertWebappUrlExists(icon.src, "webapp/manifest.json");
 assert.equal(manifest.background_color, "#f5f7fb", "manifest background_color deve seguir o tema claro do app");
+assert.equal(manifest.id, "/", "manifest deve manter uma identidade estável para a PWA instalada");
 
 const criticalAssetsBlock = serviceWorker.match(/const CRITICAL_ASSETS = \[([\s\S]*?)\];/)?.[1] || "";
 const criticalAssets = [...criticalAssetsBlock.matchAll(/['"]([^'"]+)['"]/g)].map((match) => match[1]);
-assert.ok(criticalAssets.includes("/notification-engine.mjs?v=repo_closure_5"), "notification-engine.mjs deve estar no cache critico");
+assert.ok(
+  criticalAssets.some((asset) => asset.startsWith("/notification-engine.mjs?")),
+  "notification-engine.mjs deve estar no cache critico",
+);
+assert.match(serviceWorker, /addEventListener\(['"]push['"]/, "service worker deve receber Web Push");
 for (const url of criticalAssets) await assertWebappUrlExists(url, "webapp/sw.js");
 
 const splashUrls = [...splash.matchAll(/\bhref="([^"]+)"/g)].map((match) => match[1]);
@@ -55,6 +61,18 @@ for (const url of splashUrls) await assertWebappUrlExists(url, "webapp/assets/sp
 assert.equal(vercel.git?.deploymentEnabled?.["usage-data"], false, "Vercel deve ignorar a branch usage-data");
 assert.match(api, /CODEX_USAGE_GITHUB_BRANCH \|\| "usage-data"/, "API deve usar usage-data por padrao");
 assert.match(devServer, /"\.mjs": "application\/javascript; charset=utf-8"/, "Servidor local deve servir modulos .mjs com MIME JavaScript");
+assert.equal(typeof webappPackage.dependencies?.["@vercel/blob"], "string", "webapp deve depender de @vercel/blob");
+assert.equal(typeof webappPackage.dependencies?.["web-push"], "string", "webapp deve depender de web-push");
+
+for (const path of [
+  "webapp/api/push-config.js",
+  "webapp/api/push-dispatch.js",
+  "webapp/api/push-subscription.js",
+  "webapp/lib/push-service.js",
+  "webapp/lib/push-store.js",
+]) {
+  await access(resolve(root, path), constants.R_OK);
+}
 
 for (const path of [
   "scriptable/large-widget.js",

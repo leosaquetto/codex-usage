@@ -86,7 +86,7 @@ function validateSummary(summary, expected) {
   if (!isDeepStrictEqual(summary.codex, expected.codex)) {
     throw new Error("usage_summary.json desatualizado: bloco codex difere de codex_usage.json.");
   }
-  if (!isDeepStrictEqual(summary.codexHistory, expected.codexHistory)) {
+  if (!isDeepStrictEqual(normalizeHistory(summary.codexHistory), expected.codexHistory)) {
     throw new Error("usage_summary.json desatualizado: bloco codexHistory difere de codex_usage_history.json.");
   }
   if (!isDeepStrictEqual(summary.antigravity, expected.antigravity)) {

@@ -5,7 +5,7 @@ import { homedir } from "node:os";
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { appendCodexUsageSample } from "./codex-usage-history.mjs";
+import { appendCodexUsageSample, normalizeEmail, normalizeHistory } from "./codex-usage-history.mjs";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 const accountsPath = resolve(homedir(), ".codex-switcher/accounts.json");
@@ -30,6 +30,23 @@ const DISPLAY_NAMES = new Map([
   ["fabinho", "FABINHO"],
   ["free #1", "FREE #1"],
   ["free #2", "FREE #2"],
+]);
+const ACCOUNT_EMAILS = new Map([
+  ["leo", "jv5pdcwnxp@privaterelay.appleid.com"],
+  ["leo i", "jv5pdcwnxp@privaterelay.appleid.com"],
+  ["leo (trial)", "leoaraujo1949@gmail.com"],
+  ["leo ii", "leoaraujo1949@gmail.com"],
+  ["google", "leoaraujo1949@gmail.com"],
+  ["dinha", "dzplaybacks@gmail.com"],
+  ["amanada", "dzplaybacks@gmail.com"],
+  ["amanda", "dzplaybacks@gmail.com"],
+  ["natanael", "contatonatanaelrodrigs@gmail.com"],
+  ["natan", "contatonatanaelrodrigs@gmail.com"],
+  ["nate", "contatonatanaelrodrigs@gmail.com"],
+  ["fabinh", "fabinhomian@gmail.com"],
+  ["fabinho", "fabinhomian@gmail.com"],
+  ["fabio", "fabinhomian@gmail.com"],
+  ["douglas", "douglaschatgpt.am@gmail.com"],
 ]);
 
 const args = new Map();
@@ -107,6 +124,15 @@ function tokenExpiredOrNearExpiry(token) {
   return Number.isFinite(exp) ? exp <= Math.floor(Date.now() / 1000) + 60 : false;
 }
 
+function emailFromAccount(account) {
+  const claims = decodeJwtPayload(account?.auth_data?.id_token) || {};
+  return normalizeEmail(account?.email)
+    || normalizeEmail(claims["https://api.openai.com/profile"]?.email)
+    || normalizeEmail(claims.email)
+    || ACCOUNT_EMAILS.get(String(account?.name || "").trim().toLowerCase())
+    || null;
+}
+
 async function refreshTokens(account) {
   const auth = account.auth_data || {};
   if (!auth.refresh_token) throw new Error("refresh_token ausente");
@@ -130,7 +156,7 @@ async function refreshTokens(account) {
   const authClaims = claims["https://api.openai.com/auth"] || {};
   return {
     ...account,
-    email: claims["https://api.openai.com/profile"]?.email || claims.email || account.email || null,
+    email: normalizeEmail(claims["https://api.openai.com/profile"]?.email || claims.email || account.email),
     plan_type: authClaims.chatgpt_plan_type || account.plan_type || null,
     subscription_expires_at: authClaims.chatgpt_subscription_active_until || account.subscription_expires_at || null,
     auth_data: {
@@ -206,7 +232,7 @@ function splitWindows(payload) {
   ].filter(Boolean);
 
   const fiveHour = candidates.find((window) => window.windowMinutes && window.windowMinutes <= 360)
-    || candidates[0]
+    || candidates.find((window) => !window.windowMinutes)
     || null;
   const weekly = candidates.find((window) => window.windowMinutes && window.windowMinutes > 360)
     || candidates.find((window) => window !== fiveHour)
@@ -222,7 +248,7 @@ function normalizeAccountResult(sourceAccount, payload, nowIso, activeAccountId)
     chatgptAccountId: sourceAccount.auth_data?.account_id || null,
     name: String(sourceAccount.name || "").trim(),
     displayName: displayNameFor(sourceAccount),
-    email: null,
+    email: emailFromAccount(sourceAccount),
     planType: payload?.plan_type || sourceAccount.plan_type || null,
     subscriptionExpiresAt: validIso(sourceAccount.subscription_expires_at),
     isActive: sourceAccount.id === activeAccountId,
@@ -252,7 +278,7 @@ function normalizeAccountError(account, error, nowIso, activeAccountId) {
     chatgptAccountId: account.auth_data?.account_id || null,
     name: String(account.name || "").trim(),
     displayName: displayNameFor(account),
-    email: null,
+    email: emailFromAccount(account),
     planType: account.plan_type || null,
     subscriptionExpiresAt: validIso(account.subscription_expires_at),
     isActive: account.id === activeAccountId,
@@ -334,6 +360,7 @@ function usageSignature(payload) {
       id: account.id,
       chatgptAccountId: account.chatgptAccountId,
       displayName: account.displayName,
+      email: account.email,
       planType: account.planType,
       subscriptionExpiresAt: account.subscriptionExpiresAt,
       isActive: account.isActive,
@@ -369,7 +396,12 @@ function historyPayloadFromAggregate(payload) {
     fiveHourReset: aggregate.fiveHourReset,
     weeklyPercent: aggregate.weeklyPercent,
     weeklyReset: aggregate.weeklyReset,
+    accounts: payload.accounts || [],
   };
+}
+
+function stableJson(value) {
+  return JSON.stringify(value);
 }
 
 function validDate(value) {
@@ -568,7 +600,12 @@ async function main() {
   if (!payload.okCount) throw new Error("Nenhuma conta retornou uso válido.");
 
   const currentPayload = await readCurrentUsage();
-  if (currentPayload && usageSignature(currentPayload) === usageSignature(payload)) {
+  const currentHistory = await readCurrentHistory();
+  const normalizedCurrentHistory = normalizeHistory(currentHistory);
+  const usageChanged = !currentPayload || usageSignature(currentPayload) !== usageSignature(payload);
+  const historyNeedsMigration = stableJson(currentHistory) !== stableJson(normalizedCurrentHistory);
+
+  if (!usageChanged && !historyNeedsMigration) {
     console.log(JSON.stringify({
       ok: true,
       skipped: "unchanged",
@@ -579,10 +616,13 @@ async function main() {
     return;
   }
 
-  const codexJson = `${JSON.stringify(payload, null, 2)}\n`;
-  await writeFile(codexUsagePath, codexJson);
+  const codexPayload = usageChanged ? payload : currentPayload;
+  const codexJson = `${JSON.stringify(codexPayload, null, 2)}\n`;
+  if (usageChanged) await writeFile(codexUsagePath, codexJson);
 
-  const history = appendCodexUsageSample(await readCurrentHistory(), historyPayloadFromAggregate(payload));
+  const history = usageChanged
+    ? appendCodexUsageSample(currentHistory, historyPayloadFromAggregate(payload))
+    : normalizedCurrentHistory;
   const historyJson = `${JSON.stringify(history, null, 2)}\n`;
   await writeFile(historyPath, historyJson);
 
@@ -630,3 +670,8 @@ async function main() {
 if (import.meta.url === pathToFileURL(process.argv[1] || "").href) {
   await main();
 }
+
+export {
+  emailFromAccount,
+  splitWindows,
+};

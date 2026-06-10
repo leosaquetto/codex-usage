@@ -46,6 +46,46 @@ function git(args, options = {}) {
   return run("git", args, options);
 }
 
+async function pushDispatchConfig() {
+  const config = {
+    url: process.env.PUSH_DISPATCH_URL || "",
+    secret: process.env.PUSH_DISPATCH_SECRET || "",
+  };
+  const envPath = resolve(root, ".local/push-dispatch.env");
+  if ((!config.url || !config.secret) && existsSync(envPath)) {
+    const source = await readFile(envPath, "utf8");
+    for (const line of source.split(/\r?\n/)) {
+      const match = line.match(/^([A-Z0-9_]+)=(.*)$/);
+      if (!match) continue;
+      if (match[1] === "PUSH_DISPATCH_URL" && !config.url) config.url = match[2];
+      if (match[1] === "PUSH_DISPATCH_SECRET" && !config.secret) config.secret = match[2];
+    }
+  }
+  return config;
+}
+
+async function dispatchPushNotifications() {
+  const config = await pushDispatchConfig();
+  if (!config.url || !config.secret) {
+    console.log("Web Push dispatch ignorado: configuração local ausente.");
+    return;
+  }
+  const usage = JSON.parse(await readFile(resolve(dataWorktree, "codex_usage.json"), "utf8"));
+  const response = await fetch(config.url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${config.secret}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ usage }),
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(`Web Push dispatch falhou (${response.status}): ${payload.error || "erro desconhecido"}`);
+  }
+  console.log(`Web Push: ${payload.sent || 0} enviados para ${payload.subscriptions || 0} subscriptions.`);
+}
+
 function remoteDataBranchExists() {
   return git(["show-ref", "--verify", "--quiet", `refs/remotes/origin/${dataBranch}`], {
     allowFailure: true,
@@ -107,6 +147,7 @@ async function main() {
 
   // Also publish a main -> usage-data merge when the updater skipped unchanged data.
   git(["push", "origin", `HEAD:refs/heads/${dataBranch}`], { cwd: dataWorktree });
+  await dispatchPushNotifications();
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] || "").href) {

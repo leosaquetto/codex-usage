@@ -98,4 +98,61 @@ const loadError = evaluateNotificationSignals({
 });
 assert.deepEqual(loadError.signals.map((signal) => signal.ruleId), ["dataStale"]);
 
+const emailIdentityFirst = evaluateNotificationSignals({
+  usage: {
+    ...freshUsage,
+    accounts: [{ ...baseAccount, id: "old-id", email: "conta@example.com" }],
+  },
+  nowMs,
+});
+const emailIdentityReinserted = evaluateNotificationSignals({
+  usage: {
+    ...freshUsage,
+    accounts: [{
+      ...baseAccount,
+      id: "new-id",
+      email: "conta@example.com",
+      weeklyPercent: 20,
+    }],
+  },
+  state: emailIdentityFirst.nextState,
+  nowMs,
+});
+assert.deepEqual(emailIdentityReinserted.signals.map((signal) => signal.ruleId), ["weeklyLow"]);
+assert.equal(emailIdentityReinserted.nextState.byAccount["conta@example.com"].seen, true);
+
+const goFirst = evaluateNotificationSignals({
+  usage: {
+    ...freshUsage,
+    accounts: [{
+      ...baseAccount,
+      id: "go-account",
+      email: "go@example.com",
+      planType: "go",
+      fiveHourWindowMinutes: 30 * 24 * 60,
+      weeklyWindowMinutes: 30 * 24 * 60,
+    }],
+  },
+  nowMs,
+});
+const goChanged = evaluateNotificationSignals({
+  usage: {
+    ...freshUsage,
+    accounts: [{
+      ...baseAccount,
+      id: "go-account-new-id",
+      email: "go@example.com",
+      planType: "go",
+      fiveHourPercent: 10,
+      weeklyPercent: 20,
+      weeklyReset: "2026-07-08T20:00:00.000Z",
+      fiveHourWindowMinutes: 30 * 24 * 60,
+      weeklyWindowMinutes: 30 * 24 * 60,
+    }],
+  },
+  state: goFirst.nextState,
+  nowMs,
+});
+assert.deepEqual(goChanged.signals, []);
+
 console.log("notification engine tests ok");

@@ -2,6 +2,18 @@ const { readFile } = require("fs/promises")
 const { resolve } = require("path")
 
 const STALE_AFTER_MS = 60 * 60 * 1000
+const LONG_WINDOW_MINUTES = 20 * 24 * 60
+const LEGACY_ACCOUNT_EMAILS = [
+  { displayName: "LEO I", aliases: ["LEO I", "LEO", "LEO 1"], email: "jv5pdcwnxp@privaterelay.appleid.com" },
+  { displayName: "LEO II", aliases: ["LEO II", "LEO 2", "LEO (TRIAL)", "GOOGLE"], email: "leoaraujo1949@gmail.com" },
+  { displayName: "AMANDA", aliases: ["DINHA", "AMANADA", "AMANDA"], email: "dzplaybacks@gmail.com" },
+  { displayName: "NATANAEL", aliases: ["NATANAEL", "NATAN", "NATE"], email: "contatonatanaelrodrigs@gmail.com" },
+  { displayName: "FABINHO", aliases: ["FABINHO", "FABINH", "FABIO"], email: "fabinhomian@gmail.com", weeklyHistory: false },
+  { displayName: "DOUGLAS", aliases: ["DOUGLAS"], email: "douglaschatgpt.am@gmail.com" }
+]
+const LEGACY_EMAIL_BY_ALIAS = new Map(
+  LEGACY_ACCOUNT_EMAILS.flatMap((account) => account.aliases.map((alias) => [alias, account.email]))
+)
 
 function toPercent(value) {
   const n = Number(value)
@@ -15,7 +27,7 @@ function toDate(value) {
   return Number.isNaN(d.getTime()) ? null : d
 }
 
-function normalizeHistory(raw) {
+function normalizeHistorySamples(raw) {
   const samples = Array.isArray(raw?.samples) ? raw.samples : []
   const byCapturedAt = new Map()
 
@@ -48,6 +60,142 @@ function normalizeHistory(raw) {
     .slice(-500)
 }
 
+function normalizeEmail(value) {
+  const email = String(value || "").trim().toLowerCase()
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : null
+}
+
+function emailForPublicAccount(account) {
+  return normalizeEmail(account?.email)
+    || LEGACY_EMAIL_BY_ALIAS.get(String(account?.displayName || account?.name || "").trim().toUpperCase())
+    || null
+}
+
+function legacyAccountSamplesFromAggregate(samples) {
+  const accountSamples = []
+
+  for (const sample of samples) {
+    for (const account of LEGACY_ACCOUNT_EMAILS.filter((item) => item.weeklyHistory !== false)) {
+      accountSamples.push({
+        capturedAt: sample.capturedAt,
+        email: account.email,
+        displayName: account.displayName,
+        weeklyPercent: sample.weeklyPercent,
+        weeklyReset: sample.weeklyReset
+      })
+    }
+  }
+
+  return accountSamples
+}
+
+function normalizeAccountSamples(raw) {
+  const samples = Array.isArray(raw?.accountSamples) && raw.accountSamples.length
+    ? raw.accountSamples
+    : legacyAccountSamplesFromAggregate(normalizeHistorySamples(raw))
+  const byKey = new Map()
+
+  for (const sample of samples) {
+    const capturedAt = toDate(sample?.capturedAt || sample?.lastUpdated)
+    const email = normalizeEmail(sample?.email)
+    const weeklyReset = toDate(sample?.weeklyReset)
+    const weeklyPercent = Number(sample?.weeklyPercent)
+
+    if (
+      !capturedAt
+      || !email
+      || email === "fabinhomian@gmail.com"
+      || !weeklyReset
+      || !Number.isFinite(weeklyPercent)
+    ) {
+      continue
+    }
+
+    byKey.set(`${email}|${capturedAt.toISOString()}|${weeklyReset.toISOString()}`, {
+      capturedAt: capturedAt.toISOString(),
+      email,
+      displayName: String(sample?.displayName || sample?.name || email),
+      weeklyPercent: toPercent(weeklyPercent),
+      weeklyReset: weeklyReset.toISOString()
+    })
+  }
+
+  return [...byKey.values()]
+    .sort((a, b) => new Date(a.capturedAt).getTime() - new Date(b.capturedAt).getTime() || a.email.localeCompare(b.email))
+    .slice(-12000)
+}
+
+function normalizeWeeklyResetEvents(raw) {
+  const events = Array.isArray(raw?.weeklyResetEvents) && raw.weeklyResetEvents.length
+    ? raw.weeklyResetEvents
+    : buildWeeklyResetEvents(normalizeAccountSamples(raw))
+  const byKey = new Map()
+
+  for (const event of events) {
+    const email = normalizeEmail(event?.email)
+    const capturedAt = toDate(event?.capturedAt || event?.lastUpdated)
+    const weeklyReset = toDate(event?.weeklyReset)
+    const previousWeeklyReset = toDate(event?.previousWeeklyReset)
+    const deltaMs = event?.deltaMs === null || event?.deltaMs === undefined ? null : Number(event.deltaMs)
+
+    if (!email || !capturedAt || !weeklyReset) continue
+
+    const eventKey = `${email}|${weeklyReset.toISOString()}`
+    if (byKey.has(eventKey)) continue
+
+    byKey.set(eventKey, {
+      email,
+      displayName: String(event?.displayName || event?.name || email),
+      capturedAt: capturedAt.toISOString(),
+      weeklyReset: weeklyReset.toISOString(),
+      previousWeeklyReset: previousWeeklyReset?.toISOString() || null,
+      isEarlyReset: event?.isEarlyReset === true,
+      deltaMs: Number.isFinite(deltaMs) ? deltaMs : null
+    })
+  }
+
+  return [...byKey.values()]
+    .sort((a, b) => new Date(a.capturedAt).getTime() - new Date(b.capturedAt).getTime() || a.email.localeCompare(b.email))
+}
+
+function buildWeeklyResetEvents(accountSamples) {
+  const byEmail = new Map()
+  for (const sample of accountSamples) {
+    if (!byEmail.has(sample.email)) byEmail.set(sample.email, [])
+    byEmail.get(sample.email).push(sample)
+  }
+
+  const events = []
+  for (const [email, samples] of byEmail.entries()) {
+    const ordered = samples.sort((a, b) => new Date(a.capturedAt).getTime() - new Date(b.capturedAt).getTime())
+    let previousReset = null
+    let lastEventReset = null
+
+    for (const sample of ordered) {
+      if (sample.weeklyReset === lastEventReset) continue
+
+      const previousMs = previousReset ? new Date(previousReset).getTime() : NaN
+      const capturedMs = new Date(sample.capturedAt).getTime()
+      const deltaMs = Number.isFinite(previousMs) ? capturedMs - previousMs : null
+
+      events.push({
+        email,
+        displayName: sample.displayName || email,
+        capturedAt: sample.capturedAt,
+        weeklyReset: sample.weeklyReset,
+        previousWeeklyReset: previousReset,
+        isEarlyReset: Number.isFinite(deltaMs) ? deltaMs < 0 : false,
+        deltaMs
+      })
+
+      previousReset = sample.weeklyReset
+      lastEventReset = sample.weeklyReset
+    }
+  }
+
+  return events
+}
+
 function publicAccountError(value) {
   const raw = String(value || "").trim()
   if (!raw) return null
@@ -63,32 +211,54 @@ function publicAccountError(value) {
 function normalizeAccounts(rawAccounts) {
   if (!Array.isArray(rawAccounts)) return []
 
-  return rawAccounts.map((account) => ({
-    id: String(account?.id || ""),
-    name: String(account?.displayName || account?.name || "Conta"),
-    rawName: String(account?.name || ""),
-    email: account?.email || null,
-    planType: account?.planType || account?.plan_type || null,
-    subscriptionExpiresAt: toDate(account?.subscriptionExpiresAt || account?.subscription_expires_at)?.toISOString() || null,
-    isActive: Boolean(account?.isActive),
-    lastUsedAt: toDate(account?.lastUsedAt || account?.last_used_at)?.toISOString() || null,
-    fiveHourPercent: Number.isFinite(Number(account?.fiveHourPercent)) ? toPercent(account.fiveHourPercent) : null,
-    fiveHourUsedPercent: Number.isFinite(Number(account?.fiveHourUsedPercent)) ? toPercent(account.fiveHourUsedPercent) : null,
-    fiveHourReset: toDate(account?.fiveHourReset)?.toISOString() || null,
-    fiveHourWindowMinutes: Number.isFinite(Number(account?.fiveHourWindowMinutes)) ? Number(account.fiveHourWindowMinutes) : null,
-    weeklyPercent: Number.isFinite(Number(account?.weeklyPercent)) ? toPercent(account.weeklyPercent) : null,
-    weeklyUsedPercent: Number.isFinite(Number(account?.weeklyUsedPercent)) ? toPercent(account.weeklyUsedPercent) : null,
-    weeklyReset: toDate(account?.weeklyReset)?.toISOString() || null,
-    weeklyWindowMinutes: Number.isFinite(Number(account?.weeklyWindowMinutes)) ? Number(account.weeklyWindowMinutes) : null,
-    lastUpdated: toDate(account?.lastUpdated)?.toISOString() || null,
-    status: account?.status === "error" ? "error" : "ok",
-    error: publicAccountError(account?.error)
-  })).filter((account) => account.id || account.name)
+  return rawAccounts.map((account) => {
+    const fiveHourWindowMinutes = Number.isFinite(Number(account?.fiveHourWindowMinutes))
+      ? Number(account.fiveHourWindowMinutes)
+      : null
+    const weeklyWindowMinutes = Number.isFinite(Number(account?.weeklyWindowMinutes))
+      ? Number(account.weeklyWindowMinutes)
+      : null
+    const longWindowOnly = fiveHourWindowMinutes >= LONG_WINDOW_MINUTES
+
+    return {
+      id: String(account?.id || ""),
+      name: String(account?.displayName || account?.name || "Conta"),
+      rawName: String(account?.name || ""),
+      email: emailForPublicAccount(account),
+      planType: account?.planType || account?.plan_type || null,
+      subscriptionExpiresAt: toDate(account?.subscriptionExpiresAt || account?.subscription_expires_at)?.toISOString() || null,
+      isActive: Boolean(account?.isActive),
+      lastUsedAt: toDate(account?.lastUsedAt || account?.last_used_at)?.toISOString() || null,
+      fiveHourPercent: longWindowOnly || !Number.isFinite(Number(account?.fiveHourPercent))
+        ? null
+        : toPercent(account.fiveHourPercent),
+      fiveHourUsedPercent: longWindowOnly || !Number.isFinite(Number(account?.fiveHourUsedPercent))
+        ? null
+        : toPercent(account.fiveHourUsedPercent),
+      fiveHourReset: longWindowOnly ? null : toDate(account?.fiveHourReset)?.toISOString() || null,
+      fiveHourWindowMinutes: longWindowOnly ? null : fiveHourWindowMinutes,
+      weeklyPercent: Number.isFinite(Number(account?.weeklyPercent)) ? toPercent(account.weeklyPercent) : null,
+      weeklyUsedPercent: Number.isFinite(Number(account?.weeklyUsedPercent)) ? toPercent(account.weeklyUsedPercent) : null,
+      weeklyReset: toDate(account?.weeklyReset)?.toISOString() || null,
+      weeklyWindowMinutes,
+      lastUpdated: toDate(account?.lastUpdated)?.toISOString() || null,
+      status: account?.status === "error" ? "error" : "ok",
+      error: publicAccountError(account?.error)
+    }
+  }).filter((account) => account.id || account.name)
 }
 
 function isFreeGoAccount(account) {
   const plan = String(account?.planType || "").trim().toLowerCase()
   return plan === "free" || plan === "go"
+}
+
+function isThirtyDayAccount(account) {
+  const weeklyWindowMinutes = Number(account?.weeklyWindowMinutes)
+  const fiveHourWindowMinutes = Number(account?.fiveHourWindowMinutes)
+  return isFreeGoAccount(account)
+    || (Number.isFinite(weeklyWindowMinutes) && weeklyWindowMinutes >= LONG_WINDOW_MINUTES)
+    || (Number.isFinite(fiveHourWindowMinutes) && fiveHourWindowMinutes >= LONG_WINDOW_MINUTES)
 }
 
 function averageAccountPercent(accounts, key, fallback = 0) {
@@ -134,6 +304,13 @@ function enrichPayload(raw = {}, history = null) {
   const aggregate = raw.aggregate && typeof raw.aggregate === "object" ? raw.aggregate : raw
   const accounts = normalizeAccounts(raw.accounts)
   const paidAccounts = accounts.filter((account) => !isFreeGoAccount(account))
+  const nonWeeklyEmails = new Set(
+    accounts
+      .filter(isThirtyDayAccount)
+      .map((account) => normalizeEmail(account.email))
+      .filter(Boolean)
+  )
+  nonWeeklyEmails.add("fabinhomian@gmail.com")
 
   const fiveHourPercent = toPercent(averageAccountPercent(paidAccounts, "fiveHourPercent", aggregate.fiveHourPercent))
   const weeklyPercent = toPercent(averageAccountPercent(paidAccounts, "weeklyPercent", aggregate.weeklyPercent))
@@ -215,7 +392,9 @@ function enrichPayload(raw = {}, history = null) {
     history: {
       cycleStart: raw.history?.cycleStart || (cycleStart ? cycleStart.toISOString() : null)
     },
-    historySamples: normalizeHistory(history)
+    historySamples: normalizeHistorySamples(history),
+    accountSamples: normalizeAccountSamples(history).filter((sample) => !nonWeeklyEmails.has(sample.email)),
+    weeklyResetEvents: normalizeWeeklyResetEvents(history).filter((event) => !nonWeeklyEmails.has(event.email))
   }
 }
 
@@ -306,7 +485,7 @@ function parsePayloadFromEnv() {
   return JSON.parse(rawPayload)
 }
 
-module.exports = async (req, res) => {
+async function usageHandler(req, res) {
   res.setHeader("Cache-Control", "no-store")
 
   try {
@@ -338,3 +517,6 @@ module.exports = async (req, res) => {
     })
   }
 }
+
+module.exports = usageHandler
+module.exports.enrichPayload = enrichPayload

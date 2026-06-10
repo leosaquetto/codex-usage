@@ -1,13 +1,13 @@
-const CACHE_VERSION = 'codex-usage-v31';
+const CACHE_VERSION = 'codex-usage-v34';
 const CACHE_NAME = `${CACHE_VERSION}`;
 
 const CRITICAL_ASSETS = [
   '/',
   '/index.html',
   '/offline.html',
-  '/style.css?v=repo_closure_5',
-  '/app.js?v=repo_closure_5',
-  '/notification-engine.mjs?v=repo_closure_5',
+  '/style.css?v=weekly_push_v3',
+  '/app.js?v=weekly_push_v3',
+  '/notification-engine.mjs?v=weekly_push_v3',
   '/assets/codex-color.webp',
   '/assets/claude__.png',
   '/assets/gpt_.png',
@@ -113,5 +113,40 @@ self.addEventListener('fetch', (event) => {
             return response;
           });
       })
+  );
+});
+
+self.addEventListener('push', (event) => {
+  let payload = {};
+  try {
+    payload = event.data?.json() || {};
+  } catch {
+    payload = { body: event.data?.text() || 'Há uma nova atualização no Codex Analytics.' };
+  }
+
+  const title = payload.title || 'Codex Analytics';
+  const options = {
+    body: payload.body || 'Há uma nova atualização de uso.',
+    icon: '/assets/logo_background.png',
+    badge: '/assets/codex-color.png',
+    tag: payload.tag || 'codex-usage-update',
+    timestamp: payload.timestamp || Date.now(),
+    data: { url: payload.url || '/' },
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const targetUrl = new URL(event.notification.data?.url || '/', self.location.origin).href;
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+      const existing = clients.find((client) => client.url.startsWith(self.location.origin));
+      if (existing) {
+        return existing.navigate(targetUrl).then((client) => client?.focus());
+      }
+      return self.clients.openWindow(targetUrl);
+    }),
   );
 });

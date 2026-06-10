@@ -121,6 +121,7 @@ input {
 .is-loading .suggestion-card,
 .is-loading .active-account-panel,
 .is-loading .accounts-panel,
+.is-loading .reset-area,
 .is-loading .indicators-drawer,
 .is-loading .limits-grid,
 .is-loading .compare-card,
@@ -244,6 +245,12 @@ input {
 }
 
 .icon-button.is-enabled {
+  color: var(--primary);
+  border-color: rgba(59, 130, 246, 0.35);
+  background: rgba(59, 130, 246, 0.12);
+}
+
+.icon-button[aria-pressed="true"] {
   color: var(--primary);
   border-color: rgba(59, 130, 246, 0.35);
   background: rgba(59, 130, 246, 0.12);
@@ -531,6 +538,7 @@ input {
 .suggestion-card,
 .active-account-panel,
 .accounts-panel,
+.reset-area,
 .indicators-drawer,
 .compare-card,
 .limit-card,
@@ -539,6 +547,214 @@ input {
   border: 1px solid rgba(15, 23, 42, 0.075);
   background: var(--bg-surface);
   box-shadow: var(--shadow-card);
+}
+
+.reset-area {
+  display: grid;
+  gap: 12px;
+  margin: 14px 0 0;
+  padding: 14px;
+  border-radius: 18px;
+}
+
+.reset-area[hidden],
+.dashboard-only[hidden] {
+  display: none !important;
+}
+
+.reset-area-head {
+  display: block;
+}
+
+.reset-area-head h2 {
+  margin: 3px 0 0;
+  font-size: 21px;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.reset-controls {
+  display: grid;
+  gap: 8px;
+}
+
+.reset-account-filters {
+  display: flex;
+  gap: 6px;
+  max-width: 100%;
+  padding-bottom: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.reset-account-filters::-webkit-scrollbar {
+  display: none;
+}
+
+.reset-account-chip {
+  flex: 0 0 auto;
+  min-height: 34px;
+  padding: 0 11px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  background: #fff;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.reset-account-chip[aria-pressed="true"] {
+  border-color: color-mix(in srgb, var(--primary) 35%, white);
+  color: #fff;
+  background: var(--primary);
+}
+
+.reset-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  padding: 3px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 12px;
+  background: #f1f5f9;
+}
+
+.reset-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.reset-summary-item {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  border-radius: 12px;
+  background: #fbfcfe;
+}
+
+.reset-summary-item span {
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.reset-summary-item strong {
+  color: var(--text-primary);
+  font-size: 20px;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.reset-list,
+.reset-account-card,
+.reset-events {
+  display: grid;
+  gap: 8px;
+}
+
+.reset-account-card {
+  padding: 11px;
+  border: 1px solid rgba(15, 23, 42, 0.075);
+  border-radius: 13px;
+  background: #fff;
+}
+
+.reset-account-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 10px;
+}
+
+.reset-account-top strong {
+  display: block;
+  overflow-wrap: anywhere;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 950;
+  line-height: 1.1;
+}
+
+.reset-account-top span {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.reset-count-pill,
+.reset-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.reset-count-pill {
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 10%, white);
+}
+
+.reset-event-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 9px;
+  border-radius: 11px;
+  background: #f8fafc;
+}
+
+.reset-event-main {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.reset-event-main strong {
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  font-weight: 950;
+  line-height: 1.1;
+}
+
+.reset-event-main span,
+.reset-event-main small {
+  color: var(--text-muted);
+  font-size: 10.5px;
+  font-weight: 750;
+  line-height: 1.2;
+}
+
+.reset-badge {
+  align-self: center;
+  color: var(--text-secondary);
+  background: #e2e8f0;
+}
+
+.reset-badge.is-early {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.reset-empty {
+  margin: 0;
+  padding: 12px;
+  border-radius: 12px;
+  color: var(--text-secondary);
+  background: #f8fafc;
+  font-size: 12px;
+  font-weight: 750;
 }
 
 .pool-panel {
@@ -1060,6 +1276,18 @@ input {
   gap: 10px;
 }
 
+.active-account-panel.has-single-limit .active-account-bars {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.active-account-panel.has-single-limit .active-usage-row {
+  max-width: 440px;
+}
+
+.active-usage-row[hidden] {
+  display: none !important;
+}
+
 .active-usage-row {
   display: grid;
   gap: 6px;
@@ -1378,6 +1606,11 @@ input {
   line-height: 1;
 }
 
+.account-pill[data-plan="plus"] {
+  color: #f8fafc;
+  background: #111827;
+}
+
 .account-pill[data-plan="free"] {
   color: #475569;
   background: #e5e7eb;
@@ -1392,6 +1625,15 @@ input {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
+}
+
+.account-meters.is-single {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+}
+
+.account-meters.is-single .account-circle-meter {
+  width: min(100%, 150px);
 }
 
 .account-circle-meter {
@@ -1983,6 +2225,50 @@ input {
 
   .notification-tab {
     min-height: 38px;
+  }
+
+  .reset-area {
+    margin-top: 12px;
+    padding: 11px;
+    border-radius: 16px;
+  }
+
+  .reset-area-head {
+    display: block;
+  }
+
+  .reset-actions {
+    width: 100%;
+  }
+
+  .reset-controls {
+    width: 100%;
+  }
+
+  .reset-summary-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .reset-summary-item {
+    padding: 8px;
+  }
+
+  .reset-summary-item span {
+    font-size: 9px;
+  }
+
+  .reset-summary-item strong {
+    font-size: 18px;
+  }
+
+  .reset-event-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .reset-badge {
+    justify-self: start;
+    align-self: start;
   }
 
   .notification-toggle-row {

@@ -18,6 +18,8 @@ Os arquivos abaixo pertencem ao fluxo automatico de dados e devem ser atualizado
 - `usage_summary.json`
 - `antigravity_usage.json`
 
+Para auditoria de dados vivos, leia esses arquivos no worktree `.local/usage-data-worktree` ou na URL raw da branch `usage-data`. Os JSONs com os mesmos nomes na raiz da `main` sao snapshots locais/legados e nao devem ser usados para decidir se o dashboard esta correto, exceto quando o servidor tiver sido iniciado propositalmente com `CODEX_USAGE_USE_LOCAL_FILES=1`.
+
 Widgets, dashboard e APIs que precisam desses dados devem ler a branch `usage-data`, por exemplo:
 
 ```js
@@ -46,6 +48,8 @@ node scripts/run-usage-data-update.mjs antigravity
 ```
 
 Nao rode scripts com `--commit --push` a partir de `main` para publicar JSONs automaticos.
+
+O mesmo wrapper dispara o endpoint de Web Push depois da publicacao. A configuracao fica em `.local/push-dispatch.env`; esse arquivo contem segredo operacional, e ignorado pelo Git e nao altera a regra de branch dos JSONs.
 
 ## O que nao fazer
 

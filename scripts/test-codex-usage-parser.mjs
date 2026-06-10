@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { buildNextData, parseCodexAnalyticsText } from "./update-codex-usage-from-chrome.mjs";
+import { emailFromAccount, splitWindows } from "./update-codex-usage-from-switcher.mjs";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 const current = {
@@ -47,5 +48,20 @@ const missingReset = parseCodexAnalyticsText("5-hour usage limit 44% remaining W
 const missingResetNext = buildNextData(current, missingReset, now);
 assert.equal(missingResetNext.fiveHourReset, current.fiveHourReset);
 assert.equal(missingResetNext.weeklyReset, current.weeklyReset);
+
+const thirtyDayOnly = splitWindows({
+  rate_limit: {
+    primary_window: {
+      used_percent: 5,
+      limit_window_seconds: 30 * 24 * 60 * 60,
+      reset_at: 1783684800,
+    },
+  },
+});
+assert.equal(thirtyDayOnly.fiveHour, null);
+assert.equal(thirtyDayOnly.weekly?.windowMinutes, 30 * 24 * 60);
+assert.equal(thirtyDayOnly.weekly?.remainingPercent, 95);
+assert.equal(emailFromAccount({ name: "AMANDA", auth_data: {} }), "dzplaybacks@gmail.com");
+assert.equal(emailFromAccount({ name: "nova conta", email: "Nova@Example.com", auth_data: {} }), "nova@example.com");
 
 console.log("codex usage parser tests ok");

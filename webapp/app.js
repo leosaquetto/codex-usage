@@ -10,6 +10,7 @@ const FIVE_HOUR_WINDOW_MS = 5 * 60 * 60 * 1000;
 const WEEK_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 const WEEK_HOURS = 7 * 24;
 const WEEK_FIVE_HOUR_WINDOWS = WEEK_HOURS / 5;
+const LONG_WINDOW_MINUTES = 20 * 24 * 60;
 const ACTIVE_ACCOUNT_WINDOW_MS = 60 * 60 * 1000;
 const STALE_AFTER_MS = 60 * 60 * 1000;
 const THEME_COLOR_KEY = "codex-theme-color";
@@ -17,7 +18,8 @@ const LAST_VALID_USAGE_KEY = "codex-last-valid-usage-payload";
 const NOTIFICATION_PREFERENCES_KEY = "codex-notification-preferences-v1";
 const NOTIFICATION_STATE_KEY = "codex-notification-state-v4";
 const DEFAULT_THEME_COLOR = "#3b82f6";
-const notificationEnginePromise = import("./notification-engine.mjs?v=repo_closure_5");
+const NON_WEEKLY_HISTORY_EMAILS = new Set(["fabinhomian@gmail.com"]);
+const notificationEnginePromise = import("./notification-engine.mjs?v=weekly_push_v3");
 
 let viewportRafId = null;
 let activeUsageController = null;
@@ -25,8 +27,12 @@ let lastUsageSignature = "";
 let lastSuspendedAt = 0;
 let activeChart = "weekly";
 let activeAccountSort = "renewFirst";
+let activeView = "dashboard";
+let resetEventFilter = "all";
+let selectedResetEmail = "all";
 let hideExhaustedAccounts = false;
 let hideFreeGoAccounts = false;
+let webPushStatus = "idle";
 
 /* =========================================
    Theme and Viewport
@@ -113,6 +119,57 @@ function normalizeHistorySamples(rawSamples) {
   return [...byCapturedAt.values()].sort((a, b) => a.capturedAtDate.getTime() - b.capturedAtDate.getTime());
 }
 
+function normalizeAccountSamples(rawSamples) {
+  if (!Array.isArray(rawSamples)) return [];
+  const byKey = new Map();
+
+  for (const raw of rawSamples) {
+    const capturedAtDate = parseDate(raw?.capturedAt || raw?.lastUpdated);
+    const weeklyResetDate = parseDate(raw?.weeklyReset);
+    const weeklyPercent = clampPercent(raw?.weeklyPercent, null);
+    const email = String(raw?.email || "").trim().toLowerCase();
+
+    if (!capturedAtDate || !weeklyResetDate || weeklyPercent === null || !email) continue;
+
+    byKey.set(`${email}|${capturedAtDate.toISOString()}|${weeklyResetDate.toISOString()}`, {
+      capturedAtDate,
+      email,
+      displayName: String(raw?.displayName || raw?.name || email),
+      weeklyPercent,
+      weeklyResetDate,
+    });
+  }
+
+  return [...byKey.values()].sort((a, b) => a.capturedAtDate.getTime() - b.capturedAtDate.getTime() || a.email.localeCompare(b.email));
+}
+
+function normalizeWeeklyResetEvents(rawEvents) {
+  if (!Array.isArray(rawEvents)) return [];
+  const byKey = new Map();
+
+  for (const raw of rawEvents) {
+    const capturedAtDate = parseDate(raw?.capturedAt || raw?.lastUpdated);
+    const weeklyResetDate = parseDate(raw?.weeklyReset);
+    const previousWeeklyResetDate = parseDate(raw?.previousWeeklyReset);
+    const email = String(raw?.email || "").trim().toLowerCase();
+    const deltaMs = raw?.deltaMs === null || raw?.deltaMs === undefined ? null : Number(raw.deltaMs);
+
+    if (!capturedAtDate || !weeklyResetDate || !email) continue;
+
+    byKey.set(`${email}|${weeklyResetDate.toISOString()}`, {
+      capturedAtDate,
+      email,
+      displayName: String(raw?.displayName || raw?.name || email),
+      weeklyResetDate,
+      previousWeeklyResetDate,
+      isEarlyReset: raw?.isEarlyReset === true,
+      deltaMs: Number.isFinite(deltaMs) ? deltaMs : null,
+    });
+  }
+
+  return [...byKey.values()].sort((a, b) => b.capturedAtDate.getTime() - a.capturedAtDate.getTime() || a.email.localeCompare(b.email));
+}
+
 function normalizeUsage(raw) {
   const json = raw && typeof raw === "object" ? raw : {};
   const aggregate = json.aggregate && typeof json.aggregate === "object" ? json.aggregate : json;
@@ -148,26 +205,40 @@ function normalizeUsage(raw) {
     staleAfterMinutes,
     isStale: json.isStale === true || calculatedIsStale,
     historySamples: normalizeHistorySamples(json.historySamples),
+    accountSamples: normalizeAccountSamples(json.accountSamples),
+    weeklyResetEvents: normalizeWeeklyResetEvents(json.weeklyResetEvents),
   };
 }
 
 function normalizeAccounts(rawAccounts) {
   if (!Array.isArray(rawAccounts)) return [];
-  return rawAccounts.map((account) => ({
-    id: String(account?.id || account?.name || crypto.randomUUID?.() || Math.random()),
-    name: String(account?.name || account?.displayName || "Conta"),
-    email: typeof account?.email === "string" ? account.email : "",
-    planType: typeof account?.planType === "string" ? account.planType : "",
-    subscriptionExpiresAtDate: parseDate(account?.subscriptionExpiresAt),
-    isActive: Boolean(account?.isActive),
-    lastUsedAtDate: parseDate(account?.lastUsedAt),
-    fiveHourPercent: clampPercent(account?.fiveHourPercent, null),
-    fiveHourResetDate: parseDate(account?.fiveHourReset),
-    weeklyPercent: clampPercent(account?.weeklyPercent, null),
-    weeklyResetDate: parseDate(account?.weeklyReset),
-    status: account?.status === "error" ? "error" : "ok",
-    error: typeof account?.error === "string" ? account.error : "",
-  })).filter((account) => account.name);
+  return rawAccounts.map((account) => {
+    const fiveHourWindowMinutes = Number.isFinite(Number(account?.fiveHourWindowMinutes))
+      ? Number(account.fiveHourWindowMinutes)
+      : null;
+    const weeklyWindowMinutes = Number.isFinite(Number(account?.weeklyWindowMinutes))
+      ? Number(account.weeklyWindowMinutes)
+      : null;
+    const longWindowOnly = fiveHourWindowMinutes >= LONG_WINDOW_MINUTES;
+
+    return {
+      id: String(account?.id || account?.name || crypto.randomUUID?.() || Math.random()),
+      name: String(account?.name || account?.displayName || "Conta"),
+      email: typeof account?.email === "string" ? account.email : "",
+      planType: typeof account?.planType === "string" ? account.planType : "",
+      subscriptionExpiresAtDate: parseDate(account?.subscriptionExpiresAt),
+      isActive: Boolean(account?.isActive),
+      lastUsedAtDate: parseDate(account?.lastUsedAt),
+      fiveHourPercent: longWindowOnly ? null : clampPercent(account?.fiveHourPercent, null),
+      fiveHourResetDate: longWindowOnly ? null : parseDate(account?.fiveHourReset),
+      fiveHourWindowMinutes: longWindowOnly ? null : fiveHourWindowMinutes,
+      weeklyPercent: clampPercent(account?.weeklyPercent, null),
+      weeklyResetDate: parseDate(account?.weeklyReset),
+      weeklyWindowMinutes,
+      status: account?.status === "error" ? "error" : "ok",
+      error: typeof account?.error === "string" ? account.error : "",
+    };
+  }).filter((account) => account.name);
 }
 
 async function loadUsage() {
@@ -215,6 +286,22 @@ function saveLastValidPayload(usage) {
       weeklyPercent: sample.weeklyPercent,
       weeklyReset: sample.weeklyResetDate.toISOString(),
     })) || [],
+    accountSamples: usage.accountSamples?.map((sample) => ({
+      capturedAt: sample.capturedAtDate.toISOString(),
+      email: sample.email,
+      displayName: sample.displayName,
+      weeklyPercent: sample.weeklyPercent,
+      weeklyReset: sample.weeklyResetDate.toISOString(),
+    })) || [],
+    weeklyResetEvents: usage.weeklyResetEvents?.map((event) => ({
+      capturedAt: event.capturedAtDate.toISOString(),
+      email: event.email,
+      displayName: event.displayName,
+      weeklyReset: event.weeklyResetDate.toISOString(),
+      previousWeeklyReset: event.previousWeeklyResetDate?.toISOString() || null,
+      isEarlyReset: event.isEarlyReset,
+      deltaMs: event.deltaMs,
+    })) || [],
     accounts: usage.accounts?.map((account) => ({
       id: account.id,
       name: account.name,
@@ -225,8 +312,10 @@ function saveLastValidPayload(usage) {
       lastUsedAt: account.lastUsedAtDate?.toISOString() || null,
       fiveHourPercent: account.fiveHourPercent,
       fiveHourReset: account.fiveHourResetDate?.toISOString() || null,
+      fiveHourWindowMinutes: account.fiveHourWindowMinutes,
       weeklyPercent: account.weeklyPercent,
       weeklyReset: account.weeklyResetDate?.toISOString() || null,
+      weeklyWindowMinutes: account.weeklyWindowMinutes,
       status: account.status,
       error: account.error,
     })) || [],
@@ -398,6 +487,88 @@ function formatZeroInDays(days) {
 function formatZeroInHours(hours) {
   if (!Number.isFinite(hours) || hours <= 0) return "Agora";
   return formatDurationMs(hours * 3600000);
+}
+
+function formatDeltaDays(deltaMs) {
+  if (!Number.isFinite(deltaMs)) return "sem anterior";
+  if (deltaMs === 0) return "no horário";
+  const absMs = Math.abs(deltaMs);
+  const minutes = Math.max(1, Math.round(absMs / 60000));
+  const label = minutes < 60
+    ? `${minutes}min`
+    : minutes < 1440
+      ? `${Math.round(minutes / 60)}h`
+      : `${Math.round(minutes / 1440)}d`;
+  return deltaMs < 0 ? `${label} antes` : `${label} depois`;
+}
+
+function formatCompactDateTimePtBr(date) {
+  if (!date) return "--";
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}
+
+function formatDeadlineDelta(deltaMs) {
+  if (!Number.isFinite(deltaMs)) return "Primeiro registro";
+  if (deltaMs === 0) return "no prazo";
+  const absMs = Math.abs(deltaMs);
+  const totalMinutes = Math.max(1, Math.round(absMs / 60000));
+  const days = Math.floor(totalMinutes / 1440);
+  const hours = Math.floor((totalMinutes % 1440) / 60);
+  const minutes = totalMinutes % 60;
+  const parts = [];
+  if (days > 0) parts.push(`${days}d`);
+  if (hours > 0 && parts.length < 2) parts.push(`${hours}h`);
+  if (!parts.length || (days === 0 && hours === 0)) parts.push(`${minutes}min`);
+  return `${parts.join(" ")} ${deltaMs < 0 ? "antes" : "depois"} do prazo`;
+}
+
+function currentDisplayNameForEmail(usage, email, fallback) {
+  const account = (usage.accounts || []).find((item) => String(item.email || "").toLowerCase() === email);
+  return account?.name || fallback || email;
+}
+
+function buildResetAccountOptions(usage, events) {
+  const byEmail = new Map();
+  for (const event of events || []) {
+    if (!event.email) continue;
+    byEmail.set(event.email, {
+      email: event.email,
+      displayName: currentDisplayNameForEmail(usage, event.email, event.displayName),
+    });
+  }
+  return [
+    { value: "all", label: "Todas" },
+    ...[...byEmail.values()]
+      .sort((a, b) => a.displayName.localeCompare(b.displayName, "pt-BR", { sensitivity: "base" }) || a.email.localeCompare(b.email))
+      .map((account) => ({
+        value: account.email,
+        label: account.displayName,
+      })),
+  ];
+}
+
+function isThirtyDayAccount(account) {
+  const plan = String(account?.planType || "").trim().toUpperCase();
+  const weeklyWindowMinutes = Number(account?.weeklyWindowMinutes);
+  const fiveHourWindowMinutes = Number(account?.fiveHourWindowMinutes);
+  return plan === "FREE"
+    || plan === "GO"
+    || (Number.isFinite(weeklyWindowMinutes) && weeklyWindowMinutes >= LONG_WINDOW_MINUTES)
+    || (Number.isFinite(fiveHourWindowMinutes) && fiveHourWindowMinutes >= LONG_WINDOW_MINUTES);
+}
+
+function weeklyHistoryExcludedEmails(usage) {
+  const excluded = new Set(NON_WEEKLY_HISTORY_EMAILS);
+  for (const account of usage.accounts || []) {
+    const email = String(account.email || "").trim().toLowerCase();
+    if (email && isThirtyDayAccount(account)) excluded.add(email);
+  }
+  return excluded;
 }
 
 /* =========================================
@@ -660,10 +831,64 @@ function buildUsageBandTitle(metrics) {
   return "Sem leitura suficiente";
 }
 
+function buildWeeklyResetView(usage) {
+  const excludedEmails = weeklyHistoryExcludedEmails(usage);
+  const allEvents = [...(usage.weeklyResetEvents || [])]
+    .filter((event) => !excludedEmails.has(event.email))
+    .sort((a, b) => b.capturedAtDate.getTime() - a.capturedAtDate.getTime());
+  const accountOptions = buildResetAccountOptions(usage, allEvents);
+  const allowedEmails = new Set(accountOptions.map((option) => option.value));
+  if (selectedResetEmail !== "all" && !allowedEmails.has(selectedResetEmail)) {
+    selectedResetEmail = "all";
+  }
+  const accountFilteredEvents = selectedResetEmail === "all"
+    ? allEvents
+    : allEvents.filter((event) => event.email === selectedResetEmail);
+  const filteredEvents = resetEventFilter === "early"
+    ? accountFilteredEvents.filter((event) => event.isEarlyReset)
+    : accountFilteredEvents;
+  const grouped = new Map();
+
+  for (const event of filteredEvents) {
+    const email = event.email;
+    if (!grouped.has(email)) {
+      grouped.set(email, {
+        email,
+        displayName: currentDisplayNameForEmail(usage, email, event.displayName),
+        latestCapturedAt: event.capturedAtDate,
+        events: [],
+      });
+    }
+    if (event.capturedAtDate > grouped.get(email).latestCapturedAt) {
+      grouped.get(email).latestCapturedAt = event.capturedAtDate;
+    }
+    grouped.get(email).events.push({
+      email,
+      displayName: event.displayName,
+      transitionText: event.previousWeeklyResetDate
+        ? `${formatCompactDateTimePtBr(event.previousWeeklyResetDate)} -> ${formatCompactDateTimePtBr(event.weeklyResetDate)}`
+        : `Primeiro registro: ${formatCompactDateTimePtBr(event.weeklyResetDate)}`,
+      seenText: `Visto em ${formatCompactDateTimePtBr(event.capturedAtDate)} · ${formatDeadlineDelta(event.deltaMs)}`,
+      isEarlyReset: event.isEarlyReset,
+    });
+  }
+
+  return {
+    activeFilter: resetEventFilter,
+    selectedEmail: selectedResetEmail,
+    accountOptions,
+    accountCount: new Set(allEvents.map((event) => event.email)).size,
+    eventCount: allEvents.length,
+    earlyCount: allEvents.filter((event) => event.isEarlyReset).length,
+    groups: [...grouped.values()].sort((a, b) => b.latestCapturedAt.getTime() - a.latestCapturedAt.getTime() || a.email.localeCompare(b.email)),
+  };
+}
+
 function buildLimitViewModel(usage, hasLoadError = false) {
   const billableUsage = scopeUsageToBillableAccounts(usage);
   const metrics = buildLiveMetrics(billableUsage);
   const recommendation = buildAccountRecommendation(billableUsage.accounts || []);
+  const weeklyOpportunity = buildWeeklyOpportunity(billableUsage.accounts || []);
   const accountCards = buildAccountCards(usage.accounts || [], recommendation?.account?.id || null);
   const fiveHour = buildFiveHourDecision(billableUsage, metrics);
   const weeklyQuestion = buildWeeklyQuestion(metrics);
@@ -751,10 +976,8 @@ function buildLimitViewModel(usage, hasLoadError = false) {
       meta: "Nenhuma conta com 5h e semanal disponíveis agora.",
     },
     suggestion: {
-      title: safePerWindowText,
-      meta: Number.isFinite(metrics.idealPerWindow)
-        ? "Base fixa: 7 dias, somente contas pagas."
-        : weeklyQuestion,
+      title: weeklyOpportunity?.title || percentOrDash(metrics.weeklyRemaining),
+      meta: weeklyOpportunity?.meta || "Saldo semanal disponível nas contas pagas.",
     },
     compare: {
       band: buildUsageBandTitle(metrics),
@@ -779,6 +1002,7 @@ function buildLimitViewModel(usage, hasLoadError = false) {
       })),
     },
     accounts: accountCards,
+    weeklyResets: buildWeeklyResetView(usage),
     metrics,
   };
 }
@@ -806,19 +1030,23 @@ function scoreAccountForNow(account) {
   if (account.status === "error") return null;
   const five = clampPercent(account.fiveHourPercent, null);
   const weekly = clampPercent(account.weeklyPercent, null);
-  if (five === null || weekly === null) return null;
+  if (weekly === null || isThirtyDayAccount(account)) return null;
 
-  const limiting = Math.min(five, weekly);
+  const usableFive = five ?? weekly;
+  const limiting = Math.min(usableFive, weekly);
   const weeklyHours = hoursUntil(account.weeklyResetDate);
-  const fiveHours = hoursUntil(account.fiveHourResetDate);
-  const soonWeeklyResetBoost = weekly > 25 && weeklyHours > 0 && weeklyHours <= 30
-    ? Math.max(0, 10 - weeklyHours / 3)
+  const weeklyUrgency = Number.isFinite(weeklyHours) && weeklyHours > 0 && weeklyHours <= 72
+    ? ((72 - weeklyHours) / 72) * 100
     : 0;
-  const soonFiveResetNudge = five < 25 && fiveHours > 0 && fiveHours <= 1 ? 3 : 0;
-  const lowFivePenalty = five < 15 ? 22 : five < 30 ? 8 : 0;
+  const lowFivePenalty = five !== null && five < 10 ? 6 : 0;
   const lowWeeklyPenalty = weekly < 15 ? 28 : weekly < 30 ? 10 : 0;
 
-  return (five * 0.42) + (weekly * 0.42) + (limiting * 0.16) + soonWeeklyResetBoost + soonFiveResetNudge - lowFivePenalty - lowWeeklyPenalty;
+  return (weekly * 0.58)
+    + (weeklyUrgency * 0.24)
+    + (usableFive * 0.1)
+    + (limiting * 0.08)
+    - lowFivePenalty
+    - lowWeeklyPenalty;
 }
 
 function buildAccountRecommendation(accounts) {
@@ -830,15 +1058,33 @@ function buildAccountRecommendation(accounts) {
   const best = ranked[0];
   if (!best) return null;
 
-  const five = formatAccountPercent(best.account.fiveHourPercent);
   const weekly = formatAccountPercent(best.account.weeklyPercent);
-  const fiveReset = best.account.fiveHourResetDate ? formatDurationMs(best.account.fiveHourResetDate.getTime() - Date.now()) : "--";
+  const five = formatAccountPercent(best.account.fiveHourPercent);
   const weeklyReset = best.account.weeklyResetDate ? formatDurationMs(best.account.weeklyResetDate.getTime() - Date.now()) : "--";
 
   return {
     account: best.account,
     score: best.score,
-    reason: `${five} em 5h, ${weekly} semanal. 5h renova em ${fiveReset}; semanal em ${weeklyReset}.`,
+    reason: `${weekly} semanal · renova em ${weeklyReset}. Saldo de 5h: ${five}.`,
+  };
+}
+
+function buildWeeklyOpportunity(accounts) {
+  const candidates = (accounts || [])
+    .filter((account) => account.status !== "error" && !isThirtyDayAccount(account))
+    .map((account) => {
+      const weekly = clampPercent(account.weeklyPercent, null);
+      const hours = hoursUntil(account.weeklyResetDate);
+      return { account, weekly, hours };
+    })
+    .filter((item) => item.weekly !== null && item.hours > 0 && item.hours <= 72)
+    .sort((a, b) => (b.weekly / Math.max(b.hours, 4)) - (a.weekly / Math.max(a.hours, 4)));
+
+  const best = candidates[0];
+  if (!best) return null;
+  return {
+    title: `${Math.round(best.weekly)}% para usar`,
+    meta: `${best.account.name} · renova em ${formatDurationMs(best.account.weeklyResetDate.getTime() - Date.now())}`,
   };
 }
 
@@ -847,9 +1093,7 @@ function accountRenewalTime(account) {
 }
 
 function accountSortPercent(account) {
-  const values = [account.fiveHourPercent, account.weeklyPercent].filter((value) => value !== null);
-  if (values.length === 0) return -1;
-  return Math.min(...values);
+  return clampPercent(account.weeklyPercent, -1);
 }
 
 function sortedAccounts(accounts) {
@@ -876,10 +1120,8 @@ function sortedAccounts(accounts) {
 }
 
 function isAccountExhausted(account) {
-  const five = clampPercent(account.fiveHourPercent, null);
   const weekly = clampPercent(account.weeklyPercent, null);
-  if (five === null || weekly === null) return false;
-  return five <= 0 || weekly <= 0;
+  return weekly !== null && weekly <= 0;
 }
 
 function isFreeGoAccount(account) {
@@ -900,6 +1142,7 @@ function buildAccountCards(accounts, recommendedAccountId = null) {
     return 0;
   }).map((account) => {
     const weeklyResetDate = account.weeklyResetDate || null;
+    const thirtyDay = isThirtyDayAccount(account);
     const fiveParts = formatDateAndTimeParts(account.fiveHourResetDate);
     const weeklyParts = formatDateAndTimeParts(account.weeklyResetDate);
     return {
@@ -917,13 +1160,17 @@ function buildAccountCards(accounts, recommendedAccountId = null) {
       fiveHourTime: fiveParts.time,
       weeklyDate: weeklyParts.date,
       weeklyTime: weeklyParts.time,
+      weeklyLabel: thirtyDay ? "30d" : "Semanal",
+      hasFiveHour: account.fiveHourPercent !== null && !thirtyDay,
       expiresAt: account.subscriptionExpiresAtDate ? formatShortDatePtBr(account.subscriptionExpiresAtDate) : "--",
       nextResetText: weeklyResetDate ? `${formatDurationMs(weeklyResetDate.getTime() - Date.now())}` : "--",
       hideFiveHourPercent: clampPercent(account.weeklyPercent, 100) < 5,
-      tone: usageLevel(Math.min(
-        clampPercent(account.fiveHourPercent, 100),
-        clampPercent(account.weeklyPercent, 100),
-      )),
+      tone: usageLevel(thirtyDay
+        ? clampPercent(account.weeklyPercent, 100)
+        : Math.min(
+          clampPercent(account.fiveHourPercent, 100),
+          clampPercent(account.weeklyPercent, 100),
+        )),
     };
   });
 }
@@ -971,10 +1218,13 @@ function buildActiveAccountView(usage) {
       badge: "sem foco",
       fiveHour: { percent: null, text: "--", tone: "warn", resetText: "--" },
       weekly: { percent: null, text: "--", tone: "warn", resetText: "--" },
+      weeklyLabel: "Semanal",
+      hasFiveHour: true,
     };
   }
 
   const { account, source } = focused;
+  const thirtyDay = isThirtyDayAccount(account);
   const fiveHour = buildActiveLimitView(account, "fiveHourPercent", "fiveHourResetDate");
   const weekly = buildActiveLimitView(account, "weeklyPercent", "weeklyResetDate");
   const tone = usageLevel(Math.min(
@@ -992,6 +1242,8 @@ function buildActiveAccountView(usage) {
     badge: source === "active" ? "ativa" : "última 1h",
     fiveHour,
     weekly,
+    weeklyLabel: thirtyDay ? "30d" : "Semanal",
+    hasFiveHour: !thirtyDay,
   };
 }
 
@@ -1049,6 +1301,7 @@ function resolveStatus(metrics, usage, hasLoadError) {
 function getElements() {
   return {
     themeColorInput: document.getElementById("themeColorInput"),
+    resetViewButton: document.getElementById("resetViewButton"),
     refreshButton: document.getElementById("refreshButton"),
     notificationMenu: document.getElementById("notificationMenu"),
     notificationButton: document.getElementById("notificationButton"),
@@ -1064,6 +1317,14 @@ function getElements() {
     accountSortSelect: document.getElementById("accountSortSelect"),
     hideExhaustedButton: document.getElementById("hideExhaustedButton"),
     hideFreeGoButton: document.getElementById("hideFreeGoButton"),
+    weeklyResetArea: document.getElementById("weeklyResetArea"),
+    resetAllButton: document.getElementById("resetAllButton"),
+    resetEarlyButton: document.getElementById("resetEarlyButton"),
+    resetAccountFilters: document.getElementById("resetAccountFilters"),
+    resetAccountCount: document.getElementById("resetAccountCount"),
+    resetEventCount: document.getElementById("resetEventCount"),
+    resetEarlyCount: document.getElementById("resetEarlyCount"),
+    weeklyResetList: document.getElementById("weeklyResetList"),
     accountsGrid: document.getElementById("accountsGrid"),
     totalWeeklyAvailableText: document.getElementById("totalWeeklyAvailableText"),
     totalWeeklyAvailableBar: document.getElementById("totalWeeklyAvailableBar"),
@@ -1073,8 +1334,10 @@ function getElements() {
     activeAccountMeta: document.getElementById("activeAccountMeta"),
     activeAccountBadge: document.getElementById("activeAccountBadge"),
     activeFiveHourText: document.getElementById("activeFiveHourText"),
+    activeFiveHourRow: document.getElementById("activeFiveHourRow"),
     activeFiveHourBar: document.getElementById("activeFiveHourBar"),
     activeFiveHourMeta: document.getElementById("activeFiveHourMeta"),
+    activeWeeklyLabel: document.getElementById("activeWeeklyLabel"),
     activeWeeklyText: document.getElementById("activeWeeklyText"),
     activeWeeklyBar: document.getElementById("activeWeeklyBar"),
     activeWeeklyMeta: document.getElementById("activeWeeklyMeta"),
@@ -1160,8 +1423,11 @@ function renderActiveAccountPanel(els, activeAccount) {
   if (els.activeAccountName) els.activeAccountName.textContent = activeAccount.name;
   if (els.activeAccountMeta) els.activeAccountMeta.textContent = activeAccount.meta;
   if (els.activeAccountBadge) els.activeAccountBadge.textContent = activeAccount.badge;
+  if (els.activeFiveHourRow) els.activeFiveHourRow.hidden = !activeAccount.hasFiveHour;
+  els.activeAccountPanel?.classList.toggle("has-single-limit", !activeAccount.hasFiveHour);
   if (els.activeFiveHourText) els.activeFiveHourText.textContent = activeAccount.fiveHour.text;
   if (els.activeFiveHourMeta) els.activeFiveHourMeta.textContent = activeAccount.fiveHour.resetText;
+  if (els.activeWeeklyLabel) els.activeWeeklyLabel.textContent = activeAccount.weeklyLabel;
   if (els.activeWeeklyText) els.activeWeeklyText.textContent = activeAccount.weekly.text;
   if (els.activeWeeklyMeta) els.activeWeeklyMeta.textContent = activeAccount.weekly.resetText;
   setActiveProgress(els.activeFiveHourBar, activeAccount.fiveHour.percent, activeAccount.fiveHour.tone);
@@ -1271,17 +1537,18 @@ function renderAccountsGrid(container, accounts) {
 
     const meters = document.createElement("div");
     meters.className = "account-meters";
-    meters.append(
-      buildAccountCircle("5h", account.fiveHourPercent, account.fiveHourDate, account.fiveHourTime, {
+    if (account.hasFiveHour) {
+      meters.append(buildAccountCircle("5h", account.fiveHourPercent, account.fiveHourDate, account.fiveHourTime, {
         hidePercent: account.hideFiveHourPercent,
-      }),
-      buildAccountCircle("Semanal", account.weeklyPercent, account.weeklyDate, account.weeklyTime),
-    );
+      }));
+    }
+    meters.append(buildAccountCircle(account.weeklyLabel, account.weeklyPercent, account.weeklyDate, account.weeklyTime));
+    if (!account.hasFiveHour) meters.classList.add("is-single");
 
     const footer = document.createElement("div");
     footer.className = "account-footer";
     const next = document.createElement("span");
-    next.textContent = `Semanal: ${account.nextResetText}`;
+    next.textContent = `${account.weeklyLabel}: ${account.nextResetText}`;
     const expires = document.createElement("span");
     expires.textContent = `Expira: ${account.expiresAt}`;
     footer.append(next, expires);
@@ -1330,6 +1597,88 @@ function buildAccountCircle(label, percent, date, time, options = {}) {
   return wrap;
 }
 
+function renderWeeklyResetArea(els, resetView) {
+  if (!els.weeklyResetArea) return;
+  if (els.resetAccountCount) els.resetAccountCount.textContent = String(resetView.accountCount);
+  if (els.resetEventCount) els.resetEventCount.textContent = String(resetView.eventCount);
+  if (els.resetEarlyCount) els.resetEarlyCount.textContent = String(resetView.earlyCount);
+  els.resetAllButton?.setAttribute("aria-pressed", String(resetView.activeFilter === "all"));
+  els.resetEarlyButton?.setAttribute("aria-pressed", String(resetView.activeFilter === "early"));
+  if (els.resetAccountFilters) {
+    els.resetAccountFilters.replaceChildren(...resetView.accountOptions.map((option) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "reset-account-chip";
+      button.dataset.email = option.value;
+      button.setAttribute("aria-pressed", String(option.value === resetView.selectedEmail));
+      button.textContent = option.label;
+      return button;
+    }));
+  }
+
+  const container = els.weeklyResetList;
+  if (!container) return;
+  container.replaceChildren();
+
+  if (!resetView.groups.length) {
+    const empty = document.createElement("p");
+    empty.className = "reset-empty";
+    empty.textContent = resetView.activeFilter === "early"
+      ? "Nenhuma redefinição semanal antes do prazo registrada ainda."
+      : "Nenhuma redefinição semanal por e-mail registrada ainda.";
+    container.append(empty);
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+  for (const group of resetView.groups) {
+    const card = document.createElement("article");
+    card.className = "reset-account-card";
+
+    const top = document.createElement("div");
+    top.className = "reset-account-top";
+
+    const title = document.createElement("div");
+    const name = document.createElement("strong");
+    name.textContent = group.displayName;
+    const email = document.createElement("span");
+    email.textContent = group.email;
+    title.append(name, email);
+
+    const count = document.createElement("span");
+    count.className = "reset-count-pill";
+    count.textContent = `${group.events.length} reset${group.events.length === 1 ? "" : "s"}`;
+    top.append(title, count);
+
+    const events = document.createElement("div");
+    events.className = "reset-events";
+    for (const event of group.events) {
+      const row = document.createElement("div");
+      row.className = "reset-event-row";
+
+      const main = document.createElement("div");
+      main.className = "reset-event-main";
+      const reset = document.createElement("strong");
+      reset.textContent = event.transitionText;
+      const observed = document.createElement("span");
+      observed.textContent = event.seenText;
+      main.append(reset, observed);
+
+      const badge = document.createElement("span");
+      badge.className = "reset-badge";
+      badge.classList.toggle("is-early", event.isEarlyReset);
+      badge.textContent = event.isEarlyReset ? "antes do prazo" : "Normal";
+      row.append(main, badge);
+      events.append(row);
+    }
+
+    card.append(top, events);
+    fragment.append(card);
+  }
+
+  container.append(fragment);
+}
+
 function setChartButtons(els) {
   const isWeekly = activeChart === "weekly";
   els.chartTitle.textContent = isWeekly ? "Uso semanal" : "Uso da janela de 5h";
@@ -1338,6 +1687,15 @@ function setChartButtons(els) {
 }
 
 function renderDashboard(els, viewModel) {
+  const showResets = activeView === "resets";
+  document.querySelectorAll(".dashboard-only").forEach((element) => {
+    element.hidden = showResets;
+  });
+  if (els.weeklyResetArea) els.weeklyResetArea.hidden = !showResets;
+  els.resetViewButton?.setAttribute("aria-pressed", String(showResets));
+  els.resetViewButton?.setAttribute("title", showResets ? "Voltar ao painel" : "Redefinições");
+  els.resetViewButton?.setAttribute("aria-label", showResets ? "Voltar ao painel" : "Redefinições");
+
   document.documentElement.dataset.fiveHourTone = viewModel.tones.fiveHour;
   document.documentElement.dataset.weeklyTone = viewModel.tones.weekly;
   document.documentElement.dataset.usageTone = viewModel.tones.usage;
@@ -1396,6 +1754,7 @@ function renderDashboard(els, viewModel) {
   if (els.compareActualBar) els.compareActualBar.style.left = viewModel.compare.actualWidth;
   if (els.compareIdealBar) els.compareIdealBar.style.left = viewModel.compare.idealWidth;
   renderAccountsGrid(els.accountsGrid, viewModel.accounts);
+  renderWeeklyResetArea(els, viewModel.weeklyResets);
   setChartButtons(els);
   renderSparkline(els.usageSparkline, activeChart === "weekly" ? viewModel.charts.weekly : viewModel.charts.fiveHour);
 }
@@ -1501,7 +1860,73 @@ function notificationPermission() {
 }
 
 function accountNotificationKey(account) {
-  return account?.id || account?.name || "account";
+  return account?.email || account?.id || account?.name || "account";
+}
+
+function webPushSupported() {
+  return "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+}
+
+function urlBase64ToUint8Array(value) {
+  const padding = "=".repeat((4 - (value.length % 4)) % 4);
+  const base64 = (value + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const raw = atob(base64);
+  return Uint8Array.from([...raw].map((char) => char.charCodeAt(0)));
+}
+
+async function syncWebPushSubscription({ sendTest = false } = {}) {
+  if (!webPushSupported()) {
+    webPushStatus = "unsupported";
+    return false;
+  }
+
+  const registration = await navigator.serviceWorker.ready;
+  let subscription = await registration.pushManager.getSubscription();
+  const preferences = readNotificationPreferences();
+
+  if (!preferences.globalEnabled || notificationPermission() !== "granted") {
+    if (subscription) {
+      await fetch("/api/push-subscription", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subscription: subscription.toJSON() }),
+      }).catch(() => null);
+      await subscription.unsubscribe().catch(() => false);
+    }
+    webPushStatus = "disabled";
+    return false;
+  }
+
+  try {
+    const configResponse = await fetch("/api/push-config", { cache: "no-store" });
+    const config = await configResponse.json();
+    if (!configResponse.ok || !config.enabled || !config.publicKey) {
+      webPushStatus = "unavailable";
+      return false;
+    }
+    if (!subscription) {
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(config.publicKey),
+      });
+    }
+    const response = await fetch("/api/push-subscription", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        subscription: subscription.toJSON(),
+        preferences,
+        sendTest,
+      }),
+    });
+    if (!response.ok) throw new Error("Falha ao registrar subscription.");
+    webPushStatus = "active";
+    return true;
+  } catch (error) {
+    console.error("Falha ao ativar Web Push:", error);
+    webPushStatus = "error";
+    return false;
+  }
 }
 
 function isNotificationRuleEnabled(ruleId, preferences = readNotificationPreferences(), accountKey = null) {
@@ -1589,16 +2014,18 @@ async function syncNotifications(usage, hasLoadError = false) {
   });
 
   for (const signal of signals) {
-    const sent = await maybeNotify(
-      signal.ruleId,
-      preferences,
-      signal.accountKey,
-      signal.title,
-      signal.body,
-      signal.tag,
-      nextState,
-      { type: signal.type },
-    );
+    const sent = webPushStatus === "active"
+      ? true
+      : await maybeNotify(
+        signal.ruleId,
+        preferences,
+        signal.accountKey,
+        signal.title,
+        signal.body,
+        signal.tag,
+        nextState,
+        { type: signal.type },
+      );
     if (sent) markNotificationSignalSent(nextState, signal);
   }
 
@@ -1659,6 +2086,7 @@ function updateNotificationPreference(mutator) {
   mutator(preferences);
   writeNotificationPreferences(preferences);
   updateNotificationButton(document.getElementById("notificationButton"));
+  void syncWebPushSubscription();
 }
 
 function setNotificationView(els, view) {
@@ -1784,7 +2212,11 @@ function renderNotificationPanel(els, usage) {
   const permissionText = {
     unsupported: "Este navegador não suporta notificações.",
     denied: "Bloqueadas pelo navegador. Libere nas configurações para receber alertas.",
-    granted: preferences.globalEnabled ? "Ativas e prontas para alertar por conta." : "Permissão concedida; alertas gerais desligados.",
+    granted: preferences.globalEnabled
+      ? webPushStatus === "active"
+        ? "Ativas em background, inclusive com o app fechado."
+        : "Permissão concedida; preparando notificações em background."
+      : "Permissão concedida; alertas gerais desligados.",
     default: "Permissão pendente. Ative para liberar os alertas.",
   }[permission] || "Permissão pendente. Ative para liberar os alertas.";
 
@@ -1823,7 +2255,9 @@ function bindEvents(els, usage, render) {
   els.hideExhaustedButton?.addEventListener("click", () => {
     hideExhaustedAccounts = !hideExhaustedAccounts;
     els.hideExhaustedButton.setAttribute("aria-pressed", String(hideExhaustedAccounts));
-    els.hideExhaustedButton.textContent = hideExhaustedAccounts ? "Mostrar esgotadas" : "Ocultar esgotadas";
+    els.hideExhaustedButton.textContent = hideExhaustedAccounts
+      ? "Mostrar semanais esgotadas"
+      : "Ocultar semanais esgotadas";
     triggerHaptic(8);
     render();
   });
@@ -1836,41 +2270,71 @@ function bindEvents(els, usage, render) {
     render();
   });
 
+  els.resetViewButton?.addEventListener("click", () => {
+    activeView = activeView === "resets" ? "dashboard" : "resets";
+    triggerHaptic(10);
+    render();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  els.resetAllButton?.addEventListener("click", () => {
+    resetEventFilter = "all";
+    triggerHaptic(8);
+    render();
+  });
+
+  els.resetEarlyButton?.addEventListener("click", () => {
+    resetEventFilter = "early";
+    triggerHaptic(8);
+    render();
+  });
+
+  els.resetAccountFilters?.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-email]");
+    if (!button) return;
+    selectedResetEmail = String(button.dataset.email || "all");
+    triggerHaptic(8);
+    render();
+  });
+
   els.themeColorInput?.addEventListener("input", (event) => {
     const value = event?.target?.value;
     if (typeof value === "string") setThemeColor(value);
   });
 
   els.notificationPermissionButton?.addEventListener("click", () => {
-    triggerHaptic(10);
-    const permission = notificationPermission();
-    if (permission === "unsupported") {
-      renderNotificationPanel(els, usage);
-      return;
-    }
-    if (permission === "denied") {
-      renderNotificationPanel(els, usage);
-      return;
-    }
-    if (permission === "granted") {
-      const preferences = readNotificationPreferences();
-      preferences.globalEnabled = !preferences.globalEnabled;
-      writeNotificationPreferences(preferences);
-      updateNotificationButton(els.notificationButton);
-      renderNotificationPanel(els, usage);
-      if (preferences.globalEnabled) void syncNotifications(usage);
-      return;
-    }
-    Notification.requestPermission().then((permission) => {
-      const preferences = readNotificationPreferences();
-      preferences.globalEnabled = permission === "granted";
-      writeNotificationPreferences(preferences);
-      updateNotificationButton(els.notificationButton);
-      renderNotificationPanel(els, usage);
+    void (async () => {
+      triggerHaptic(10);
+      const permission = notificationPermission();
+      if (permission === "unsupported") {
+        renderNotificationPanel(els, usage);
+        return;
+      }
+      if (permission === "denied") {
+        renderNotificationPanel(els, usage);
+        return;
+      }
       if (permission === "granted") {
+        const preferences = readNotificationPreferences();
+        preferences.globalEnabled = !preferences.globalEnabled;
+        writeNotificationPreferences(preferences);
+        updateNotificationButton(els.notificationButton);
+        await syncWebPushSubscription({ sendTest: preferences.globalEnabled });
+        renderNotificationPanel(els, usage);
+        if (preferences.globalEnabled) void syncNotifications(usage);
+        return;
+      }
+      const nextPermission = await Notification.requestPermission();
+      const preferences = readNotificationPreferences();
+      preferences.globalEnabled = nextPermission === "granted";
+      writeNotificationPreferences(preferences);
+      updateNotificationButton(els.notificationButton);
+      if (nextPermission === "granted") {
+        await syncWebPushSubscription({ sendTest: true });
         void syncNotifications(usage);
       }
-    });
+      renderNotificationPanel(els, usage);
+    })();
   });
 
   els.notificationViewAllButton?.addEventListener("click", () => {
@@ -1919,6 +2383,8 @@ async function init() {
   if (!hasLoadError) saveLastValidPayload(usage);
   updateNotificationButton(els.notificationButton);
   bindEvents(els, usage, render);
+  await syncWebPushSubscription();
+  renderNotificationPanel(els, usage);
   void syncNotifications(usage, hasLoadError);
   setInterval(render, 1000);
   setInterval(() => void syncNotifications(usage, hasLoadError), 5 * 60 * 1000);

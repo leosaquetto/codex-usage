@@ -36,7 +36,7 @@
         font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
       }
     </style>
-    <link rel="stylesheet" href="./style.css?v=repo_closure_5" />
+    <link rel="stylesheet" href="./style.css?v=weekly_push_v3" />
   </head>
 
   <body class="is-loading">
@@ -93,6 +93,16 @@
               </div>
             </div>
           </details>
+          <button type="button" id="resetViewButton" class="icon-button" title="Redefinições" aria-label="Redefinições" aria-pressed="false">
+            <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8 2v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              <path d="M16 2v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              <rect x="4" y="5" width="16" height="17" rx="3" fill="none" stroke="currentColor" stroke-width="2" />
+              <path d="M4 10h16" fill="none" stroke="currentColor" stroke-width="2" />
+              <path d="M9 15h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              <path d="m13 13 2 2-2 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
           <button type="button" id="refreshButton" class="icon-button" title="Recarregar página" aria-label="Recarregar">
             <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M20 12a8 8 0 1 1-2.34-5.66" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
@@ -102,7 +112,7 @@
         </div>
       </header>
 
-      <section class="status-panel" aria-label="Status geral">
+      <section class="status-panel dashboard-only" aria-label="Status geral">
         <div class="status-copy">
           <span id="statusDot" class="status-dot"></span>
           <svg class="metric-icon status-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -129,7 +139,38 @@
         </div>
       </section>
 
-      <div class="pool-rhythm-grid">
+      <section id="weeklyResetArea" class="reset-area" aria-label="Redefinições semanais" hidden>
+        <div class="reset-area-head">
+          <div>
+            <p class="section-kicker">Redefinições</p>
+            <h2>Redefinição semanal por conta</h2>
+          </div>
+        </div>
+        <div class="reset-summary-grid" aria-label="Resumo das redefinições">
+          <div class="reset-summary-item">
+            <span>Contas</span>
+            <strong id="resetAccountCount">--</strong>
+          </div>
+          <div class="reset-summary-item">
+            <span>Redefinições</span>
+            <strong id="resetEventCount">--</strong>
+          </div>
+          <div class="reset-summary-item">
+            <span>Antes do prazo</span>
+            <strong id="resetEarlyCount">--</strong>
+          </div>
+        </div>
+        <div class="reset-controls" aria-label="Filtros das redefinições">
+          <div id="resetAccountFilters" class="reset-account-filters" role="tablist" aria-label="Filtrar por conta"></div>
+          <div class="reset-actions" role="tablist" aria-label="Filtrar por tipo">
+            <button type="button" id="resetAllButton" class="notification-tab" aria-pressed="true">Todas</button>
+            <button type="button" id="resetEarlyButton" class="notification-tab" aria-pressed="false">Antecipadas</button>
+          </div>
+        </div>
+        <div id="weeklyResetList" class="reset-list"></div>
+      </section>
+
+      <div class="pool-rhythm-grid dashboard-only">
         <section class="pool-panel" aria-label="Disponibilidade semanal total">
           <div class="pool-panel-top">
             <div>
@@ -149,14 +190,14 @@
             <path d="m9 12 2 2 4-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
           <div>
-            <p class="section-kicker">Ritmo por janela</p>
+            <p class="section-kicker">Saldo antes do reset</p>
             <h2 id="usageSuggestion">Aguardando</h2>
             <p id="usageSuggestionMeta">A tela calcula ritmo e saldo assim que carregar.</p>
           </div>
         </section>
       </div>
 
-      <section id="activeAccountPanel" class="active-account-panel" aria-label="Conta em uso" data-state="empty">
+      <section id="activeAccountPanel" class="active-account-panel dashboard-only" aria-label="Conta em uso" data-state="empty">
         <div class="active-account-head">
           <div class="active-account-title">
             <p class="section-kicker">Conta em uso</p>
@@ -166,7 +207,7 @@
           <span id="activeAccountBadge" class="active-account-badge">--</span>
         </div>
         <div class="active-account-bars" aria-label="Uso da conta em foco">
-          <div class="active-usage-row" data-limit="fiveHour">
+          <div id="activeFiveHourRow" class="active-usage-row" data-limit="fiveHour">
             <div class="active-usage-line">
               <span>5h</span>
               <strong id="activeFiveHourText">--</strong>
@@ -178,7 +219,7 @@
           </div>
           <div class="active-usage-row" data-limit="weekly">
             <div class="active-usage-line">
-              <span>Semanal</span>
+              <span id="activeWeeklyLabel">Semanal</span>
               <strong id="activeWeeklyText">--</strong>
             </div>
             <div class="active-progress-track" role="progressbar" aria-label="Saldo semanal da conta em uso" aria-valuemin="0" aria-valuemax="100">
@@ -189,17 +230,17 @@
         </div>
       </section>
 
-      <section class="accounts-panel" aria-label="Contas do Codex">
+      <section class="accounts-panel dashboard-only" aria-label="Contas do Codex">
         <div class="section-header">
           <div>
             <p class="section-kicker">Contas</p>
             <h2>Visão geral</h2>
-            <p class="account-method">Primeiro card: melhor combinação de 5h, semanal e renovação.</p>
+            <p class="account-method">Primeiro card: melhor saldo semanal para aproveitar antes da renovação.</p>
           </div>
           <details class="accounts-filter-box">
             <summary>Filtros</summary>
             <div class="accounts-header-side">
-              <button type="button" id="hideExhaustedButton" class="toggle-button" aria-pressed="false">Ocultar esgotadas</button>
+              <button type="button" id="hideExhaustedButton" class="toggle-button" aria-pressed="false">Ocultar semanais esgotadas</button>
               <button type="button" id="hideFreeGoButton" class="toggle-button" aria-pressed="false">Ocultar FREE/GO</button>
               <label class="sort-control" for="accountSortSelect">
                 <span>Ordenar</span>
@@ -217,7 +258,7 @@
         <div id="accountsGrid" class="accounts-grid"></div>
       </section>
 
-      <details class="indicators-drawer">
+      <details class="indicators-drawer dashboard-only">
         <summary>
           <span>Resumo agregado do pool</span>
           <strong>Média 5h/semanal</strong>
@@ -313,7 +354,7 @@
         </section>
       </details>
 
-      <section class="compare-card" aria-label="Comparativo de ritmo semanal">
+      <section class="compare-card dashboard-only" aria-label="Comparativo de ritmo semanal">
         <div class="compare-header">
           <div>
             <p class="section-kicker">Faixa de uso</p>
@@ -355,7 +396,7 @@
         </div>
       </section>
 
-      <section class="charts-grid" aria-label="Gráficos de uso">
+      <section class="charts-grid dashboard-only" aria-label="Gráficos de uso">
         <article class="chart-card">
           <div class="chart-card-header">
             <div>
@@ -372,6 +413,6 @@
       </section>
     </main>
 
-    <script src="./app.js?v=repo_closure_5" defer></script>
+    <script src="./app.js?v=weekly_push_v3" defer></script>
   </body>
 </html>

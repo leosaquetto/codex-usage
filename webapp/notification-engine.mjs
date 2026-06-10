@@ -32,7 +32,18 @@ function isCoolingDown(previousAt, cooldownMs, nowMs) {
 }
 
 function accountKey(account) {
-  return account?.id || account?.name || null;
+  return account?.email || account?.id || account?.name || null;
+}
+
+function isThirtyDayAccount(account) {
+  const plan = String(account?.planType || "").trim().toUpperCase();
+  const weeklyWindowMinutes = Number(account?.weeklyWindowMinutes);
+  const fiveHourWindowMinutes = Number(account?.fiveHourWindowMinutes);
+  const longWindowMinutes = 20 * 24 * 60;
+  return plan === "FREE"
+    || plan === "GO"
+    || (Number.isFinite(weeklyWindowMinutes) && weeklyWindowMinutes >= longWindowMinutes)
+    || (Number.isFinite(fiveHourWindowMinutes) && fiveHourWindowMinutes >= longWindowMinutes);
 }
 
 function percentText(value) {
@@ -116,8 +127,9 @@ function evaluateNotificationSignals({
     const resetPatternChanged = Boolean(previousResetPattern && currentResetPattern && previousResetPattern !== currentResetPattern);
     const resetChanged = Boolean(previousReset && currentReset && previousReset !== currentReset);
     const displayName = account.name || "Conta";
+    const thirtyDayAccount = isThirtyDayAccount(account);
 
-    if (!firstSeen && resetPatternChanged) {
+    if (!thirtyDayAccount && !firstSeen && resetPatternChanged) {
       signals.push(buildSignal(
         "weeklyResetShift",
         account,
@@ -125,7 +137,7 @@ function evaluateNotificationSignals({
         `${displayName}: novo reset em ${formatDateTimePtBr(currentReset)}.`,
         `weekly-reset-shift-${key}-${currentReset || "unknown"}`,
       ));
-    } else if (!firstSeen && (refilled || (resetChanged && currentPercent !== null && currentPercent >= 95))) {
+    } else if (!thirtyDayAccount && !firstSeen && (refilled || (resetChanged && currentPercent !== null && currentPercent >= 95))) {
       signals.push(buildSignal(
         "weeklyRefill",
         account,
@@ -136,7 +148,8 @@ function evaluateNotificationSignals({
     }
 
     if (
-      !firstSeen
+      !thirtyDayAccount
+      && !firstSeen
       && currentPercent !== null
       && currentPercent <= 20
       && previousPercent !== null
@@ -154,7 +167,8 @@ function evaluateNotificationSignals({
     }
 
     if (
-      !firstSeen
+      !thirtyDayAccount
+      && !firstSeen
       && currentFiveHourPercent !== null
       && currentFiveHourPercent <= 15
       && previousFiveHourPercent !== null

@@ -7,10 +7,10 @@ Dashboard local/PWA para acompanhar limites de 5 horas e semanal de várias cont
 - `scripts/update-codex-usage-from-switcher.mjs`: lê as contas locais do Switcher, consulta uso e gera os snapshots públicos.
 - `scripts/run-usage-data-update.mjs`: executa atualizações em um worktree dedicado à branch `usage-data`.
 - `webapp/api/usage.js`: lê a branch `usage-data` em produção e arquivos locais no servidor de desenvolvimento.
-- `webapp/`: dashboard PWA, faixa de conta em uso, visão geral, filtros, gráficos e notificações granulares.
+- `webapp/`: dashboard PWA, faixa de conta em uso, visão geral, redefinições por e-mail, filtros, gráficos e Web Push.
 - `scriptable/`: widgets iOS que leem diretamente a branch `usage-data`.
 
-Os snapshots automáticos ficam na branch `usage-data`. A branch `main` contém código e pode manter cópias antigas dos JSONs por design.
+Os snapshots automáticos ficam na branch `usage-data`. A branch `main` contém código e pode manter cópias antigas dos JSONs por design. Para dados vivos, considere corretos apenas `codex_usage.json`, `codex_usage_history.json` e `usage_summary.json` da branch `usage-data`.
 
 ## Executar localmente
 
@@ -21,7 +21,7 @@ npm run dev
 
 Abra `http://127.0.0.1:8080/`.
 
-O servidor local usa os JSONs da raiz. Para conferir a saúde da fonte publicada e dos LaunchAgents:
+Por padrão, o servidor local lê a mesma branch `usage-data` usada em produção. Para forçar os JSONs da raiz em uma investigação local, execute com `CODEX_USAGE_USE_LOCAL_FILES=1`; esse modo é apenas investigativo e não representa a fonte correta do dashboard/celular. Para conferir a saúde da fonte publicada e dos LaunchAgents:
 
 ```bash
 npm run audit:automation
@@ -52,9 +52,25 @@ O Antigravity só atualiza quando o aplicativo está aberto, o LaunchAgent está
 
 - A faixa **Conta em uso** prioriza a conta ativa do Switcher e, como fallback, a última usada na última hora.
 - Agregados e ritmo semanal consideram somente contas pagas; FREE/GO continuam visíveis e filtráveis.
+- FREE/GO com janela de 30 dias aparecem como `30d` e não entram em redefinições semanais.
+- O histórico de redefinições usa o e-mail normalizado como identidade, mesmo quando a conta é removida e reinserida.
 - Dados com mais de uma hora são marcados como atrasados.
 - Notificações podem ser ativadas globalmente, por tipo e por conta.
 - Alertas disponíveis: mudança do padrão de reset semanal, refill semanal, semanal baixo, dados atrasados/falha e 5h baixo opcional.
+
+## Web Push em background
+
+O app instalado registra uma subscription Web Push em `/api/push-subscription`. As subscriptions e o estado de deduplicação ficam em um Vercel Blob privado. Depois de cada atualização do Switcher, `scripts/run-usage-data-update.mjs` chama `/api/push-dispatch`, que avalia as mesmas regras do navegador e envia alertas mesmo com o PWA fechado.
+
+Variáveis obrigatórias na Vercel:
+
+- `VAPID_PUBLIC_KEY`
+- `VAPID_PRIVATE_KEY`
+- `VAPID_SUBJECT`
+- `PUSH_DISPATCH_SECRET`
+- `BLOB_READ_WRITE_TOKEN`
+
+O segredo de dispatch local fica somente em `.local/push-dispatch.env`, que é ignorado pelo Git. No iOS, abra o app instalado ao menos uma vez após o deploy e toque em **Permitir** nas notificações para criar a subscription do aparelho.
 
 Em localhost, os cenários de permissão podem ser validados sem alterar a permissão real:
 

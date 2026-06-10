@@ -1,17 +1,17 @@
 {
   "source": "codex-switcher",
-  "lastUpdated": "2026-06-10T19:33:06.215Z",
+  "lastUpdated": "2026-06-10T19:48:26.120Z",
   "accountCount": 4,
   "okCount": 4,
-  "activeAccountId": "be5c4686-c38c-4cac-9296-5cd93d2f1274",
+  "activeAccountId": "86ff9d21-01ce-4b7a-bf96-682cd0b2cb5b",
   "aggregate": {
-    "fiveHourPercent": 70,
+    "fiveHourPercent": 66,
     "fiveHourReset": "2026-06-10T23:03:39.000Z",
     "weeklyPercent": 8,
     "weeklyReset": "2026-06-11T00:44:44.000Z",
-    "lastUpdated": "2026-06-10T19:33:06.215Z"
+    "lastUpdated": "2026-06-10T19:48:26.120Z"
   },
-  "fiveHourPercent": 70,
+  "fiveHourPercent": 66,
   "fiveHourReset": "2026-06-10T23:03:39.000Z",
   "weeklyPercent": 8,
   "weeklyReset": "2026-06-11T00:44:44.000Z",
@@ -24,14 +24,14 @@
       "email": "contatonatanaelrodrigs@gmail.com",
       "planType": "plus",
       "subscriptionExpiresAt": "2026-06-26T20:28:52.000Z",
-      "isActive": true,
+      "isActive": false,
       "lastUsedAt": "2026-06-10T19:18:17.756Z",
-      "fiveHourPercent": 80,
-      "fiveHourUsedPercent": 20,
+      "fiveHourPercent": 65,
+      "fiveHourUsedPercent": 35,
       "fiveHourReset": "2026-06-10T23:12:47.000Z",
       "fiveHourWindowMinutes": 300,
-      "weeklyPercent": 16,
-      "weeklyUsedPercent": 84,
+      "weeklyPercent": 14,
+      "weeklyUsedPercent": 86,
       "weeklyReset": "2026-06-11T08:15:36.000Z",
       "weeklyWindowMinutes": 10080,
       "credits": {
@@ -39,7 +39,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-10T19:33:06.215Z",
+      "lastUpdated": "2026-06-10T19:48:26.120Z",
       "status": "ok",
       "error": null
     },
@@ -66,7 +66,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-10T19:33:06.215Z",
+      "lastUpdated": "2026-06-10T19:48:26.120Z",
       "status": "ok",
       "error": null
     },
@@ -93,7 +93,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-10T19:33:06.215Z",
+      "lastUpdated": "2026-06-10T19:48:26.120Z",
       "status": "ok",
       "error": null
     },
@@ -109,7 +109,7 @@
       "lastUsedAt": "2026-06-10T09:15:14.444Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-11T00:33:06.000Z",
+      "fiveHourReset": "2026-06-11T00:48:26.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 0,
       "weeklyUsedPercent": 100,
@@ -120,7 +120,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-10T19:33:06.215Z",
+      "lastUpdated": "2026-06-10T19:48:26.120Z",
       "status": "ok",
       "error": null
     },
@@ -136,7 +136,7 @@
       "lastUsedAt": "2026-06-09T22:38:46.092Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-11T00:33:07.000Z",
+      "fiveHourReset": "2026-06-11T00:48:26.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 0,
       "weeklyUsedPercent": 100,
@@ -147,7 +147,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-10T19:33:06.215Z",
+      "lastUpdated": "2026-06-10T19:48:26.120Z",
       "status": "ok",
       "error": null
     },
@@ -174,7 +174,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-10T19:33:06.215Z",
+      "lastUpdated": "2026-06-10T19:48:26.120Z",
       "status": "ok",
       "error": null
     },
@@ -201,7 +201,34 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-10T19:33:06.215Z",
+      "lastUpdated": "2026-06-10T19:48:26.120Z",
+      "status": "ok",
+      "error": null
+    },
+    {
+      "id": "86ff9d21-01ce-4b7a-bf96-682cd0b2cb5b",
+      "chatgptAccountId": "11be5358-c27b-4441-a6fc-33e702ea1b40",
+      "name": "Diego",
+      "displayName": "DIEGO",
+      "email": "diegoacaki14@icloud.com",
+      "planType": "go",
+      "subscriptionExpiresAt": "2026-06-17T23:52:23.000Z",
+      "isActive": true,
+      "lastUsedAt": "2026-06-10T19:40:23.478Z",
+      "fiveHourPercent": null,
+      "fiveHourUsedPercent": null,
+      "fiveHourReset": null,
+      "fiveHourWindowMinutes": null,
+      "weeklyPercent": 95,
+      "weeklyUsedPercent": 5,
+      "weeklyReset": "2026-07-10T19:48:26.000Z",
+      "weeklyWindowMinutes": 43200,
+      "credits": {
+        "hasCredits": false,
+        "unlimited": false,
+        "balance": null
+      },
+      "lastUpdated": "2026-06-10T19:48:26.120Z",
       "status": "ok",
       "error": null
     }

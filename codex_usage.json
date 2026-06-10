@@ -1,19 +1,19 @@
 {
   "source": "codex-switcher",
-  "lastUpdated": "2026-06-10T04:45:52.485Z",
+  "lastUpdated": "2026-06-10T05:02:45.556Z",
   "accountCount": 4,
   "okCount": 4,
-  "activeAccountId": "ff074ec6-e0c1-48d0-b775-228d50133444",
+  "activeAccountId": "be5c4686-c38c-4cac-9296-5cd93d2f1274",
   "aggregate": {
-    "fiveHourPercent": 74,
+    "fiveHourPercent": 70,
     "fiveHourReset": "2026-06-10T07:40:01.000Z",
-    "weeklyPercent": 28,
+    "weeklyPercent": 27,
     "weeklyReset": "2026-06-11T00:44:44.000Z",
-    "lastUpdated": "2026-06-10T04:45:52.485Z"
+    "lastUpdated": "2026-06-10T05:02:45.556Z"
   },
-  "fiveHourPercent": 74,
+  "fiveHourPercent": 70,
   "fiveHourReset": "2026-06-10T07:40:01.000Z",
-  "weeklyPercent": 28,
+  "weeklyPercent": 27,
   "weeklyReset": "2026-06-11T00:44:44.000Z",
   "accounts": [
     {
@@ -24,14 +24,14 @@
       "email": "contatonatanaelrodrigs@gmail.com",
       "planType": "plus",
       "subscriptionExpiresAt": "2026-06-26T20:28:52.000Z",
-      "isActive": false,
-      "lastUsedAt": "2026-06-09T20:40:00.006Z",
-      "fiveHourPercent": 99,
-      "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-10T09:45:55.000Z",
+      "isActive": true,
+      "lastUsedAt": "2026-06-10T04:49:12.803Z",
+      "fiveHourPercent": 82,
+      "fiveHourUsedPercent": 18,
+      "fiveHourReset": "2026-06-10T09:53:21.000Z",
       "fiveHourWindowMinutes": 300,
-      "weeklyPercent": 60,
-      "weeklyUsedPercent": 40,
+      "weeklyPercent": 58,
+      "weeklyUsedPercent": 42,
       "weeklyReset": "2026-06-11T08:15:36.000Z",
       "weeklyWindowMinutes": 10080,
       "credits": {
@@ -39,7 +39,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-10T04:45:52.485Z",
+      "lastUpdated": "2026-06-10T05:02:45.556Z",
       "status": "ok",
       "error": null
     },
@@ -66,7 +66,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-10T04:45:52.485Z",
+      "lastUpdated": "2026-06-10T05:02:45.556Z",
       "status": "ok",
       "error": null
     },
@@ -93,7 +93,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-10T04:45:52.485Z",
+      "lastUpdated": "2026-06-10T05:02:45.556Z",
       "status": "ok",
       "error": null
     },
@@ -109,7 +109,7 @@
       "lastUsedAt": "2026-06-09T19:00:20.729Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-10T09:45:55.000Z",
+      "fiveHourReset": "2026-06-10T10:02:56.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 0,
       "weeklyUsedPercent": 100,
@@ -120,7 +120,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-10T04:45:52.485Z",
+      "lastUpdated": "2026-06-10T05:02:45.556Z",
       "status": "ok",
       "error": null
     },
@@ -136,7 +136,7 @@
       "lastUsedAt": "2026-06-09T22:38:46.092Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-10T09:45:55.000Z",
+      "fiveHourReset": "2026-06-10T10:02:58.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 0,
       "weeklyUsedPercent": 100,
@@ -147,7 +147,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-10T04:45:52.485Z",
+      "lastUpdated": "2026-06-10T05:02:45.556Z",
       "status": "ok",
       "error": null
     },
@@ -159,7 +159,7 @@
       "email": "arturruffles@outlook.com",
       "planType": "free",
       "subscriptionExpiresAt": null,
-      "isActive": true,
+      "isActive": false,
       "lastUsedAt": "2026-06-10T04:40:26.911Z",
       "fiveHourPercent": null,
       "fiveHourUsedPercent": null,
@@ -174,7 +174,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-10T04:45:52.485Z",
+      "lastUpdated": "2026-06-10T05:02:45.556Z",
       "status": "ok",
       "error": null
     }

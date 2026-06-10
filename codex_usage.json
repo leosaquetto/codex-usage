@@ -1,18 +1,18 @@
 {
   "source": "codex-switcher",
-  "lastUpdated": "2026-06-10T12:40:21.301Z",
+  "lastUpdated": "2026-06-10T12:55:37.060Z",
   "accountCount": 4,
   "okCount": 4,
   "activeAccountId": "e3dfd2ec-ae20-49a1-be64-2bb72982c3fa",
   "aggregate": {
-    "fiveHourPercent": 74,
-    "fiveHourReset": "2026-06-10T12:45:27.000Z",
+    "fiveHourPercent": 99,
+    "fiveHourReset": "2026-06-10T17:55:37.000Z",
     "weeklyPercent": 13,
     "weeklyReset": "2026-06-11T00:44:44.000Z",
-    "lastUpdated": "2026-06-10T12:40:21.301Z"
+    "lastUpdated": "2026-06-10T12:55:37.060Z"
   },
-  "fiveHourPercent": 74,
-  "fiveHourReset": "2026-06-10T12:45:27.000Z",
+  "fiveHourPercent": 99,
+  "fiveHourReset": "2026-06-10T17:55:37.000Z",
   "weeklyPercent": 13,
   "weeklyReset": "2026-06-11T00:44:44.000Z",
   "accounts": [
@@ -28,18 +28,18 @@
       "lastUsedAt": "2026-06-10T04:49:12.803Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-10T17:40:24.000Z",
+      "fiveHourReset": "2026-06-10T17:55:38.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 19,
       "weeklyUsedPercent": 81,
-      "weeklyReset": "2026-06-11T08:15:38.000Z",
+      "weeklyReset": "2026-06-11T08:15:36.000Z",
       "weeklyWindowMinutes": 10080,
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-10T12:40:21.301Z",
+      "lastUpdated": "2026-06-10T12:55:37.060Z",
       "status": "ok",
       "error": null
     },
@@ -66,7 +66,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-10T12:40:21.301Z",
+      "lastUpdated": "2026-06-10T12:55:37.060Z",
       "status": "ok",
       "error": null
     },
@@ -80,9 +80,9 @@
       "subscriptionExpiresAt": "2026-06-22T14:22:14.000Z",
       "isActive": false,
       "lastUsedAt": "2026-06-10T07:25:28.593Z",
-      "fiveHourPercent": 0,
-      "fiveHourUsedPercent": 100,
-      "fiveHourReset": "2026-06-10T12:45:27.000Z",
+      "fiveHourPercent": 99,
+      "fiveHourUsedPercent": 1,
+      "fiveHourReset": "2026-06-10T17:55:37.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 34,
       "weeklyUsedPercent": 66,
@@ -93,7 +93,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-10T12:40:21.301Z",
+      "lastUpdated": "2026-06-10T12:55:37.060Z",
       "status": "ok",
       "error": null
     },
@@ -109,7 +109,7 @@
       "lastUsedAt": "2026-06-10T09:15:14.444Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-10T17:40:22.000Z",
+      "fiveHourReset": "2026-06-10T17:55:37.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 0,
       "weeklyUsedPercent": 100,
@@ -120,7 +120,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-10T12:40:21.301Z",
+      "lastUpdated": "2026-06-10T12:55:37.060Z",
       "status": "ok",
       "error": null
     },
@@ -136,7 +136,7 @@
       "lastUsedAt": "2026-06-09T22:38:46.092Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-10T17:40:22.000Z",
+      "fiveHourReset": "2026-06-10T17:55:37.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 0,
       "weeklyUsedPercent": 100,
@@ -147,7 +147,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-10T12:40:21.301Z",
+      "lastUpdated": "2026-06-10T12:55:37.060Z",
       "status": "ok",
       "error": null
     },
@@ -174,7 +174,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-10T12:40:21.301Z",
+      "lastUpdated": "2026-06-10T12:55:37.060Z",
       "status": "ok",
       "error": null
     },
@@ -201,7 +201,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-10T12:40:21.301Z",
+      "lastUpdated": "2026-06-10T12:55:37.060Z",
       "status": "ok",
       "error": null
     }

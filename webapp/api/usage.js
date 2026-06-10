@@ -21,6 +21,12 @@ function toPercent(value) {
   return Math.max(0, Math.min(100, Math.round(n)))
 }
 
+function optionalNumber(value) {
+  if (value === null || value === undefined || value === "") return null
+  const number = Number(value)
+  return Number.isFinite(number) ? number : null
+}
+
 function toDate(value) {
   if (!value) return null
   const d = new Date(value)
@@ -212,13 +218,15 @@ function normalizeAccounts(rawAccounts) {
   if (!Array.isArray(rawAccounts)) return []
 
   return rawAccounts.map((account) => {
-    const fiveHourWindowMinutes = Number.isFinite(Number(account?.fiveHourWindowMinutes))
-      ? Number(account.fiveHourWindowMinutes)
-      : null
-    const weeklyWindowMinutes = Number.isFinite(Number(account?.weeklyWindowMinutes))
-      ? Number(account.weeklyWindowMinutes)
-      : null
-    const longWindowOnly = fiveHourWindowMinutes >= LONG_WINDOW_MINUTES
+    const fiveHourWindowMinutes = optionalNumber(account?.fiveHourWindowMinutes)
+    const weeklyWindowMinutes = optionalNumber(account?.weeklyWindowMinutes)
+    const fiveHourPercent = optionalNumber(account?.fiveHourPercent)
+    const fiveHourUsedPercent = optionalNumber(account?.fiveHourUsedPercent)
+    const weeklyPercent = optionalNumber(account?.weeklyPercent)
+    const weeklyUsedPercent = optionalNumber(account?.weeklyUsedPercent)
+    const longWindowOnly = isFreeGoAccount(account)
+      || fiveHourWindowMinutes >= LONG_WINDOW_MINUTES
+      || weeklyWindowMinutes >= LONG_WINDOW_MINUTES
 
     return {
       id: String(account?.id || ""),
@@ -229,16 +237,12 @@ function normalizeAccounts(rawAccounts) {
       subscriptionExpiresAt: toDate(account?.subscriptionExpiresAt || account?.subscription_expires_at)?.toISOString() || null,
       isActive: Boolean(account?.isActive),
       lastUsedAt: toDate(account?.lastUsedAt || account?.last_used_at)?.toISOString() || null,
-      fiveHourPercent: longWindowOnly || !Number.isFinite(Number(account?.fiveHourPercent))
-        ? null
-        : toPercent(account.fiveHourPercent),
-      fiveHourUsedPercent: longWindowOnly || !Number.isFinite(Number(account?.fiveHourUsedPercent))
-        ? null
-        : toPercent(account.fiveHourUsedPercent),
+      fiveHourPercent: longWindowOnly || fiveHourPercent === null ? null : toPercent(fiveHourPercent),
+      fiveHourUsedPercent: longWindowOnly || fiveHourUsedPercent === null ? null : toPercent(fiveHourUsedPercent),
       fiveHourReset: longWindowOnly ? null : toDate(account?.fiveHourReset)?.toISOString() || null,
       fiveHourWindowMinutes: longWindowOnly ? null : fiveHourWindowMinutes,
-      weeklyPercent: Number.isFinite(Number(account?.weeklyPercent)) ? toPercent(account.weeklyPercent) : null,
-      weeklyUsedPercent: Number.isFinite(Number(account?.weeklyUsedPercent)) ? toPercent(account.weeklyUsedPercent) : null,
+      weeklyPercent: weeklyPercent === null ? null : toPercent(weeklyPercent),
+      weeklyUsedPercent: weeklyUsedPercent === null ? null : toPercent(weeklyUsedPercent),
       weeklyReset: toDate(account?.weeklyReset)?.toISOString() || null,
       weeklyWindowMinutes,
       lastUpdated: toDate(account?.lastUpdated)?.toISOString() || null,

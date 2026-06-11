@@ -1,15 +1,15 @@
 {
   "source": "codex-switcher",
-  "lastUpdated": "2026-06-11T08:54:58.327Z",
+  "lastUpdated": "2026-06-11T09:08:02.377Z",
   "accountCount": 5,
   "okCount": 5,
-  "activeAccountId": "e3dfd2ec-ae20-49a1-be64-2bb72982c3fa",
+  "activeAccountId": "0a8a561a-4d88-445b-9e97-8df479d9b601",
   "aggregate": {
     "fiveHourPercent": 59,
     "fiveHourReset": "2026-06-11T10:19:22.000Z",
     "weeklyPercent": 83,
     "weeklyReset": "2026-06-17T20:04:02.000Z",
-    "lastUpdated": "2026-06-11T08:54:58.327Z"
+    "lastUpdated": "2026-06-11T09:08:02.377Z"
   },
   "fiveHourPercent": 59,
   "fiveHourReset": "2026-06-11T10:19:22.000Z",
@@ -39,7 +39,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-11T08:54:58.327Z",
+      "lastUpdated": "2026-06-11T09:08:02.377Z",
       "status": "ok",
       "error": null
     },
@@ -66,7 +66,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-11T08:54:58.327Z",
+      "lastUpdated": "2026-06-11T09:08:02.377Z",
       "status": "ok",
       "error": null
     },
@@ -93,7 +93,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-11T08:54:58.327Z",
+      "lastUpdated": "2026-06-11T09:08:02.377Z",
       "status": "ok",
       "error": null
     },
@@ -105,7 +105,7 @@
       "email": "jv5pdcwnxp@privaterelay.appleid.com",
       "planType": "plus",
       "subscriptionExpiresAt": "2026-06-18T18:58:46.000Z",
-      "isActive": true,
+      "isActive": false,
       "lastUsedAt": "2026-06-11T07:43:37.264Z",
       "fiveHourPercent": 0,
       "fiveHourUsedPercent": 100,
@@ -120,7 +120,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-11T08:54:58.327Z",
+      "lastUpdated": "2026-06-11T09:08:02.377Z",
       "status": "ok",
       "error": null
     },
@@ -147,7 +147,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-11T08:54:58.327Z",
+      "lastUpdated": "2026-06-11T09:08:02.377Z",
       "status": "ok",
       "error": null
     },
@@ -174,7 +174,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-11T08:54:58.327Z",
+      "lastUpdated": "2026-06-11T09:08:02.377Z",
       "status": "ok",
       "error": null
     },
@@ -201,7 +201,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-11T08:54:58.327Z",
+      "lastUpdated": "2026-06-11T09:08:02.377Z",
       "status": "ok",
       "error": null
     },
@@ -228,7 +228,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-11T08:54:58.327Z",
+      "lastUpdated": "2026-06-11T09:08:02.377Z",
       "status": "ok",
       "error": null
     },
@@ -240,8 +240,8 @@
       "email": "douglaschatgpt.am@gmail.com",
       "planType": "plus",
       "subscriptionExpiresAt": "2026-06-14T14:47:53.000Z",
-      "isActive": false,
-      "lastUsedAt": "2026-06-11T01:33:29.279Z",
+      "isActive": true,
+      "lastUsedAt": "2026-06-11T09:07:25.452Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
       "fiveHourReset": "2026-06-11T12:49:40.000Z",
@@ -255,7 +255,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-11T08:54:58.327Z",
+      "lastUpdated": "2026-06-11T09:08:02.377Z",
       "status": "ok",
       "error": null
     }

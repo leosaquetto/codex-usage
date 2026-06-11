@@ -1,15 +1,15 @@
 {
   "source": "codex-switcher",
-  "lastUpdated": "2026-06-11T14:02:31.935Z",
+  "lastUpdated": "2026-06-11T14:17:46.524Z",
   "accountCount": 5,
   "okCount": 5,
-  "activeAccountId": "43f419c5-23bc-4438-b232-c9ca88fe687e",
+  "activeAccountId": "007e1109-aa2e-4932-9640-d4dbadced43b",
   "aggregate": {
     "fiveHourPercent": 79,
     "fiveHourReset": "2026-06-11T15:27:33.000Z",
     "weeklyPercent": 73,
     "weeklyReset": "2026-06-17T20:04:03.000Z",
-    "lastUpdated": "2026-06-11T14:02:31.935Z"
+    "lastUpdated": "2026-06-11T14:17:46.524Z"
   },
   "fiveHourPercent": 79,
   "fiveHourReset": "2026-06-11T15:27:33.000Z",
@@ -28,7 +28,7 @@
       "lastUsedAt": "2026-06-11T09:58:24.813Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-11T19:02:32.000Z",
+      "fiveHourReset": "2026-06-11T19:17:47.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 84,
       "weeklyUsedPercent": 16,
@@ -39,7 +39,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-11T14:02:31.935Z",
+      "lastUpdated": "2026-06-11T14:17:46.524Z",
       "status": "ok",
       "error": null
     },
@@ -66,7 +66,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-11T14:02:31.935Z",
+      "lastUpdated": "2026-06-11T14:17:46.524Z",
       "status": "ok",
       "error": null
     },
@@ -78,8 +78,8 @@
       "email": "dzplaybacks@gmail.com",
       "planType": "plus",
       "subscriptionExpiresAt": "2026-06-22T20:22:14.000Z",
-      "isActive": false,
-      "lastUsedAt": "2026-06-11T05:15:45.883Z",
+      "isActive": true,
+      "lastUsedAt": "2026-06-11T14:13:50.285Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
       "fiveHourReset": "2026-06-11T16:39:51.000Z",
@@ -93,7 +93,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-11T14:02:31.935Z",
+      "lastUpdated": "2026-06-11T14:17:46.524Z",
       "status": "ok",
       "error": null
     },
@@ -120,7 +120,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-11T14:02:31.935Z",
+      "lastUpdated": "2026-06-11T14:17:46.524Z",
       "status": "ok",
       "error": null
     },
@@ -132,7 +132,7 @@
       "email": "leoaraujo1949@gmail.com",
       "planType": "plus",
       "subscriptionExpiresAt": "2026-06-26T02:50:41.000Z",
-      "isActive": true,
+      "isActive": false,
       "lastUsedAt": "2026-06-11T11:39:52.238Z",
       "fiveHourPercent": 0,
       "fiveHourUsedPercent": 100,
@@ -147,7 +147,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-11T14:02:31.935Z",
+      "lastUpdated": "2026-06-11T14:17:46.524Z",
       "status": "ok",
       "error": null
     },
@@ -174,7 +174,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-11T14:02:31.935Z",
+      "lastUpdated": "2026-06-11T14:17:46.524Z",
       "status": "ok",
       "error": null
     },
@@ -201,7 +201,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-11T14:02:31.935Z",
+      "lastUpdated": "2026-06-11T14:17:46.524Z",
       "status": "ok",
       "error": null
     },
@@ -228,7 +228,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-11T14:02:31.935Z",
+      "lastUpdated": "2026-06-11T14:17:46.524Z",
       "status": "ok",
       "error": null
     },
@@ -244,7 +244,7 @@
       "lastUsedAt": "2026-06-11T09:07:25.452Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-11T19:02:32.000Z",
+      "fiveHourReset": "2026-06-11T19:17:47.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 31,
       "weeklyUsedPercent": 69,
@@ -255,7 +255,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-11T14:02:31.935Z",
+      "lastUpdated": "2026-06-11T14:17:46.524Z",
       "status": "ok",
       "error": null
     }

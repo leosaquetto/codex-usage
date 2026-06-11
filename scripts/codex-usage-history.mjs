@@ -1,3 +1,8 @@
+import { createRequire } from "node:module";
+
+const require = createRequire(import.meta.url);
+const { buildWeeklyResetEvents } = require("../webapp/weekly-reset-events.cjs");
+
 const DEFAULT_HISTORY_LIMIT = 2000;
 const DEFAULT_ACCOUNT_SAMPLE_LIMIT = 12000;
 
@@ -155,45 +160,6 @@ function normalizeAccountSamples(raw, aggregateSamples) {
   return dedupeByKey(samples, (sample) => `${sample.email}|${sample.capturedAt}|${sample.weeklyReset}`)
     .sort((a, b) => sampleSort(a, b) || a.email.localeCompare(b.email))
     .slice(-DEFAULT_ACCOUNT_SAMPLE_LIMIT);
-}
-
-function buildWeeklyResetEvents(accountSamples) {
-  const byEmail = new Map();
-  for (const sample of accountSamples) {
-    if (!byEmail.has(sample.email)) byEmail.set(sample.email, []);
-    byEmail.get(sample.email).push(sample);
-  }
-
-  const events = [];
-  for (const [email, samples] of byEmail.entries()) {
-    const ordered = samples.sort(sampleSort);
-    let previousReset = null;
-    let lastEventReset = null;
-
-    for (const sample of ordered) {
-      if (sample.weeklyReset === lastEventReset) continue;
-
-      const previousMs = previousReset ? new Date(previousReset).getTime() : NaN;
-      const capturedMs = new Date(sample.capturedAt).getTime();
-      const deltaMs = Number.isFinite(previousMs) ? capturedMs - previousMs : null;
-
-      events.push({
-        email,
-        displayName: sample.displayName || email,
-        capturedAt: sample.capturedAt,
-        weeklyReset: sample.weeklyReset,
-        previousWeeklyReset: previousReset,
-        isEarlyReset: Number.isFinite(deltaMs) ? deltaMs < 0 : false,
-        deltaMs,
-      });
-
-      previousReset = sample.weeklyReset;
-      lastEventReset = sample.weeklyReset;
-    }
-  }
-
-  return dedupeByFirstKey(events, (event) => `${event.email}|${event.weeklyReset}`)
-    .sort((a, b) => new Date(a.capturedAt).getTime() - new Date(b.capturedAt).getTime() || a.email.localeCompare(b.email));
 }
 
 function normalizeHistory(raw) {

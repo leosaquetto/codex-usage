@@ -93,7 +93,7 @@
               </div>
             </div>
           </details>
-          <button type="button" id="resetViewButton" class="icon-button" title="Redefinições" aria-label="Redefinições" aria-pressed="false">
+          <button type="button" id="resetViewButton" class="icon-button" title="Renovações" aria-label="Renovações" aria-pressed="false">
             <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M8 2v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
               <path d="M16 2v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
@@ -139,28 +139,29 @@
         </div>
       </section>
 
-      <section id="weeklyResetArea" class="reset-area" aria-label="Redefinições semanais" hidden>
+      <section id="weeklyResetArea" class="reset-area" aria-label="Renovações semanais" hidden>
         <div class="reset-area-head">
           <div>
-            <p class="section-kicker">Redefinições</p>
-            <h2>Redefinição semanal por conta</h2>
+            <p class="section-kicker">Renovações</p>
+            <h2>Renovações semanais por conta</h2>
+            <p class="reset-area-note">Conta apenas quando o saldo semanal sobe antes do prazo previsto.</p>
           </div>
         </div>
-        <div class="reset-summary-grid" aria-label="Resumo das redefinições">
+        <div class="reset-summary-grid" aria-label="Resumo das renovações">
           <div class="reset-summary-item">
             <span>Contas</span>
             <strong id="resetAccountCount">--</strong>
           </div>
           <div class="reset-summary-item">
-            <span>Redefinições</span>
+            <span>Renovações</span>
             <strong id="resetEventCount">--</strong>
           </div>
           <div class="reset-summary-item">
-            <span>Antes do prazo</span>
+            <span>Renovou antes</span>
             <strong id="resetEarlyCount">--</strong>
           </div>
         </div>
-        <div class="reset-controls" aria-label="Filtros das redefinições">
+        <div class="reset-controls" aria-label="Filtros das renovações">
           <div id="resetAccountFilters" class="reset-account-filters" role="tablist" aria-label="Filtrar por conta"></div>
           <div class="reset-actions" role="tablist" aria-label="Filtrar por tipo">
             <button type="button" id="resetAllButton" class="notification-tab" aria-pressed="true">Todas</button>

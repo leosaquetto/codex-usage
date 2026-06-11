@@ -23,6 +23,90 @@ assert.ok(migrated.accountSamples.some((sample) => sample.email === "leoaraujo19
 assert.equal(migrated.accountSamples.some((sample) => sample.displayName === "FREE #1"), false);
 assert.equal(migrated.accountSamples.some((sample) => sample.email === "fabinhomian@gmail.com"), false);
 
+const CASE_EMAIL = "case@example.com";
+function weeklyEventsFor(samples) {
+  return normalizeHistory({
+    version: 2,
+    samples: [],
+    accountSamples: samples.map((sample) => ({
+      email: CASE_EMAIL,
+      displayName: "CASE",
+      ...sample,
+    })),
+  }).weeklyResetEvents;
+}
+
+const firstOnlyEvents = weeklyEventsFor([{
+  capturedAt: "2026-06-01T10:00:00.000Z",
+  weeklyPercent: 100,
+  weeklyReset: "2026-06-08T10:00:00.000Z",
+}]);
+assert.equal(firstOnlyEvents.length, 1);
+assert.equal(firstOnlyEvents[0].isEarlyReset, false);
+
+const earlyWithoutRecovery = weeklyEventsFor([
+  {
+    capturedAt: "2026-06-01T10:00:00.000Z",
+    weeklyPercent: 44,
+    weeklyReset: "2026-06-08T10:00:00.000Z",
+  },
+  {
+    capturedAt: "2026-06-07T10:00:00.000Z",
+    weeklyPercent: 44,
+    weeklyReset: "2026-06-14T10:00:00.000Z",
+  },
+]);
+assert.equal(earlyWithoutRecovery.at(-1).deltaMs < 0, true);
+assert.equal(earlyWithoutRecovery.at(-1).weeklyPercentDelta, 0);
+assert.equal(earlyWithoutRecovery.at(-1).isEarlyReset, false);
+
+const earlyWithPartialRecovery = weeklyEventsFor([
+  {
+    capturedAt: "2026-06-01T10:00:00.000Z",
+    weeklyPercent: 21,
+    weeklyReset: "2026-06-08T10:00:00.000Z",
+  },
+  {
+    capturedAt: "2026-06-07T10:00:00.000Z",
+    weeklyPercent: 44,
+    weeklyReset: "2026-06-14T10:00:00.000Z",
+  },
+]);
+assert.equal(earlyWithPartialRecovery.at(-1).weeklyPercentDelta, 23);
+assert.equal(earlyWithPartialRecovery.at(-1).earlyReason, "percent-increase");
+assert.equal(earlyWithPartialRecovery.at(-1).isEarlyReset, true);
+
+const earlyWithFullRecovery = weeklyEventsFor([
+  {
+    capturedAt: "2026-06-01T10:00:00.000Z",
+    weeklyPercent: 21,
+    weeklyReset: "2026-06-08T10:00:00.000Z",
+  },
+  {
+    capturedAt: "2026-06-07T10:00:00.000Z",
+    weeklyPercent: 99,
+    weeklyReset: "2026-06-14T10:00:00.000Z",
+  },
+]);
+assert.equal(earlyWithFullRecovery.at(-1).earlyReason, "full-renewal");
+assert.equal(earlyWithFullRecovery.at(-1).isEarlyReset, true);
+
+const afterDeadlineWithRecovery = weeklyEventsFor([
+  {
+    capturedAt: "2026-06-01T10:00:00.000Z",
+    weeklyPercent: 21,
+    weeklyReset: "2026-06-08T10:00:00.000Z",
+  },
+  {
+    capturedAt: "2026-06-08T10:05:00.000Z",
+    weeklyPercent: 44,
+    weeklyReset: "2026-06-15T10:00:00.000Z",
+  },
+]);
+assert.equal(afterDeadlineWithRecovery.at(-1).deltaMs > 0, true);
+assert.equal(afterDeadlineWithRecovery.at(-1).weeklyPercentDelta, 23);
+assert.equal(afterDeadlineWithRecovery.at(-1).isEarlyReset, false);
+
 const basePayload = {
   lastUpdated: "2026-06-01T10:00:00.000Z",
   fiveHourPercent: 70,
@@ -66,7 +150,7 @@ assert.ok(later.weeklyResetEvents.at(-1).deltaMs > 0);
 
 const early = appendCodexUsageSample(later, {
   ...basePayload,
-  lastUpdated: "2026-06-08T10:00:00.000Z",
+  lastUpdated: "2026-06-08T10:10:00.000Z",
   weeklyReset: "2026-06-15T10:00:00.000Z",
   accounts: [{
     id: "new-id-after-reinsert",

@@ -98,6 +98,7 @@ function unixSecondsToIso(value) {
 
 function displayNameFor(account) {
   const raw = String(account?.name || "").trim();
+  if (/^douglas/i.test(raw)) return "Douglas";
   return DISPLAY_NAMES.get(raw.toLowerCase()) || raw.toUpperCase() || "CONTA";
 }
 

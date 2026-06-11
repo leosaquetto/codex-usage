@@ -29,6 +29,7 @@ function earlyReasonFor({ looksFullyRenewed, weeklyPercentIncreased }) {
 
 function buildWeeklyResetEvent({ email, sample, previousReset, previousSample }) {
   const previousDeadlineMs = toTime(previousReset)
+  const nextDeadlineMs = toTime(sample?.weeklyReset)
   const capturedMs = toTime(sample?.capturedAt)
   const previousWeeklyPercent = numberOrNull(previousSample?.weeklyPercent)
   const weeklyPercent = numberOrNull(sample?.weeklyPercent)
@@ -39,6 +40,7 @@ function buildWeeklyResetEvent({ email, sample, previousReset, previousSample })
   const weeklyPercentIncreased = weeklyPercentDelta !== null && weeklyPercentDelta > 0
   const looksFullyRenewed = weeklyPercent !== null && weeklyPercent >= 99
   const isEarlyReset = isBeforePreviousDeadline && (looksFullyRenewed || weeklyPercentIncreased)
+  const isNotifiableEarlyReset = isBeforePreviousDeadline && looksFullyRenewed
   const earlyReason = isEarlyReset
     ? earlyReasonFor({ looksFullyRenewed, weeklyPercentIncreased })
     : null
@@ -50,7 +52,11 @@ function buildWeeklyResetEvent({ email, sample, previousReset, previousSample })
     weeklyReset: sample?.weeklyReset,
     previousWeeklyReset: previousReset,
     isEarlyReset,
+    isNotifiableEarlyReset,
     deltaMs: Number.isFinite(previousDeadlineMs) ? capturedMs - previousDeadlineMs : null,
+    cycleDurationMs: Number.isFinite(previousDeadlineMs) && Number.isFinite(nextDeadlineMs)
+      ? nextDeadlineMs - previousDeadlineMs
+      : null,
     weeklyPercent,
     previousWeeklyPercent,
     weeklyPercentDelta,

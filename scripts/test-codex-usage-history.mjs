@@ -75,6 +75,8 @@ const earlyWithPartialRecovery = weeklyEventsFor([
 assert.equal(earlyWithPartialRecovery.at(-1).weeklyPercentDelta, 23);
 assert.equal(earlyWithPartialRecovery.at(-1).earlyReason, "percent-increase");
 assert.equal(earlyWithPartialRecovery.at(-1).isEarlyReset, true);
+assert.equal(earlyWithPartialRecovery.at(-1).isNotifiableEarlyReset, false);
+assert.equal(earlyWithPartialRecovery.at(-1).cycleDurationMs, 6 * 24 * 60 * 60 * 1000);
 
 const earlyWithFullRecovery = weeklyEventsFor([
   {
@@ -90,6 +92,7 @@ const earlyWithFullRecovery = weeklyEventsFor([
 ]);
 assert.equal(earlyWithFullRecovery.at(-1).earlyReason, "full-renewal");
 assert.equal(earlyWithFullRecovery.at(-1).isEarlyReset, true);
+assert.equal(earlyWithFullRecovery.at(-1).isNotifiableEarlyReset, true);
 
 const afterDeadlineWithRecovery = weeklyEventsFor([
   {
@@ -106,6 +109,7 @@ const afterDeadlineWithRecovery = weeklyEventsFor([
 assert.equal(afterDeadlineWithRecovery.at(-1).deltaMs > 0, true);
 assert.equal(afterDeadlineWithRecovery.at(-1).weeklyPercentDelta, 23);
 assert.equal(afterDeadlineWithRecovery.at(-1).isEarlyReset, false);
+assert.equal(afterDeadlineWithRecovery.at(-1).isNotifiableEarlyReset, false);
 
 const basePayload = {
   lastUpdated: "2026-06-01T10:00:00.000Z",
@@ -162,6 +166,7 @@ const early = appendCodexUsageSample(later, {
 });
 assert.equal(early.weeklyResetEvents.length, 3);
 assert.equal(early.weeklyResetEvents.at(-1).isEarlyReset, true);
+assert.equal(early.weeklyResetEvents.at(-1).isNotifiableEarlyReset, true);
 assert.ok(early.weeklyResetEvents.at(-1).deltaMs < 0);
 assert.equal(new Set(early.accountSamples.map((sample) => sample.email)).size, 1);
 

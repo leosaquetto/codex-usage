@@ -147,6 +147,7 @@ function normalizeWeeklyResetEvents(raw) {
     const weeklyReset = toDate(event?.weeklyReset)
     const previousWeeklyReset = toDate(event?.previousWeeklyReset)
     const deltaMs = event?.deltaMs === null || event?.deltaMs === undefined ? null : Number(event.deltaMs)
+    const cycleDurationMs = event?.cycleDurationMs === null || event?.cycleDurationMs === undefined ? null : Number(event.cycleDurationMs)
     const weeklyPercent = numberOrNull(event?.weeklyPercent)
     const previousWeeklyPercent = numberOrNull(event?.previousWeeklyPercent)
     const rawWeeklyPercentDelta = numberOrNull(event?.weeklyPercentDelta)
@@ -171,7 +172,9 @@ function normalizeWeeklyResetEvents(raw) {
       weeklyReset: weeklyReset.toISOString(),
       previousWeeklyReset: previousWeeklyReset?.toISOString() || null,
       isEarlyReset: event?.isEarlyReset === true,
+      isNotifiableEarlyReset: event?.isNotifiableEarlyReset === true,
       deltaMs: Number.isFinite(deltaMs) ? deltaMs : null,
+      cycleDurationMs: Number.isFinite(cycleDurationMs) ? cycleDurationMs : null,
       weeklyPercent,
       previousWeeklyPercent,
       weeklyPercentDelta,

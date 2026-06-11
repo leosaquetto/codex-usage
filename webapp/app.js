@@ -238,7 +238,7 @@ function normalizeAccounts(rawAccounts) {
 
     return {
       id: String(account?.id || account?.name || crypto.randomUUID?.() || Math.random()),
-      name: String(account?.name || account?.displayName || "Conta"),
+      name: displayAccountName(account?.name || account?.displayName || "Conta"),
       email: typeof account?.email === "string" ? account.email : "",
       planType: typeof account?.planType === "string" ? account.planType : "",
       subscriptionExpiresAtDate: parseDate(account?.subscriptionExpiresAt),
@@ -1240,6 +1240,12 @@ function buildAccountCards(accounts, recommendedAccountId = null) {
         )),
     };
   });
+}
+
+function displayAccountName(value) {
+  const raw = String(value || "").trim();
+  if (/^douglas/i.test(raw)) return "Douglas";
+  return raw || "Conta";
 }
 
 function accountHasAnyLimit(account) {

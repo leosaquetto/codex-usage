@@ -1679,8 +1679,8 @@ input {
 }
 
 .account-pill[data-plan="plus"] {
-  color: #f8fafc;
-  background: #111827;
+  color: #6b21a8;
+  background: #f3e8ff;
 }
 
 .account-pill[data-plan="free"] {
@@ -1689,8 +1689,8 @@ input {
 }
 
 .account-pill[data-plan="go"] {
-  color: #64748b;
-  background: #f1f5f9;
+  color: #166534;
+  background: #dcfce7;
 }
 
 .account-meters {

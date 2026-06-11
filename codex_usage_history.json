@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-06-11T10:25:35.781Z",
+  "lastUpdated": "2026-06-11T10:41:01.918Z",
   "samples": [
     {
       "capturedAt": "2026-05-25T20:11:07.164Z",
@@ -8316,6 +8316,13 @@
       "fiveHourPercent": 51,
       "fiveHourReset": "2026-06-11T10:26:34.000Z",
       "weeklyPercent": 79,
+      "weeklyReset": "2026-06-17T20:04:02.000Z"
+    },
+    {
+      "capturedAt": "2026-06-11T10:41:01.918Z",
+      "fiveHourPercent": 65,
+      "fiveHourReset": "2026-06-11T11:54:55.000Z",
+      "weeklyPercent": 78,
       "weeklyReset": "2026-06-17T20:04:02.000Z"
     }
   ],
@@ -49384,6 +49391,41 @@
     },
     {
       "capturedAt": "2026-06-11T10:25:35.781Z",
+      "email": "leoaraujo1949@gmail.com",
+      "displayName": "LEO II",
+      "weeklyPercent": 100,
+      "weeklyReset": "2026-06-18T06:54:55.000Z"
+    },
+    {
+      "capturedAt": "2026-06-11T10:41:01.918Z",
+      "email": "contatonatanaelrodrigs@gmail.com",
+      "displayName": "NATANAEL",
+      "weeklyPercent": 89,
+      "weeklyReset": "2026-06-18T08:51:25.000Z"
+    },
+    {
+      "capturedAt": "2026-06-11T10:41:01.918Z",
+      "email": "douglaschatgpt.am@gmail.com",
+      "displayName": "Douglas",
+      "weeklyPercent": 31,
+      "weeklyReset": "2026-06-17T20:04:02.000Z"
+    },
+    {
+      "capturedAt": "2026-06-11T10:41:01.918Z",
+      "email": "dzplaybacks@gmail.com",
+      "displayName": "AMANDA",
+      "weeklyPercent": 84,
+      "weeklyReset": "2026-06-18T05:19:22.000Z"
+    },
+    {
+      "capturedAt": "2026-06-11T10:41:01.918Z",
+      "email": "jv5pdcwnxp@privaterelay.appleid.com",
+      "displayName": "LEO I",
+      "weeklyPercent": 84,
+      "weeklyReset": "2026-06-18T05:26:34.000Z"
+    },
+    {
+      "capturedAt": "2026-06-11T10:41:01.918Z",
       "email": "leoaraujo1949@gmail.com",
       "displayName": "LEO II",
       "weeklyPercent": 100,

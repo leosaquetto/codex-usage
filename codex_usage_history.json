@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-06-11T01:53:16.340Z",
+  "lastUpdated": "2026-06-11T02:09:28.168Z",
   "samples": [
     {
       "capturedAt": "2026-05-25T20:11:07.164Z",
@@ -8086,6 +8086,13 @@
       "fiveHourReset": "2026-06-11T04:41:23.000Z",
       "weeklyPercent": 33,
       "weeklyReset": "2026-06-11T05:17:51.000Z"
+    },
+    {
+      "capturedAt": "2026-06-11T02:09:28.168Z",
+      "fiveHourPercent": 57,
+      "fiveHourReset": "2026-06-11T04:41:23.000Z",
+      "weeklyPercent": 32,
+      "weeklyReset": "2026-06-11T05:17:52.000Z"
     }
   ],
   "accountSamples": [
@@ -48002,6 +48009,41 @@
       "displayName": "LEO II",
       "weeklyPercent": 0,
       "weeklyReset": "2026-06-11T06:53:52.000Z"
+    },
+    {
+      "capturedAt": "2026-06-11T02:09:28.168Z",
+      "email": "contatonatanaelrodrigs@gmail.com",
+      "displayName": "NATANAEL",
+      "weeklyPercent": 0,
+      "weeklyReset": "2026-06-11T08:15:36.000Z"
+    },
+    {
+      "capturedAt": "2026-06-11T02:09:28.168Z",
+      "email": "douglaschatgpt.am@gmail.com",
+      "displayName": "Douglas",
+      "weeklyPercent": 61,
+      "weeklyReset": "2026-06-17T20:04:03.000Z"
+    },
+    {
+      "capturedAt": "2026-06-11T02:09:28.168Z",
+      "email": "dzplaybacks@gmail.com",
+      "displayName": "AMANDA",
+      "weeklyPercent": 100,
+      "weeklyReset": "2026-06-18T02:09:28.000Z"
+    },
+    {
+      "capturedAt": "2026-06-11T02:09:28.168Z",
+      "email": "jv5pdcwnxp@privaterelay.appleid.com",
+      "displayName": "LEO I",
+      "weeklyPercent": 0,
+      "weeklyReset": "2026-06-11T05:17:52.000Z"
+    },
+    {
+      "capturedAt": "2026-06-11T02:09:28.168Z",
+      "email": "leoaraujo1949@gmail.com",
+      "displayName": "LEO II",
+      "weeklyPercent": 0,
+      "weeklyReset": "2026-06-11T06:53:52.000Z"
     }
   ],
   "weeklyResetEvents": [
@@ -48910,6 +48952,19 @@
       "previousWeeklyReset": "2026-06-18T01:46:52.000Z",
       "isEarlyReset": true,
       "deltaMs": -604415660,
+      "weeklyPercent": 100,
+      "previousWeeklyPercent": 100,
+      "weeklyPercentDelta": 0,
+      "earlyReason": "full-renewal"
+    },
+    {
+      "email": "dzplaybacks@gmail.com",
+      "displayName": "AMANDA",
+      "capturedAt": "2026-06-11T02:09:28.168Z",
+      "weeklyReset": "2026-06-18T02:09:28.000Z",
+      "previousWeeklyReset": "2026-06-18T01:53:31.000Z",
+      "isEarlyReset": true,
+      "deltaMs": -603842832,
       "weeklyPercent": 100,
       "previousWeeklyPercent": 100,
       "weeklyPercentDelta": 0,

@@ -13,15 +13,15 @@
 
 - [x] Menu com visão **Todas** e **Por conta**.
 - [x] Toggle global, por tipo e por conta.
-- [x] Mudança aleatória do padrão de reset semanal.
-- [x] Refill semanal.
+- [x] Renovação semanal antecipada para `99%` ou `100%`, ignorando continuidade de saldo cheio.
+- [x] Semanal acima de `30%` a até 24h do reset.
 - [x] Semanal baixo.
 - [x] Dados atrasados ou falha de carga.
 - [x] 5h baixo opcional, desligado por padrão.
 - [x] Motor isolado e coberto por testes determinísticos.
 - [x] Cenários locais para permissão `default`, `denied`, `granted` e `unsupported`.
 
-As notificações são locais do navegador/PWA. O projeto não possui servidor de Web Push nem background sync remoto.
+As notificações usam Web Push em background quando há subscription; notificações locais do navegador/PWA permanecem como fallback com o app ativo.
 
 ## Dados e Automação
 
@@ -40,7 +40,7 @@ Estado externo observado na auditoria atual:
 
 - [x] Service Worker com assets críticos e fallback offline.
 - [x] Manifest, splash, HTML e cache usando caminhos consistentes.
-- [x] Cache atual: `codex-usage-v31`.
+- [x] Cache atual: `codex-usage-v35`.
 - [x] Validação integrada com `npm run validate`.
 - [x] Proteção da Vercel e widgets verificada pelo auditor estático.
 

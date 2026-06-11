@@ -19,7 +19,7 @@ const NOTIFICATION_PREFERENCES_KEY = "codex-notification-preferences-v1";
 const NOTIFICATION_STATE_KEY = "codex-notification-state-v4";
 const DEFAULT_THEME_COLOR = "#3b82f6";
 const NON_WEEKLY_HISTORY_EMAILS = new Set(["fabinhomian@gmail.com"]);
-const notificationEnginePromise = import("./notification-engine.mjs?v=weekly_push_v3");
+const notificationEnginePromise = import("./notification-engine.mjs?v=weekly_resets_v4");
 
 let viewportRafId = null;
 let activeUsageController = null;
@@ -165,8 +165,12 @@ function normalizeWeeklyResetEvents(rawEvents) {
         ? weeklyPercent - previousWeeklyPercent
         : null;
     const earlyReason = typeof raw?.earlyReason === "string" && raw.earlyReason ? raw.earlyReason : null;
+    const carryoverFullReset = previousWeeklyPercent !== null
+      && weeklyPercent !== null
+      && previousWeeklyPercent >= 99
+      && weeklyPercent >= 99;
 
-    if (!capturedAtDate || !weeklyResetDate || !email) continue;
+    if (!capturedAtDate || !weeklyResetDate || !email || carryoverFullReset) continue;
 
     byKey.set(`${email}|${weeklyResetDate.toISOString()}`, {
       capturedAtDate,
@@ -318,7 +322,9 @@ function saveLastValidPayload(usage) {
       weeklyReset: event.weeklyResetDate.toISOString(),
       previousWeeklyReset: event.previousWeeklyResetDate?.toISOString() || null,
       isEarlyReset: event.isEarlyReset,
+      isNotifiableEarlyReset: event.isNotifiableEarlyReset,
       deltaMs: event.deltaMs,
+      cycleDurationMs: event.cycleDurationMs,
       weeklyPercent: event.weeklyPercent,
       previousWeeklyPercent: event.previousWeeklyPercent,
       weeklyPercentDelta: event.weeklyPercentDelta,
@@ -562,8 +568,8 @@ function formatCycleDurationLabel(cycleDurationMs) {
 function formatResetPercentMove(event) {
   const previous = event.previousWeeklyPercent;
   const current = event.weeklyPercent;
-  if (previous === null && current === null) return "Saldo semanal: sem leitura";
-  if (previous === null) return `Saldo semanal: ${formatAccountPercent(current)}`;
+  if (previous === null && current === null) return "Sem leitura";
+  if (previous === null) return formatAccountPercent(current);
 
   const delta = Number.isFinite(event.weeklyPercentDelta)
     ? event.weeklyPercentDelta
@@ -573,7 +579,7 @@ function formatResetPercentMove(event) {
   const deltaText = Number.isFinite(delta)
     ? ` (${delta > 0 ? "+" : ""}${Math.round(delta)} pp)`
     : "";
-  return `Saldo semanal: ${formatAccountPercent(previous)} -> ${formatAccountPercent(current)}${deltaText}`;
+  return `De ${formatAccountPercent(previous)} para ${formatAccountPercent(current)}${deltaText}`;
 }
 
 function buildResetStatusView(event) {
@@ -685,6 +691,7 @@ function createResetEventView(usage, event) {
     newDeadlineText: formatCompactDateTimePtBr(event.weeklyResetDate),
     deltaText: formatDeadlineDelta(event.deltaMs),
     percentText: formatResetPercentMove(event),
+    percentFactText: formatResetPercentMove(event),
     statusClass: status.className,
     badges: buildResetBadges(event, status),
   };
@@ -1852,6 +1859,7 @@ function renderWeeklyResetArea(els, resetView) {
       ["Prazo anterior", event.previousDeadlineText, "previous"],
       ["Novo prazo", event.newDeadlineText, "next"],
       ["Diferença", event.deltaText, "delta"],
+      ["Semanal", event.percentFactText, "status"],
     ].forEach(([label, value, icon]) => {
       const item = document.createElement("div");
       const itemLabel = document.createElement("span");

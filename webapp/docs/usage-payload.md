@@ -39,7 +39,21 @@ O endpoint responde com `application/json` e `Cache-Control: no-store`.
   ],
   "historySamples": [],
   "accountSamples": [],
-  "weeklyResetEvents": []
+  "weeklyResetEvents": [
+    {
+      "email": "conta@example.com",
+      "capturedAt": "2026-06-07T10:00:00.000Z",
+      "weeklyReset": "2026-06-14T10:00:00.000Z",
+      "previousWeeklyReset": "2026-06-08T10:00:00.000Z",
+      "isEarlyReset": true,
+      "isNotifiableEarlyReset": true,
+      "deltaMs": -86400000,
+      "cycleDurationMs": 518400000,
+      "previousWeeklyPercent": 21,
+      "weeklyPercent": 100,
+      "weeklyPercentDelta": 79
+    }
+  ]
 }
 ```
 
@@ -54,6 +68,9 @@ O endpoint responde com `application/json` e `Cache-Control: no-store`.
 - `status: "error"` mantém a conta visível e publica uma mensagem segura em `error`.
 - `historySamples` contém no máximo 500 amostras normalizadas.
 - `accountSamples` e `weeklyResetEvents` usam e-mail normalizado como identidade e preservam a primeira observação de cada `email + weeklyReset`.
+- `weeklyResetEvents` publica saldo semanal anterior/posterior, diferença para o prazo anterior e duração entre os resets.
+- Mudanças em que o semanal permanece cheio (`99%`/`100%` antes e depois) são descartadas do histórico e não notificam.
+- `isNotifiableEarlyReset` só fica verdadeiro quando a mudança é antecipada e recupera o semanal para `99%` ou `100%` partindo de menos de `99%`.
 - Contas FREE/GO ou com janela de aproximadamente 30 dias não entram no histórico semanal.
 
 ## Fontes

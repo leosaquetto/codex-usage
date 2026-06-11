@@ -15,8 +15,10 @@
 - Conta ativa/última usada na última hora.
 - Visão geral compacta por conta.
 - Filtros e ordenação.
-- Notificações locais globais, por tipo e por conta.
-- Sinal de reset semanal alterado.
+- Histórico semanal unificado por data, com filtros por conta e saldo antes/depois.
+- Notificações Web Push/locais globais, por tipo e por conta.
+- Renovação semanal antecipada para `99%` ou `100%`, ignorando continuidade de saldo cheio.
+- Alerta de semanal acima de `30%` a até 24h do reset.
 - Estado de dados atrasados.
 - PWA com cache versionado.
 - Auditor de automações e contratos.

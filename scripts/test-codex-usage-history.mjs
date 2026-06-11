@@ -94,6 +94,21 @@ assert.equal(earlyWithFullRecovery.at(-1).earlyReason, "full-renewal");
 assert.equal(earlyWithFullRecovery.at(-1).isEarlyReset, true);
 assert.equal(earlyWithFullRecovery.at(-1).isNotifiableEarlyReset, true);
 
+const carryoverFullReset = weeklyEventsFor([
+  {
+    capturedAt: "2026-06-01T10:00:00.000Z",
+    weeklyPercent: 99,
+    weeklyReset: "2026-06-08T10:00:00.000Z",
+  },
+  {
+    capturedAt: "2026-06-07T10:00:00.000Z",
+    weeklyPercent: 100,
+    weeklyReset: "2026-06-14T10:00:00.000Z",
+  },
+]);
+assert.equal(carryoverFullReset.length, 1);
+assert.equal(carryoverFullReset[0].weeklyReset, "2026-06-08T10:00:00.000Z");
+
 const afterDeadlineWithRecovery = weeklyEventsFor([
   {
     capturedAt: "2026-06-01T10:00:00.000Z",

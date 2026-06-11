@@ -159,8 +159,12 @@ function normalizeWeeklyResetEvents(raw) {
     const earlyReason = typeof event?.earlyReason === "string" && event.earlyReason
       ? event.earlyReason
       : null
+    const carryoverFullReset = previousWeeklyPercent !== null
+      && weeklyPercent !== null
+      && previousWeeklyPercent >= 99
+      && weeklyPercent >= 99
 
-    if (!email || !capturedAt || !weeklyReset) continue
+    if (!email || !capturedAt || !weeklyReset || carryoverFullReset) continue
 
     const eventKey = `${email}|${weeklyReset.toISOString()}`
     if (byKey.has(eventKey)) continue

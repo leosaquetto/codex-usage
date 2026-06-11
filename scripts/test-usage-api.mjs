@@ -197,4 +197,41 @@ assert.equal(apiEvent("full@example.com", "2026-06-14T10:00:00.000Z").earlyReaso
 assert.equal(apiEvent("full@example.com", "2026-06-14T10:00:00.000Z").cycleDurationMs, 6 * 24 * 60 * 60 * 1000);
 assert.equal(apiEvent("after@example.com", "2026-06-15T10:00:00.000Z").isEarlyReset, false);
 
+const carryoverPayload = enrichPayload({
+  lastUpdated: "2026-06-10T03:00:00.000Z",
+  aggregate: {
+    fiveHourPercent: 70,
+    fiveHourReset: "2026-06-10T06:00:00.000Z",
+    weeklyPercent: 60,
+    weeklyReset: "2026-06-15T03:00:00.000Z",
+  },
+  accounts: [],
+}, {
+  version: 2,
+  samples: [],
+  accountSamples: [
+    {
+      capturedAt: "2026-06-01T10:00:00.000Z",
+      email: "carryover@example.com",
+      displayName: "CARRYOVER",
+      weeklyPercent: 99,
+      weeklyReset: "2026-06-08T10:00:00.000Z",
+    },
+    {
+      capturedAt: "2026-06-07T10:00:00.000Z",
+      email: "carryover@example.com",
+      displayName: "CARRYOVER",
+      weeklyPercent: 100,
+      weeklyReset: "2026-06-14T10:00:00.000Z",
+    },
+  ],
+  weeklyResetEvents: [],
+});
+assert.equal(carryoverPayload.weeklyResetEvents.filter((event) => event.email === "carryover@example.com").length, 1);
+assert.equal(
+  carryoverPayload.weeklyResetEvents.some((event) =>
+    event.email === "carryover@example.com" && event.weeklyReset === "2026-06-14T10:00:00.000Z"),
+  false,
+);
+
 console.log("usage api smoke tests ok");

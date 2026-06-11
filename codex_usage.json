@@ -1,19 +1,19 @@
 {
   "source": "codex-switcher",
-  "lastUpdated": "2026-06-11T19:43:22.014Z",
+  "lastUpdated": "2026-06-11T20:20:23.013Z",
   "accountCount": 5,
   "okCount": 5,
   "activeAccountId": "007e1109-aa2e-4932-9640-d4dbadced43b",
   "aggregate": {
-    "fiveHourPercent": 90,
+    "fiveHourPercent": 86,
     "fiveHourReset": "2026-06-11T20:28:37.000Z",
-    "weeklyPercent": 71,
+    "weeklyPercent": 70,
     "weeklyReset": "2026-06-17T20:04:03.000Z",
-    "lastUpdated": "2026-06-11T19:43:22.014Z"
+    "lastUpdated": "2026-06-11T20:20:23.013Z"
   },
-  "fiveHourPercent": 90,
+  "fiveHourPercent": 86,
   "fiveHourReset": "2026-06-11T20:28:37.000Z",
-  "weeklyPercent": 71,
+  "weeklyPercent": 70,
   "weeklyReset": "2026-06-17T20:04:03.000Z",
   "accounts": [
     {
@@ -28,7 +28,7 @@
       "lastUsedAt": "2026-06-11T09:58:24.813Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-12T00:43:26.000Z",
+      "fiveHourReset": "2026-06-12T01:20:25.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 84,
       "weeklyUsedPercent": 16,
@@ -39,7 +39,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-11T19:43:22.014Z",
+      "lastUpdated": "2026-06-11T20:20:23.013Z",
       "status": "ok",
       "error": null
     },
@@ -66,7 +66,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-11T19:43:22.014Z",
+      "lastUpdated": "2026-06-11T20:20:23.013Z",
       "status": "ok",
       "error": null
     },
@@ -80,12 +80,12 @@
       "subscriptionExpiresAt": "2026-06-22T20:22:14.000Z",
       "isActive": true,
       "lastUsedAt": "2026-06-11T14:13:50.285Z",
-      "fiveHourPercent": 53,
-      "fiveHourUsedPercent": 47,
+      "fiveHourPercent": 33,
+      "fiveHourUsedPercent": 67,
       "fiveHourReset": "2026-06-12T00:09:30.000Z",
       "fiveHourWindowMinutes": 300,
-      "weeklyPercent": 74,
-      "weeklyUsedPercent": 26,
+      "weeklyPercent": 71,
+      "weeklyUsedPercent": 29,
       "weeklyReset": "2026-06-18T05:19:22.000Z",
       "weeklyWindowMinutes": 10080,
       "credits": {
@@ -93,7 +93,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-11T19:43:22.014Z",
+      "lastUpdated": "2026-06-11T20:20:23.013Z",
       "status": "ok",
       "error": null
     },
@@ -120,7 +120,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-11T19:43:22.014Z",
+      "lastUpdated": "2026-06-11T20:20:23.013Z",
       "status": "ok",
       "error": null
     },
@@ -147,7 +147,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-11T19:43:22.014Z",
+      "lastUpdated": "2026-06-11T20:20:23.013Z",
       "status": "ok",
       "error": null
     },
@@ -174,7 +174,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-11T19:43:22.014Z",
+      "lastUpdated": "2026-06-11T20:20:23.013Z",
       "status": "ok",
       "error": null
     },
@@ -201,7 +201,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-11T19:43:22.014Z",
+      "lastUpdated": "2026-06-11T20:20:23.013Z",
       "status": "ok",
       "error": null
     },
@@ -228,7 +228,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-11T19:43:22.014Z",
+      "lastUpdated": "2026-06-11T20:20:23.013Z",
       "status": "ok",
       "error": null
     },
@@ -244,7 +244,7 @@
       "lastUsedAt": "2026-06-11T09:07:25.452Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-12T00:43:26.000Z",
+      "fiveHourReset": "2026-06-12T01:20:25.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 31,
       "weeklyUsedPercent": 69,
@@ -255,7 +255,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-11T19:43:22.014Z",
+      "lastUpdated": "2026-06-11T20:20:23.013Z",
       "status": "ok",
       "error": null
     }

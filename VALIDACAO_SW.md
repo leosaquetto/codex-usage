@@ -2,11 +2,11 @@
 
 ## Estado esperado
 
-- Cache: `codex-usage-v31`.
+- Cache: `codex-usage-v35`.
 - Navegação HTML: network-first, com fallback para cache/offline.
 - `/api/*`: rede, retornando `503` offline.
 - Assets estáticos: cache-first.
-- Não há Web Push remoto nem background sync.
+- Web Push remoto é recebido pelo Service Worker; não há background sync.
 
 ## Validação automática
 
@@ -27,7 +27,7 @@ O auditor confirma que:
 1. Abrir `http://127.0.0.1:8080/`.
 2. Confirmar carga sem erro de console.
 3. Recarregar e confirmar que o dashboard permanece funcional.
-4. Conferir o cache `codex-usage-v31`.
+4. Conferir o cache `codex-usage-v35`.
 5. Simular rede indisponível e confirmar que a interface estática abre.
 6. Confirmar que `/api/usage` indisponível usa o último payload válido do navegador.
 7. Restaurar a rede e confirmar atualização normal.

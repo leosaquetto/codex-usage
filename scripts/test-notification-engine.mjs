@@ -82,6 +82,28 @@ const partialEarlyReset = evaluateNotificationSignals({
 });
 assert.deepEqual(partialEarlyReset.signals, []);
 
+const carryoverFullReset = evaluateNotificationSignals({
+  usage: {
+    ...freshUsage,
+    accounts: [{
+      ...baseAccount,
+      weeklyPercent: 99,
+      weeklyReset: "2026-06-07T20:00:00.000Z",
+    }],
+  },
+  state: {
+    ...firstSeen.nextState,
+    byAccount: {
+      "account-a": {
+        ...firstSeen.nextState.byAccount["account-a"],
+        weeklyPercent: 100,
+      },
+    },
+  },
+  nowMs,
+});
+assert.deepEqual(carryoverFullReset.signals, []);
+
 const fullButOnTimeReset = evaluateNotificationSignals({
   usage: {
     ...freshUsage,

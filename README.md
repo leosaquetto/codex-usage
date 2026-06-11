@@ -54,9 +54,11 @@ O Antigravity só atualiza quando o aplicativo está aberto, o LaunchAgent está
 - Agregados e ritmo semanal consideram somente contas pagas; FREE/GO continuam visíveis e filtráveis.
 - FREE/GO com janela de 30 dias aparecem como `30d` e não entram em redefinições semanais.
 - O histórico de redefinições usa o e-mail normalizado como identidade, mesmo quando a conta é removida e reinserida.
+- A visão **Todas** junta eventos de todas as contas em ordem decrescente; os filtros por conta isolam o histórico selecionado.
+- Eventos antecipados exibem o saldo semanal anterior e posterior. Mudanças de reset em que o semanal permanece em `99%` ou `100%` são descartadas como continuidade de saldo cheio.
 - Dados com mais de uma hora são marcados como atrasados.
 - Notificações podem ser ativadas globalmente, por tipo e por conta.
-- Alertas disponíveis: mudança do padrão de reset semanal, refill semanal, semanal baixo, dados atrasados/falha e 5h baixo opcional.
+- Alertas disponíveis: renovação semanal antecipada para `99%` ou `100%` após saldo abaixo de `99%`, semanal baixo, semanal acima de `30%` a até 24h do reset, dados atrasados/falha e 5h baixo opcional.
 
 ## Web Push em background
 

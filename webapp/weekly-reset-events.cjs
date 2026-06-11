@@ -27,6 +27,13 @@ function earlyReasonFor({ looksFullyRenewed, weeklyPercentIncreased }) {
   return null
 }
 
+function isCarryoverFullReset(previousWeeklyPercent, weeklyPercent) {
+  return previousWeeklyPercent !== null
+    && weeklyPercent !== null
+    && previousWeeklyPercent >= 99
+    && weeklyPercent >= 99
+}
+
 function buildWeeklyResetEvent({ email, sample, previousReset, previousSample }) {
   const previousDeadlineMs = toTime(previousReset)
   const nextDeadlineMs = toTime(sample?.weeklyReset)
@@ -39,8 +46,9 @@ function buildWeeklyResetEvent({ email, sample, previousReset, previousSample })
   const isBeforePreviousDeadline = Number.isFinite(previousDeadlineMs) && capturedMs < previousDeadlineMs
   const weeklyPercentIncreased = weeklyPercentDelta !== null && weeklyPercentDelta > 0
   const looksFullyRenewed = weeklyPercent !== null && weeklyPercent >= 99
+  const carryoverFullReset = isCarryoverFullReset(previousWeeklyPercent, weeklyPercent)
   const isEarlyReset = isBeforePreviousDeadline && (looksFullyRenewed || weeklyPercentIncreased)
-  const isNotifiableEarlyReset = isBeforePreviousDeadline && looksFullyRenewed
+  const isNotifiableEarlyReset = isBeforePreviousDeadline && looksFullyRenewed && !carryoverFullReset
   const earlyReason = isEarlyReset
     ? earlyReasonFor({ looksFullyRenewed, weeklyPercentIncreased })
     : null
@@ -61,6 +69,7 @@ function buildWeeklyResetEvent({ email, sample, previousReset, previousSample })
     previousWeeklyPercent,
     weeklyPercentDelta,
     earlyReason,
+    isCarryoverFullReset: carryoverFullReset,
   }
 }
 
@@ -94,7 +103,8 @@ function buildWeeklyResetEvents(accountSamples) {
         continue
       }
 
-      events.push(buildWeeklyResetEvent({ email, sample, previousReset, previousSample }))
+      const event = buildWeeklyResetEvent({ email, sample, previousReset, previousSample })
+      if (!event.isCarryoverFullReset) events.push(event)
       previousReset = sample.weeklyReset
       previousSample = sample
       lastEventReset = sample.weeklyReset

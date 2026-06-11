@@ -58,6 +58,13 @@ function hoursUntil(target, nowMs) {
   return (date.getTime() - nowMs) / 3600000;
 }
 
+function isCarryoverFullReset(previousPercent, currentPercent) {
+  return previousPercent !== null
+    && currentPercent !== null
+    && previousPercent >= 99
+    && currentPercent >= 99;
+}
+
 function formatDateTimePtBr(value) {
   const date = parseDate(value);
   if (!date) return "--";
@@ -129,6 +136,7 @@ function evaluateNotificationSignals({
     const previousFiveHourPercent = clampPercent(previous.fiveHourPercent, null);
     const firstSeen = !previous.seen;
     const previousResetDate = parseDate(previousReset);
+    const carryoverFullReset = isCarryoverFullReset(previousPercent, currentPercent);
     const detectedBeforePreviousDeadline = Boolean(
       previousReset
       && usageUpdatedAt
@@ -150,6 +158,7 @@ function evaluateNotificationSignals({
       && !firstSeen
       && resetChanged
       && detectedBeforePreviousDeadline
+      && !carryoverFullReset
       && currentPercent !== null
       && currentPercent >= 99
     ) {

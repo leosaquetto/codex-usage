@@ -102,6 +102,7 @@ assert.equal(synthetic.accounts[0].fiveHourReset, null);
 assert.equal(synthetic.accountSamples.length, 0);
 assert.equal(synthetic.weeklyResetEvents.length, 1);
 assert.equal(synthetic.weeklyResetEvents[0].capturedAt, "2026-05-31T12:30:47.930Z");
+assert.equal(typeof synthetic.weeklyResetEvents[0].cycleDurationMs === "number" || synthetic.weeklyResetEvents[0].cycleDurationMs === null, true);
 
 const earlyRulePayload = enrichPayload({
   lastUpdated: "2026-06-10T03:00:00.000Z",
@@ -188,9 +189,12 @@ const apiEvent = (email, weeklyReset) => earlyRulePayload.weeklyResetEvents
 assert.equal(apiEvent("no-increase@example.com", "2026-06-14T10:00:00.000Z").isEarlyReset, false);
 assert.equal(apiEvent("no-increase@example.com", "2026-06-14T10:00:00.000Z").weeklyPercentDelta, 0);
 assert.equal(apiEvent("partial@example.com", "2026-06-14T10:00:00.000Z").isEarlyReset, true);
+assert.equal(apiEvent("partial@example.com", "2026-06-14T10:00:00.000Z").isNotifiableEarlyReset, false);
 assert.equal(apiEvent("partial@example.com", "2026-06-14T10:00:00.000Z").earlyReason, "percent-increase");
 assert.equal(apiEvent("full@example.com", "2026-06-14T10:00:00.000Z").isEarlyReset, true);
+assert.equal(apiEvent("full@example.com", "2026-06-14T10:00:00.000Z").isNotifiableEarlyReset, true);
 assert.equal(apiEvent("full@example.com", "2026-06-14T10:00:00.000Z").earlyReason, "full-renewal");
+assert.equal(apiEvent("full@example.com", "2026-06-14T10:00:00.000Z").cycleDurationMs, 6 * 24 * 60 * 60 * 1000);
 assert.equal(apiEvent("after@example.com", "2026-06-15T10:00:00.000Z").isEarlyReset, false);
 
 console.log("usage api smoke tests ok");

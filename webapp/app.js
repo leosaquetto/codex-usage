@@ -153,6 +153,7 @@ function normalizeWeeklyResetEvents(rawEvents) {
     const previousWeeklyResetDate = parseDate(raw?.previousWeeklyReset);
     const email = String(raw?.email || "").trim().toLowerCase();
     const deltaMs = raw?.deltaMs === null || raw?.deltaMs === undefined ? null : Number(raw.deltaMs);
+    const cycleDurationMs = raw?.cycleDurationMs === null || raw?.cycleDurationMs === undefined ? null : Number(raw.cycleDurationMs);
     const weeklyPercent = clampPercent(raw?.weeklyPercent, null);
     const previousWeeklyPercent = clampPercent(raw?.previousWeeklyPercent, null);
     const rawWeeklyPercentDelta = raw?.weeklyPercentDelta === null || raw?.weeklyPercentDelta === undefined
@@ -174,7 +175,9 @@ function normalizeWeeklyResetEvents(rawEvents) {
       weeklyResetDate,
       previousWeeklyResetDate,
       isEarlyReset: raw?.isEarlyReset === true,
+      isNotifiableEarlyReset: raw?.isNotifiableEarlyReset === true,
       deltaMs: Number.isFinite(deltaMs) ? deltaMs : null,
+      cycleDurationMs: Number.isFinite(cycleDurationMs) ? cycleDurationMs : null,
       weeklyPercent,
       previousWeeklyPercent,
       weeklyPercentDelta,
@@ -546,6 +549,16 @@ function formatDeadlineDelta(deltaMs) {
   return `${parts.join(" ")} ${deltaMs < 0 ? "antes" : "depois"} do prazo previsto`;
 }
 
+function formatResetBadgeDelta(deltaMs) {
+  if (!Number.isFinite(deltaMs) || deltaMs >= 0) return null;
+  return `${formatDurationMs(Math.abs(deltaMs))} antes`;
+}
+
+function formatCycleDurationLabel(cycleDurationMs) {
+  if (!Number.isFinite(cycleDurationMs) || cycleDurationMs <= 0) return null;
+  return `Ciclo ${formatDurationMs(cycleDurationMs)}`;
+}
+
 function formatResetPercentMove(event) {
   const previous = event.previousWeeklyPercent;
   const current = event.weeklyPercent;
@@ -567,7 +580,7 @@ function buildResetStatusView(event) {
   if (event.isEarlyReset) {
     return {
       className: "is-early",
-      label: "saldo recuperado antes",
+      label: "Antes do prazo",
     };
   }
   if (Number.isFinite(event.deltaMs) && event.deltaMs < 0) {
@@ -585,6 +598,95 @@ function buildResetStatusView(event) {
   return {
     className: "is-normal",
     label: "no prazo",
+  };
+}
+
+function resetFactIcon(kind) {
+  if (kind === "previous") {
+    return [
+      { tag: "path", attrs: { d: "M8 2v4", fill: "none", stroke: "currentColor", "stroke-width": "2", "stroke-linecap": "round" } },
+      { tag: "path", attrs: { d: "M16 2v4", fill: "none", stroke: "currentColor", "stroke-width": "2", "stroke-linecap": "round" } },
+      { tag: "rect", attrs: { x: "4", y: "5", width: "16", height: "17", rx: "3", fill: "none", stroke: "currentColor", "stroke-width": "2" } },
+      { tag: "path", attrs: { d: "M4 10h16", fill: "none", stroke: "currentColor", "stroke-width": "2" } },
+    ];
+  }
+  if (kind === "next") {
+    return [
+      { tag: "path", attrs: { d: "M8 2v4", fill: "none", stroke: "currentColor", "stroke-width": "2", "stroke-linecap": "round" } },
+      { tag: "path", attrs: { d: "M16 2v4", fill: "none", stroke: "currentColor", "stroke-width": "2", "stroke-linecap": "round" } },
+      { tag: "rect", attrs: { x: "4", y: "5", width: "16", height: "17", rx: "3", fill: "none", stroke: "currentColor", "stroke-width": "2" } },
+      { tag: "path", attrs: { d: "M4 10h16", fill: "none", stroke: "currentColor", "stroke-width": "2" } },
+      { tag: "path", attrs: { d: "m10 15 2 2 4-4", fill: "none", stroke: "currentColor", "stroke-width": "2", "stroke-linecap": "round", "stroke-linejoin": "round" } },
+    ];
+  }
+  if (kind === "delta") {
+    return [
+      { tag: "circle", attrs: { cx: "12", cy: "12", r: "9", fill: "none", stroke: "currentColor", "stroke-width": "2" } },
+      { tag: "path", attrs: { d: "M12 7v5l3 2", fill: "none", stroke: "currentColor", "stroke-width": "2", "stroke-linecap": "round", "stroke-linejoin": "round" } },
+    ];
+  }
+  return [
+    { tag: "path", attrs: { d: "M12 3 20 7v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7l8-4Z", fill: "none", stroke: "currentColor", "stroke-width": "2", "stroke-linejoin": "round" } },
+    { tag: "path", attrs: { d: "m9 12 2 2 4-5", fill: "none", stroke: "currentColor", "stroke-width": "2", "stroke-linecap": "round", "stroke-linejoin": "round" } },
+  ];
+}
+
+function createResetInlineIcon(kind) {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("aria-hidden", "true");
+  svg.classList.add("reset-inline-icon");
+  for (const part of resetFactIcon(kind)) {
+    const node = document.createElementNS("http://www.w3.org/2000/svg", part.tag);
+    for (const [key, value] of Object.entries(part.attrs)) node.setAttribute(key, value);
+    svg.append(node);
+  }
+  return svg;
+}
+
+function buildResetBadges(event, status) {
+  const badges = [{
+    text: status.label,
+    className: `reset-badge ${status.className}`,
+    icon: status.className === "is-early" ? "status" : null,
+  }];
+
+  const earlyDelta = formatResetBadgeDelta(event.deltaMs);
+  if (earlyDelta) {
+    badges.push({
+      text: earlyDelta,
+      className: "reset-badge is-timing",
+      icon: "delta",
+    });
+  }
+
+  const cycleLabel = formatCycleDurationLabel(event.cycleDurationMs);
+  if (cycleLabel) {
+    badges.push({
+      text: cycleLabel,
+      className: "reset-badge is-cycle",
+      icon: "next",
+    });
+  }
+
+  return badges;
+}
+
+function createResetEventView(usage, event) {
+  const accountName = currentDisplayNameForEmail(usage, event.email, event.displayName);
+  const status = buildResetStatusView(event);
+  return {
+    email: event.email,
+    displayName: accountName,
+    detectedText: formatCompactDateTimePtBr(event.capturedAtDate),
+    previousDeadlineText: event.previousWeeklyResetDate
+      ? formatCompactDateTimePtBr(event.previousWeeklyResetDate)
+      : "Sem anterior",
+    newDeadlineText: formatCompactDateTimePtBr(event.weeklyResetDate),
+    deltaText: formatDeadlineDelta(event.deltaMs),
+    percentText: formatResetPercentMove(event),
+    statusClass: status.className,
+    badges: buildResetBadges(event, status),
   };
 }
 
@@ -908,6 +1010,21 @@ function buildWeeklyResetView(usage) {
   const filteredEvents = resetEventFilter === "early"
     ? accountFilteredEvents.filter((event) => event.isEarlyReset)
     : accountFilteredEvents;
+
+  if (selectedResetEmail === "all") {
+    return {
+      activeFilter: resetEventFilter,
+      selectedEmail: selectedResetEmail,
+      accountOptions,
+      accountCount: new Set(allEvents.map((event) => event.email)).size,
+      eventCount: allEvents.length,
+      earlyCount: allEvents.filter((event) => event.isEarlyReset).length,
+      isUnifiedTimeline: true,
+      events: filteredEvents.map((event) => createResetEventView(usage, event)),
+      groups: [],
+    };
+  }
+
   const grouped = new Map();
 
   for (const event of filteredEvents) {
@@ -923,21 +1040,7 @@ function buildWeeklyResetView(usage) {
     if (event.capturedAtDate > grouped.get(email).latestCapturedAt) {
       grouped.get(email).latestCapturedAt = event.capturedAtDate;
     }
-    const status = buildResetStatusView(event);
-    grouped.get(email).events.push({
-      email,
-      displayName: event.displayName,
-      detectedText: formatCompactDateTimePtBr(event.capturedAtDate),
-      previousDeadlineText: event.previousWeeklyResetDate
-        ? formatCompactDateTimePtBr(event.previousWeeklyResetDate)
-        : "Sem anterior",
-      newDeadlineText: formatCompactDateTimePtBr(event.weeklyResetDate),
-      deltaText: formatDeadlineDelta(event.deltaMs),
-      percentText: formatResetPercentMove(event),
-      isEarlyReset: event.isEarlyReset,
-      statusClass: status.className,
-      statusLabel: status.label,
-    });
+    grouped.get(email).events.push(createResetEventView(usage, event));
   }
 
   return {
@@ -947,6 +1050,8 @@ function buildWeeklyResetView(usage) {
     accountCount: new Set(allEvents.map((event) => event.email)).size,
     eventCount: allEvents.length,
     earlyCount: allEvents.filter((event) => event.isEarlyReset).length,
+    isUnifiedTimeline: false,
+    events: [],
     groups: [...grouped.values()].sort((a, b) => b.latestCapturedAt.getTime() - a.latestCapturedAt.getTime() || a.email.localeCompare(b.email)),
   };
 }
@@ -1693,17 +1798,88 @@ function renderWeeklyResetArea(els, resetView) {
   if (!container) return;
   container.replaceChildren();
 
-  if (!resetView.groups.length) {
+  const hasContent = resetView.isUnifiedTimeline ? resetView.events.length > 0 : resetView.groups.length > 0;
+  if (!hasContent) {
     const empty = document.createElement("p");
     empty.className = "reset-empty";
     empty.textContent = resetView.activeFilter === "early"
-      ? "Nenhuma renovação antecipada com saldo recuperado registrada ainda."
+      ? "Nenhum evento antes do prazo registrado ainda."
       : "Nenhuma renovação semanal por e-mail registrada ainda.";
     container.append(empty);
     return;
   }
 
+  function createEventRow(event, options = {}) {
+    const row = document.createElement("div");
+    row.className = `reset-event-row ${event.statusClass}`;
+
+    const main = document.createElement("div");
+    main.className = "reset-event-main";
+
+    const eventHead = document.createElement("div");
+    eventHead.className = "reset-event-head";
+    const eventTitle = document.createElement("div");
+    eventTitle.className = "reset-event-title";
+    if (options.showAccountIdentity) {
+      const accountMeta = document.createElement("span");
+      accountMeta.className = "reset-event-account";
+      accountMeta.textContent = `${event.displayName} · ${event.email}`;
+      eventTitle.append(accountMeta);
+    }
+    const titleText = document.createElement("strong");
+    titleText.textContent = `Detectado ${event.detectedText}`;
+    const percentMove = document.createElement("span");
+    percentMove.className = "reset-event-percent";
+    percentMove.textContent = event.percentText;
+    eventTitle.append(titleText, percentMove);
+
+    const badgeList = document.createElement("div");
+    badgeList.className = "reset-badges";
+    for (const badgeModel of event.badges) {
+      const badge = document.createElement("span");
+      badge.className = badgeModel.className;
+      if (badgeModel.icon) badge.append(createResetInlineIcon(badgeModel.icon));
+      const text = document.createElement("span");
+      text.textContent = badgeModel.text;
+      badge.append(text);
+      badgeList.append(badge);
+    }
+    eventHead.append(eventTitle, badgeList);
+
+    const facts = document.createElement("div");
+    facts.className = "reset-event-facts";
+    [
+      ["Prazo anterior", event.previousDeadlineText, "previous"],
+      ["Novo prazo", event.newDeadlineText, "next"],
+      ["Diferença", event.deltaText, "delta"],
+    ].forEach(([label, value, icon]) => {
+      const item = document.createElement("div");
+      const itemLabel = document.createElement("span");
+      itemLabel.className = "reset-fact-label";
+      itemLabel.append(createResetInlineIcon(icon), document.createTextNode(label));
+      const itemValue = document.createElement("strong");
+      itemValue.textContent = value;
+      item.append(itemLabel, itemValue);
+      facts.append(item);
+    });
+
+    main.append(eventHead, facts);
+    row.append(main);
+    return row;
+  }
+
   const fragment = document.createDocumentFragment();
+  if (resetView.isUnifiedTimeline) {
+    const timeline = document.createElement("div");
+    timeline.className = "reset-events reset-events-unified";
+    for (const event of resetView.events) {
+      timeline.append(createEventRow(event, { showAccountIdentity: true }));
+    }
+    fragment.append(timeline);
+    container.append(fragment);
+    return;
+  }
+
   for (const group of resetView.groups) {
     const card = document.createElement("article");
     card.className = "reset-account-card";
@@ -1726,46 +1902,7 @@ function renderWeeklyResetArea(els, resetView) {
     const events = document.createElement("div");
     events.className = "reset-events";
     for (const event of group.events) {
-      const row = document.createElement("div");
-      row.className = `reset-event-row ${event.statusClass}`;
-
-      const main = document.createElement("div");
-      main.className = "reset-event-main";
-
-      const eventHead = document.createElement("div");
-      eventHead.className = "reset-event-head";
-      const eventTitle = document.createElement("div");
-      eventTitle.className = "reset-event-title";
-      const titleText = document.createElement("strong");
-      titleText.textContent = `Detectado ${event.detectedText}`;
-      const percentMove = document.createElement("span");
-      percentMove.textContent = event.percentText;
-      eventTitle.append(titleText, percentMove);
-
-      const badge = document.createElement("span");
-      badge.className = `reset-badge ${event.statusClass}`;
-      badge.textContent = event.statusLabel;
-      eventHead.append(eventTitle, badge);
-
-      const facts = document.createElement("div");
-      facts.className = "reset-event-facts";
-      [
-        ["Prazo anterior", event.previousDeadlineText],
-        ["Novo prazo", event.newDeadlineText],
-        ["Diferença", event.deltaText],
-      ].forEach(([label, value]) => {
-        const item = document.createElement("div");
-        const itemLabel = document.createElement("span");
-        itemLabel.textContent = label;
-        const itemValue = document.createElement("strong");
-        itemValue.textContent = value;
-        item.append(itemLabel, itemValue);
-        facts.append(item);
-      });
-
-      main.append(eventHead, facts);
-      row.append(main);
-      events.append(row);
+      events.append(createEventRow(event));
     }
 
     card.append(top, events);
@@ -1864,16 +2001,16 @@ function triggerHaptic(duration = 10) {
 
 const NOTIFICATION_RULES = [
   {
-    id: "weeklyResetShift",
-    title: "Reset semanal mudou",
-    description: "Avisa quando o dia/horário semanal de uma conta muda fora do padrão.",
+    id: "weeklyRefill",
+    title: "Semanal recarregado",
+    description: "Avisa quando uma conta renova antes do prazo e volta para 99% ou 100%.",
     defaultEnabled: true,
     accountScoped: true,
   },
   {
-    id: "weeklyRefill",
-    title: "Semanal recarregado",
-    description: "Avisa quando a conta volta para 95% ou mais.",
+    id: "weeklyHighNearReset",
+    title: "Semanal alto perto do reset",
+    description: "Avisa quando sobra mais de 30% e faltam ate 24h para o reset semanal.",
     defaultEnabled: true,
     accountScoped: true,
   },

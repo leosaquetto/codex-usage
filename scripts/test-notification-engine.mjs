@@ -60,7 +60,7 @@ const refill = evaluateNotificationSignals({
     accounts: [{
       ...baseAccount,
       weeklyPercent: 100,
-      weeklyReset: "2026-06-15T20:00:00.000Z",
+      weeklyReset: "2026-06-07T20:00:00.000Z",
     }],
   },
   state: weeklyLow.nextState,
@@ -68,18 +68,76 @@ const refill = evaluateNotificationSignals({
 });
 assert.deepEqual(refill.signals.map((signal) => signal.ruleId), ["weeklyRefill"]);
 
-const resetShift = evaluateNotificationSignals({
+const partialEarlyReset = evaluateNotificationSignals({
   usage: {
     ...freshUsage,
     accounts: [{
       ...baseAccount,
-      weeklyReset: "2026-06-09T22:30:00.000Z",
+      weeklyPercent: 95,
+      weeklyReset: "2026-06-07T20:00:00.000Z",
     }],
   },
   state: firstSeen.nextState,
   nowMs,
 });
-assert.deepEqual(resetShift.signals.map((signal) => signal.ruleId), ["weeklyResetShift"]);
+assert.deepEqual(partialEarlyReset.signals, []);
+
+const fullButOnTimeReset = evaluateNotificationSignals({
+  usage: {
+    ...freshUsage,
+    lastUpdated: "2026-06-08T20:05:00.000Z",
+    accounts: [{
+      ...baseAccount,
+      weeklyPercent: 99,
+      weeklyReset: "2026-06-15T20:00:00.000Z",
+    }],
+  },
+  state: firstSeen.nextState,
+  nowMs: new Date("2026-06-08T20:05:00.000Z").getTime(),
+});
+assert.deepEqual(fullButOnTimeReset.signals, []);
+
+const highNearReset = evaluateNotificationSignals({
+  usage: {
+    ...freshUsage,
+    accounts: [{
+      ...baseAccount,
+      weeklyPercent: 31,
+      weeklyReset: "2026-06-04T12:00:00.000Z",
+    }],
+  },
+  state: firstSeen.nextState,
+  nowMs,
+});
+assert.deepEqual(highNearReset.signals.map((signal) => signal.ruleId), ["weeklyHighNearReset"]);
+
+const lowNearResetNoAlert = evaluateNotificationSignals({
+  usage: {
+    ...freshUsage,
+    accounts: [{
+      ...baseAccount,
+      weeklyPercent: 30,
+      weeklyReset: "2026-06-04T12:00:00.000Z",
+    }],
+  },
+  state: firstSeen.nextState,
+  nowMs,
+});
+assert.deepEqual(lowNearResetNoAlert.signals, []);
+
+const farNearResetNoAlert = evaluateNotificationSignals({
+  usage: {
+    ...freshUsage,
+    accounts: [{
+      ...baseAccount,
+      weeklyPercent: 31,
+      weeklyReset: "2026-06-05T20:00:00.000Z",
+    }],
+  },
+  state: firstSeen.nextState,
+  nowMs,
+});
+assert.deepEqual(farNearResetNoAlert.signals, []);
 
 const stale = evaluateNotificationSignals({
   usage: {

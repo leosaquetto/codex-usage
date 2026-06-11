@@ -2,6 +2,7 @@ const DEFAULT_STALE_AFTER_MS = 60 * 60 * 1000;
 const DATA_STALE_COOLDOWN_MS = 30 * 60 * 1000;
 const WEEKLY_LOW_COOLDOWN_MS = 12 * 60 * 60 * 1000;
 const FIVE_HOUR_LOW_COOLDOWN_MS = 3 * 60 * 60 * 1000;
+const WEEKLY_HIGH_NEAR_RESET_COOLDOWN_MS = 18 * 60 * 60 * 1000;
 
 function parseDate(value) {
   if (!value) return null;
@@ -49,6 +50,12 @@ function isThirtyDayAccount(account) {
 function percentText(value) {
   const percent = clampPercent(value, null);
   return percent === null ? "--" : `${Math.round(percent)}%`;
+}
+
+function hoursUntil(target, nowMs) {
+  const date = parseDate(target);
+  if (!date) return null;
+  return (date.getTime() - nowMs) / 3600000;
 }
 
 function formatDateTimePtBr(value) {
@@ -114,35 +121,43 @@ function evaluateNotificationSignals({
     if (!key) continue;
 
     const currentReset = dateIso(account.weeklyResetDate || account.weeklyReset);
-    const currentResetPattern = resetPatternKey(currentReset);
     const currentPercent = clampPercent(account.weeklyPercent, null);
     const currentFiveHourPercent = clampPercent(account.fiveHourPercent, null);
     const previous = nextState.byAccount[key] || {};
     const previousReset = typeof previous.weeklyReset === "string" ? previous.weeklyReset : null;
-    const previousResetPattern = typeof previous.weeklyResetPattern === "string" ? previous.weeklyResetPattern : null;
     const previousPercent = clampPercent(previous.weeklyPercent, null);
     const previousFiveHourPercent = clampPercent(previous.fiveHourPercent, null);
     const firstSeen = !previous.seen;
-    const refilled = previousPercent !== null && previousPercent < 95 && currentPercent !== null && currentPercent >= 95;
-    const resetPatternChanged = Boolean(previousResetPattern && currentResetPattern && previousResetPattern !== currentResetPattern);
+    const previousResetDate = parseDate(previousReset);
+    const detectedBeforePreviousDeadline = Boolean(
+      previousReset
+      && usageUpdatedAt
+      && previousResetDate
+      && usageUpdatedAt.getTime() < previousResetDate.getTime(),
+    );
     const resetChanged = Boolean(previousReset && currentReset && previousReset !== currentReset);
     const displayName = account.name || "Conta";
     const thirtyDayAccount = isThirtyDayAccount(account);
+    const weeklyHoursUntilReset = hoursUntil(currentReset, nowMs);
+    const isHighNearReset = currentPercent !== null
+      && currentPercent > 30
+      && weeklyHoursUntilReset !== null
+      && weeklyHoursUntilReset >= 0
+      && weeklyHoursUntilReset <= 24;
 
-    if (!thirtyDayAccount && !firstSeen && resetPatternChanged) {
-      signals.push(buildSignal(
-        "weeklyResetShift",
-        account,
-        "Reset semanal mudou",
-        `${displayName}: novo reset em ${formatDateTimePtBr(currentReset)}.`,
-        `weekly-reset-shift-${key}-${currentReset || "unknown"}`,
-      ));
-    } else if (!thirtyDayAccount && !firstSeen && (refilled || (resetChanged && currentPercent !== null && currentPercent >= 95))) {
+    if (
+      !thirtyDayAccount
+      && !firstSeen
+      && resetChanged
+      && detectedBeforePreviousDeadline
+      && currentPercent !== null
+      && currentPercent >= 99
+    ) {
       signals.push(buildSignal(
         "weeklyRefill",
         account,
         "Semanal recarregado",
-        `${displayName} voltou para ${percentText(currentPercent)}.`,
+        `${displayName} voltou para ${percentText(currentPercent)} antes do prazo.`,
         `weekly-refill-${key}-${currentReset || "full"}`,
       ));
     }
@@ -163,6 +178,22 @@ function evaluateNotificationSignals({
         `${displayName}: ${percentText(currentPercent)} restante no semanal.`,
         `weekly-low-${key}-${currentReset || "unknown"}`,
         "lastWeeklyLowAt",
+      ));
+    }
+
+    if (
+      !thirtyDayAccount
+      && !firstSeen
+      && isHighNearReset
+      && !isCoolingDown(previous.lastWeeklyHighNearResetAt, WEEKLY_HIGH_NEAR_RESET_COOLDOWN_MS, nowMs)
+    ) {
+      signals.push(buildSignal(
+        "weeklyHighNearReset",
+        account,
+        "Semanal alto perto do reset",
+        `${displayName}: ${percentText(currentPercent)} restante com reset em ${formatDateTimePtBr(currentReset)}.`,
+        `weekly-high-near-reset-${key}-${currentReset || "unknown"}`,
+        "lastWeeklyHighNearResetAt",
       ));
     }
 
@@ -190,7 +221,6 @@ function evaluateNotificationSignals({
       ...previous,
       seen: true,
       weeklyReset: currentReset,
-      weeklyResetPattern: currentResetPattern,
       weeklyPercent: currentPercent,
       fiveHourPercent: currentFiveHourPercent,
     };

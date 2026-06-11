@@ -1,19 +1,19 @@
 {
   "source": "codex-switcher",
-  "lastUpdated": "2026-06-11T09:54:30.089Z",
+  "lastUpdated": "2026-06-11T10:10:03.109Z",
   "accountCount": 5,
   "okCount": 5,
-  "activeAccountId": "0a8a561a-4d88-445b-9e97-8df479d9b601",
+  "activeAccountId": "be5c4686-c38c-4cac-9296-5cd93d2f1274",
   "aggregate": {
-    "fiveHourPercent": 40,
+    "fiveHourPercent": 37,
     "fiveHourReset": "2026-06-11T10:19:22.000Z",
-    "weeklyPercent": 80,
+    "weeklyPercent": 79,
     "weeklyReset": "2026-06-17T20:04:02.000Z",
-    "lastUpdated": "2026-06-11T09:54:30.089Z"
+    "lastUpdated": "2026-06-11T10:10:03.109Z"
   },
-  "fiveHourPercent": 40,
+  "fiveHourPercent": 37,
   "fiveHourReset": "2026-06-11T10:19:22.000Z",
-  "weeklyPercent": 80,
+  "weeklyPercent": 79,
   "weeklyReset": "2026-06-17T20:04:02.000Z",
   "accounts": [
     {
@@ -24,14 +24,14 @@
       "email": "contatonatanaelrodrigs@gmail.com",
       "planType": "plus",
       "subscriptionExpiresAt": "2026-06-26T20:28:52.000Z",
-      "isActive": false,
-      "lastUsedAt": "2026-06-11T00:37:06.575Z",
-      "fiveHourPercent": 99,
-      "fiveHourUsedPercent": 1,
+      "isActive": true,
+      "lastUsedAt": "2026-06-11T09:58:24.813Z",
+      "fiveHourPercent": 87,
+      "fiveHourUsedPercent": 13,
       "fiveHourReset": "2026-06-11T13:51:25.000Z",
       "fiveHourWindowMinutes": 300,
-      "weeklyPercent": 100,
-      "weeklyUsedPercent": 0,
+      "weeklyPercent": 98,
+      "weeklyUsedPercent": 2,
       "weeklyReset": "2026-06-18T08:51:25.000Z",
       "weeklyWindowMinutes": 10080,
       "credits": {
@@ -39,7 +39,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-11T09:54:30.089Z",
+      "lastUpdated": "2026-06-11T10:10:03.109Z",
       "status": "ok",
       "error": null
     },
@@ -66,7 +66,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-11T09:54:30.089Z",
+      "lastUpdated": "2026-06-11T10:10:03.109Z",
       "status": "ok",
       "error": null
     },
@@ -93,7 +93,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-11T09:54:30.089Z",
+      "lastUpdated": "2026-06-11T10:10:03.109Z",
       "status": "ok",
       "error": null
     },
@@ -120,7 +120,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-11T09:54:30.089Z",
+      "lastUpdated": "2026-06-11T10:10:03.109Z",
       "status": "ok",
       "error": null
     },
@@ -133,7 +133,7 @@
       "planType": "plus",
       "subscriptionExpiresAt": "2026-06-26T02:50:41.000Z",
       "isActive": false,
-      "lastUsedAt": "2026-06-09T22:38:46.092Z",
+      "lastUsedAt": "2026-06-11T09:58:19.879Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
       "fiveHourReset": "2026-06-11T11:54:55.000Z",
@@ -147,7 +147,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-11T09:54:30.089Z",
+      "lastUpdated": "2026-06-11T10:10:03.109Z",
       "status": "ok",
       "error": null
     },
@@ -174,7 +174,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-11T09:54:30.089Z",
+      "lastUpdated": "2026-06-11T10:10:03.109Z",
       "status": "ok",
       "error": null
     },
@@ -201,7 +201,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-11T09:54:30.089Z",
+      "lastUpdated": "2026-06-11T10:10:03.109Z",
       "status": "ok",
       "error": null
     },
@@ -228,7 +228,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-11T09:54:30.089Z",
+      "lastUpdated": "2026-06-11T10:10:03.109Z",
       "status": "ok",
       "error": null
     },
@@ -240,7 +240,7 @@
       "email": "douglaschatgpt.am@gmail.com",
       "planType": "plus",
       "subscriptionExpiresAt": "2026-06-14T14:47:53.000Z",
-      "isActive": true,
+      "isActive": false,
       "lastUsedAt": "2026-06-11T09:07:25.452Z",
       "fiveHourPercent": 0,
       "fiveHourUsedPercent": 100,
@@ -255,7 +255,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-11T09:54:30.089Z",
+      "lastUpdated": "2026-06-11T10:10:03.109Z",
       "status": "ok",
       "error": null
     }

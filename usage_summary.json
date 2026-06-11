@@ -1,21 +1,21 @@
 {
-  "lastUpdated": "2026-06-11T05:27:22.290Z",
+  "lastUpdated": "2026-06-11T05:43:02.503Z",
   "codex": {
     "source": "codex-switcher",
-    "lastUpdated": "2026-06-11T05:27:22.290Z",
+    "lastUpdated": "2026-06-11T05:43:02.503Z",
     "accountCount": 5,
     "okCount": 5,
     "activeAccountId": "007e1109-aa2e-4932-9640-d4dbadced43b",
     "aggregate": {
-      "fiveHourPercent": 75,
+      "fiveHourPercent": 71,
       "fiveHourReset": "2026-06-11T06:25:12.000Z",
-      "weeklyPercent": 49,
+      "weeklyPercent": 48,
       "weeklyReset": "2026-06-11T06:53:52.000Z",
-      "lastUpdated": "2026-06-11T05:27:22.290Z"
+      "lastUpdated": "2026-06-11T05:43:02.503Z"
     },
-    "fiveHourPercent": 75,
+    "fiveHourPercent": 71,
     "fiveHourReset": "2026-06-11T06:25:12.000Z",
-    "weeklyPercent": 49,
+    "weeklyPercent": 48,
     "weeklyReset": "2026-06-11T06:53:52.000Z",
     "accounts": [
       {
@@ -30,7 +30,7 @@
         "lastUsedAt": "2026-06-11T00:37:06.575Z",
         "fiveHourPercent": 99,
         "fiveHourUsedPercent": 1,
-        "fiveHourReset": "2026-06-11T10:27:24.000Z",
+        "fiveHourReset": "2026-06-11T10:43:04.000Z",
         "fiveHourWindowMinutes": 300,
         "weeklyPercent": 0,
         "weeklyUsedPercent": 100,
@@ -41,7 +41,7 @@
           "unlimited": false,
           "balance": "0"
         },
-        "lastUpdated": "2026-06-11T05:27:22.290Z",
+        "lastUpdated": "2026-06-11T05:43:02.503Z",
         "status": "ok",
         "error": null
       },
@@ -68,7 +68,7 @@
           "unlimited": false,
           "balance": null
         },
-        "lastUpdated": "2026-06-11T05:27:22.290Z",
+        "lastUpdated": "2026-06-11T05:43:02.503Z",
         "status": "ok",
         "error": null
       },
@@ -82,12 +82,12 @@
         "subscriptionExpiresAt": "2026-06-22T20:22:14.000Z",
         "isActive": true,
         "lastUsedAt": "2026-06-11T05:15:45.883Z",
-        "fiveHourPercent": 79,
-        "fiveHourUsedPercent": 21,
+        "fiveHourPercent": 56,
+        "fiveHourUsedPercent": 44,
         "fiveHourReset": "2026-06-11T10:19:22.000Z",
         "fiveHourWindowMinutes": 300,
-        "weeklyPercent": 97,
-        "weeklyUsedPercent": 3,
+        "weeklyPercent": 93,
+        "weeklyUsedPercent": 7,
         "weeklyReset": "2026-06-18T05:19:22.000Z",
         "weeklyWindowMinutes": 10080,
         "credits": {
@@ -95,7 +95,7 @@
           "unlimited": false,
           "balance": "0"
         },
-        "lastUpdated": "2026-06-11T05:27:22.290Z",
+        "lastUpdated": "2026-06-11T05:43:02.503Z",
         "status": "ok",
         "error": null
       },
@@ -122,7 +122,7 @@
           "unlimited": false,
           "balance": "0"
         },
-        "lastUpdated": "2026-06-11T05:27:22.290Z",
+        "lastUpdated": "2026-06-11T05:43:02.503Z",
         "status": "ok",
         "error": null
       },
@@ -138,7 +138,7 @@
         "lastUsedAt": "2026-06-09T22:38:46.092Z",
         "fiveHourPercent": 99,
         "fiveHourUsedPercent": 1,
-        "fiveHourReset": "2026-06-11T10:27:24.000Z",
+        "fiveHourReset": "2026-06-11T10:43:04.000Z",
         "fiveHourWindowMinutes": 300,
         "weeklyPercent": 0,
         "weeklyUsedPercent": 100,
@@ -149,7 +149,7 @@
           "unlimited": false,
           "balance": "0"
         },
-        "lastUpdated": "2026-06-11T05:27:22.290Z",
+        "lastUpdated": "2026-06-11T05:43:02.503Z",
         "status": "ok",
         "error": null
       },
@@ -176,7 +176,7 @@
           "unlimited": false,
           "balance": null
         },
-        "lastUpdated": "2026-06-11T05:27:22.290Z",
+        "lastUpdated": "2026-06-11T05:43:02.503Z",
         "status": "ok",
         "error": null
       },
@@ -203,7 +203,7 @@
           "unlimited": false,
           "balance": null
         },
-        "lastUpdated": "2026-06-11T05:27:22.290Z",
+        "lastUpdated": "2026-06-11T05:43:02.503Z",
         "status": "ok",
         "error": null
       },
@@ -230,7 +230,7 @@
           "unlimited": false,
           "balance": null
         },
-        "lastUpdated": "2026-06-11T05:27:22.290Z",
+        "lastUpdated": "2026-06-11T05:43:02.503Z",
         "status": "ok",
         "error": null
       },
@@ -250,14 +250,14 @@
         "fiveHourWindowMinutes": 300,
         "weeklyPercent": 46,
         "weeklyUsedPercent": 54,
-        "weeklyReset": "2026-06-17T20:04:03.000Z",
+        "weeklyReset": "2026-06-17T20:04:02.000Z",
         "weeklyWindowMinutes": 10080,
         "credits": {
           "hasCredits": false,
           "unlimited": false,
           "balance": "0"
         },
-        "lastUpdated": "2026-06-11T05:27:22.290Z",
+        "lastUpdated": "2026-06-11T05:43:02.503Z",
         "status": "ok",
         "error": null
       }
@@ -265,7 +265,7 @@
   },
   "codexHistory": {
     "version": 2,
-    "lastUpdated": "2026-06-11T05:27:22.290Z",
+    "lastUpdated": "2026-06-11T05:43:02.503Z",
     "samples": [
       {
         "capturedAt": "2026-05-25T20:11:07.164Z",
@@ -8448,6 +8448,13 @@
         "fiveHourPercent": 75,
         "fiveHourReset": "2026-06-11T06:25:12.000Z",
         "weeklyPercent": 49,
+        "weeklyReset": "2026-06-11T06:53:52.000Z"
+      },
+      {
+        "capturedAt": "2026-06-11T05:43:02.503Z",
+        "fiveHourPercent": 71,
+        "fiveHourReset": "2026-06-11T06:25:12.000Z",
+        "weeklyPercent": 48,
         "weeklyReset": "2026-06-11T06:53:52.000Z"
       }
     ],
@@ -48851,6 +48858,41 @@
       },
       {
         "capturedAt": "2026-06-11T05:27:22.290Z",
+        "email": "leoaraujo1949@gmail.com",
+        "displayName": "LEO II",
+        "weeklyPercent": 0,
+        "weeklyReset": "2026-06-11T06:53:52.000Z"
+      },
+      {
+        "capturedAt": "2026-06-11T05:43:02.503Z",
+        "email": "contatonatanaelrodrigs@gmail.com",
+        "displayName": "NATANAEL",
+        "weeklyPercent": 0,
+        "weeklyReset": "2026-06-11T08:15:36.000Z"
+      },
+      {
+        "capturedAt": "2026-06-11T05:43:02.503Z",
+        "email": "douglaschatgpt.am@gmail.com",
+        "displayName": "Douglas",
+        "weeklyPercent": 46,
+        "weeklyReset": "2026-06-17T20:04:02.000Z"
+      },
+      {
+        "capturedAt": "2026-06-11T05:43:02.503Z",
+        "email": "dzplaybacks@gmail.com",
+        "displayName": "AMANDA",
+        "weeklyPercent": 93,
+        "weeklyReset": "2026-06-18T05:19:22.000Z"
+      },
+      {
+        "capturedAt": "2026-06-11T05:43:02.503Z",
+        "email": "jv5pdcwnxp@privaterelay.appleid.com",
+        "displayName": "LEO I",
+        "weeklyPercent": 100,
+        "weeklyReset": "2026-06-18T05:26:34.000Z"
+      },
+      {
+        "capturedAt": "2026-06-11T05:43:02.503Z",
         "email": "leoaraujo1949@gmail.com",
         "displayName": "LEO II",
         "weeklyPercent": 0,

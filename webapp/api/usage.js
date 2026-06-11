@@ -1,5 +1,6 @@
 const { readFile } = require("fs/promises")
 const { resolve } = require("path")
+const { buildWeeklyResetEvents, numberOrNull } = require("../weekly-reset-events.cjs")
 
 const STALE_AFTER_MS = 60 * 60 * 1000
 const LONG_WINDOW_MINUTES = 20 * 24 * 60
@@ -132,9 +133,12 @@ function normalizeAccountSamples(raw) {
 }
 
 function normalizeWeeklyResetEvents(raw) {
-  const events = Array.isArray(raw?.weeklyResetEvents) && raw.weeklyResetEvents.length
-    ? raw.weeklyResetEvents
-    : buildWeeklyResetEvents(normalizeAccountSamples(raw))
+  const generatedEvents = buildWeeklyResetEvents(normalizeAccountSamples(raw))
+  const events = generatedEvents.length
+    ? generatedEvents
+    : Array.isArray(raw?.weeklyResetEvents) && raw.weeklyResetEvents.length
+      ? raw.weeklyResetEvents
+      : []
   const byKey = new Map()
 
   for (const event of events) {
@@ -143,6 +147,17 @@ function normalizeWeeklyResetEvents(raw) {
     const weeklyReset = toDate(event?.weeklyReset)
     const previousWeeklyReset = toDate(event?.previousWeeklyReset)
     const deltaMs = event?.deltaMs === null || event?.deltaMs === undefined ? null : Number(event.deltaMs)
+    const weeklyPercent = numberOrNull(event?.weeklyPercent)
+    const previousWeeklyPercent = numberOrNull(event?.previousWeeklyPercent)
+    const rawWeeklyPercentDelta = numberOrNull(event?.weeklyPercentDelta)
+    const weeklyPercentDelta = rawWeeklyPercentDelta !== null
+      ? rawWeeklyPercentDelta
+      : weeklyPercent !== null && previousWeeklyPercent !== null
+        ? weeklyPercent - previousWeeklyPercent
+        : null
+    const earlyReason = typeof event?.earlyReason === "string" && event.earlyReason
+      ? event.earlyReason
+      : null
 
     if (!email || !capturedAt || !weeklyReset) continue
 
@@ -156,50 +171,16 @@ function normalizeWeeklyResetEvents(raw) {
       weeklyReset: weeklyReset.toISOString(),
       previousWeeklyReset: previousWeeklyReset?.toISOString() || null,
       isEarlyReset: event?.isEarlyReset === true,
-      deltaMs: Number.isFinite(deltaMs) ? deltaMs : null
+      deltaMs: Number.isFinite(deltaMs) ? deltaMs : null,
+      weeklyPercent,
+      previousWeeklyPercent,
+      weeklyPercentDelta,
+      earlyReason
     })
   }
 
   return [...byKey.values()]
     .sort((a, b) => new Date(a.capturedAt).getTime() - new Date(b.capturedAt).getTime() || a.email.localeCompare(b.email))
-}
-
-function buildWeeklyResetEvents(accountSamples) {
-  const byEmail = new Map()
-  for (const sample of accountSamples) {
-    if (!byEmail.has(sample.email)) byEmail.set(sample.email, [])
-    byEmail.get(sample.email).push(sample)
-  }
-
-  const events = []
-  for (const [email, samples] of byEmail.entries()) {
-    const ordered = samples.sort((a, b) => new Date(a.capturedAt).getTime() - new Date(b.capturedAt).getTime())
-    let previousReset = null
-    let lastEventReset = null
-
-    for (const sample of ordered) {
-      if (sample.weeklyReset === lastEventReset) continue
-
-      const previousMs = previousReset ? new Date(previousReset).getTime() : NaN
-      const capturedMs = new Date(sample.capturedAt).getTime()
-      const deltaMs = Number.isFinite(previousMs) ? capturedMs - previousMs : null
-
-      events.push({
-        email,
-        displayName: sample.displayName || email,
-        capturedAt: sample.capturedAt,
-        weeklyReset: sample.weeklyReset,
-        previousWeeklyReset: previousReset,
-        isEarlyReset: Number.isFinite(deltaMs) ? deltaMs < 0 : false,
-        deltaMs
-      })
-
-      previousReset = sample.weeklyReset
-      lastEventReset = sample.weeklyReset
-    }
-  }
-
-  return events
 }
 
 function publicAccountError(value) {

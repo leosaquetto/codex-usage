@@ -551,7 +551,7 @@ input {
 
 .reset-area {
   display: grid;
-  gap: 12px;
+  gap: 14px;
   margin: 14px 0 0;
   padding: 14px;
   border-radius: 18px;
@@ -573,9 +573,18 @@ input {
   line-height: 1;
 }
 
+.reset-area-note {
+  max-width: 520px;
+  margin: 7px 0 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
 .reset-controls {
   display: grid;
-  gap: 8px;
+  gap: 10px;
 }
 
 .reset-account-filters {
@@ -655,11 +664,11 @@ input {
 .reset-account-card,
 .reset-events {
   display: grid;
-  gap: 8px;
+  gap: 10px;
 }
 
 .reset-account-card {
-  padding: 11px;
+  padding: 12px;
   border: 1px solid rgba(15, 23, 42, 0.075);
   border-radius: 13px;
   background: #fff;
@@ -706,16 +715,38 @@ input {
 }
 
 .reset-event-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 9px;
-  border-radius: 11px;
+  display: block;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 12px;
   background: #f8fafc;
 }
 
+.reset-event-row.is-early {
+  border-color: rgba(22, 101, 52, 0.14);
+  background: #f0fdf4;
+}
+
+.reset-event-row.is-unrecovered {
+  border-color: rgba(202, 138, 4, 0.18);
+  background: #fffbeb;
+}
+
 .reset-event-main {
+  display: grid;
+  gap: 9px;
+  min-width: 0;
+}
+
+.reset-event-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 8px;
+}
+
+.reset-event-title {
   display: grid;
   gap: 3px;
   min-width: 0;
@@ -736,6 +767,37 @@ input {
   line-height: 1.2;
 }
 
+.reset-event-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.reset-event-facts div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: 7px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.reset-event-facts span {
+  color: var(--text-muted);
+  font-size: 9px;
+  font-weight: 950;
+  letter-spacing: 0.04em;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.reset-event-facts strong {
+  color: var(--text-primary);
+  font-size: 11px;
+  line-height: 1.15;
+}
+
 .reset-badge {
   align-self: center;
   color: var(--text-secondary);
@@ -745,6 +807,16 @@ input {
 .reset-badge.is-early {
   color: #166534;
   background: #dcfce7;
+}
+
+.reset-badge.is-unrecovered {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+.reset-badge.is-first {
+  color: #1d4ed8;
+  background: #dbeafe;
 }
 
 .reset-empty {
@@ -2262,8 +2334,31 @@ input {
     font-size: 18px;
   }
 
-  .reset-event-row {
+  .reset-account-card {
+    padding: 10px;
+  }
+
+  .reset-account-top {
     grid-template-columns: minmax(0, 1fr);
+    gap: 7px;
+  }
+
+  .reset-count-pill {
+    justify-self: start;
+  }
+
+  .reset-event-head {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 7px;
+  }
+
+  .reset-event-facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .reset-event-facts div {
+    grid-template-columns: 88px minmax(0, 1fr);
+    align-items: center;
   }
 
   .reset-badge {

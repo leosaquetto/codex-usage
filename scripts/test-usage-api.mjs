@@ -103,4 +103,94 @@ assert.equal(synthetic.accountSamples.length, 0);
 assert.equal(synthetic.weeklyResetEvents.length, 1);
 assert.equal(synthetic.weeklyResetEvents[0].capturedAt, "2026-05-31T12:30:47.930Z");
 
+const earlyRulePayload = enrichPayload({
+  lastUpdated: "2026-06-10T03:00:00.000Z",
+  aggregate: {
+    fiveHourPercent: 70,
+    fiveHourReset: "2026-06-10T06:00:00.000Z",
+    weeklyPercent: 60,
+    weeklyReset: "2026-06-15T03:00:00.000Z",
+  },
+  accounts: [],
+}, {
+  version: 2,
+  samples: [],
+  accountSamples: [
+    {
+      capturedAt: "2026-06-01T10:00:00.000Z",
+      email: "no-increase@example.com",
+      displayName: "NO INCREASE",
+      weeklyPercent: 44,
+      weeklyReset: "2026-06-08T10:00:00.000Z",
+    },
+    {
+      capturedAt: "2026-06-07T10:00:00.000Z",
+      email: "no-increase@example.com",
+      displayName: "NO INCREASE",
+      weeklyPercent: 44,
+      weeklyReset: "2026-06-14T10:00:00.000Z",
+    },
+    {
+      capturedAt: "2026-06-01T10:00:00.000Z",
+      email: "partial@example.com",
+      displayName: "PARTIAL",
+      weeklyPercent: 21,
+      weeklyReset: "2026-06-08T10:00:00.000Z",
+    },
+    {
+      capturedAt: "2026-06-07T10:00:00.000Z",
+      email: "partial@example.com",
+      displayName: "PARTIAL",
+      weeklyPercent: 44,
+      weeklyReset: "2026-06-14T10:00:00.000Z",
+    },
+    {
+      capturedAt: "2026-06-01T10:00:00.000Z",
+      email: "full@example.com",
+      displayName: "FULL",
+      weeklyPercent: 21,
+      weeklyReset: "2026-06-08T10:00:00.000Z",
+    },
+    {
+      capturedAt: "2026-06-07T10:00:00.000Z",
+      email: "full@example.com",
+      displayName: "FULL",
+      weeklyPercent: 99,
+      weeklyReset: "2026-06-14T10:00:00.000Z",
+    },
+    {
+      capturedAt: "2026-06-01T10:00:00.000Z",
+      email: "after@example.com",
+      displayName: "AFTER",
+      weeklyPercent: 21,
+      weeklyReset: "2026-06-08T10:00:00.000Z",
+    },
+    {
+      capturedAt: "2026-06-08T10:05:00.000Z",
+      email: "after@example.com",
+      displayName: "AFTER",
+      weeklyPercent: 44,
+      weeklyReset: "2026-06-15T10:00:00.000Z",
+    },
+  ],
+  weeklyResetEvents: [{
+    capturedAt: "2026-06-07T10:00:00.000Z",
+    email: "no-increase@example.com",
+    displayName: "OLD FLAG",
+    weeklyReset: "2026-06-14T10:00:00.000Z",
+    previousWeeklyReset: "2026-06-08T10:00:00.000Z",
+    isEarlyReset: true,
+    deltaMs: -86400000,
+  }],
+});
+const apiEvent = (email, weeklyReset) => earlyRulePayload.weeklyResetEvents
+  .find((event) => event.email === email && event.weeklyReset === weeklyReset);
+assert.equal(apiEvent("no-increase@example.com", "2026-06-14T10:00:00.000Z").isEarlyReset, false);
+assert.equal(apiEvent("no-increase@example.com", "2026-06-14T10:00:00.000Z").weeklyPercentDelta, 0);
+assert.equal(apiEvent("partial@example.com", "2026-06-14T10:00:00.000Z").isEarlyReset, true);
+assert.equal(apiEvent("partial@example.com", "2026-06-14T10:00:00.000Z").earlyReason, "percent-increase");
+assert.equal(apiEvent("full@example.com", "2026-06-14T10:00:00.000Z").isEarlyReset, true);
+assert.equal(apiEvent("full@example.com", "2026-06-14T10:00:00.000Z").earlyReason, "full-renewal");
+assert.equal(apiEvent("after@example.com", "2026-06-15T10:00:00.000Z").isEarlyReset, false);
+
 console.log("usage api smoke tests ok");

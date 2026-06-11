@@ -153,6 +153,17 @@ function normalizeWeeklyResetEvents(rawEvents) {
     const previousWeeklyResetDate = parseDate(raw?.previousWeeklyReset);
     const email = String(raw?.email || "").trim().toLowerCase();
     const deltaMs = raw?.deltaMs === null || raw?.deltaMs === undefined ? null : Number(raw.deltaMs);
+    const weeklyPercent = clampPercent(raw?.weeklyPercent, null);
+    const previousWeeklyPercent = clampPercent(raw?.previousWeeklyPercent, null);
+    const rawWeeklyPercentDelta = raw?.weeklyPercentDelta === null || raw?.weeklyPercentDelta === undefined
+      ? null
+      : Number(raw.weeklyPercentDelta);
+    const weeklyPercentDelta = Number.isFinite(rawWeeklyPercentDelta)
+      ? rawWeeklyPercentDelta
+      : weeklyPercent !== null && previousWeeklyPercent !== null
+        ? weeklyPercent - previousWeeklyPercent
+        : null;
+    const earlyReason = typeof raw?.earlyReason === "string" && raw.earlyReason ? raw.earlyReason : null;
 
     if (!capturedAtDate || !weeklyResetDate || !email) continue;
 
@@ -164,6 +175,10 @@ function normalizeWeeklyResetEvents(rawEvents) {
       previousWeeklyResetDate,
       isEarlyReset: raw?.isEarlyReset === true,
       deltaMs: Number.isFinite(deltaMs) ? deltaMs : null,
+      weeklyPercent,
+      previousWeeklyPercent,
+      weeklyPercentDelta,
+      earlyReason,
     });
   }
 
@@ -301,6 +316,10 @@ function saveLastValidPayload(usage) {
       previousWeeklyReset: event.previousWeeklyResetDate?.toISOString() || null,
       isEarlyReset: event.isEarlyReset,
       deltaMs: event.deltaMs,
+      weeklyPercent: event.weeklyPercent,
+      previousWeeklyPercent: event.previousWeeklyPercent,
+      weeklyPercentDelta: event.weeklyPercentDelta,
+      earlyReason: event.earlyReason,
     })) || [],
     accounts: usage.accounts?.map((account) => ({
       id: account.id,
@@ -524,7 +543,49 @@ function formatDeadlineDelta(deltaMs) {
   if (days > 0) parts.push(`${days}d`);
   if (hours > 0 && parts.length < 2) parts.push(`${hours}h`);
   if (!parts.length || (days === 0 && hours === 0)) parts.push(`${minutes}min`);
-  return `${parts.join(" ")} ${deltaMs < 0 ? "antes" : "depois"} do prazo`;
+  return `${parts.join(" ")} ${deltaMs < 0 ? "antes" : "depois"} do prazo previsto`;
+}
+
+function formatResetPercentMove(event) {
+  const previous = event.previousWeeklyPercent;
+  const current = event.weeklyPercent;
+  if (previous === null && current === null) return "Saldo semanal: sem leitura";
+  if (previous === null) return `Saldo semanal: ${formatAccountPercent(current)}`;
+
+  const delta = Number.isFinite(event.weeklyPercentDelta)
+    ? event.weeklyPercentDelta
+    : current !== null
+      ? current - previous
+      : null;
+  const deltaText = Number.isFinite(delta)
+    ? ` (${delta > 0 ? "+" : ""}${Math.round(delta)} pp)`
+    : "";
+  return `Saldo semanal: ${formatAccountPercent(previous)} -> ${formatAccountPercent(current)}${deltaText}`;
+}
+
+function buildResetStatusView(event) {
+  if (event.isEarlyReset) {
+    return {
+      className: "is-early",
+      label: "saldo recuperado antes",
+    };
+  }
+  if (Number.isFinite(event.deltaMs) && event.deltaMs < 0) {
+    return {
+      className: "is-unrecovered",
+      label: "mudança sem recuperação",
+    };
+  }
+  if (!event.previousWeeklyResetDate) {
+    return {
+      className: "is-first",
+      label: "primeiro registro",
+    };
+  }
+  return {
+    className: "is-normal",
+    label: "no prazo",
+  };
 }
 
 function currentDisplayNameForEmail(usage, email, fallback) {
@@ -862,14 +923,20 @@ function buildWeeklyResetView(usage) {
     if (event.capturedAtDate > grouped.get(email).latestCapturedAt) {
       grouped.get(email).latestCapturedAt = event.capturedAtDate;
     }
+    const status = buildResetStatusView(event);
     grouped.get(email).events.push({
       email,
       displayName: event.displayName,
-      transitionText: event.previousWeeklyResetDate
-        ? `${formatCompactDateTimePtBr(event.previousWeeklyResetDate)} -> ${formatCompactDateTimePtBr(event.weeklyResetDate)}`
-        : `Primeiro registro: ${formatCompactDateTimePtBr(event.weeklyResetDate)}`,
-      seenText: `Visto em ${formatCompactDateTimePtBr(event.capturedAtDate)} · ${formatDeadlineDelta(event.deltaMs)}`,
+      detectedText: formatCompactDateTimePtBr(event.capturedAtDate),
+      previousDeadlineText: event.previousWeeklyResetDate
+        ? formatCompactDateTimePtBr(event.previousWeeklyResetDate)
+        : "Sem anterior",
+      newDeadlineText: formatCompactDateTimePtBr(event.weeklyResetDate),
+      deltaText: formatDeadlineDelta(event.deltaMs),
+      percentText: formatResetPercentMove(event),
       isEarlyReset: event.isEarlyReset,
+      statusClass: status.className,
+      statusLabel: status.label,
     });
   }
 
@@ -1624,8 +1691,8 @@ function renderWeeklyResetArea(els, resetView) {
     const empty = document.createElement("p");
     empty.className = "reset-empty";
     empty.textContent = resetView.activeFilter === "early"
-      ? "Nenhuma redefinição semanal antes do prazo registrada ainda."
-      : "Nenhuma redefinição semanal por e-mail registrada ainda.";
+      ? "Nenhuma renovação antecipada com saldo recuperado registrada ainda."
+      : "Nenhuma renovação semanal por e-mail registrada ainda.";
     container.append(empty);
     return;
   }
@@ -1654,21 +1721,44 @@ function renderWeeklyResetArea(els, resetView) {
     events.className = "reset-events";
     for (const event of group.events) {
       const row = document.createElement("div");
-      row.className = "reset-event-row";
+      row.className = `reset-event-row ${event.statusClass}`;
 
       const main = document.createElement("div");
       main.className = "reset-event-main";
-      const reset = document.createElement("strong");
-      reset.textContent = event.transitionText;
-      const observed = document.createElement("span");
-      observed.textContent = event.seenText;
-      main.append(reset, observed);
+
+      const eventHead = document.createElement("div");
+      eventHead.className = "reset-event-head";
+      const eventTitle = document.createElement("div");
+      eventTitle.className = "reset-event-title";
+      const titleText = document.createElement("strong");
+      titleText.textContent = `Detectado ${event.detectedText}`;
+      const percentMove = document.createElement("span");
+      percentMove.textContent = event.percentText;
+      eventTitle.append(titleText, percentMove);
 
       const badge = document.createElement("span");
-      badge.className = "reset-badge";
-      badge.classList.toggle("is-early", event.isEarlyReset);
-      badge.textContent = event.isEarlyReset ? "antes do prazo" : "Normal";
-      row.append(main, badge);
+      badge.className = `reset-badge ${event.statusClass}`;
+      badge.textContent = event.statusLabel;
+      eventHead.append(eventTitle, badge);
+
+      const facts = document.createElement("div");
+      facts.className = "reset-event-facts";
+      [
+        ["Prazo anterior", event.previousDeadlineText],
+        ["Novo prazo", event.newDeadlineText],
+        ["Diferença", event.deltaText],
+      ].forEach(([label, value]) => {
+        const item = document.createElement("div");
+        const itemLabel = document.createElement("span");
+        itemLabel.textContent = label;
+        const itemValue = document.createElement("strong");
+        itemValue.textContent = value;
+        item.append(itemLabel, itemValue);
+        facts.append(item);
+      });
+
+      main.append(eventHead, facts);
+      row.append(main);
       events.append(row);
     }
 
@@ -1693,8 +1783,8 @@ function renderDashboard(els, viewModel) {
   });
   if (els.weeklyResetArea) els.weeklyResetArea.hidden = !showResets;
   els.resetViewButton?.setAttribute("aria-pressed", String(showResets));
-  els.resetViewButton?.setAttribute("title", showResets ? "Voltar ao painel" : "Redefinições");
-  els.resetViewButton?.setAttribute("aria-label", showResets ? "Voltar ao painel" : "Redefinições");
+  els.resetViewButton?.setAttribute("title", showResets ? "Voltar ao painel" : "Renovações");
+  els.resetViewButton?.setAttribute("aria-label", showResets ? "Voltar ao painel" : "Renovações");
 
   document.documentElement.dataset.fiveHourTone = viewModel.tones.fiveHour;
   document.documentElement.dataset.weeklyTone = viewModel.tones.weekly;

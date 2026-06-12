@@ -1,18 +1,18 @@
 {
   "source": "codex-switcher",
-  "lastUpdated": "2026-06-11T23:55:31.607Z",
+  "lastUpdated": "2026-06-12T00:10:48.145Z",
   "accountCount": 5,
   "okCount": 5,
-  "activeAccountId": "e3dfd2ec-ae20-49a1-be64-2bb72982c3fa",
+  "activeAccountId": "be5c4686-c38c-4cac-9296-5cd93d2f1274",
   "aggregate": {
-    "fiveHourPercent": 65,
-    "fiveHourReset": "2026-06-12T00:09:30.000Z",
+    "fiveHourPercent": 79,
+    "fiveHourReset": "2026-06-12T01:29:17.000Z",
     "weeklyPercent": 66,
     "weeklyReset": "2026-06-17T20:04:02.000Z",
-    "lastUpdated": "2026-06-11T23:55:31.607Z"
+    "lastUpdated": "2026-06-12T00:10:48.145Z"
   },
-  "fiveHourPercent": 65,
-  "fiveHourReset": "2026-06-12T00:09:30.000Z",
+  "fiveHourPercent": 79,
+  "fiveHourReset": "2026-06-12T01:29:17.000Z",
   "weeklyPercent": 66,
   "weeklyReset": "2026-06-17T20:04:02.000Z",
   "accounts": [
@@ -24,8 +24,8 @@
       "email": "contatonatanaelrodrigs@gmail.com",
       "planType": "plus",
       "subscriptionExpiresAt": "2026-06-26T20:28:52.000Z",
-      "isActive": false,
-      "lastUsedAt": "2026-06-11T09:58:24.813Z",
+      "isActive": true,
+      "lastUsedAt": "2026-06-12T00:05:30.251Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
       "fiveHourReset": "2026-06-12T01:50:44.000Z",
@@ -39,7 +39,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-11T23:55:31.607Z",
+      "lastUpdated": "2026-06-12T00:10:48.145Z",
       "status": "ok",
       "error": null
     },
@@ -66,7 +66,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-11T23:55:31.607Z",
+      "lastUpdated": "2026-06-12T00:10:48.145Z",
       "status": "ok",
       "error": null
     },
@@ -80,9 +80,9 @@
       "subscriptionExpiresAt": "2026-06-22T20:22:14.000Z",
       "isActive": false,
       "lastUsedAt": "2026-06-11T14:13:50.285Z",
-      "fiveHourPercent": 26,
-      "fiveHourUsedPercent": 74,
-      "fiveHourReset": "2026-06-12T00:09:30.000Z",
+      "fiveHourPercent": 99,
+      "fiveHourUsedPercent": 1,
+      "fiveHourReset": "2026-06-12T05:10:49.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 69,
       "weeklyUsedPercent": 31,
@@ -93,7 +93,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-11T23:55:31.607Z",
+      "lastUpdated": "2026-06-12T00:10:48.145Z",
       "status": "ok",
       "error": null
     },
@@ -105,7 +105,7 @@
       "email": "jv5pdcwnxp@privaterelay.appleid.com",
       "planType": "plus",
       "subscriptionExpiresAt": "2026-06-18T18:58:46.000Z",
-      "isActive": true,
+      "isActive": false,
       "lastUsedAt": "2026-06-11T20:38:52.782Z",
       "fiveHourPercent": 0,
       "fiveHourUsedPercent": 100,
@@ -120,7 +120,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-11T23:55:31.607Z",
+      "lastUpdated": "2026-06-12T00:10:48.145Z",
       "status": "ok",
       "error": null
     },
@@ -147,7 +147,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-11T23:55:31.607Z",
+      "lastUpdated": "2026-06-12T00:10:48.145Z",
       "status": "ok",
       "error": null
     },
@@ -174,7 +174,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-11T23:55:31.607Z",
+      "lastUpdated": "2026-06-12T00:10:48.145Z",
       "status": "ok",
       "error": null
     },
@@ -201,7 +201,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-11T23:55:31.607Z",
+      "lastUpdated": "2026-06-12T00:10:48.145Z",
       "status": "ok",
       "error": null
     },
@@ -228,7 +228,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-11T23:55:31.607Z",
+      "lastUpdated": "2026-06-12T00:10:48.145Z",
       "status": "ok",
       "error": null
     },
@@ -255,7 +255,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-11T23:55:31.607Z",
+      "lastUpdated": "2026-06-12T00:10:48.145Z",
       "status": "ok",
       "error": null
     }

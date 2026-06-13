@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-06-13T12:44:50.676Z",
+  "lastUpdated": "2026-06-13T12:59:58.416Z",
   "samples": [
     {
       "capturedAt": "2026-05-25T20:11:07.164Z",
@@ -9398,6 +9398,13 @@
     },
     {
       "capturedAt": "2026-06-13T12:44:50.676Z",
+      "fiveHourPercent": 85,
+      "fiveHourReset": "2026-06-13T13:10:21.000Z",
+      "weeklyPercent": 37,
+      "weeklyReset": "2026-06-17T20:04:03.000Z"
+    },
+    {
+      "capturedAt": "2026-06-13T12:59:58.416Z",
       "fiveHourPercent": 85,
       "fiveHourReset": "2026-06-13T13:10:21.000Z",
       "weeklyPercent": 37,
@@ -55877,6 +55884,41 @@
       "displayName": "LEO II",
       "weeklyPercent": 72,
       "weeklyReset": "2026-06-18T06:54:55.000Z"
+    },
+    {
+      "capturedAt": "2026-06-13T12:59:58.416Z",
+      "email": "contatonatanaelrodrigs@gmail.com",
+      "displayName": "NATANAEL",
+      "weeklyPercent": 42,
+      "weeklyReset": "2026-06-18T08:51:27.000Z"
+    },
+    {
+      "capturedAt": "2026-06-13T12:59:58.416Z",
+      "email": "douglaschatgpt.am@gmail.com",
+      "displayName": "Douglas",
+      "weeklyPercent": 31,
+      "weeklyReset": "2026-06-17T20:04:03.000Z"
+    },
+    {
+      "capturedAt": "2026-06-13T12:59:58.416Z",
+      "email": "dzplaybacks@gmail.com",
+      "displayName": "AMANDA",
+      "weeklyPercent": 24,
+      "weeklyReset": "2026-06-18T05:19:22.000Z"
+    },
+    {
+      "capturedAt": "2026-06-13T12:59:58.416Z",
+      "email": "jv5pdcwnxp@privaterelay.appleid.com",
+      "displayName": "LEO I",
+      "weeklyPercent": 14,
+      "weeklyReset": "2026-06-18T05:26:34.000Z"
+    },
+    {
+      "capturedAt": "2026-06-13T12:59:58.416Z",
+      "email": "leoaraujo1949@gmail.com",
+      "displayName": "LEO II",
+      "weeklyPercent": 72,
+      "weeklyReset": "2026-06-18T06:54:55.000Z"
     }
   ],
   "weeklyResetEvents": [
@@ -57060,6 +57102,22 @@
       "cycleDurationMs": 1000,
       "weeklyPercent": 81,
       "previousWeeklyPercent": 81,
+      "weeklyPercentDelta": 0,
+      "earlyReason": null,
+      "isCarryoverFullReset": false
+    },
+    {
+      "email": "contatonatanaelrodrigs@gmail.com",
+      "displayName": "NATANAEL",
+      "capturedAt": "2026-06-13T12:59:58.416Z",
+      "weeklyReset": "2026-06-18T08:51:27.000Z",
+      "previousWeeklyReset": "2026-06-18T08:51:25.000Z",
+      "isEarlyReset": false,
+      "isNotifiableEarlyReset": false,
+      "deltaMs": -417086584,
+      "cycleDurationMs": 2000,
+      "weeklyPercent": 42,
+      "previousWeeklyPercent": 42,
       "weeklyPercentDelta": 0,
       "earlyReason": null,
       "isCarryoverFullReset": false

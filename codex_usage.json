@@ -1,19 +1,19 @@
 {
   "source": "codex-switcher",
-  "lastUpdated": "2026-06-15T08:48:11.152Z",
+  "lastUpdated": "2026-06-15T09:03:28.533Z",
   "accountCount": 5,
   "okCount": 5,
-  "activeAccountId": "007e1109-aa2e-4932-9640-d4dbadced43b",
+  "activeAccountId": "e3dfd2ec-ae20-49a1-be64-2bb72982c3fa",
   "aggregate": {
-    "fiveHourPercent": 40,
+    "fiveHourPercent": 35,
     "fiveHourReset": "2026-06-15T09:39:06.000Z",
-    "weeklyPercent": 57,
+    "weeklyPercent": 56,
     "weeklyReset": "2026-06-18T06:54:55.000Z",
-    "lastUpdated": "2026-06-15T08:48:11.152Z"
+    "lastUpdated": "2026-06-15T09:03:28.533Z"
   },
-  "fiveHourPercent": 40,
+  "fiveHourPercent": 35,
   "fiveHourReset": "2026-06-15T09:39:06.000Z",
-  "weeklyPercent": 57,
+  "weeklyPercent": 56,
   "weeklyReset": "2026-06-18T06:54:55.000Z",
   "accounts": [
     {
@@ -28,7 +28,7 @@
       "lastUsedAt": "2026-06-15T03:42:45.720Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-15T13:48:12.000Z",
+      "fiveHourReset": "2026-06-15T13:48:59.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 61,
       "weeklyUsedPercent": 39,
@@ -39,7 +39,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-15T08:48:11.152Z",
+      "lastUpdated": "2026-06-15T09:03:28.533Z",
       "status": "ok",
       "error": null
     },
@@ -66,7 +66,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-15T08:48:11.152Z",
+      "lastUpdated": "2026-06-15T09:03:28.533Z",
       "status": "ok",
       "error": null
     },
@@ -78,7 +78,7 @@
       "email": "dzplaybacks@gmail.com",
       "planType": "plus",
       "subscriptionExpiresAt": "2026-06-22T20:22:14.000Z",
-      "isActive": true,
+      "isActive": false,
       "lastUsedAt": "2026-06-15T07:30:33.438Z",
       "fiveHourPercent": 0,
       "fiveHourUsedPercent": 100,
@@ -93,7 +93,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-15T08:48:11.152Z",
+      "lastUpdated": "2026-06-15T09:03:28.533Z",
       "status": "ok",
       "error": null
     },
@@ -105,14 +105,14 @@
       "email": "jv5pdcwnxp@privaterelay.appleid.com",
       "planType": "plus",
       "subscriptionExpiresAt": "2026-06-18T18:58:46.000Z",
-      "isActive": false,
-      "lastUsedAt": "2026-06-15T01:41:46.742Z",
-      "fiveHourPercent": 99,
-      "fiveHourUsedPercent": 1,
+      "isActive": true,
+      "lastUsedAt": "2026-06-15T08:49:00.165Z",
+      "fiveHourPercent": 77,
+      "fiveHourUsedPercent": 23,
       "fiveHourReset": "2026-06-15T10:46:29.000Z",
       "fiveHourWindowMinutes": 300,
-      "weeklyPercent": 63,
-      "weeklyUsedPercent": 37,
+      "weeklyPercent": 59,
+      "weeklyUsedPercent": 41,
       "weeklyReset": "2026-06-21T19:42:20.000Z",
       "weeklyWindowMinutes": 10080,
       "credits": {
@@ -120,7 +120,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-15T08:48:11.152Z",
+      "lastUpdated": "2026-06-15T09:03:28.533Z",
       "status": "ok",
       "error": null
     },
@@ -147,7 +147,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-15T08:48:11.152Z",
+      "lastUpdated": "2026-06-15T09:03:28.533Z",
       "status": "ok",
       "error": null
     },
@@ -174,7 +174,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-15T08:48:11.152Z",
+      "lastUpdated": "2026-06-15T09:03:28.533Z",
       "status": "ok",
       "error": null
     },
@@ -201,7 +201,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-15T08:48:11.152Z",
+      "lastUpdated": "2026-06-15T09:03:28.533Z",
       "status": "ok",
       "error": null
     },
@@ -228,7 +228,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-15T08:48:11.152Z",
+      "lastUpdated": "2026-06-15T09:03:28.533Z",
       "status": "ok",
       "error": null
     },
@@ -255,7 +255,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-15T08:48:11.152Z",
+      "lastUpdated": "2026-06-15T09:03:28.533Z",
       "status": "ok",
       "error": null
     }

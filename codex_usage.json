@@ -1,19 +1,19 @@
 {
   "source": "codex-switcher",
-  "lastUpdated": "2026-06-15T03:09:57.764Z",
+  "lastUpdated": "2026-06-15T03:58:15.356Z",
   "accountCount": 5,
   "okCount": 5,
-  "activeAccountId": "e3dfd2ec-ae20-49a1-be64-2bb72982c3fa",
+  "activeAccountId": "be5c4686-c38c-4cac-9296-5cd93d2f1274",
   "aggregate": {
-    "fiveHourPercent": 20,
+    "fiveHourPercent": 15,
     "fiveHourReset": "2026-06-15T04:07:56.000Z",
-    "weeklyPercent": 73,
+    "weeklyPercent": 72,
     "weeklyReset": "2026-06-18T06:54:55.000Z",
-    "lastUpdated": "2026-06-15T03:09:57.764Z"
+    "lastUpdated": "2026-06-15T03:58:15.356Z"
   },
-  "fiveHourPercent": 20,
+  "fiveHourPercent": 15,
   "fiveHourReset": "2026-06-15T04:07:56.000Z",
-  "weeklyPercent": 73,
+  "weeklyPercent": 72,
   "weeklyReset": "2026-06-18T06:54:55.000Z",
   "accounts": [
     {
@@ -24,14 +24,14 @@
       "email": "contatonatanaelrodrigs@gmail.com",
       "planType": "plus",
       "subscriptionExpiresAt": "2026-06-26T20:28:52.000Z",
-      "isActive": false,
-      "lastUsedAt": "2026-06-14T21:05:57.251Z",
-      "fiveHourPercent": 99,
-      "fiveHourUsedPercent": 1,
+      "isActive": true,
+      "lastUsedAt": "2026-06-15T03:42:45.720Z",
+      "fiveHourPercent": 75,
+      "fiveHourUsedPercent": 25,
       "fiveHourReset": "2026-06-15T08:09:39.000Z",
       "fiveHourWindowMinutes": 300,
-      "weeklyPercent": 80,
-      "weeklyUsedPercent": 20,
+      "weeklyPercent": 77,
+      "weeklyUsedPercent": 23,
       "weeklyReset": "2026-06-21T21:55:54.000Z",
       "weeklyWindowMinutes": 10080,
       "credits": {
@@ -39,7 +39,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-15T03:09:57.764Z",
+      "lastUpdated": "2026-06-15T03:58:15.356Z",
       "status": "ok",
       "error": null
     },
@@ -66,7 +66,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-15T03:09:57.764Z",
+      "lastUpdated": "2026-06-15T03:58:15.356Z",
       "status": "ok",
       "error": null
     },
@@ -93,7 +93,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-15T03:09:57.764Z",
+      "lastUpdated": "2026-06-15T03:58:15.356Z",
       "status": "ok",
       "error": null
     },
@@ -105,7 +105,7 @@
       "email": "jv5pdcwnxp@privaterelay.appleid.com",
       "planType": "plus",
       "subscriptionExpiresAt": "2026-06-18T18:58:46.000Z",
-      "isActive": true,
+      "isActive": false,
       "lastUsedAt": "2026-06-15T01:41:46.742Z",
       "fiveHourPercent": 0,
       "fiveHourUsedPercent": 100,
@@ -120,7 +120,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-15T03:09:57.764Z",
+      "lastUpdated": "2026-06-15T03:58:15.356Z",
       "status": "ok",
       "error": null
     },
@@ -147,7 +147,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-15T03:09:57.764Z",
+      "lastUpdated": "2026-06-15T03:58:15.356Z",
       "status": "ok",
       "error": null
     },
@@ -174,7 +174,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-15T03:09:57.764Z",
+      "lastUpdated": "2026-06-15T03:58:15.356Z",
       "status": "ok",
       "error": null
     },
@@ -201,7 +201,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-15T03:09:57.764Z",
+      "lastUpdated": "2026-06-15T03:58:15.356Z",
       "status": "ok",
       "error": null
     },
@@ -228,7 +228,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-15T03:09:57.764Z",
+      "lastUpdated": "2026-06-15T03:58:15.356Z",
       "status": "ok",
       "error": null
     },
@@ -255,7 +255,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-15T03:09:57.764Z",
+      "lastUpdated": "2026-06-15T03:58:15.356Z",
       "status": "ok",
       "error": null
     }

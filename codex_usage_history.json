@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-06-15T01:15:57.223Z",
+  "lastUpdated": "2026-06-15T01:31:59.837Z",
   "samples": [
     {
       "capturedAt": "2026-05-25T20:11:07.164Z",
@@ -9909,6 +9909,13 @@
     },
     {
       "capturedAt": "2026-06-15T01:15:57.223Z",
+      "fiveHourPercent": 25,
+      "fiveHourReset": "2026-06-15T02:55:54.000Z",
+      "weeklyPercent": 81,
+      "weeklyReset": "2026-06-21T19:42:20.000Z"
+    },
+    {
+      "capturedAt": "2026-06-15T01:31:59.837Z",
       "fiveHourPercent": 25,
       "fiveHourReset": "2026-06-15T02:55:54.000Z",
       "weeklyPercent": 81,
@@ -58936,6 +58943,34 @@
       "displayName": "LEO I",
       "weeklyPercent": 79,
       "weeklyReset": "2026-06-21T19:42:20.000Z"
+    },
+    {
+      "capturedAt": "2026-06-15T01:31:59.837Z",
+      "email": "contatonatanaelrodrigs@gmail.com",
+      "displayName": "NATANAEL",
+      "weeklyPercent": 80,
+      "weeklyReset": "2026-06-21T21:55:54.000Z"
+    },
+    {
+      "capturedAt": "2026-06-15T01:31:59.837Z",
+      "email": "douglaschatgpt.am@gmail.com",
+      "displayName": "Douglas",
+      "weeklyPercent": 81,
+      "weeklyReset": "2026-06-21T23:22:59.000Z"
+    },
+    {
+      "capturedAt": "2026-06-15T01:31:59.837Z",
+      "email": "dzplaybacks@gmail.com",
+      "displayName": "AMANDA",
+      "weeklyPercent": 84,
+      "weeklyReset": "2026-06-22T00:34:10.000Z"
+    },
+    {
+      "capturedAt": "2026-06-15T01:31:59.837Z",
+      "email": "jv5pdcwnxp@privaterelay.appleid.com",
+      "displayName": "LEO I",
+      "weeklyPercent": 79,
+      "weeklyReset": "2026-06-21T19:42:20.000Z"
     }
   ],
   "weeklyResetEvents": [
@@ -60217,6 +60252,22 @@
       "previousWeeklyPercent": 24,
       "weeklyPercentDelta": 60,
       "earlyReason": "percent-increase",
+      "isCarryoverFullReset": false
+    },
+    {
+      "email": "dzplaybacks@gmail.com",
+      "displayName": "AMANDA",
+      "capturedAt": "2026-06-15T01:31:59.837Z",
+      "weeklyReset": "2026-06-22T00:34:10.000Z",
+      "previousWeeklyReset": "2026-06-22T00:34:09.000Z",
+      "isEarlyReset": false,
+      "isNotifiableEarlyReset": false,
+      "deltaMs": -601329163,
+      "cycleDurationMs": 1000,
+      "weeklyPercent": 84,
+      "previousWeeklyPercent": 84,
+      "weeklyPercentDelta": 0,
+      "earlyReason": null,
       "isCarryoverFullReset": false
     }
   ]

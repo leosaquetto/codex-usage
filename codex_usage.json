@@ -1,18 +1,18 @@
 {
   "source": "codex-switcher",
-  "lastUpdated": "2026-06-15T02:33:46.033Z",
+  "lastUpdated": "2026-06-15T03:09:57.764Z",
   "accountCount": 5,
   "okCount": 5,
   "activeAccountId": "e3dfd2ec-ae20-49a1-be64-2bb72982c3fa",
   "aggregate": {
-    "fiveHourPercent": 0,
-    "fiveHourReset": "2026-06-15T02:55:54.000Z",
+    "fiveHourPercent": 20,
+    "fiveHourReset": "2026-06-15T04:07:56.000Z",
     "weeklyPercent": 73,
     "weeklyReset": "2026-06-18T06:54:55.000Z",
-    "lastUpdated": "2026-06-15T02:33:46.033Z"
+    "lastUpdated": "2026-06-15T03:09:57.764Z"
   },
-  "fiveHourPercent": 0,
-  "fiveHourReset": "2026-06-15T02:55:54.000Z",
+  "fiveHourPercent": 20,
+  "fiveHourReset": "2026-06-15T04:07:56.000Z",
   "weeklyPercent": 73,
   "weeklyReset": "2026-06-18T06:54:55.000Z",
   "accounts": [
@@ -26,9 +26,9 @@
       "subscriptionExpiresAt": "2026-06-26T20:28:52.000Z",
       "isActive": false,
       "lastUsedAt": "2026-06-14T21:05:57.251Z",
-      "fiveHourPercent": 0,
-      "fiveHourUsedPercent": 100,
-      "fiveHourReset": "2026-06-15T02:55:54.000Z",
+      "fiveHourPercent": 99,
+      "fiveHourUsedPercent": 1,
+      "fiveHourReset": "2026-06-15T08:09:39.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 80,
       "weeklyUsedPercent": 20,
@@ -39,7 +39,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-15T02:33:46.033Z",
+      "lastUpdated": "2026-06-15T03:09:57.764Z",
       "status": "ok",
       "error": null
     },
@@ -66,7 +66,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-15T02:33:46.033Z",
+      "lastUpdated": "2026-06-15T03:09:57.764Z",
       "status": "ok",
       "error": null
     },
@@ -93,7 +93,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-15T02:33:46.033Z",
+      "lastUpdated": "2026-06-15T03:09:57.764Z",
       "status": "ok",
       "error": null
     },
@@ -120,32 +120,9 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-15T02:33:46.033Z",
+      "lastUpdated": "2026-06-15T03:09:57.764Z",
       "status": "ok",
       "error": null
-    },
-    {
-      "id": "43f419c5-23bc-4438-b232-c9ca88fe687e",
-      "chatgptAccountId": "f2cd8745-9c1f-4cbe-abbe-c71401086454",
-      "name": "LEO II",
-      "displayName": "LEO II",
-      "email": "leoaraujo1949@gmail.com",
-      "planType": "plus",
-      "subscriptionExpiresAt": "2026-06-26T02:50:41.000Z",
-      "isActive": false,
-      "lastUsedAt": "2026-06-15T01:04:13.720Z",
-      "fiveHourPercent": null,
-      "fiveHourUsedPercent": null,
-      "fiveHourReset": null,
-      "fiveHourWindowMinutes": null,
-      "weeklyPercent": null,
-      "weeklyUsedPercent": null,
-      "weeklyReset": null,
-      "weeklyWindowMinutes": null,
-      "credits": null,
-      "lastUpdated": "2026-06-15T02:33:46.033Z",
-      "status": "error",
-      "error": "refresh HTTP 401: {\n  \"error\": {\n    \"message\": \"Your session has ended. Please log in again.\",\n    \"type\": \"invalid_request_error\",\n    \"param\": null,\n    \"code\": \"refresh_token_invalidated\"\n  }\n}"
     },
     {
       "id": "ff074ec6-e0c1-48d0-b775-228d50133444",
@@ -170,7 +147,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-15T02:33:46.033Z",
+      "lastUpdated": "2026-06-15T03:09:57.764Z",
       "status": "ok",
       "error": null
     },
@@ -197,7 +174,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-15T02:33:46.033Z",
+      "lastUpdated": "2026-06-15T03:09:57.764Z",
       "status": "ok",
       "error": null
     },
@@ -224,7 +201,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-15T02:33:46.033Z",
+      "lastUpdated": "2026-06-15T03:09:57.764Z",
       "status": "ok",
       "error": null
     },
@@ -251,15 +228,15 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-15T02:33:46.033Z",
+      "lastUpdated": "2026-06-15T03:09:57.764Z",
       "status": "ok",
       "error": null
     },
     {
       "id": "a75e3654-0544-47ad-8041-fdb3cea4422f",
       "chatgptAccountId": "f2cd8745-9c1f-4cbe-abbe-c71401086454",
-      "name": "LEO II_",
-      "displayName": "LEO II_",
+      "name": "LEO II",
+      "displayName": "LEO II",
       "email": "leoaraujo1949@gmail.com",
       "planType": "plus",
       "subscriptionExpiresAt": "2026-06-25T20:50:41.000Z",
@@ -278,7 +255,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-15T02:33:46.033Z",
+      "lastUpdated": "2026-06-15T03:09:57.764Z",
       "status": "ok",
       "error": null
     }

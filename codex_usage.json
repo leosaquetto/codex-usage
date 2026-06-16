@@ -1,19 +1,19 @@
 {
   "source": "codex-switcher",
-  "lastUpdated": "2026-06-16T01:04:23.286Z",
+  "lastUpdated": "2026-06-16T01:19:46.461Z",
   "accountCount": 5,
   "okCount": 5,
   "activeAccountId": "be5c4686-c38c-4cac-9296-5cd93d2f1274",
   "aggregate": {
-    "fiveHourPercent": 93,
-    "fiveHourReset": "2026-06-16T05:40:31.000Z",
-    "weeklyPercent": 16,
+    "fiveHourPercent": 89,
+    "fiveHourReset": "2026-06-16T05:39:56.000Z",
+    "weeklyPercent": 15,
     "weeklyReset": "2026-06-18T06:54:55.000Z",
-    "lastUpdated": "2026-06-16T01:04:23.286Z"
+    "lastUpdated": "2026-06-16T01:19:46.461Z"
   },
-  "fiveHourPercent": 93,
-  "fiveHourReset": "2026-06-16T05:40:31.000Z",
-  "weeklyPercent": 16,
+  "fiveHourPercent": 89,
+  "fiveHourReset": "2026-06-16T05:39:56.000Z",
+  "weeklyPercent": 15,
   "weeklyReset": "2026-06-18T06:54:55.000Z",
   "accounts": [
     {
@@ -26,12 +26,12 @@
       "subscriptionExpiresAt": "2026-06-26T20:28:52.000Z",
       "isActive": true,
       "lastUsedAt": "2026-06-16T00:10:58.104Z",
-      "fiveHourPercent": 71,
-      "fiveHourUsedPercent": 29,
-      "fiveHourReset": "2026-06-16T05:40:31.000Z",
+      "fiveHourPercent": 51,
+      "fiveHourUsedPercent": 49,
+      "fiveHourReset": "2026-06-16T05:39:56.000Z",
       "fiveHourWindowMinutes": 300,
-      "weeklyPercent": 6,
-      "weeklyUsedPercent": 94,
+      "weeklyPercent": 3,
+      "weeklyUsedPercent": 97,
       "weeklyReset": "2026-06-21T21:55:54.000Z",
       "weeklyWindowMinutes": 10080,
       "credits": {
@@ -39,7 +39,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-16T01:04:23.286Z",
+      "lastUpdated": "2026-06-16T01:19:46.461Z",
       "status": "ok",
       "error": null
     },
@@ -66,7 +66,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-16T01:04:23.286Z",
+      "lastUpdated": "2026-06-16T01:19:46.461Z",
       "status": "ok",
       "error": null
     },
@@ -86,14 +86,14 @@
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 43,
       "weeklyUsedPercent": 57,
-      "weeklyReset": "2026-06-22T00:34:09.000Z",
+      "weeklyReset": "2026-06-22T00:34:10.000Z",
       "weeklyWindowMinutes": 10080,
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-16T01:04:23.286Z",
+      "lastUpdated": "2026-06-16T01:19:46.461Z",
       "status": "ok",
       "error": null
     },
@@ -109,7 +109,7 @@
       "lastUsedAt": "2026-06-15T19:55:54.589Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-16T06:04:24.000Z",
+      "fiveHourReset": "2026-06-16T06:19:47.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 0,
       "weeklyUsedPercent": 100,
@@ -120,7 +120,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-16T01:04:23.286Z",
+      "lastUpdated": "2026-06-16T01:19:46.461Z",
       "status": "ok",
       "error": null
     },
@@ -147,7 +147,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-16T01:04:23.286Z",
+      "lastUpdated": "2026-06-16T01:19:46.461Z",
       "status": "ok",
       "error": null
     },
@@ -174,7 +174,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-16T01:04:23.286Z",
+      "lastUpdated": "2026-06-16T01:19:46.461Z",
       "status": "ok",
       "error": null
     },
@@ -201,7 +201,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-16T01:04:23.286Z",
+      "lastUpdated": "2026-06-16T01:19:46.461Z",
       "status": "ok",
       "error": null
     },
@@ -228,7 +228,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-16T01:04:23.286Z",
+      "lastUpdated": "2026-06-16T01:19:46.461Z",
       "status": "ok",
       "error": null
     },
@@ -255,7 +255,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-16T01:04:23.286Z",
+      "lastUpdated": "2026-06-16T01:19:46.461Z",
       "status": "ok",
       "error": null
     }

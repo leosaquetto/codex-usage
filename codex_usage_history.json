@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-06-17T21:16:18.665Z",
+  "lastUpdated": "2026-06-17T21:31:31.697Z",
   "samples": [
     {
       "capturedAt": "2026-05-25T20:11:07.164Z",
@@ -11747,6 +11747,13 @@
       "fiveHourReset": "2026-06-18T00:42:39.000Z",
       "weeklyPercent": 22,
       "weeklyReset": "2026-06-18T06:54:55.000Z"
+    },
+    {
+      "capturedAt": "2026-06-17T21:31:31.697Z",
+      "fiveHourPercent": 94,
+      "fiveHourReset": "2026-06-18T02:25:10.000Z",
+      "weeklyPercent": 99,
+      "weeklyReset": "2026-06-24T21:25:10.000Z"
     }
   ],
   "accountSamples": [
@@ -69905,6 +69912,41 @@
       "displayName": "LEO II",
       "weeklyPercent": 1,
       "weeklyReset": "2026-06-18T06:54:55.000Z"
+    },
+    {
+      "capturedAt": "2026-06-17T21:31:31.697Z",
+      "email": "contatonatanaelrodrigs@gmail.com",
+      "displayName": "NATANAEL",
+      "weeklyPercent": 100,
+      "weeklyReset": "2026-06-24T21:31:33.000Z"
+    },
+    {
+      "capturedAt": "2026-06-17T21:31:31.697Z",
+      "email": "douglaschatgpt.am@gmail.com",
+      "displayName": "Douglas",
+      "weeklyPercent": 100,
+      "weeklyReset": "2026-06-24T21:31:33.000Z"
+    },
+    {
+      "capturedAt": "2026-06-17T21:31:31.697Z",
+      "email": "dzplaybacks@gmail.com",
+      "displayName": "AMANDA",
+      "weeklyPercent": 100,
+      "weeklyReset": "2026-06-24T21:31:32.000Z"
+    },
+    {
+      "capturedAt": "2026-06-17T21:31:31.697Z",
+      "email": "jv5pdcwnxp@privaterelay.appleid.com",
+      "displayName": "LEO I_",
+      "weeklyPercent": 98,
+      "weeklyReset": "2026-06-24T21:25:10.000Z"
+    },
+    {
+      "capturedAt": "2026-06-17T21:31:31.697Z",
+      "email": "leoaraujo1949@gmail.com",
+      "displayName": "LEO II",
+      "weeklyPercent": 100,
+      "weeklyReset": "2026-06-24T21:31:33.000Z"
     }
   ],
   "weeklyResetEvents": [
@@ -71330,6 +71372,86 @@
       "previousWeeklyPercent": 9,
       "weeklyPercentDelta": 0,
       "earlyReason": null,
+      "isCarryoverFullReset": false
+    },
+    {
+      "email": "contatonatanaelrodrigs@gmail.com",
+      "displayName": "NATANAEL",
+      "capturedAt": "2026-06-17T21:31:31.697Z",
+      "weeklyReset": "2026-06-24T21:31:33.000Z",
+      "previousWeeklyReset": "2026-06-21T21:55:54.000Z",
+      "isEarlyReset": true,
+      "isNotifiableEarlyReset": true,
+      "deltaMs": -347062303,
+      "cycleDurationMs": 257739000,
+      "weeklyPercent": 100,
+      "previousWeeklyPercent": 0,
+      "weeklyPercentDelta": 100,
+      "earlyReason": "full-renewal",
+      "isCarryoverFullReset": false
+    },
+    {
+      "email": "douglaschatgpt.am@gmail.com",
+      "displayName": "Douglas",
+      "capturedAt": "2026-06-17T21:31:31.697Z",
+      "weeklyReset": "2026-06-24T21:31:33.000Z",
+      "previousWeeklyReset": "2026-06-21T23:22:59.000Z",
+      "isEarlyReset": true,
+      "isNotifiableEarlyReset": true,
+      "deltaMs": -352287303,
+      "cycleDurationMs": 252514000,
+      "weeklyPercent": 100,
+      "previousWeeklyPercent": 0,
+      "weeklyPercentDelta": 100,
+      "earlyReason": "full-renewal",
+      "isCarryoverFullReset": false
+    },
+    {
+      "email": "dzplaybacks@gmail.com",
+      "displayName": "AMANDA",
+      "capturedAt": "2026-06-17T21:31:31.697Z",
+      "weeklyReset": "2026-06-24T21:31:32.000Z",
+      "previousWeeklyReset": "2026-06-22T00:34:10.000Z",
+      "isEarlyReset": true,
+      "isNotifiableEarlyReset": true,
+      "deltaMs": -356558303,
+      "cycleDurationMs": 248242000,
+      "weeklyPercent": 100,
+      "previousWeeklyPercent": 9,
+      "weeklyPercentDelta": 91,
+      "earlyReason": "full-renewal",
+      "isCarryoverFullReset": false
+    },
+    {
+      "email": "jv5pdcwnxp@privaterelay.appleid.com",
+      "displayName": "LEO I_",
+      "capturedAt": "2026-06-17T21:31:31.697Z",
+      "weeklyReset": "2026-06-24T21:25:10.000Z",
+      "previousWeeklyReset": "2026-06-23T22:28:51.000Z",
+      "isEarlyReset": true,
+      "isNotifiableEarlyReset": false,
+      "deltaMs": -521839303,
+      "cycleDurationMs": 82579000,
+      "weeklyPercent": 98,
+      "previousWeeklyPercent": 62,
+      "weeklyPercentDelta": 36,
+      "earlyReason": "percent-increase",
+      "isCarryoverFullReset": false
+    },
+    {
+      "email": "leoaraujo1949@gmail.com",
+      "displayName": "LEO II",
+      "capturedAt": "2026-06-17T21:31:31.697Z",
+      "weeklyReset": "2026-06-24T21:31:33.000Z",
+      "previousWeeklyReset": "2026-06-18T06:54:55.000Z",
+      "isEarlyReset": true,
+      "isNotifiableEarlyReset": true,
+      "deltaMs": -33803303,
+      "cycleDurationMs": 570998000,
+      "weeklyPercent": 100,
+      "previousWeeklyPercent": 1,
+      "weeklyPercentDelta": 99,
+      "earlyReason": "full-renewal",
       "isCarryoverFullReset": false
     }
   ]

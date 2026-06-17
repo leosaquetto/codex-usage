@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-06-17T03:42:17.626Z",
+  "lastUpdated": "2026-06-17T03:57:31.638Z",
   "samples": [
     {
       "capturedAt": "2026-05-25T20:11:07.164Z",
@@ -11271,6 +11271,13 @@
       "fiveHourReset": "2026-06-17T05:22:37.000Z",
       "weeklyPercent": 19,
       "weeklyReset": "2026-06-18T06:54:55.000Z"
+    },
+    {
+      "capturedAt": "2026-06-17T03:57:31.638Z",
+      "fiveHourPercent": 53,
+      "fiveHourReset": "2026-06-17T05:22:41.000Z",
+      "weeklyPercent": 1,
+      "weeklyReset": "2026-06-18T06:54:59.000Z"
     }
   ],
   "accountSamples": [
@@ -67077,6 +67084,13 @@
       "displayName": "LEO II",
       "weeklyPercent": 1,
       "weeklyReset": "2026-06-18T06:54:55.000Z"
+    },
+    {
+      "capturedAt": "2026-06-17T03:57:31.638Z",
+      "email": "leoaraujo1949@gmail.com",
+      "displayName": "LEO II",
+      "weeklyPercent": 1,
+      "weeklyReset": "2026-06-18T06:54:59.000Z"
     }
   ],
   "weeklyResetEvents": [
@@ -68454,6 +68468,22 @@
       "previousWeeklyPercent": 0,
       "weeklyPercentDelta": 97,
       "earlyReason": "percent-increase",
+      "isCarryoverFullReset": false
+    },
+    {
+      "email": "leoaraujo1949@gmail.com",
+      "displayName": "LEO II",
+      "capturedAt": "2026-06-17T03:57:31.638Z",
+      "weeklyReset": "2026-06-18T06:54:59.000Z",
+      "previousWeeklyReset": "2026-06-18T06:54:55.000Z",
+      "isEarlyReset": false,
+      "isNotifiableEarlyReset": false,
+      "deltaMs": -97043362,
+      "cycleDurationMs": 4000,
+      "weeklyPercent": 1,
+      "previousWeeklyPercent": 1,
+      "weeklyPercentDelta": 0,
+      "earlyReason": null,
       "isCarryoverFullReset": false
     }
   ]

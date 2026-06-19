@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "lastUpdated": "2026-06-19T19:56:33.879Z",
+  "lastUpdated": "2026-06-19T20:12:46.069Z",
   "samples": [
     {
       "capturedAt": "2026-05-25T20:11:07.164Z",
@@ -13014,6 +13014,13 @@
       "fiveHourReset": "2026-06-19T21:07:10.000Z",
       "weeklyPercent": 51,
       "weeklyReset": "2026-06-24T21:25:09.000Z"
+    },
+    {
+      "capturedAt": "2026-06-19T20:12:46.069Z",
+      "fiveHourPercent": 40,
+      "fiveHourReset": "2026-06-19T21:07:10.000Z",
+      "weeklyPercent": 50,
+      "weeklyReset": "2026-06-24T21:25:10.000Z"
     }
   ],
   "accountSamples": [
@@ -77349,6 +77356,41 @@
     },
     {
       "capturedAt": "2026-06-19T19:56:33.879Z",
+      "email": "leoaraujo1949@gmail.com",
+      "displayName": "LEO II",
+      "weeklyPercent": 53,
+      "weeklyReset": "2026-06-24T22:32:16.000Z"
+    },
+    {
+      "capturedAt": "2026-06-19T20:12:46.069Z",
+      "email": "contatonatanaelrodrigs@gmail.com",
+      "displayName": "NATANAEL",
+      "weeklyPercent": 51,
+      "weeklyReset": "2026-06-24T22:32:09.000Z"
+    },
+    {
+      "capturedAt": "2026-06-19T20:12:46.069Z",
+      "email": "douglaschatgpt.am@gmail.com",
+      "displayName": "Douglas",
+      "weeklyPercent": 34,
+      "weeklyReset": "2026-06-24T22:32:19.000Z"
+    },
+    {
+      "capturedAt": "2026-06-19T20:12:46.069Z",
+      "email": "dzplaybacks@gmail.com",
+      "displayName": "DZPLAYBACKS@GMAIL.COM",
+      "weeklyPercent": 37,
+      "weeklyReset": "2026-06-24T22:32:04.000Z"
+    },
+    {
+      "capturedAt": "2026-06-19T20:12:46.069Z",
+      "email": "jv5pdcwnxp@privaterelay.appleid.com",
+      "displayName": "LEO I",
+      "weeklyPercent": 77,
+      "weeklyReset": "2026-06-24T21:25:10.000Z"
+    },
+    {
+      "capturedAt": "2026-06-19T20:12:46.069Z",
       "email": "leoaraujo1949@gmail.com",
       "displayName": "LEO II",
       "weeklyPercent": 53,

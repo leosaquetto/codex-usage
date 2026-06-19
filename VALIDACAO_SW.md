@@ -2,7 +2,7 @@
 
 ## Estado esperado
 
-- Cache: `codex-usage-v35`.
+- Cache: `codex-usage-v36`.
 - Navegação HTML: network-first, com fallback para cache/offline.
 - `/api/*`: rede, retornando `503` offline.
 - Assets estáticos: cache-first.
@@ -27,7 +27,7 @@ O auditor confirma que:
 1. Abrir `http://127.0.0.1:8080/`.
 2. Confirmar carga sem erro de console.
 3. Recarregar e confirmar que o dashboard permanece funcional.
-4. Conferir o cache `codex-usage-v35`.
+4. Conferir o cache `codex-usage-v36`.
 5. Simular rede indisponível e confirmar que a interface estática abre.
 6. Confirmar que `/api/usage` indisponível usa o último payload válido do navegador.
 7. Restaurar a rede e confirmar atualização normal.

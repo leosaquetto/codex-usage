@@ -58,7 +58,7 @@ O Antigravity só atualiza quando o aplicativo está aberto, o LaunchAgent está
 - Eventos antecipados exibem o saldo semanal anterior e posterior. Mudanças de reset em que o semanal permanece em `99%` ou `100%` são descartadas como continuidade de saldo cheio.
 - Dados com mais de uma hora são marcados como atrasados.
 - Notificações podem ser ativadas globalmente, por tipo e por conta.
-- Alertas disponíveis: renovação semanal antecipada para `99%` ou `100%` após saldo abaixo de `99%`, semanal baixo, semanal acima de `30%` a até 24h do reset, dados atrasados/falha e 5h baixo opcional.
+- Alertas disponíveis: reset semanal para `99%` ou `100%` após saldo abaixo de `90%`, reset de 5h para `99%` ou `100%` após saldo de 5h abaixo de `90%` e com semanal disponível, semanal baixo, semanal acima de `30%` a até 24h do reset, dados atrasados/falha e 5h baixo opcional.
 
 ## Web Push em background
 

@@ -97,6 +97,11 @@ function buildSignal(ruleId, account, title, body, tag, cooldownField = null) {
   };
 }
 
+function refillBody(displayName, limitLabel, previousPercent, currentPercent, contextText) {
+  const context = contextText ? ` ${contextText}` : "";
+  return `${displayName}: ${limitLabel} foi de ${percentText(previousPercent)} para ${percentText(currentPercent)}${context}.`;
+}
+
 function evaluateNotificationSignals({
   usage,
   state = {},
@@ -128,10 +133,12 @@ function evaluateNotificationSignals({
     if (!key) continue;
 
     const currentReset = dateIso(account.weeklyResetDate || account.weeklyReset);
+    const currentFiveHourReset = dateIso(account.fiveHourResetDate || account.fiveHourReset);
     const currentPercent = clampPercent(account.weeklyPercent, null);
     const currentFiveHourPercent = clampPercent(account.fiveHourPercent, null);
     const previous = nextState.byAccount[key] || {};
     const previousReset = typeof previous.weeklyReset === "string" ? previous.weeklyReset : null;
+    const previousFiveHourReset = typeof previous.fiveHourReset === "string" ? previous.fiveHourReset : null;
     const previousPercent = clampPercent(previous.weeklyPercent, null);
     const previousFiveHourPercent = clampPercent(previous.fiveHourPercent, null);
     const firstSeen = !previous.seen;
@@ -152,13 +159,19 @@ function evaluateNotificationSignals({
       && weeklyHoursUntilReset !== null
       && weeklyHoursUntilReset >= 0
       && weeklyHoursUntilReset <= 24;
+    const fiveHourResetChanged = Boolean(
+      previousFiveHourReset
+      && currentFiveHourReset
+      && previousFiveHourReset !== currentFiveHourReset,
+    );
 
     if (
       !thirtyDayAccount
       && !firstSeen
       && resetChanged
-      && detectedBeforePreviousDeadline
       && !carryoverFullReset
+      && previousPercent !== null
+      && previousPercent < 90
       && currentPercent !== null
       && currentPercent >= 99
     ) {
@@ -166,8 +179,34 @@ function evaluateNotificationSignals({
         "weeklyRefill",
         account,
         "Semanal recarregado",
-        `${displayName} voltou para ${percentText(currentPercent)} antes do prazo.`,
+        refillBody(
+          displayName,
+          "semanal",
+          previousPercent,
+          currentPercent,
+          detectedBeforePreviousDeadline ? "antes do prazo" : "apos reset",
+        ),
         `weekly-refill-${key}-${currentReset || "full"}`,
+      ));
+    }
+
+    if (
+      !thirtyDayAccount
+      && !firstSeen
+      && fiveHourResetChanged
+      && previousFiveHourPercent !== null
+      && previousFiveHourPercent < 90
+      && currentFiveHourPercent !== null
+      && currentFiveHourPercent >= 99
+      && currentPercent !== null
+      && currentPercent > 0
+    ) {
+      signals.push(buildSignal(
+        "fiveHourRefill",
+        account,
+        "5h recarregado",
+        refillBody(displayName, "5h", previousFiveHourPercent, currentFiveHourPercent, "apos reset"),
+        `five-hour-refill-${key}-${currentFiveHourReset || "full"}`,
       ));
     }
 
@@ -215,13 +254,12 @@ function evaluateNotificationSignals({
       && previousFiveHourPercent > 15
       && !isCoolingDown(previous.lastFiveHourLowAt, FIVE_HOUR_LOW_COOLDOWN_MS, nowMs)
     ) {
-      const fiveHourReset = dateIso(account.fiveHourResetDate || account.fiveHourReset);
       signals.push(buildSignal(
         "fiveHourLow",
         account,
         "5h baixo",
         `${displayName}: ${percentText(currentFiveHourPercent)} restante na janela de 5h.`,
-        `five-hour-low-${key}-${fiveHourReset || "unknown"}`,
+        `five-hour-low-${key}-${currentFiveHourReset || "unknown"}`,
         "lastFiveHourLowAt",
       ));
     }
@@ -230,6 +268,7 @@ function evaluateNotificationSignals({
       ...previous,
       seen: true,
       weeklyReset: currentReset,
+      fiveHourReset: currentFiveHourReset,
       weeklyPercent: currentPercent,
       fiveHourPercent: currentFiveHourPercent,
     };

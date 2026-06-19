@@ -13,7 +13,8 @@
 
 - [x] Menu com visão **Todas** e **Por conta**.
 - [x] Toggle global, por tipo e por conta.
-- [x] Renovação semanal antecipada para `99%` ou `100%`, ignorando continuidade de saldo cheio.
+- [x] Reset semanal para `99%` ou `100%` após saldo abaixo de `90%`, mostrando `De X para Y` no corpo do alerta.
+- [x] Reset de 5h para `99%` ou `100%` após saldo de 5h abaixo de `90%`, apenas com semanal disponível e mostrando `De X para Y`.
 - [x] Semanal acima de `30%` a até 24h do reset.
 - [x] Semanal baixo.
 - [x] Dados atrasados ou falha de carga.
@@ -40,7 +41,7 @@ Estado externo observado na auditoria atual:
 
 - [x] Service Worker com assets críticos e fallback offline.
 - [x] Manifest, splash, HTML e cache usando caminhos consistentes.
-- [x] Cache atual: `codex-usage-v35`.
+- [x] Cache atual: `codex-usage-v36`.
 - [x] Validação integrada com `npm run validate`.
 - [x] Proteção da Vercel e widgets verificada pelo auditor estático.
 

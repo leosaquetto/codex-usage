@@ -54,6 +54,66 @@ const fiveHourLow = evaluateNotificationSignals({
 });
 assert.deepEqual(fiveHourLow.signals.map((signal) => signal.ruleId), ["fiveHourLow"]);
 
+const fiveHourRefill = evaluateNotificationSignals({
+  usage: {
+    ...freshUsage,
+    accounts: [{
+      ...baseAccount,
+      fiveHourPercent: 99,
+      fiveHourReset: "2026-06-04T01:00:00.000Z",
+    }],
+  },
+  state: firstSeen.nextState,
+  nowMs,
+});
+assert.deepEqual(fiveHourRefill.signals.map((signal) => signal.ruleId), ["fiveHourRefill"]);
+assert.match(fiveHourRefill.signals[0].body, /5h foi de 80% para 99%/);
+
+const fiveHourRefillFullCarryover = evaluateNotificationSignals({
+  usage: {
+    ...freshUsage,
+    accounts: [{
+      ...baseAccount,
+      fiveHourPercent: 100,
+      fiveHourReset: "2026-06-04T01:00:00.000Z",
+    }],
+  },
+  state: {
+    ...firstSeen.nextState,
+    byAccount: {
+      "account-a": {
+        ...firstSeen.nextState.byAccount["account-a"],
+        fiveHourPercent: 99,
+      },
+    },
+  },
+  nowMs,
+});
+assert.deepEqual(fiveHourRefillFullCarryover.signals, []);
+
+const fiveHourRefillNoWeeklyAvailable = evaluateNotificationSignals({
+  usage: {
+    ...freshUsage,
+    accounts: [{
+      ...baseAccount,
+      fiveHourPercent: 99,
+      fiveHourReset: "2026-06-04T01:00:00.000Z",
+      weeklyPercent: 0,
+    }],
+  },
+  state: {
+    ...firstSeen.nextState,
+    byAccount: {
+      "account-a": {
+        ...firstSeen.nextState.byAccount["account-a"],
+        weeklyPercent: 0,
+      },
+    },
+  },
+  nowMs,
+});
+assert.deepEqual(fiveHourRefillNoWeeklyAvailable.signals, []);
+
 const refill = evaluateNotificationSignals({
   usage: {
     ...freshUsage,
@@ -67,6 +127,7 @@ const refill = evaluateNotificationSignals({
   nowMs,
 });
 assert.deepEqual(refill.signals.map((signal) => signal.ruleId), ["weeklyRefill"]);
+assert.match(refill.signals[0].body, /semanal foi de 20% para 100%/);
 
 const partialEarlyReset = evaluateNotificationSignals({
   usage: {
@@ -117,7 +178,31 @@ const fullButOnTimeReset = evaluateNotificationSignals({
   state: firstSeen.nextState,
   nowMs: new Date("2026-06-08T20:05:00.000Z").getTime(),
 });
-assert.deepEqual(fullButOnTimeReset.signals, []);
+assert.deepEqual(fullButOnTimeReset.signals.map((signal) => signal.ruleId), ["weeklyRefill"]);
+assert.match(fullButOnTimeReset.signals[0].body, /semanal foi de 70% para 99%/);
+
+const weeklyRefillAboveThresholdNoAlert = evaluateNotificationSignals({
+  usage: {
+    ...freshUsage,
+    lastUpdated: "2026-06-08T20:05:00.000Z",
+    accounts: [{
+      ...baseAccount,
+      weeklyPercent: 99,
+      weeklyReset: "2026-06-15T20:00:00.000Z",
+    }],
+  },
+  state: {
+    ...firstSeen.nextState,
+    byAccount: {
+      "account-a": {
+        ...firstSeen.nextState.byAccount["account-a"],
+        weeklyPercent: 90,
+      },
+    },
+  },
+  nowMs: new Date("2026-06-08T20:05:00.000Z").getTime(),
+});
+assert.deepEqual(weeklyRefillAboveThresholdNoAlert.signals, []);
 
 const highNearReset = evaluateNotificationSignals({
   usage: {

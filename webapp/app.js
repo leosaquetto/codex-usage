@@ -19,7 +19,7 @@ const NOTIFICATION_PREFERENCES_KEY = "codex-notification-preferences-v1";
 const NOTIFICATION_STATE_KEY = "codex-notification-state-v4";
 const DEFAULT_THEME_COLOR = "#3b82f6";
 const NON_WEEKLY_HISTORY_EMAILS = new Set(["fabinhomian@gmail.com"]);
-const notificationEnginePromise = import("./notification-engine.mjs?v=weekly_resets_v4");
+const notificationEnginePromise = import("./notification-engine.mjs?v=reset_alerts_v1");
 
 let viewportRafId = null;
 let activeUsageController = null;
@@ -2011,7 +2011,14 @@ const NOTIFICATION_RULES = [
   {
     id: "weeklyRefill",
     title: "Semanal recarregado",
-    description: "Avisa quando uma conta renova antes do prazo e volta para 99% ou 100%.",
+    description: "Avisa quando o semanal reseta para 99% ou 100% apos ficar abaixo de 90%.",
+    defaultEnabled: true,
+    accountScoped: true,
+  },
+  {
+    id: "fiveHourRefill",
+    title: "5h recarregado",
+    description: "Avisa quando a janela de 5h reseta para 99% ou 100% apos ficar abaixo de 90% e ainda ha semanal disponivel.",
     defaultEnabled: true,
     accountScoped: true,
   },

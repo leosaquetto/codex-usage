@@ -1,17 +1,17 @@
 {
   "source": "codex-switcher",
-  "lastUpdated": "2026-06-20T18:20:36.771Z",
+  "lastUpdated": "2026-06-20T18:35:48.497Z",
   "accountCount": 5,
   "okCount": 5,
-  "activeAccountId": "16876632-bbc6-40cd-88fe-2000fb2bbf7c",
+  "activeAccountId": "e3dfd2ec-ae20-49a1-be64-2bb72982c3fa",
   "aggregate": {
-    "fiveHourPercent": 41,
+    "fiveHourPercent": 39,
     "fiveHourReset": "2026-06-20T19:19:15.000Z",
     "weeklyPercent": 25,
     "weeklyReset": "2026-06-24T21:25:09.000Z",
-    "lastUpdated": "2026-06-20T18:20:36.771Z"
+    "lastUpdated": "2026-06-20T18:35:48.497Z"
   },
-  "fiveHourPercent": 41,
+  "fiveHourPercent": 39,
   "fiveHourReset": "2026-06-20T19:19:15.000Z",
   "weeklyPercent": 25,
   "weeklyReset": "2026-06-24T21:25:09.000Z",
@@ -39,7 +39,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-20T18:20:36.771Z",
+      "lastUpdated": "2026-06-20T18:35:48.497Z",
       "status": "ok",
       "error": null
     },
@@ -59,14 +59,14 @@
       "fiveHourWindowMinutes": null,
       "weeklyPercent": 95,
       "weeklyUsedPercent": 5,
-      "weeklyReset": "2026-07-20T18:20:39.000Z",
+      "weeklyReset": "2026-07-20T18:35:51.000Z",
       "weeklyWindowMinutes": 43200,
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-20T18:20:36.771Z",
+      "lastUpdated": "2026-06-20T18:35:48.497Z",
       "status": "ok",
       "error": null
     },
@@ -78,11 +78,11 @@
       "email": "jv5pdcwnxp@privaterelay.appleid.com",
       "planType": "plus",
       "subscriptionExpiresAt": "2026-06-18T18:58:46.000Z",
-      "isActive": false,
-      "lastUsedAt": "2026-06-20T18:10:29.124Z",
-      "fiveHourPercent": 99,
-      "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-20T23:20:39.000Z",
+      "isActive": true,
+      "lastUsedAt": "2026-06-20T18:32:24.477Z",
+      "fiveHourPercent": 98,
+      "fiveHourUsedPercent": 2,
+      "fiveHourReset": "2026-06-20T23:35:34.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 4,
       "weeklyUsedPercent": 96,
@@ -93,7 +93,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-20T18:20:36.771Z",
+      "lastUpdated": "2026-06-20T18:35:48.497Z",
       "status": "ok",
       "error": null
     },
@@ -116,7 +116,7 @@
       "weeklyReset": null,
       "weeklyWindowMinutes": null,
       "credits": null,
-      "lastUpdated": "2026-06-20T18:20:36.771Z",
+      "lastUpdated": "2026-06-20T18:35:48.497Z",
       "status": "error",
       "error": "refresh HTTP 401: {\n  \"error\": {\n    \"message\": \"Your refresh token has already been used to generate a new access token. Please try signing in again.\",\n    \"type\": \"invalid_request_error\",\n    \"param\": null,\n    \"code"
     },
@@ -136,14 +136,14 @@
       "fiveHourWindowMinutes": null,
       "weeklyPercent": 95,
       "weeklyUsedPercent": 5,
-      "weeklyReset": "2026-07-20T18:20:39.000Z",
+      "weeklyReset": "2026-07-20T18:35:51.000Z",
       "weeklyWindowMinutes": 43200,
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-20T18:20:36.771Z",
+      "lastUpdated": "2026-06-20T18:35:48.497Z",
       "status": "ok",
       "error": null
     },
@@ -163,14 +163,14 @@
       "fiveHourWindowMinutes": null,
       "weeklyPercent": 95,
       "weeklyUsedPercent": 5,
-      "weeklyReset": "2026-07-20T18:20:39.000Z",
+      "weeklyReset": "2026-07-20T18:35:51.000Z",
       "weeklyWindowMinutes": 43200,
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-20T18:20:36.771Z",
+      "lastUpdated": "2026-06-20T18:35:48.497Z",
       "status": "ok",
       "error": null
     },
@@ -186,7 +186,7 @@
       "lastUsedAt": "2026-06-20T07:18:48.474Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-20T23:20:39.000Z",
+      "fiveHourReset": "2026-06-20T23:35:51.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 5,
       "weeklyUsedPercent": 95,
@@ -197,7 +197,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-20T18:20:36.771Z",
+      "lastUpdated": "2026-06-20T18:35:48.497Z",
       "status": "ok",
       "error": null
     },
@@ -217,14 +217,14 @@
       "fiveHourWindowMinutes": null,
       "weeklyPercent": 95,
       "weeklyUsedPercent": 5,
-      "weeklyReset": "2026-07-20T18:20:39.000Z",
+      "weeklyReset": "2026-07-20T18:35:51.000Z",
       "weeklyWindowMinutes": 43200,
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-20T18:20:36.771Z",
+      "lastUpdated": "2026-06-20T18:35:48.497Z",
       "status": "ok",
       "error": null
     },
@@ -251,7 +251,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-20T18:20:36.771Z",
+      "lastUpdated": "2026-06-20T18:35:48.497Z",
       "status": "ok",
       "error": null
     },
@@ -263,14 +263,14 @@
       "email": "leoaraujo1949@gmail.com",
       "planType": "plus",
       "subscriptionExpiresAt": "2026-06-25T20:50:41.000Z",
-      "isActive": true,
+      "isActive": false,
       "lastUsedAt": "2026-06-20T18:18:32.293Z",
-      "fiveHourPercent": 7,
-      "fiveHourUsedPercent": 93,
+      "fiveHourPercent": 0,
+      "fiveHourUsedPercent": 100,
       "fiveHourReset": "2026-06-20T20:58:35.000Z",
       "fiveHourWindowMinutes": 300,
-      "weeklyPercent": 23,
-      "weeklyUsedPercent": 77,
+      "weeklyPercent": 22,
+      "weeklyUsedPercent": 78,
       "weeklyReset": "2026-06-24T22:32:16.000Z",
       "weeklyWindowMinutes": 10080,
       "credits": {
@@ -278,7 +278,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-20T18:20:36.771Z",
+      "lastUpdated": "2026-06-20T18:35:48.497Z",
       "status": "ok",
       "error": null
     }

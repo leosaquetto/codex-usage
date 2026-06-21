@@ -2885,3 +2885,227 @@ input {
     transform: rotate(360deg);
   }
 }
+
+/* =========================================
+   Mockup Layout (Desktop Dashboard Grid)
+   ========================================= */
+
+.app-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Sidebar navigation style (hidden by default, shown on desktop) */
+.sidebar {
+  display: none;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border-soft);
+  padding: 30px 20px;
+  flex-direction: column;
+  gap: 32px;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--text-primary);
+  letter-spacing: 0.5px;
+}
+
+.sidebar-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  box-shadow: var(--shadow-soft);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-nav .nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  border-radius: 12px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+  transition: background 150ms var(--ease), color 150ms var(--ease);
+}
+
+.sidebar-nav .nav-item:hover {
+  background: var(--bg-muted);
+  color: var(--text-primary);
+}
+
+.sidebar-nav .nav-item.active {
+  background: var(--bg-muted);
+  color: var(--primary);
+}
+
+.sidebar-nav .nav-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Main Content Area */
+.app-main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+  padding: 20px 0;
+}
+
+.welcome-header {
+  margin-top: 10px;
+}
+
+.welcome-header h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--text-primary);
+}
+
+.welcome-header p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* Metrics Summary Cards Grid */
+.metrics-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.metric-summary-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border: 1px solid var(--border-soft);
+  border-radius: 20px;
+  background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+  box-shadow: var(--shadow-card);
+  transition: transform 160ms var(--ease);
+}
+
+.metric-summary-card:hover {
+  transform: translateY(-2px);
+}
+
+.metric-card-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.metric-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metric-value {
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--text-primary);
+  margin-top: 4px;
+}
+
+.metric-sparkline-container {
+  width: 100px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+}
+
+.metric-mini-sparkline {
+  width: 100%;
+  height: 100%;
+}
+
+.sparkline-orange {
+  color: var(--tone-warn);
+}
+
+.sparkline-blue {
+  color: var(--primary);
+}
+
+/* app columns grid (desktop column separation) */
+.app-columns-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+/* Desktop layout (>= 1024px) */
+@media (min-width: 1024px) {
+  .app-container {
+    grid-template-columns: 260px 1fr;
+    gap: 30px;
+  }
+  
+  .sidebar {
+    display: flex;
+  }
+  
+  .app-main-content {
+    padding: 30px 0;
+  }
+  
+  .metrics-summary-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .app-columns-grid {
+    grid-template-columns: 1.1fr 0.9fr;
+    align-items: start;
+    gap: 24px;
+  }
+
+  .topbar .brand {
+    display: none;
+  }
+
+  .topbar {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile grid adjustment to avoid account/antigravity card squeezing */
+@media (max-width: 640px) {
+  .accounts-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .metrics-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

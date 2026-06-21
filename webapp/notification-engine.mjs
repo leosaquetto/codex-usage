@@ -102,6 +102,10 @@ function refillBody(displayName, limitLabel, previousPercent, currentPercent, co
   return `${displayName}: ${limitLabel} foi de ${percentText(previousPercent)} para ${percentText(currentPercent)}${context}.`;
 }
 
+function fiveHourRefillBody(displayName, previousPercent, currentPercent, weeklyPercent) {
+  return `${refillBody(displayName, "5h", previousPercent, currentPercent, "apos reset")} Semanal restante: ${percentText(weeklyPercent)}.`;
+}
+
 function evaluateNotificationSignals({
   usage,
   state = {},
@@ -208,7 +212,7 @@ function evaluateNotificationSignals({
         "fiveHourRefill",
         account,
         "5h recarregado",
-        refillBody(displayName, "5h", previousFiveHourPercent, currentFiveHourPercent, "apos reset"),
+        fiveHourRefillBody(displayName, previousFiveHourPercent, currentFiveHourPercent, currentPercent),
         `five-hour-refill-${key}-${currentFiveHourReset || "full"}`,
       ));
     }

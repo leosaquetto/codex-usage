@@ -28,6 +28,7 @@ let lastSuspendedAt = 0;
 let activeChart = "weekly";
 let activeAccountSort = "renewFirst";
 let activeView = "dashboard";
+let activeSidebarTab = "dashboard";
 let resetEventFilter = "all";
 let selectedResetEmail = "all";
 let hideExhaustedAccounts = false;
@@ -511,6 +512,15 @@ function formatCompareWidth(value, max) {
 function formatAccountPercent(value) {
   const n = clampPercent(value, null);
   return n === null ? "--%" : `${Math.round(n)}%`;
+}
+
+function formatAntigravityPercent(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return "--%";
+  if (n === 100) return "100%";
+  if (n === 0) return "0%";
+  const truncated = Math.floor(n * 100) / 100;
+  return `${truncated}%`;
 }
 
 function capitalizeFirst(value) {
@@ -1514,6 +1524,11 @@ function resolveStatus(metrics, usage, hasLoadError) {
 ========================================= */
 function getElements() {
   return {
+    summaryTotalModels: document.getElementById("summaryTotalModels"),
+    summaryActiveAccounts: document.getElementById("summaryActiveAccounts"),
+    summaryResetEvents: document.getElementById("summaryResetEvents"),
+    summaryPerformanceIndex: document.getElementById("summaryPerformanceIndex"),
+    sidebarSettingsBtn: document.getElementById("sidebarSettingsBtn"),
     themeColorInput: document.getElementById("themeColorInput"),
     resetViewButton: document.getElementById("resetViewButton"),
     refreshButton: document.getElementById("refreshButton"),
@@ -1839,7 +1854,8 @@ function renderAntigravityGrid(container, antigravity, panel) {
     modelsContainer.style.gap = "10px";
     modelsContainer.style.marginTop = "10px";
 
-    for (const model of account.models || []) {
+    const firstModel = account.models && account.models[0];
+    if (firstModel) {
       const modelRow = document.createElement("div");
       modelRow.className = "model-usage-row";
       modelRow.style.fontSize = "11px";
@@ -1851,11 +1867,13 @@ function renderAntigravityGrid(container, antigravity, panel) {
       line.style.fontWeight = "600";
 
       const nameSpan = document.createElement("span");
-      nameSpan.textContent = model.tier ? `${model.name} (${model.tier})` : model.name;
-      
+      nameSpan.textContent = "Gemini";
+
       const percentStrong = document.createElement("strong");
-      percentStrong.textContent = model.remainingPercent !== null ? `${model.remainingPercent}%` : "--";
-      if (model.remainingPercent !== null && model.remainingPercent <= 15) {
+      percentStrong.textContent = firstModel.remainingPercent !== null
+        ? formatAntigravityPercent(firstModel.remainingPercent)
+        : "--";
+      if (firstModel.remainingPercent !== null && firstModel.remainingPercent <= 15) {
         percentStrong.style.color = "var(--tone-danger)";
       }
 
@@ -1872,11 +1890,11 @@ function renderAntigravityGrid(container, antigravity, panel) {
       const bar = document.createElement("div");
       bar.className = "active-progress-fill";
       bar.style.height = "100%";
-      bar.style.width = model.remainingPercent !== null ? `${model.remainingPercent}%` : "0%";
+      bar.style.width = firstModel.remainingPercent !== null ? `${firstModel.remainingPercent}%` : "0%";
       
-      const barColor = model.remainingPercent === 0 
+      const barColor = firstModel.remainingPercent === 0 
         ? "var(--tone-danger)" 
-        : model.remainingPercent <= 15 
+        : firstModel.remainingPercent <= 15 
           ? "var(--tone-warn)" 
           : "var(--primary)";
       bar.style.background = barColor;
@@ -1889,9 +1907,9 @@ function renderAntigravityGrid(container, antigravity, panel) {
       metaText.style.color = "var(--text-muted)";
       metaText.style.fontWeight = "500";
       
-      let resetText = model.refreshText || "";
-      if (model.refreshAtDate) {
-        const diffMs = model.refreshAtDate.getTime() - Date.now();
+      let resetText = firstModel.refreshText || "";
+      if (firstModel.refreshAtDate) {
+        const diffMs = firstModel.refreshAtDate.getTime() - Date.now();
         if (diffMs > 0) {
           const hours = Math.round(diffMs / 3600000);
           if (hours >= 24) {
@@ -2111,6 +2129,34 @@ function renderDashboard(els, viewModel) {
   document.querySelectorAll(".dashboard-only").forEach((element) => {
     element.hidden = showResets;
   });
+
+  // Update sidebar active states based on current tab selection
+  const navItems = document.querySelectorAll(".sidebar-nav .nav-item");
+  navItems.forEach(item => {
+    item.classList.remove("active");
+  });
+  const activeSidebarItem = document.querySelector(`.sidebar-nav .nav-item[data-tab="${activeSidebarTab}"]`);
+  if (activeSidebarItem) activeSidebarItem.classList.add("active");
+
+  // Populate metrics summary cards
+  const totalModelsCount = (viewModel.antigravity && viewModel.antigravity.accounts)
+    ? viewModel.antigravity.accounts.length
+    : 0;
+  if (els.summaryTotalModels) els.summaryTotalModels.textContent = totalModelsCount || "0";
+
+  const activeCodexCount = (viewModel.accounts || []).filter(a => a.isActive).length;
+  const activeAntigravityCount = (viewModel.antigravity && viewModel.antigravity.accounts)
+    ? viewModel.antigravity.accounts.filter(a => a.isActive).length
+    : 0;
+  const totalActiveAccounts = activeCodexCount + activeAntigravityCount;
+  if (els.summaryActiveAccounts) els.summaryActiveAccounts.textContent = totalActiveAccounts || "0";
+
+  const totalResetEvents = (viewModel.weeklyResets && viewModel.weeklyResets.eventCount)
+    ? viewModel.weeklyResets.eventCount
+    : 0;
+  if (els.summaryResetEvents) els.summaryResetEvents.textContent = totalResetEvents || "0";
+
+  if (els.summaryPerformanceIndex) els.summaryPerformanceIndex.textContent = viewModel.totalAvailability.weeklyText || "--%";
   if (els.weeklyResetArea) els.weeklyResetArea.hidden = !showResets;
   els.resetViewButton?.setAttribute("aria-pressed", String(showResets));
   els.resetViewButton?.setAttribute("title", showResets ? "Voltar ao painel" : "Renovações");
@@ -2714,6 +2760,7 @@ function bindEvents(els, usage, render) {
 
   els.resetViewButton?.addEventListener("click", () => {
     activeView = activeView === "resets" ? "dashboard" : "resets";
+    activeSidebarTab = activeView === "resets" ? "reports" : "dashboard";
     triggerHaptic(10);
     render();
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -2806,6 +2853,46 @@ function bindEvents(els, usage, render) {
       render();
     });
   }
+
+  // Sidebar Navigation Click Handlers
+  const sidebarNavItems = document.querySelectorAll(".sidebar-nav .nav-item");
+  sidebarNavItems.forEach(item => {
+    item.addEventListener("click", () => {
+      const tab = item.dataset.tab;
+      if (!tab) return;
+      
+      triggerHaptic(8);
+      
+      if (tab === "dashboard") {
+        activeView = "dashboard";
+        activeSidebarTab = "dashboard";
+        render();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else if (tab === "accounts") {
+        activeView = "dashboard";
+        activeSidebarTab = "accounts";
+        render();
+        document.getElementById("activeAccountPanel")?.scrollIntoView({ behavior: "smooth" });
+      } else if (tab === "models") {
+        activeView = "dashboard";
+        activeSidebarTab = "models";
+        render();
+        document.getElementById("antigravityPanel")?.scrollIntoView({ behavior: "smooth" });
+      } else if (tab === "reports") {
+        activeView = "resets";
+        activeSidebarTab = "reports";
+        render();
+        document.getElementById("weeklyResetArea")?.scrollIntoView({ behavior: "smooth" });
+      }
+    });
+  });
+
+  els.sidebarSettingsBtn?.addEventListener("click", () => {
+    triggerHaptic(10);
+    if (els.notificationMenu) {
+      els.notificationMenu.open = !els.notificationMenu.open;
+    }
+  });
 }
 
 async function init() {

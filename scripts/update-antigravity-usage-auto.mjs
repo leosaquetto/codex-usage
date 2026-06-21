@@ -553,7 +553,7 @@ async function tryCliPayload() {
   const result = spawnSync(cliPath, ["quota", "--all", "--json"], {
     cwd: root,
     encoding: "utf8",
-    timeout: 15000,
+    timeout: 90000,
   });
 
   if (result.status !== 0) {

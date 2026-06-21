@@ -68,6 +68,7 @@ const fiveHourRefill = evaluateNotificationSignals({
 });
 assert.deepEqual(fiveHourRefill.signals.map((signal) => signal.ruleId), ["fiveHourRefill"]);
 assert.match(fiveHourRefill.signals[0].body, /5h foi de 80% para 99%/);
+assert.match(fiveHourRefill.signals[0].body, /Semanal restante: 70%/);
 
 const fiveHourRefillFullCarryover = evaluateNotificationSignals({
   usage: {

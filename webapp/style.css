@@ -1805,6 +1805,13 @@ input {
   background: #dcfce7;
 }
 
+.account-pill[data-plan="pro"] {
+  color: #ffffff;
+  background: linear-gradient(135deg, #4f46e5, #06b6d4);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  border: none;
+}
+
 .account-meters {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3084,7 +3091,7 @@ input {
   }
   
   .app-columns-grid {
-    grid-template-columns: 1.1fr 0.9fr;
+    grid-template-columns: 1fr 1fr;
     align-items: start;
     gap: 24px;
   }

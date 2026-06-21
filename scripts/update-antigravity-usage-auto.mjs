@@ -485,7 +485,10 @@ function parseCliOutput(cliJson) {
     const rawModels = acc.snapshot.models || [];
     const models = rawModels.map((model) => {
       const { name, tier } = splitNameTier(model.label || model.modelId);
-      const remainingPercent = clampPercent(model.remainingPercentage);
+      const rawPct = model.remainingPercentage !== undefined && model.remainingPercentage !== null
+        ? model.remainingPercentage * 100
+        : null;
+      const remainingPercent = clampPercent(rawPct);
       
       const refreshAt = model.resetTime || null;
       let refreshText = "";

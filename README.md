@@ -46,7 +46,7 @@ npm run update:antigravity-usage:auto
 
 O Switcher deve publicar apenas na branch `usage-data`. Não rode atualizadores automáticos com commit/push diretamente na `main`.
 
-O Antigravity só atualiza quando o aplicativo está aberto, o LaunchAgent está carregado e o processo possui permissões de Acessibilidade e Gravação de Tela.
+O Antigravity só atualiza quando o aplicativo está aberto, o LaunchAgent está carregado e o processo possui permissões de Acessibilidade e Gravação de Tela. O CLI do Antigravity expõe cotas como frações de `0.0` a `1.0` (ex: `0.9992` para `99.92%`), e o atualizador faz a conversão multiplicando por `100`.
 
 ## Dashboard
 

@@ -94,7 +94,7 @@ const mockCliOutput = [
         {
           label: "Gemini 3.5 Flash (Medium)",
           modelId: "gemini-3-5-flash-medium",
-          remainingPercentage: 80,
+          remainingPercentage: 0.8,
           isExhausted: false,
           resetTime: "2026-06-28T02:29:36Z",
           timeUntilResetMs: 604799769,
@@ -115,7 +115,7 @@ const mockCliOutput = [
         {
           label: "Gemini 3 Flash",
           modelId: "gemini-3-flash",
-          remainingPercentage: 100,
+          remainingPercentage: 1.0,
           isExhausted: false,
           resetTime: "2026-06-28T02:29:38Z",
           timeUntilResetMs: 604799769,

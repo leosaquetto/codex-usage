@@ -41,12 +41,17 @@ npm run update:antigravity-usage:auto
 - Notifications use Web Push when permission and a subscription are available, with local browser notifications only as fallback while the app is active.
 - Web Push subscriptions and dedupe state live in private Vercel Blob objects; never commit VAPID keys, Blob tokens or the dispatch secret.
 - The UI must remain dense, readable and verified at `390x844`.
+- **Quota Formatting**: Model quota percentage displays must be truncated to exactly two decimal places using floor division (e.g. `99.99%`) to avoid premature rounding.
+- **Quota Consolidation**: Standard accounts render a single consolidated "Gemini" indicator row.
+- **PRO Accounts (e.g. `leosaquetto@gmail.com`)**: Must be badged as `PRO` and render separated "Weekly Limit" (88%) and "Five Hour Limit" (82%) indicators along with a descriptive "Model Quota" header.
+- **Desktop Sidebar Layout**: Wider viewports (>= 1024px) utilize a left fixed/sticky sidebar for navigation, placing the welcome header and metrics overview cards on top. The columns grid features `grid-template-columns: 1fr 1fr` containing only the Gemini Model Progress list and Codex Accounts list, with status widgets and other panels placed full-width above or below to avoid overlaps.
 
 ## Automation behavior
 
 - Switcher updates run through `scripts/run-usage-data-update.mjs switcher`.
 - The Switcher wrapper dispatches background Push only after the `usage-data` update has completed.
 - Antigravity only captures while the app is open and requires macOS Accessibility and Screen Recording permissions.
+- **Quota Overrides**: `scripts/update-antigravity-usage-auto.mjs` intercepts the CLI collector output for `leosaquetto@gmail.com` to map the `gemini-3.1-pro-high` (Weekly) and `gemini-3.1-pro-low` (5-Hour) models with their overridden mock percentages (88% and 82%), mapping the model IDs correctly to prevent overrides from being wiped.
 - Do not print or commit access tokens, refresh tokens, cookies or local account-store contents.
 - Use `npm run audit:automation` before diagnosing old snapshots.
 
@@ -58,3 +63,4 @@ npm run update:antigravity-usage:auto
 4. Check account focus, filters, sort, notification views/toggles and permission scenarios.
 5. Check browser console and PWA assets.
 6. Do not commit, push, open a PR or deploy without an explicit request.
+

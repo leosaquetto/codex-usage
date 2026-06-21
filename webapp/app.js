@@ -19,7 +19,7 @@ const NOTIFICATION_PREFERENCES_KEY = "codex-notification-preferences-v1";
 const NOTIFICATION_STATE_KEY = "codex-notification-state-v4";
 const DEFAULT_THEME_COLOR = "#3b82f6";
 const NON_WEEKLY_HISTORY_EMAILS = new Set(["fabinhomian@gmail.com"]);
-const notificationEnginePromise = import("./notification-engine.mjs?v=mockup_layout_v1");
+const notificationEnginePromise = import("./notification-engine.mjs?v=mockup_layout_v2");
 
 let viewportRafId = null;
 let activeUsageController = null;
@@ -1829,7 +1829,7 @@ function renderAntigravityGrid(container, antigravity, panel) {
 
     const logo = document.createElement("img");
     logo.className = "account-logo";
-    logo.src = "/assets/logo_background.png";
+    logo.src = "/assets/gemini__2.png";
     logo.alt = "";
     logo.loading = "lazy";
 
@@ -1843,8 +1843,13 @@ function renderAntigravityGrid(container, antigravity, panel) {
 
     const pill = document.createElement("span");
     pill.className = "account-pill";
-    pill.textContent = "Google";
-    pill.dataset.plan = "go";
+    if (account.email === "leosaquetto@gmail.com") {
+      pill.textContent = "PRO";
+      pill.dataset.plan = "pro";
+    } else {
+      pill.textContent = "Google";
+      pill.dataset.plan = "go";
+    }
 
     top.append(logo, titleWrap, pill);
 
@@ -1854,77 +1859,189 @@ function renderAntigravityGrid(container, antigravity, panel) {
     modelsContainer.style.gap = "10px";
     modelsContainer.style.marginTop = "10px";
 
-    const firstModel = account.models && account.models[0];
-    if (firstModel) {
-      const modelRow = document.createElement("div");
-      modelRow.className = "model-usage-row";
-      modelRow.style.fontSize = "11px";
+    if (account.email === "leosaquetto@gmail.com") {
+      // Adiciona o cabeçalho Model Quotas do print
+      const quotaHeader = document.createElement("div");
+      quotaHeader.className = "model-quota-info";
+      quotaHeader.style.fontSize = "10px";
+      quotaHeader.style.lineHeight = "1.4";
+      quotaHeader.style.color = "var(--text-muted)";
+      quotaHeader.style.marginBottom = "12px";
+      quotaHeader.style.borderBottom = "1px solid #f1f5f9";
+      quotaHeader.style.paddingBottom = "8px";
+      quotaHeader.innerHTML = `
+        <strong style="color: var(--text-dark); display: block; margin-bottom: 2px;">Model Quota</strong>
+        Within each group, models share a weekly limit and a 5-hour limit. Quota is consumed proportionally to the cost of the tokens.
+      `;
+      modelsContainer.append(quotaHeader);
 
-      const line = document.createElement("div");
-      line.className = "active-usage-line";
-      line.style.display = "flex";
-      line.style.justifyContent = "space-between";
-      line.style.fontWeight = "600";
+      const highModel = account.models.find(m => m.id === "gemini-3-1-pro-high") || {
+        remainingPercent: null,
+        refreshText: "Sem dados de limite semanal."
+      };
+      const lowModel = account.models.find(m => m.id === "gemini-3-1-pro-low") || {
+        remainingPercent: null,
+        refreshText: "Sem dados de limite de 5 horas."
+      };
 
-      const nameSpan = document.createElement("span");
-      nameSpan.textContent = "Gemini";
+      const limitsToRender = [
+        {
+          label: "Five Hour Limit",
+          model: lowModel,
+          defaultPercent: null,
+          defaultRefresh: "Sem dados de limite de 5 horas."
+        },
+        {
+          label: "Weekly Limit",
+          model: highModel,
+          defaultPercent: null,
+          defaultRefresh: "Sem dados de limite semanal."
+        }
+      ];
 
-      const percentStrong = document.createElement("strong");
-      percentStrong.textContent = firstModel.remainingPercent !== null
-        ? formatAntigravityPercent(firstModel.remainingPercent)
-        : "--";
-      if (firstModel.remainingPercent !== null && firstModel.remainingPercent <= 15) {
-        percentStrong.style.color = "var(--tone-danger)";
-      }
+      for (const item of limitsToRender) {
+        const modelRow = document.createElement("div");
+        modelRow.className = "model-usage-row";
+        modelRow.style.fontSize = "11px";
 
-      line.append(nameSpan, percentStrong);
+        const line = document.createElement("div");
+        line.className = "active-usage-line";
+        line.style.display = "flex";
+        line.style.justifyContent = "space-between";
+        line.style.fontWeight = "600";
 
-      const track = document.createElement("div");
-      track.className = "active-progress-track";
-      track.style.height = "6px";
-      track.style.background = "#e2e8f0";
-      track.style.borderRadius = "999px";
-      track.style.overflow = "hidden";
-      track.style.marginTop = "4px";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = item.label;
 
-      const bar = document.createElement("div");
-      bar.className = "active-progress-fill";
-      bar.style.height = "100%";
-      bar.style.width = firstModel.remainingPercent !== null ? `${firstModel.remainingPercent}%` : "0%";
-      
-      const barColor = firstModel.remainingPercent === 0 
-        ? "var(--tone-danger)" 
-        : firstModel.remainingPercent <= 15 
-          ? "var(--tone-warn)" 
-          : "var(--primary)";
-      bar.style.background = barColor;
-      
-      track.append(bar);
+        const pct = item.model.remainingPercent !== null ? item.model.remainingPercent : item.defaultPercent;
+        const percentStrong = document.createElement("strong");
+        percentStrong.textContent = formatAntigravityPercent(pct);
+        if (pct !== null && pct <= 15) {
+          percentStrong.style.color = "var(--tone-danger)";
+        }
 
-      const metaText = document.createElement("p");
-      metaText.style.margin = "3px 0 0";
-      metaText.style.fontSize = "9px";
-      metaText.style.color = "var(--text-muted)";
-      metaText.style.fontWeight = "500";
-      
-      let resetText = firstModel.refreshText || "";
-      if (firstModel.refreshAtDate) {
-        const diffMs = firstModel.refreshAtDate.getTime() - Date.now();
-        if (diffMs > 0) {
-          const hours = Math.round(diffMs / 3600000);
-          if (hours >= 24) {
-            const days = Math.floor(hours / 24);
-            const remHours = hours % 24;
-            resetText = `Renova em ${days}d ${remHours}h`;
-          } else {
-            resetText = `Renova em ${hours}h`;
+        line.append(nameSpan, percentStrong);
+
+        const track = document.createElement("div");
+        track.className = "active-progress-track";
+        track.style.height = "6px";
+        track.style.background = "#e2e8f0";
+        track.style.borderRadius = "999px";
+        track.style.overflow = "hidden";
+        track.style.marginTop = "4px";
+
+        const bar = document.createElement("div");
+        bar.className = "active-progress-fill";
+        bar.style.height = "100%";
+        bar.style.width = pct !== null ? `${pct}%` : "0%";
+        
+        const barColor = pct === 0 
+          ? "var(--tone-danger)" 
+          : pct <= 15 
+            ? "var(--tone-warn)" 
+            : "var(--primary)";
+        bar.style.background = barColor;
+        
+        track.append(bar);
+
+        const metaText = document.createElement("p");
+        metaText.style.margin = "3px 0 0";
+        metaText.style.fontSize = "9px";
+        metaText.style.color = "var(--text-muted)";
+        metaText.style.fontWeight = "500";
+        
+        let resetText = item.model.refreshText || item.defaultRefresh;
+        if (item.model.refreshAtDate) {
+          const diffMs = item.model.refreshAtDate.getTime() - Date.now();
+          if (diffMs > 0) {
+            const hours = Math.round(diffMs / 3600000);
+            if (hours >= 24) {
+              const days = Math.floor(hours / 24);
+              const remHours = hours % 24;
+              resetText = `Renova em ${days}d ${remHours}h`;
+            } else {
+              resetText = `Renova em ${hours}h`;
+            }
           }
         }
-      }
-      metaText.textContent = resetText;
+        metaText.textContent = resetText;
 
-      modelRow.append(line, track, metaText);
-      modelsContainer.append(modelRow);
+        modelRow.append(line, track, metaText);
+        modelsContainer.append(modelRow);
+      }
+    } else {
+      const firstModel = account.models && account.models[0];
+      if (firstModel) {
+        const modelRow = document.createElement("div");
+        modelRow.className = "model-usage-row";
+        modelRow.style.fontSize = "11px";
+
+        const line = document.createElement("div");
+        line.className = "active-usage-line";
+        line.style.display = "flex";
+        line.style.justifyContent = "space-between";
+        line.style.fontWeight = "600";
+
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = "Gemini";
+
+        const percentStrong = document.createElement("strong");
+        percentStrong.textContent = firstModel.remainingPercent !== null
+          ? formatAntigravityPercent(firstModel.remainingPercent)
+          : "--";
+        if (firstModel.remainingPercent !== null && firstModel.remainingPercent <= 15) {
+          percentStrong.style.color = "var(--tone-danger)";
+        }
+
+        line.append(nameSpan, percentStrong);
+
+        const track = document.createElement("div");
+        track.className = "active-progress-track";
+        track.style.height = "6px";
+        track.style.background = "#e2e8f0";
+        track.style.borderRadius = "999px";
+        track.style.overflow = "hidden";
+        track.style.marginTop = "4px";
+
+        const bar = document.createElement("div");
+        bar.className = "active-progress-fill";
+        bar.style.height = "100%";
+        bar.style.width = firstModel.remainingPercent !== null ? `${firstModel.remainingPercent}%` : "0%";
+        
+        const barColor = firstModel.remainingPercent === 0 
+          ? "var(--tone-danger)" 
+          : firstModel.remainingPercent <= 15 
+            ? "var(--tone-warn)" 
+            : "var(--primary)";
+        bar.style.background = barColor;
+        
+        track.append(bar);
+
+        const metaText = document.createElement("p");
+        metaText.style.margin = "3px 0 0";
+        metaText.style.fontSize = "9px";
+        metaText.style.color = "var(--text-muted)";
+        metaText.style.fontWeight = "500";
+        
+        let resetText = firstModel.refreshText || "";
+        if (firstModel.refreshAtDate) {
+          const diffMs = firstModel.refreshAtDate.getTime() - Date.now();
+          if (diffMs > 0) {
+            const hours = Math.round(diffMs / 3600000);
+            if (hours >= 24) {
+              const days = Math.floor(hours / 24);
+              const remHours = hours % 24;
+              resetText = `Renova em ${days}d ${remHours}h`;
+            } else {
+              resetText = `Renova em ${hours}h`;
+            }
+          }
+        }
+        metaText.textContent = resetText;
+
+        modelRow.append(line, track, metaText);
+        modelsContainer.append(modelRow);
+      }
     }
 
     const footer = document.createElement("div");

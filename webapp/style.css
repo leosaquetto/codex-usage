@@ -68,9 +68,7 @@ body {
   min-height: 100%;
   margin: 0;
   color: var(--text-primary);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.7), transparent 230px),
-    var(--bg-base);
+  background: transparent;
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 15px;
   line-height: 1.4;
@@ -81,9 +79,13 @@ body {
 body::before {
   content: "";
   position: fixed;
-  inset: -220px;
+  inset: 0;
   z-index: -1;
-  background: var(--bg-base);
+  background-color: var(--bg-base);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(244, 63, 94, 0.07) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.08) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(168, 85, 247, 0.05) 0px, transparent 50%);
 }
 
 button,
@@ -1682,17 +1684,17 @@ input {
   gap: 11px;
   min-width: 0;
   padding: 14px;
-  border: 1px solid color-mix(in srgb, var(--account-tone) 18%, rgba(15, 23, 42, 0.08));
-  border-radius: 20px;
-  background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
-  box-shadow: var(--shadow-card);
+  border: 1px solid rgba(15, 23, 42, 0.04);
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.03), 0 1px 3px rgba(15, 23, 42, 0.015);
   transition: transform 240ms var(--ease), box-shadow 240ms var(--ease), border-color 240ms var(--ease);
 }
 
 .account-card:hover {
   transform: translateY(-3px);
-  border-color: color-mix(in srgb, var(--account-tone) 28%, rgba(15, 23, 42, 0.12));
-  box-shadow: 0 20px 40px rgba(139, 92, 26, 0.07), 0 4px 12px rgba(0, 0, 0, 0.02);
+  border-color: rgba(15, 23, 42, 0.08);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.02);
 }
 
 .account-card[data-recommended="true"] {
@@ -1803,6 +1805,13 @@ input {
 .account-pill[data-plan="go"] {
   color: #166534;
   background: #dcfce7;
+}
+
+.account-pill[data-plan="pro"] {
+  color: #ffffff;
+  background: linear-gradient(135deg, #4f46e5, #06b6d4);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  border: none;
 }
 
 .account-meters {
@@ -3006,15 +3015,16 @@ input {
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  border: 1px solid var(--border-soft);
-  border-radius: 20px;
-  background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
-  box-shadow: var(--shadow-card);
-  transition: transform 160ms var(--ease);
+  border: 1px solid rgba(15, 23, 42, 0.04);
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.03), 0 1px 3px rgba(15, 23, 42, 0.015);
+  transition: transform 160ms var(--ease), box-shadow 160ms var(--ease);
 }
 
 .metric-summary-card:hover {
   transform: translateY(-2px);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.05), 0 1px 3px rgba(15, 23, 42, 0.02);
 }
 
 .metric-card-info {
@@ -3084,9 +3094,13 @@ input {
   }
   
   .app-columns-grid {
-    grid-template-columns: 1.1fr 0.9fr;
+    grid-template-columns: 1fr 1fr;
     align-items: start;
     gap: 24px;
+  }
+
+  .accounts-grid {
+    grid-template-columns: 1fr;
   }
 
   .topbar .brand {

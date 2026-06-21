@@ -255,43 +255,141 @@ function parseCliOutput(cliJson, localSnapshot = null) {
   };
 }
 
-async function tryLocalCliPayload() {
-  const cliPath = resolveCliPath();
-  const result = spawnSync(cliPath, ["quota", "--method", "local", "--json"], {
-    cwd: root,
-    encoding: "utf8",
-    timeout: 15000,
-  });
-
-  if (result.status !== 0) {
-    return null;
+function getRefreshTextAndAt(resetTime, now = new Date()) {
+  if (!resetTime) {
+    return { refreshText: "Refreshes soon", refreshAt: null };
   }
-
-  try {
-    return JSON.parse(result.stdout);
-  } catch {
-    return null;
+  const resetDate = new Date(resetTime);
+  const diffMs = resetDate.getTime() - now.getTime();
+  if (diffMs <= 0) {
+    return { refreshText: "Refreshes soon", refreshAt: resetTime };
+  }
+  const totalHours = Math.round(diffMs / 3600000);
+  if (totalHours >= 24) {
+    const days = Math.floor(totalHours / 24);
+    const remHours = totalHours % 24;
+    return {
+      refreshText: `Refreshes in ${days} ${days === 1 ? "day" : "days"}${remHours > 0 ? `, ${remHours} ${remHours === 1 ? "hour" : "hours"}` : ""}`,
+      refreshAt: resetTime
+    };
+  } else {
+    const totalMinutes = Math.round(diffMs / 60000);
+    const remMinutes = totalMinutes % 60;
+    const remHours = Math.floor(totalMinutes / 60);
+    if (remHours > 0) {
+      return {
+        refreshText: `Refreshes in ${remHours} ${remHours === 1 ? "hour" : "hours"}${remMinutes > 0 ? `, ${remMinutes} ${remMinutes === 1 ? "minute" : "minutes"}` : ""}`,
+        refreshAt: resetTime
+      };
+    } else {
+      return {
+        refreshText: `Refreshes in ${remMinutes} ${remMinutes === 1 ? "minute" : "minutes"}`,
+        refreshAt: resetTime
+      };
+    }
   }
 }
 
+async function readDecryptedAccounts(decryptedPath = "/Users/leosaquetto/.antigravity-agent/decrypted_accounts.json", now = new Date()) {
+  const content = await readFile(decryptedPath, "utf8");
+  const rawAccounts = JSON.parse(content);
+  
+  const accounts = [];
+  
+  for (const acc of rawAccounts) {
+    if (!acc.email || !acc.quota) continue;
+    
+    const quotaGroups = acc.quota.quota_groups || [];
+    const geminiGroup = quotaGroups.find(g => g.display_name === "Gemini Models") || quotaGroups[0];
+    if (!geminiGroup || !Array.isArray(geminiGroup.buckets)) continue;
+    
+    const buckets = geminiGroup.buckets;
+    const isPro = acc.email.toLowerCase() === "leosaquetto@gmail.com";
+    
+    const models = [];
+    
+    if (isPro) {
+      // Find 5h bucket (Five Hour Limit) - put it first (above Weekly)
+      const fiveHourBucket = buckets.find(b => b.bucket_id === "gemini-5h" || b.window === "5h");
+      if (fiveHourBucket) {
+        const { refreshText, refreshAt } = getRefreshTextAndAt(fiveHourBucket.reset_time, now);
+        const remainingPercent = clampPercent(Number((fiveHourBucket.remaining_fraction * 100).toFixed(5)));
+        models.push({
+          id: "gemini-3-1-pro-low",
+          name: "Gemini 3.1 Pro",
+          tier: "Low",
+          remainingPercent,
+          status: statusFor(remainingPercent),
+          refreshText,
+          refreshAt
+        });
+      }
+      
+      // Find weekly bucket (Weekly Limit) - put it second
+      const weeklyBucket = buckets.find(b => b.bucket_id === "gemini-weekly" || b.window === "weekly");
+      if (weeklyBucket) {
+        const { refreshText, refreshAt } = getRefreshTextAndAt(weeklyBucket.reset_time, now);
+        const remainingPercent = clampPercent(Number((weeklyBucket.remaining_fraction * 100).toFixed(5)));
+        models.push({
+          id: "gemini-3-1-pro-high",
+          name: "Gemini 3.1 Pro",
+          tier: "High",
+          remainingPercent,
+          status: statusFor(remainingPercent),
+          refreshText,
+          refreshAt
+        });
+      }
+    } else {
+      // Standard accounts - only weekly limit
+      const weeklyBucket = buckets.find(b => b.bucket_id === "gemini-weekly" || b.window === "weekly") || buckets[0];
+      if (weeklyBucket) {
+        const { refreshText, refreshAt } = getRefreshTextAndAt(weeklyBucket.reset_time, now);
+        const remainingPercent = clampPercent(Number((weeklyBucket.remaining_fraction * 100).toFixed(5)));
+        models.push({
+          id: "gemini-3-1-pro-high",
+          name: "Gemini 3.1 Pro",
+          tier: "High",
+          remainingPercent,
+          status: statusFor(remainingPercent),
+          refreshText,
+          refreshAt
+        });
+      }
+    }
+    
+    accounts.push({
+      email: acc.email,
+      isActive: Boolean(acc.isActive),
+      status: acc.isActive ? "success" : "cached",
+      lastUpdated: now.toISOString(),
+      models
+    });
+  }
+  
+  // Find active models
+  let activeModels = [];
+  const activeAcc = accounts.find(acc => acc.isActive);
+  if (activeAcc) {
+    activeModels = activeAcc.models;
+  } else if (accounts.length > 0) {
+    activeModels = accounts[0].models;
+  }
+  
+  return {
+    source: "desktop-automation",
+    lastUpdated: now.toISOString(),
+    accounts,
+    models: activeModels
+  };
+}
+
+async function tryLocalCliPayload() {
+  return null;
+}
+
 async function tryCliPayload(localSnapshot = null) {
-  const cliPath = resolveCliPath();
-  const result = spawnSync(cliPath, ["quota", "--all", "--json"], {
-    cwd: root,
-    encoding: "utf8",
-    timeout: 90000,
-  });
-
-  if (result.status !== 0) {
-    throw new Error(`CLI returned status ${result.status}: ${result.stderr || result.stdout}`);
-  }
-
-  const data = JSON.parse(result.stdout);
-  if (!Array.isArray(data) || data.length === 0) {
-    throw new Error("CLI returned empty or invalid accounts array.");
-  }
-
-  return parseCliOutput(data, localSnapshot);
+  return null;
 }
 
 async function main() {
@@ -300,35 +398,15 @@ async function main() {
     return;
   }
 
-  let localSnapshot = null;
-  try {
-    console.log("Checking Antigravity quotas via CLI (Local mode)...");
-    localSnapshot = await tryLocalCliPayload();
-    if (localSnapshot) {
-      console.log(`Successfully fetched local quota snapshot for ${localSnapshot.email}`);
-    }
-  } catch (error) {
-    console.warn(`Local CLI check failed: ${error.message}`);
-  }
-
   let payload;
-  let cliSuccess = false;
-  let details = {};
+  let details = { method: "direct-db-json" };
 
   try {
-    console.log("Checking Antigravity quotas via CLI...");
-    payload = await tryCliPayload(localSnapshot);
-    cliSuccess = true;
-    details = { 
-      method: "cli", 
-      localMerged: Boolean(localSnapshot)
-    };
+    console.log("Reading decrypted accounts JSON directly...");
+    payload = await readDecryptedAccounts();
   } catch (error) {
-    console.warn(`CLI check failed: ${error.message}`);
-  }
-
-  if (!cliSuccess) {
-    console.log(JSON.stringify({ ok: true, skipped: true, reason: "cli-failed" }, null, 2));
+    console.error(`Failed to read decrypted accounts: ${error.message}`);
+    console.log(JSON.stringify({ ok: true, skipped: true, reason: "read-failed" }, null, 2));
     return;
   }
 

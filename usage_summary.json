@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-06-21T11:31:34.620Z",
+  "lastUpdated": "2026-06-21T15:14:27.230Z",
   "codex": {
     "source": "codex-switcher",
     "lastUpdated": "2026-05-31T20:10:15.831Z",
@@ -8711,104 +8711,32 @@
     ]
   },
   "antigravity": {
-    "source": "antigravity-cli",
-    "lastUpdated": "2026-06-21T11:31:34.620Z",
+    "source": "desktop-automation",
+    "lastUpdated": "2026-06-21T15:14:27.230Z",
     "accounts": [
       {
-        "email": "laraujo@outlook.com",
-        "isActive": false,
-        "status": "cached",
-        "lastUpdated": "2026-06-21T11:28:51.589Z",
+        "email": "leosaquetto@gmail.com",
+        "isActive": true,
+        "status": "success",
+        "lastUpdated": "2026-06-21T15:14:27.230Z",
         "models": [
           {
-            "id": "gemini-2.5-pro",
-            "name": "Gemini 2.5 Pro",
-            "tier": "",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:24Z"
-          },
-          {
-            "id": "gemini-3-flash",
-            "name": "Gemini 3 Flash",
-            "tier": "",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:24Z"
-          },
-          {
-            "id": "gemini-2.5-flash-thinking",
-            "name": "Gemini 3.1 Flash Lite",
-            "tier": "",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:24Z"
-          },
-          {
-            "id": "gemini-2.5-flash",
-            "name": "Gemini 3.1 Flash Lite",
-            "tier": "",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:24Z"
-          },
-          {
-            "id": "gemini-pro-agent",
-            "name": "Gemini 3.1 Pro",
-            "tier": "High",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:24Z"
-          },
-          {
-            "id": "gemini-3.1-pro-high",
-            "name": "Gemini 3.1 Pro",
-            "tier": "High",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:24Z"
-          },
-          {
-            "id": "gemini-3.1-pro-low",
+            "id": "gemini-3-1-pro-low",
             "name": "Gemini 3.1 Pro",
             "tier": "Low",
-            "remainingPercent": 99.99136,
+            "remainingPercent": 95.20256,
             "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:24Z"
+            "refreshText": "Refreshes in 4 hours, 40 minutes",
+            "refreshAt": "2026-06-21T19:54:21Z"
           },
           {
-            "id": "gemini-3-flash-agent",
-            "name": "Gemini 3.5 Flash",
+            "id": "gemini-3-1-pro-high",
+            "name": "Gemini 3.1 Pro",
             "tier": "High",
-            "remainingPercent": 99.99136,
+            "remainingPercent": 73.43982,
             "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:24Z"
-          },
-          {
-            "id": "gemini-3.5-flash-extra-low",
-            "name": "Gemini 3.5 Flash",
-            "tier": "Low",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:24Z"
-          },
-          {
-            "id": "gemini-3.5-flash-low",
-            "name": "Gemini 3.5 Flash",
-            "tier": "Medium",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:24Z"
+            "refreshText": "Refreshes in 6 days, 12 hours",
+            "refreshAt": "2026-06-28T03:42:56Z"
           }
         ]
       },
@@ -8816,97 +8744,16 @@
         "email": "leoaraujo1949@gmail.com",
         "isActive": false,
         "status": "cached",
-        "lastUpdated": "2026-06-21T11:28:52.744Z",
+        "lastUpdated": "2026-06-21T15:14:27.230Z",
         "models": [
           {
-            "id": "gemini-2.5-pro",
-            "name": "Gemini 2.5 Pro",
-            "tier": "",
-            "remainingPercent": 0,
-            "status": "empty",
-            "refreshText": "Refreshes in 20 hours, 12 minutes",
-            "refreshAt": "2026-06-22T07:40:47Z"
-          },
-          {
-            "id": "gemini-3-flash",
-            "name": "Gemini 3 Flash",
-            "tier": "",
-            "remainingPercent": 0,
-            "status": "empty",
-            "refreshText": "Refreshes in 20 hours, 12 minutes",
-            "refreshAt": "2026-06-22T07:40:47Z"
-          },
-          {
-            "id": "gemini-2.5-flash",
-            "name": "Gemini 3.1 Flash Lite",
-            "tier": "",
-            "remainingPercent": 0,
-            "status": "empty",
-            "refreshText": "Refreshes in 20 hours, 12 minutes",
-            "refreshAt": "2026-06-22T07:40:47Z"
-          },
-          {
-            "id": "gemini-2.5-flash-thinking",
-            "name": "Gemini 3.1 Flash Lite",
-            "tier": "",
-            "remainingPercent": 0,
-            "status": "empty",
-            "refreshText": "Refreshes in 20 hours, 12 minutes",
-            "refreshAt": "2026-06-22T07:40:47Z"
-          },
-          {
-            "id": "gemini-pro-agent",
+            "id": "gemini-3-1-pro-high",
             "name": "Gemini 3.1 Pro",
             "tier": "High",
             "remainingPercent": 0,
             "status": "empty",
-            "refreshText": "Refreshes in 20 hours, 12 minutes",
-            "refreshAt": "2026-06-22T07:40:47Z"
-          },
-          {
-            "id": "gemini-3.1-pro-high",
-            "name": "Gemini 3.1 Pro",
-            "tier": "High",
-            "remainingPercent": 0,
-            "status": "empty",
-            "refreshText": "Refreshes in 20 hours, 12 minutes",
-            "refreshAt": "2026-06-22T07:40:47Z"
-          },
-          {
-            "id": "gemini-3.1-pro-low",
-            "name": "Gemini 3.1 Pro",
-            "tier": "Low",
-            "remainingPercent": 0,
-            "status": "empty",
-            "refreshText": "Refreshes in 20 hours, 12 minutes",
-            "refreshAt": "2026-06-22T07:40:47Z"
-          },
-          {
-            "id": "gemini-3-flash-agent",
-            "name": "Gemini 3.5 Flash",
-            "tier": "High",
-            "remainingPercent": 0,
-            "status": "empty",
-            "refreshText": "Refreshes in 20 hours, 12 minutes",
-            "refreshAt": "2026-06-22T07:40:47Z"
-          },
-          {
-            "id": "gemini-3.5-flash-extra-low",
-            "name": "Gemini 3.5 Flash",
-            "tier": "Low",
-            "remainingPercent": 0,
-            "status": "empty",
-            "refreshText": "Refreshes in 20 hours, 12 minutes",
-            "refreshAt": "2026-06-22T07:40:47Z"
-          },
-          {
-            "id": "gemini-3.5-flash-low",
-            "name": "Gemini 3.5 Flash",
-            "tier": "Medium",
-            "remainingPercent": 0,
-            "status": "empty",
-            "refreshText": "Refreshes in 20 hours, 12 minutes",
-            "refreshAt": "2026-06-22T07:40:47Z"
+            "refreshText": "Refreshes in 6 days, 12 hours",
+            "refreshAt": "2026-06-28T03:00:30Z"
           }
         ]
       },
@@ -8914,195 +8761,33 @@
         "email": "leoativo10@gmail.com",
         "isActive": false,
         "status": "cached",
-        "lastUpdated": "2026-06-21T11:28:53.844Z",
+        "lastUpdated": "2026-06-21T15:14:27.230Z",
         "models": [
           {
-            "id": "gemini-2.5-pro",
-            "name": "Gemini 2.5 Pro",
-            "tier": "",
-            "remainingPercent": 0,
-            "status": "empty",
-            "refreshText": "Refreshes in 1 day, 10 hours",
-            "refreshAt": "2026-06-22T21:25:46Z"
-          },
-          {
-            "id": "gemini-3-flash",
-            "name": "Gemini 3 Flash",
-            "tier": "",
-            "remainingPercent": 0,
-            "status": "empty",
-            "refreshText": "Refreshes in 1 day, 10 hours",
-            "refreshAt": "2026-06-22T21:25:46Z"
-          },
-          {
-            "id": "gemini-2.5-flash-thinking",
-            "name": "Gemini 3.1 Flash Lite",
-            "tier": "",
-            "remainingPercent": 0,
-            "status": "empty",
-            "refreshText": "Refreshes in 1 day, 10 hours",
-            "refreshAt": "2026-06-22T21:25:46Z"
-          },
-          {
-            "id": "gemini-2.5-flash",
-            "name": "Gemini 3.1 Flash Lite",
-            "tier": "",
-            "remainingPercent": 0,
-            "status": "empty",
-            "refreshText": "Refreshes in 1 day, 10 hours",
-            "refreshAt": "2026-06-22T21:25:46Z"
-          },
-          {
-            "id": "gemini-3.1-pro-high",
+            "id": "gemini-3-1-pro-high",
             "name": "Gemini 3.1 Pro",
             "tier": "High",
             "remainingPercent": 0,
             "status": "empty",
-            "refreshText": "Refreshes in 1 day, 10 hours",
-            "refreshAt": "2026-06-22T21:25:46Z"
-          },
-          {
-            "id": "gemini-pro-agent",
-            "name": "Gemini 3.1 Pro",
-            "tier": "High",
-            "remainingPercent": 0,
-            "status": "empty",
-            "refreshText": "Refreshes in 1 day, 10 hours",
-            "refreshAt": "2026-06-22T21:25:46Z"
-          },
-          {
-            "id": "gemini-3.1-pro-low",
-            "name": "Gemini 3.1 Pro",
-            "tier": "Low",
-            "remainingPercent": 0,
-            "status": "empty",
-            "refreshText": "Refreshes in 1 day, 10 hours",
-            "refreshAt": "2026-06-22T21:25:46Z"
-          },
-          {
-            "id": "gemini-3-flash-agent",
-            "name": "Gemini 3.5 Flash",
-            "tier": "High",
-            "remainingPercent": 0,
-            "status": "empty",
-            "refreshText": "Refreshes in 1 day, 10 hours",
-            "refreshAt": "2026-06-22T21:25:46Z"
-          },
-          {
-            "id": "gemini-3.5-flash-extra-low",
-            "name": "Gemini 3.5 Flash",
-            "tier": "Low",
-            "remainingPercent": 0,
-            "status": "empty",
-            "refreshText": "Refreshes in 1 day, 10 hours",
-            "refreshAt": "2026-06-22T21:25:46Z"
-          },
-          {
-            "id": "gemini-3.5-flash-low",
-            "name": "Gemini 3.5 Flash",
-            "tier": "Medium",
-            "remainingPercent": 0,
-            "status": "empty",
-            "refreshText": "Refreshes in 1 day, 10 hours",
-            "refreshAt": "2026-06-22T21:25:46Z"
+            "refreshText": "Refreshes in 6 days, 11 hours",
+            "refreshAt": "2026-06-28T02:38:13Z"
           }
         ]
       },
       {
         "email": "leonardo_araujo@live.com",
-        "isActive": true,
+        "isActive": false,
         "status": "cached",
-        "lastUpdated": "2026-06-21T11:28:55.218Z",
+        "lastUpdated": "2026-06-21T15:14:27.230Z",
         "models": [
           {
-            "id": "gemini-2.5-pro",
-            "name": "Gemini 2.5 Pro",
-            "tier": "",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:44Z"
-          },
-          {
-            "id": "gemini-3-flash",
-            "name": "Gemini 3 Flash",
-            "tier": "",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:44Z"
-          },
-          {
-            "id": "gemini-2.5-flash",
-            "name": "Gemini 3.1 Flash Lite",
-            "tier": "",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:44Z"
-          },
-          {
-            "id": "gemini-2.5-flash-thinking",
-            "name": "Gemini 3.1 Flash Lite",
-            "tier": "",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:44Z"
-          },
-          {
-            "id": "gemini-pro-agent",
+            "id": "gemini-3-1-pro-high",
             "name": "Gemini 3.1 Pro",
             "tier": "High",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:44Z"
-          },
-          {
-            "id": "gemini-3.1-pro-high",
-            "name": "Gemini 3.1 Pro",
-            "tier": "High",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:44Z"
-          },
-          {
-            "id": "gemini-3.1-pro-low",
-            "name": "Gemini 3.1 Pro",
-            "tier": "Low",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:44Z"
-          },
-          {
-            "id": "gemini-3-flash-agent",
-            "name": "Gemini 3.5 Flash",
-            "tier": "High",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:44Z"
-          },
-          {
-            "id": "gemini-3.5-flash-extra-low",
-            "name": "Gemini 3.5 Flash",
-            "tier": "Low",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:44Z"
-          },
-          {
-            "id": "gemini-3.5-flash-low",
-            "name": "Gemini 3.5 Flash",
-            "tier": "Medium",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:44Z"
+            "remainingPercent": 0,
+            "status": "empty",
+            "refreshText": "Refreshes in 6 days, 12 hours",
+            "refreshAt": "2026-06-28T02:47:41Z"
           }
         ]
       },
@@ -9110,387 +8795,55 @@
         "email": "leosaquetto.jobs@gmail.com",
         "isActive": false,
         "status": "cached",
-        "lastUpdated": "2026-06-21T11:28:56.407Z",
+        "lastUpdated": "2026-06-21T15:14:27.230Z",
         "models": [
-          {
-            "id": "gemini-2.5-pro",
-            "name": "Gemini 2.5 Pro",
-            "tier": "",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:48Z"
-          },
-          {
-            "id": "gemini-3-flash",
-            "name": "Gemini 3 Flash",
-            "tier": "",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:48Z"
-          },
-          {
-            "id": "gemini-2.5-flash",
-            "name": "Gemini 3.1 Flash Lite",
-            "tier": "",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:48Z"
-          },
-          {
-            "id": "gemini-2.5-flash-thinking",
-            "name": "Gemini 3.1 Flash Lite",
-            "tier": "",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:48Z"
-          },
-          {
-            "id": "gemini-pro-agent",
-            "name": "Gemini 3.1 Pro",
-            "tier": "High",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:48Z"
-          },
-          {
-            "id": "gemini-3.1-pro-high",
-            "name": "Gemini 3.1 Pro",
-            "tier": "High",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:48Z"
-          },
-          {
-            "id": "gemini-3.1-pro-low",
-            "name": "Gemini 3.1 Pro",
-            "tier": "Low",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:48Z"
-          },
-          {
-            "id": "gemini-3-flash-agent",
-            "name": "Gemini 3.5 Flash",
-            "tier": "High",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:48Z"
-          },
-          {
-            "id": "gemini-3.5-flash-extra-low",
-            "name": "Gemini 3.5 Flash",
-            "tier": "Low",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:48Z"
-          },
-          {
-            "id": "gemini-3.5-flash-low",
-            "name": "Gemini 3.5 Flash",
-            "tier": "Medium",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:48Z"
-          }
-        ]
-      },
-      {
-        "email": "leosaquetto@gmail.com",
-        "isActive": false,
-        "status": "cached",
-        "lastUpdated": "2026-06-21T11:28:57.782Z",
-        "models": [
-          {
-            "id": "gemini-2.5-pro",
-            "name": "Gemini 2.5 Pro",
-            "tier": "",
-            "remainingPercent": 99.99946,
-            "status": "ok",
-            "refreshText": "Refreshes in 2 hours, 32 minutes",
-            "refreshAt": "2026-06-21T14:00:30Z"
-          },
-          {
-            "id": "gemini-3-flash",
-            "name": "Gemini 3 Flash",
-            "tier": "",
-            "remainingPercent": 99.99946,
-            "status": "ok",
-            "refreshText": "Refreshes in 2 hours, 32 minutes",
-            "refreshAt": "2026-06-21T14:00:30Z"
-          },
-          {
-            "id": "gemini-2.5-flash-thinking",
-            "name": "Gemini 3.1 Flash Lite",
-            "tier": "",
-            "remainingPercent": 99.99946,
-            "status": "ok",
-            "refreshText": "Refreshes in 2 hours, 32 minutes",
-            "refreshAt": "2026-06-21T14:00:30Z"
-          },
-          {
-            "id": "gemini-2.5-flash",
-            "name": "Gemini 3.1 Flash Lite",
-            "tier": "",
-            "remainingPercent": 99.99946,
-            "status": "ok",
-            "refreshText": "Refreshes in 2 hours, 32 minutes",
-            "refreshAt": "2026-06-21T14:00:30Z"
-          },
           {
             "id": "gemini-3-1-pro-high",
             "name": "Gemini 3.1 Pro",
             "tier": "High",
-            "remainingPercent": 88,
-            "status": "ok",
-            "refreshText": "You have used some of your weekly limit, it will fully refresh in 6 days, 16 hours.",
-            "refreshAt": "2026-06-28T03:31:34.618Z"
-          },
-          {
-            "id": "gemini-3-1-pro-high",
-            "name": "Gemini 3.1 Pro",
-            "tier": "High",
-            "remainingPercent": 88,
-            "status": "ok",
-            "refreshText": "You have used some of your weekly limit, it will fully refresh in 6 days, 16 hours.",
-            "refreshAt": "2026-06-28T03:31:34.620Z"
-          },
-          {
-            "id": "gemini-3-1-pro-low",
-            "name": "Gemini 3.1 Pro",
-            "tier": "Low",
-            "remainingPercent": 82,
-            "status": "ok",
-            "refreshText": "You have used some of your 5-hour limit, it will fully refresh in 3 hours, 37 minutes.",
-            "refreshAt": "2026-06-21T15:08:34.620Z"
-          },
-          {
-            "id": "gemini-3-flash-agent",
-            "name": "Gemini 3.5 Flash",
-            "tier": "High",
-            "remainingPercent": 99.99946,
-            "status": "ok",
-            "refreshText": "Refreshes in 2 hours, 32 minutes",
-            "refreshAt": "2026-06-21T14:00:30Z"
-          },
-          {
-            "id": "gemini-3.5-flash-extra-low",
-            "name": "Gemini 3.5 Flash",
-            "tier": "Low",
-            "remainingPercent": 99.99946,
-            "status": "ok",
-            "refreshText": "Refreshes in 2 hours, 32 minutes",
-            "refreshAt": "2026-06-21T14:00:30Z"
-          },
-          {
-            "id": "gemini-3.5-flash-low",
-            "name": "Gemini 3.5 Flash",
-            "tier": "Medium",
-            "remainingPercent": 99.99946,
-            "status": "ok",
-            "refreshText": "Refreshes in 2 hours, 32 minutes",
-            "refreshAt": "2026-06-21T14:00:30Z"
+            "remainingPercent": 0,
+            "status": "empty",
+            "refreshText": "Refreshes in 6 days, 12 hours",
+            "refreshAt": "2026-06-28T03:22:48Z"
           }
         ]
       },
       {
-        "email": "saquettoleo@gmail.com",
+        "email": "laraujo@outlook.com",
         "isActive": false,
         "status": "cached",
-        "lastUpdated": "2026-06-21T11:28:59.275Z",
+        "lastUpdated": "2026-06-21T15:14:27.230Z",
         "models": [
           {
-            "id": "gemini-2.5-pro",
-            "name": "Gemini 2.5 Pro",
-            "tier": "",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:52Z"
-          },
-          {
-            "id": "gemini-3-flash",
-            "name": "Gemini 3 Flash",
-            "tier": "",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:52Z"
-          },
-          {
-            "id": "gemini-2.5-flash-thinking",
-            "name": "Gemini 3.1 Flash Lite",
-            "tier": "",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:52Z"
-          },
-          {
-            "id": "gemini-2.5-flash",
-            "name": "Gemini 3.1 Flash Lite",
-            "tier": "",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:52Z"
-          },
-          {
-            "id": "gemini-3.1-pro-high",
+            "id": "gemini-3-1-pro-high",
             "name": "Gemini 3.1 Pro",
             "tier": "High",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:52Z"
-          },
-          {
-            "id": "gemini-pro-agent",
-            "name": "Gemini 3.1 Pro",
-            "tier": "High",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:52Z"
-          },
-          {
-            "id": "gemini-3.1-pro-low",
-            "name": "Gemini 3.1 Pro",
-            "tier": "Low",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:52Z"
-          },
-          {
-            "id": "gemini-3-flash-agent",
-            "name": "Gemini 3.5 Flash",
-            "tier": "High",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:52Z"
-          },
-          {
-            "id": "gemini-3.5-flash-extra-low",
-            "name": "Gemini 3.5 Flash",
-            "tier": "Low",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:52Z"
-          },
-          {
-            "id": "gemini-3.5-flash-low",
-            "name": "Gemini 3.5 Flash",
-            "tier": "Medium",
-            "remainingPercent": 99.99136,
-            "status": "ok",
-            "refreshText": "Refreshes in 6 days, 16 hours",
-            "refreshAt": "2026-06-28T03:00:52Z"
+            "remainingPercent": 0,
+            "status": "empty",
+            "refreshText": "Refreshes in 6 days, 23 hours",
+            "refreshAt": "2026-06-28T14:03:24Z"
           }
         ]
       }
     ],
     "models": [
       {
-        "id": "gemini-2.5-pro",
-        "name": "Gemini 2.5 Pro",
-        "tier": "",
-        "remainingPercent": 99.99136,
-        "status": "ok",
-        "refreshText": "Refreshes in 6 days, 16 hours",
-        "refreshAt": "2026-06-28T03:00:44Z"
-      },
-      {
-        "id": "gemini-3-flash",
-        "name": "Gemini 3 Flash",
-        "tier": "",
-        "remainingPercent": 99.99136,
-        "status": "ok",
-        "refreshText": "Refreshes in 6 days, 16 hours",
-        "refreshAt": "2026-06-28T03:00:44Z"
-      },
-      {
-        "id": "gemini-2.5-flash",
-        "name": "Gemini 3.1 Flash Lite",
-        "tier": "",
-        "remainingPercent": 99.99136,
-        "status": "ok",
-        "refreshText": "Refreshes in 6 days, 16 hours",
-        "refreshAt": "2026-06-28T03:00:44Z"
-      },
-      {
-        "id": "gemini-2.5-flash-thinking",
-        "name": "Gemini 3.1 Flash Lite",
-        "tier": "",
-        "remainingPercent": 99.99136,
-        "status": "ok",
-        "refreshText": "Refreshes in 6 days, 16 hours",
-        "refreshAt": "2026-06-28T03:00:44Z"
-      },
-      {
-        "id": "gemini-pro-agent",
-        "name": "Gemini 3.1 Pro",
-        "tier": "High",
-        "remainingPercent": 99.99136,
-        "status": "ok",
-        "refreshText": "Refreshes in 6 days, 16 hours",
-        "refreshAt": "2026-06-28T03:00:44Z"
-      },
-      {
-        "id": "gemini-3.1-pro-high",
-        "name": "Gemini 3.1 Pro",
-        "tier": "High",
-        "remainingPercent": 99.99136,
-        "status": "ok",
-        "refreshText": "Refreshes in 6 days, 16 hours",
-        "refreshAt": "2026-06-28T03:00:44Z"
-      },
-      {
-        "id": "gemini-3.1-pro-low",
+        "id": "gemini-3-1-pro-low",
         "name": "Gemini 3.1 Pro",
         "tier": "Low",
-        "remainingPercent": 99.99136,
+        "remainingPercent": 95.20256,
         "status": "ok",
-        "refreshText": "Refreshes in 6 days, 16 hours",
-        "refreshAt": "2026-06-28T03:00:44Z"
+        "refreshText": "Refreshes in 4 hours, 40 minutes",
+        "refreshAt": "2026-06-21T19:54:21Z"
       },
       {
-        "id": "gemini-3-flash-agent",
-        "name": "Gemini 3.5 Flash",
+        "id": "gemini-3-1-pro-high",
+        "name": "Gemini 3.1 Pro",
         "tier": "High",
-        "remainingPercent": 99.99136,
+        "remainingPercent": 73.43982,
         "status": "ok",
-        "refreshText": "Refreshes in 6 days, 16 hours",
-        "refreshAt": "2026-06-28T03:00:44Z"
-      },
-      {
-        "id": "gemini-3.5-flash-extra-low",
-        "name": "Gemini 3.5 Flash",
-        "tier": "Low",
-        "remainingPercent": 99.99136,
-        "status": "ok",
-        "refreshText": "Refreshes in 6 days, 16 hours",
-        "refreshAt": "2026-06-28T03:00:44Z"
-      },
-      {
-        "id": "gemini-3.5-flash-low",
-        "name": "Gemini 3.5 Flash",
-        "tier": "Medium",
-        "remainingPercent": 99.99136,
-        "status": "ok",
-        "refreshText": "Refreshes in 6 days, 16 hours",
-        "refreshAt": "2026-06-28T03:00:44Z"
+        "refreshText": "Refreshes in 6 days, 12 hours",
+        "refreshAt": "2026-06-28T03:42:56Z"
       }
     ]
   }

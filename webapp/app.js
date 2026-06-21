@@ -1829,7 +1829,7 @@ function renderAntigravityGrid(container, antigravity, panel) {
 
     const logo = document.createElement("img");
     logo.className = "account-logo";
-    logo.src = "/assets/logo_background.png";
+    logo.src = "/assets/gemini__2.png";
     logo.alt = "";
     logo.loading = "lazy";
 
@@ -1886,16 +1886,16 @@ function renderAntigravityGrid(container, antigravity, panel) {
 
       const limitsToRender = [
         {
-          label: "Weekly Limit",
-          model: highModel,
-          defaultPercent: null,
-          defaultRefresh: "Sem dados de limite semanal."
-        },
-        {
           label: "Five Hour Limit",
           model: lowModel,
           defaultPercent: null,
           defaultRefresh: "Sem dados de limite de 5 horas."
+        },
+        {
+          label: "Weekly Limit",
+          model: highModel,
+          defaultPercent: null,
+          defaultRefresh: "Sem dados de limite semanal."
         }
       ];
 

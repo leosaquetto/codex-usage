@@ -1,19 +1,19 @@
 {
   "source": "codex-switcher",
-  "lastUpdated": "2026-06-21T12:27:26.517Z",
+  "lastUpdated": "2026-06-21T15:33:24.879Z",
   "accountCount": 3,
   "okCount": 3,
-  "activeAccountId": "2668d541-917e-4162-bfdc-e2eb6b859e71",
+  "activeAccountId": "1744b6b4-1925-4556-9a0e-c2708c71c1ad",
   "aggregate": {
-    "fiveHourPercent": 77,
-    "fiveHourReset": "2026-06-21T15:21:57.000Z",
-    "weeklyPercent": 16,
+    "fiveHourPercent": 99,
+    "fiveHourReset": "2026-06-21T20:33:25.000Z",
+    "weeklyPercent": 14,
     "weeklyReset": "2026-06-24T22:32:09.000Z",
-    "lastUpdated": "2026-06-21T12:27:26.517Z"
+    "lastUpdated": "2026-06-21T15:33:24.879Z"
   },
-  "fiveHourPercent": 77,
-  "fiveHourReset": "2026-06-21T15:21:57.000Z",
-  "weeklyPercent": 16,
+  "fiveHourPercent": 99,
+  "fiveHourReset": "2026-06-21T20:33:25.000Z",
+  "weeklyPercent": 14,
   "weeklyReset": "2026-06-24T22:32:09.000Z",
   "accounts": [
     {
@@ -28,7 +28,7 @@
       "lastUsedAt": "2026-06-21T00:42:39.445Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-21T17:27:27.000Z",
+      "fiveHourReset": "2026-06-21T20:33:25.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 0,
       "weeklyUsedPercent": 100,
@@ -39,7 +39,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-21T12:27:26.517Z",
+      "lastUpdated": "2026-06-21T15:33:24.879Z",
       "status": "ok",
       "error": null
     },
@@ -59,14 +59,14 @@
       "fiveHourWindowMinutes": null,
       "weeklyPercent": 95,
       "weeklyUsedPercent": 5,
-      "weeklyReset": "2026-07-21T12:27:27.000Z",
+      "weeklyReset": "2026-07-21T15:33:25.000Z",
       "weeklyWindowMinutes": 43200,
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-21T12:27:26.517Z",
+      "lastUpdated": "2026-06-21T15:33:24.879Z",
       "status": "ok",
       "error": null
     },
@@ -86,14 +86,14 @@
       "fiveHourWindowMinutes": null,
       "weeklyPercent": 95,
       "weeklyUsedPercent": 5,
-      "weeklyReset": "2026-07-21T12:27:27.000Z",
+      "weeklyReset": "2026-07-21T15:33:25.000Z",
       "weeklyWindowMinutes": 43200,
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-21T12:27:26.517Z",
+      "lastUpdated": "2026-06-21T15:33:24.879Z",
       "status": "ok",
       "error": null
     },
@@ -120,7 +120,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-21T12:27:26.517Z",
+      "lastUpdated": "2026-06-21T15:33:24.879Z",
       "status": "ok",
       "error": null
     },
@@ -132,24 +132,20 @@
       "email": "leosaquetto@yahoo.com",
       "planType": "free",
       "subscriptionExpiresAt": null,
-      "isActive": false,
-      "lastUsedAt": "2026-06-17T00:53:11.885Z",
+      "isActive": true,
+      "lastUsedAt": "2026-06-21T14:43:43.429Z",
       "fiveHourPercent": null,
       "fiveHourUsedPercent": null,
       "fiveHourReset": null,
       "fiveHourWindowMinutes": null,
-      "weeklyPercent": 95,
-      "weeklyUsedPercent": 5,
-      "weeklyReset": "2026-07-21T12:27:27.000Z",
-      "weeklyWindowMinutes": 43200,
-      "credits": {
-        "hasCredits": false,
-        "unlimited": false,
-        "balance": null
-      },
-      "lastUpdated": "2026-06-21T12:27:26.517Z",
-      "status": "ok",
-      "error": null
+      "weeklyPercent": null,
+      "weeklyUsedPercent": null,
+      "weeklyReset": null,
+      "weeklyWindowMinutes": null,
+      "credits": null,
+      "lastUpdated": "2026-06-21T15:33:24.879Z",
+      "status": "error",
+      "error": "refresh HTTP 401: {\n  \"error\": {\n    \"message\": \"Your session has ended. Please log in again.\",\n    \"type\": \"invalid_request_error\",\n    \"param\": null,\n    \"code\": \"refresh_token_invalidated\"\n  }\n}"
     },
     {
       "id": "2668d541-917e-4162-bfdc-e2eb6b859e71",
@@ -159,14 +155,14 @@
       "email": "dzplaybacks@gmail.com",
       "planType": "plus",
       "subscriptionExpiresAt": "2026-06-22T14:22:14.000Z",
-      "isActive": true,
+      "isActive": false,
       "lastUsedAt": "2026-06-21T10:20:03.938Z",
-      "fiveHourPercent": 33,
-      "fiveHourUsedPercent": 67,
-      "fiveHourReset": "2026-06-21T15:21:57.000Z",
+      "fiveHourPercent": 99,
+      "fiveHourUsedPercent": 1,
+      "fiveHourReset": "2026-06-21T20:33:25.000Z",
       "fiveHourWindowMinutes": 300,
-      "weeklyPercent": 42,
-      "weeklyUsedPercent": 58,
+      "weeklyPercent": 37,
+      "weeklyUsedPercent": 63,
       "weeklyReset": "2026-06-27T14:53:14.000Z",
       "weeklyWindowMinutes": 10080,
       "credits": {
@@ -174,7 +170,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-21T12:27:26.517Z",
+      "lastUpdated": "2026-06-21T15:33:24.879Z",
       "status": "ok",
       "error": null
     },
@@ -190,7 +186,7 @@
       "lastUsedAt": "2026-06-20T23:12:26.410Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-21T17:27:27.000Z",
+      "fiveHourReset": "2026-06-21T20:33:25.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 6,
       "weeklyUsedPercent": 94,
@@ -201,7 +197,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-21T12:27:26.517Z",
+      "lastUpdated": "2026-06-21T15:33:24.879Z",
       "status": "ok",
       "error": null
     },
@@ -221,14 +217,14 @@
       "fiveHourWindowMinutes": null,
       "weeklyPercent": 0,
       "weeklyUsedPercent": 100,
-      "weeklyReset": "2026-07-21T04:43:48.000Z",
+      "weeklyReset": "2026-07-21T04:43:49.000Z",
       "weeklyWindowMinutes": 43200,
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-21T12:27:26.517Z",
+      "lastUpdated": "2026-06-21T15:33:24.879Z",
       "status": "ok",
       "error": null
     }

@@ -175,6 +175,7 @@ function parseModels(text, now = new Date()) {
     if (!rawName || /refresh/i.test(rawName)) continue;
 
     const { name, tier } = splitNameTier(rawName);
+    if (!/^Gemini\b/i.test(name)) continue;
     const remainingPercent = inferPercent(lines[nameIndex], nameIndex, lines);
     const refresh = parseRefresh(lines[refreshIndex], now);
 
@@ -202,6 +203,7 @@ function normalizeStructuredModels(models, now = new Date()) {
 
       const split = splitNameTier(rawName);
       const name = split.name;
+      if (!/^Gemini\b/i.test(name)) return null;
       const tier = String(model.tier ?? split.tier ?? "").trim();
       const remainingPercent = clampPercent(model.remainingPercent);
       const refresh = parseRefresh(model.refreshText || model.refresh || "", now);

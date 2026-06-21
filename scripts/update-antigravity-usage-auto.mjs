@@ -521,7 +521,7 @@ function parseCliOutput(cliJson) {
         refreshText: refreshText || "Refreshes soon",
         refreshAt
       };
-    });
+    }).filter((model) => /^Gemini\b/i.test(model.name));
 
     accounts.push({
       email: acc.email,

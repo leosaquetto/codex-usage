@@ -19,7 +19,7 @@ const NOTIFICATION_PREFERENCES_KEY = "codex-notification-preferences-v1";
 const NOTIFICATION_STATE_KEY = "codex-notification-state-v4";
 const DEFAULT_THEME_COLOR = "#3b82f6";
 const NON_WEEKLY_HISTORY_EMAILS = new Set(["fabinhomian@gmail.com"]);
-const notificationEnginePromise = import("./notification-engine.mjs?v=reset_alerts_v1");
+const notificationEnginePromise = import("./notification-engine.mjs?v=mockup_layout_v1");
 
 let viewportRafId = null;
 let activeUsageController = null;

@@ -1543,15 +1543,191 @@ function resolveStatus(metrics, usage, hasLoadError) {
   };
 }
 
+function resolveAntigravityStatus(antigravity, hasLoadError) {
+  if (hasLoadError) {
+    return {
+      text: "Dados em cache",
+      meta: "Não foi possível atualizar agora; mostrando o último estado salvo.",
+      state: "error",
+    };
+  }
+  if (!antigravity || !Array.isArray(antigravity.accounts) || antigravity.accounts.length === 0) {
+    return {
+      text: "Sem dados",
+      meta: "Aguardando capturas locais do Antigravity.",
+      state: "empty",
+    };
+  }
+  const liveAgeMs = antigravity.lastUpdatedDate ? Date.now() - antigravity.lastUpdatedDate.getTime() : NaN;
+  const isStale = !antigravity.lastUpdatedDate || liveAgeMs > STALE_AFTER_MS;
+  if (isStale) {
+    const ageText = Number.isFinite(liveAgeMs) ? formatDurationMs(liveAgeMs) : "tempo desconhecido";
+    return {
+      text: "Dados atrasados",
+      meta: `A última captura local do Antigravity foi há ${ageText}.`,
+      state: "error",
+    };
+  }
+  const activeAccount = antigravity.accounts.find(a => a.isActive) || antigravity.accounts[0];
+  const percents = (activeAccount.models || []).filter(m => m.remainingPercent !== null).map(m => m.remainingPercent);
+  if (percents.length === 0) {
+    return {
+      text: "Sem cotas",
+      meta: "Nenhum limite de modelo ativo encontrado nesta conta.",
+      state: "warn",
+    };
+  }
+  const minPercent = Math.min(...percents);
+  if (minPercent <= 0) {
+    return {
+      text: "Limite esgotado",
+      meta: "Uma ou mais cotas de modelo do Gemini foram esgotadas.",
+      state: "danger",
+    };
+  }
+  if (minPercent <= 20) {
+    return {
+      text: "Ritmo alto",
+      meta: "O consumo do Gemini está elevado; modere o uso de tokens.",
+      state: "danger",
+    };
+  }
+  if (minPercent <= 40) {
+    return {
+      text: "Atenção ao consumo",
+      meta: "Cotas intermediárias no Gemini; planeje o consumo.",
+      state: "warn",
+    };
+  }
+  return {
+    text: "Na faixa segura",
+    meta: "Todas as cotas do Gemini estão saudáveis.",
+    state: "ok",
+  };
+}
+
+function buildGeminiActiveAccountView(antigravity) {
+  if (!antigravity || !Array.isArray(antigravity.accounts) || antigravity.accounts.length === 0) {
+    return {
+      empty: true,
+      state: "empty",
+      name: "Nenhuma conta recente",
+      meta: "Aguardando capturas locais.",
+      badge: "sem foco",
+      fiveHour: { percent: null, text: "--", tone: "warn", resetText: "--" },
+      weekly: { percent: null, text: "--", tone: "warn", resetText: "--" },
+      weeklyLabel: "Semanal",
+      hasFiveHour: true,
+    };
+  }
+
+  const activeAccount = antigravity.accounts.find(a => a.isActive) || antigravity.accounts[0];
+  const isPro = activeAccount.email === "leosaquetto@gmail.com";
+  
+  const fiveHourModel = activeAccount.models.find(m => m.id.includes("low") || m.name.toLowerCase().includes("low") || m.name.toLowerCase().includes("5-hour") || m.name.toLowerCase().includes("5h"));
+  const weeklyModel = activeAccount.models.find(m => m.id.includes("high") || m.name.toLowerCase().includes("high") || m.name.toLowerCase().includes("weekly"));
+
+  const buildLimitView = (model) => {
+    if (!model || model.remainingPercent === null) {
+      return { percent: null, text: "--", tone: "warn", resetText: "Sem cota" };
+    }
+    const pct = model.remainingPercent;
+    return {
+      percent: pct,
+      text: `${pct.toFixed(2)}%`,
+      tone: usageLevel(pct),
+      resetText: model.refreshText || "Cota compartilhada",
+    };
+  };
+
+  const fiveHour = buildLimitView(fiveHourModel);
+  const weekly = buildLimitView(weeklyModel);
+
+  const tone = usageLevel(Math.min(
+    fiveHour.percent !== null ? fiveHour.percent : 100,
+    weekly.percent !== null ? weekly.percent : 100
+  ));
+
+  const updateMeta = activeAccount.lastUpdatedDate ? `Capturada há ${formatAgo(activeAccount.lastUpdatedDate)}` : "Sem atualização recente";
+
+  return {
+    empty: false,
+    state: tone,
+    name: activeAccount.email,
+    meta: `${activeAccount.isActive ? "Ativa no Antigravity" : "Google Cloud"} · ${updateMeta}`,
+    badge: isPro ? "PRO" : "Google",
+    fiveHour,
+    weekly,
+    weeklyLabel: "Semanal",
+    hasFiveHour: isPro,
+  };
+}
+
 /* =========================================
    Rendering
 ========================================= */
 function getElements() {
   return {
-    summaryTotalModels: document.getElementById("summaryTotalModels"),
-    summaryActiveAccounts: document.getElementById("summaryActiveAccounts"),
-    summaryResetEvents: document.getElementById("summaryResetEvents"),
-    summaryPerformanceIndex: document.getElementById("summaryPerformanceIndex"),
+    // Top-level overview cards
+    platformGptPercent: document.getElementById("platformGptPercent"),
+    platformGptMeta: document.getElementById("platformGptMeta"),
+    platformGeminiPercent: document.getElementById("platformGeminiPercent"),
+    platformGeminiMeta: document.getElementById("platformGeminiMeta"),
+
+    // Codex Column elements
+    codexStatusDot: document.getElementById("codexStatusDot"),
+    codexStatusText: document.getElementById("codexStatusText"),
+    codexStatusMeta: document.getElementById("codexStatusMeta"),
+    codexUpdatedDateText: document.getElementById("codexUpdatedDateText"),
+    codexUpdatedTimeText: document.getElementById("codexUpdatedTimeText"),
+
+    codexActiveAccounts: document.getElementById("codexActiveAccounts"),
+    codexResetEvents: document.getElementById("codexResetEvents"),
+    codexPerformanceIndex: document.getElementById("codexPerformanceIndex"),
+
+    codexActiveAccountPanel: document.getElementById("codexActiveAccountPanel"),
+    codexActiveAccountName: document.getElementById("codexActiveAccountName"),
+    codexActiveAccountMeta: document.getElementById("codexActiveAccountMeta"),
+    codexActiveAccountBadge: document.getElementById("codexActiveAccountBadge"),
+    codexActiveFiveHourRow: document.getElementById("codexActiveFiveHourRow"),
+    codexActiveFiveHourText: document.getElementById("codexActiveFiveHourText"),
+    codexActiveFiveHourBar: document.getElementById("codexActiveFiveHourBar"),
+    codexActiveFiveHourMeta: document.getElementById("codexActiveFiveHourMeta"),
+    codexActiveWeeklyLabel: document.getElementById("codexActiveWeeklyLabel"),
+    codexActiveWeeklyText: document.getElementById("codexActiveWeeklyText"),
+    codexActiveWeeklyBar: document.getElementById("codexActiveWeeklyBar"),
+    codexActiveWeeklyMeta: document.getElementById("codexActiveWeeklyMeta"),
+
+    accountsGrid: document.getElementById("accountsGrid"),
+
+    // Gemini Column elements
+    antigravityStatusDot: document.getElementById("antigravityStatusDot"),
+    antigravityStatusText: document.getElementById("antigravityStatusText"),
+    antigravityStatusMeta: document.getElementById("antigravityStatusMeta"),
+    antigravityUpdatedDateText: document.getElementById("antigravityUpdatedDateText"),
+    antigravityUpdatedTimeText: document.getElementById("antigravityUpdatedTimeText"),
+
+    antigravityTotalModels: document.getElementById("antigravityTotalModels"),
+    antigravityActiveAccounts: document.getElementById("antigravityActiveAccounts"),
+    antigravityPerformanceIndex: document.getElementById("antigravityPerformanceIndex"),
+
+    antigravityActiveAccountPanel: document.getElementById("antigravityActiveAccountPanel"),
+    antigravityActiveAccountName: document.getElementById("antigravityActiveAccountName"),
+    antigravityActiveAccountMeta: document.getElementById("antigravityActiveAccountMeta"),
+    antigravityActiveAccountBadge: document.getElementById("antigravityActiveAccountBadge"),
+    antigravityActiveFiveHourRow: document.getElementById("antigravityActiveFiveHourRow"),
+    antigravityActiveFiveHourText: document.getElementById("antigravityActiveFiveHourText"),
+    antigravityActiveFiveHourBar: document.getElementById("antigravityActiveFiveHourBar"),
+    antigravityActiveFiveHourMeta: document.getElementById("antigravityActiveFiveHourMeta"),
+    antigravityActiveWeeklyLabel: document.getElementById("antigravityActiveWeeklyLabel"),
+    antigravityActiveWeeklyText: document.getElementById("antigravityActiveWeeklyText"),
+    antigravityActiveWeeklyBar: document.getElementById("antigravityActiveWeeklyBar"),
+    antigravityActiveWeeklyMeta: document.getElementById("antigravityActiveWeeklyMeta"),
+
+    antigravityGrid: document.getElementById("antigravityGrid"),
+    antigravityPanel: document.getElementById("antigravityPanel"),
+
+    // Global elements
     sidebarSettingsBtn: document.getElementById("sidebarSettingsBtn"),
     themeColorInput: document.getElementById("themeColorInput"),
     resetViewButton: document.getElementById("resetViewButton"),
@@ -1578,61 +1754,11 @@ function getElements() {
     resetEventCount: document.getElementById("resetEventCount"),
     resetEarlyCount: document.getElementById("resetEarlyCount"),
     weeklyResetList: document.getElementById("weeklyResetList"),
-    accountsGrid: document.getElementById("accountsGrid"),
-    antigravityGrid: document.getElementById("antigravityGrid"),
-    antigravityPanel: document.getElementById("antigravityPanel"),
     totalWeeklyAvailableText: document.getElementById("totalWeeklyAvailableText"),
     totalWeeklyAvailableBar: document.getElementById("totalWeeklyAvailableBar"),
     totalWeeklyAvailableMeta: document.getElementById("totalWeeklyAvailableMeta"),
-    activeAccountPanel: document.getElementById("activeAccountPanel"),
-    activeAccountName: document.getElementById("activeAccountName"),
-    activeAccountMeta: document.getElementById("activeAccountMeta"),
-    activeAccountBadge: document.getElementById("activeAccountBadge"),
-    activeFiveHourText: document.getElementById("activeFiveHourText"),
-    activeFiveHourRow: document.getElementById("activeFiveHourRow"),
-    activeFiveHourBar: document.getElementById("activeFiveHourBar"),
-    activeFiveHourMeta: document.getElementById("activeFiveHourMeta"),
-    activeWeeklyLabel: document.getElementById("activeWeeklyLabel"),
-    activeWeeklyText: document.getElementById("activeWeeklyText"),
-    activeWeeklyBar: document.getElementById("activeWeeklyBar"),
-    activeWeeklyMeta: document.getElementById("activeWeeklyMeta"),
-    statusDot: document.getElementById("statusDot"),
-    statusText: document.getElementById("statusText"),
-    statusMeta: document.getElementById("statusMeta"),
-    updatedAtText: document.getElementById("updatedAtText"),
-    updatedDateText: document.getElementById("updatedDateText"),
-    updatedTimeText: document.getElementById("updatedTimeText"),
-    fiveHourPercent: document.getElementById("fiveHourPercent"),
-    fiveHourBar: document.getElementById("fiveHourBar"),
-    fiveHourQuestion: document.getElementById("fiveHourQuestion"),
-    fiveHourZeroAt: document.getElementById("fiveHourZeroAt"),
-    fiveHourRhythm: document.getElementById("fiveHourRhythm"),
-    fiveHourAverage: document.getElementById("fiveHourAverage"),
-    fiveHourUsedInline: document.getElementById("fiveHourUsedInline"),
-    fiveHourIdealRate: document.getElementById("fiveHourIdealRate"),
-    fiveHourUsePlan: document.getElementById("fiveHourUsePlan"),
-    fiveHourUsed: document.getElementById("fiveHourUsed"),
-    fiveHourRenewal: document.getElementById("fiveHourRenewal"),
-    weeklyPercent: document.getElementById("weeklyPercent"),
-    weeklyBar: document.getElementById("weeklyBar"),
-    weeklyProjection: document.getElementById("weeklyProjection"),
-    weeklyZeroAt: document.getElementById("weeklyZeroAt"),
-    weeklyUsed: document.getElementById("weeklyUsed"),
-    weeklyRemainingDays: document.getElementById("weeklyRemainingDays"),
-    weeklyAverage: document.getElementById("weeklyAverage"),
-    weeklyDailyAverage: document.getElementById("weeklyDailyAverage"),
-    weeklyUsedInline: document.getElementById("weeklyUsedInline"),
-    weeklySideBadge: document.getElementById("weeklySideBadge"),
-    weeklyIdeal: document.getElementById("weeklyIdeal"),
-    weeklyBand: document.getElementById("weeklyBand"),
-    weeklyRenewal: document.getElementById("weeklyRenewal"),
-    weeklyUsePlan: document.getElementById("weeklyUsePlan"),
-    fiveHourCountdown: document.getElementById("fiveHourCountdown"),
-    weeklyCountdown: document.getElementById("weeklyCountdown"),
-    weeklyWindowZero: document.getElementById("weeklyWindowZero"),
-    weeklyWindowPlan: document.getElementById("weeklyWindowPlan"),
-    weeklyWindowBadge: document.getElementById("weeklyWindowBadge"),
-    harvestSuggestion: document.getElementById("harvestSuggestion"),
+    usageSuggestion: document.getElementById("usageSuggestion"),
+    usageSuggestionMeta: document.getElementById("usageSuggestionMeta"),
     usageBandValue: document.getElementById("usageBandValue"),
     usageBandMeta: document.getElementById("usageBandMeta"),
     compareActualText: document.getElementById("compareActualText"),
@@ -1644,8 +1770,6 @@ function getElements() {
     chartTitle: document.getElementById("chartTitle"),
     chartWeeklyButton: document.getElementById("chartWeeklyButton"),
     chartFiveHourButton: document.getElementById("chartFiveHourButton"),
-    usageSuggestion: document.getElementById("usageSuggestion"),
-    usageSuggestionMeta: document.getElementById("usageSuggestionMeta"),
     usageSparkline: document.getElementById("usageSparkline"),
   };
 }
@@ -1827,14 +1951,22 @@ function renderAccountsGrid(container, accounts) {
       });
     }
 
+    const collapsibleWrapper = document.createElement("div");
+    collapsibleWrapper.className = "account-card-collapsible-wrapper";
+    const collapsibleContent = document.createElement("div");
+    collapsibleContent.className = "account-card-collapsible-content";
+
     if (account.status === "error") {
       const error = document.createElement("p");
       error.className = "account-error";
       error.textContent = account.error || "Falha ao atualizar.";
-      card.append(top, error, footer);
+      collapsibleContent.append(error, footer);
     } else {
-      card.append(top, meters, footer);
+      collapsibleContent.append(meters, footer);
     }
+
+    collapsibleWrapper.append(collapsibleContent);
+    card.append(top, collapsibleWrapper);
     fragment.append(card);
   }
 
@@ -1845,7 +1977,7 @@ function renderAntigravityGrid(container, antigravity, panel) {
   if (!container || !panel) return;
   container.replaceChildren();
 
-  if (!antigravity || !Array.isArray(antigravity.accounts) || antigravity.accounts.length === 0) {
+  if (!antigravity || !Array.isArray(antigravity.accounts) || antigravity.accounts.length === 0 || activeView === "resets") {
     panel.hidden = true;
     return;
   }
@@ -2121,7 +2253,14 @@ function renderAntigravityGrid(container, antigravity, panel) {
       });
     }
 
-    card.append(top, modelsContainer, footer);
+    const collapsibleWrapper = document.createElement("div");
+    collapsibleWrapper.className = "account-card-collapsible-wrapper";
+    const collapsibleContent = document.createElement("div");
+    collapsibleContent.className = "account-card-collapsible-content";
+    collapsibleContent.append(modelsContainer, footer);
+    collapsibleWrapper.append(collapsibleContent);
+
+    card.append(top, collapsibleWrapper);
     fragment.append(card);
   }
 
@@ -2303,39 +2442,142 @@ function setChartButtons(els) {
   els.chartFiveHourButton?.setAttribute("aria-pressed", String(!isWeekly));
 }
 
-function renderDashboard(els, viewModel) {
+function renderDashboard(els, viewModel, hasLoadError = false) {
   const showResets = activeView === "resets";
   document.querySelectorAll(".dashboard-only").forEach((element) => {
     element.hidden = showResets;
   });
 
-  // Update sidebar active states based on current tab selection
-  const navItems = document.querySelectorAll(".sidebar-nav .nav-item");
+  // Update sidebar and mobile nav active states based on current tab selection
+  const navItems = document.querySelectorAll(".sidebar-nav .nav-item, .mobile-nav-bar .mobile-nav-item");
   navItems.forEach(item => {
     item.classList.remove("active");
   });
-  const activeSidebarItem = document.querySelector(`.sidebar-nav .nav-item[data-tab="${activeSidebarTab}"]`);
-  if (activeSidebarItem) activeSidebarItem.classList.add("active");
+  const activeSidebarItems = document.querySelectorAll(`[data-tab="${activeSidebarTab}"]`);
+  activeSidebarItems.forEach(item => item.classList.add("active"));
 
-  // Populate metrics summary cards
-  const totalModelsCount = (viewModel.antigravity && viewModel.antigravity.accounts)
-    ? viewModel.antigravity.accounts.length
-    : 0;
-  if (els.summaryTotalModels) els.summaryTotalModels.textContent = totalModelsCount || "0";
+  // Populate platform overview cards
+  const codexActiveCount = (viewModel.accounts || []).filter(a => a.isActive).length;
+  if (els.platformGptPercent) els.platformGptPercent.textContent = viewModel.totalAvailability.weeklyText || "--%";
+  if (els.platformGptMeta) {
+    els.platformGptMeta.textContent = `${codexActiveCount} ${codexActiveCount === 1 ? "conta ativa" : "contas ativas"}`;
+  }
 
-  const activeCodexCount = (viewModel.accounts || []).filter(a => a.isActive).length;
-  const activeAntigravityCount = (viewModel.antigravity && viewModel.antigravity.accounts)
-    ? viewModel.antigravity.accounts.filter(a => a.isActive).length
-    : 0;
-  const totalActiveAccounts = activeCodexCount + activeAntigravityCount;
-  if (els.summaryActiveAccounts) els.summaryActiveAccounts.textContent = totalActiveAccounts || "0";
+  const geminiAccounts = (viewModel.antigravity && viewModel.antigravity.accounts) ? viewModel.antigravity.accounts : [];
+  const activeGeminiAccount = geminiAccounts.find(a => a.isActive);
+  const activeAntigravityCount = geminiAccounts.filter(a => a.isActive).length;
+  let geminiAvailabilityText = "--%";
+  let geminiAvailabilityPercent = 0;
 
-  const totalResetEvents = (viewModel.weeklyResets && viewModel.weeklyResets.eventCount)
-    ? viewModel.weeklyResets.eventCount
-    : 0;
-  if (els.summaryResetEvents) els.summaryResetEvents.textContent = totalResetEvents || "0";
+  if (activeGeminiAccount) {
+    const highLimitModel = activeGeminiAccount.models.find(m => m.id.includes("high") || m.name.toLowerCase().includes("high") || m.name.toLowerCase().includes("weekly"));
+    if (highLimitModel && highLimitModel.remainingPercent !== null) {
+      geminiAvailabilityPercent = Math.round(highLimitModel.remainingPercent);
+      geminiAvailabilityText = `${geminiAvailabilityPercent}%`;
+    } else if (activeGeminiAccount.models.length > 0) {
+      const percents = activeGeminiAccount.models.filter(m => m.remainingPercent !== null).map(m => m.remainingPercent);
+      if (percents.length > 0) {
+        geminiAvailabilityPercent = Math.round(percents.reduce((a, b) => a + b, 0) / percents.length);
+        geminiAvailabilityText = `${geminiAvailabilityPercent}%`;
+      }
+    }
+  } else if (geminiAccounts.length > 0) {
+    const percents = [];
+    geminiAccounts.forEach(acc => {
+      (acc.models || []).forEach(m => {
+        if (m.remainingPercent !== null) percents.push(m.remainingPercent);
+      });
+    });
+    if (percents.length > 0) {
+      geminiAvailabilityPercent = Math.round(percents.reduce((a, b) => a + b, 0) / percents.length);
+      geminiAvailabilityText = `${geminiAvailabilityPercent}%`;
+    }
+  }
 
-  if (els.summaryPerformanceIndex) els.summaryPerformanceIndex.textContent = viewModel.totalAvailability.weeklyText || "--%";
+  if (els.platformGeminiPercent) els.platformGeminiPercent.textContent = geminiAvailabilityText;
+  let geminiMetaText = `${activeAntigravityCount} ${activeAntigravityCount === 1 ? "conta ativa" : "contas ativas"}`;
+  if (activeGeminiAccount && activeGeminiAccount.email) {
+    const isPro = activeGeminiAccount.email === "leosaquetto@gmail.com";
+    geminiMetaText = `${isPro ? "PRO" : "Google"} · ${activeGeminiAccount.email}`;
+  }
+  if (els.platformGeminiMeta) els.platformGeminiMeta.textContent = geminiMetaText;
+
+  // 1. Render ChatGPT/Codex Column
+  // Status Bar
+  setStatusState(els.codexStatusDot, viewModel.status.state);
+  if (els.codexStatusText) els.codexStatusText.textContent = viewModel.status.text;
+  if (els.codexStatusMeta) els.codexStatusMeta.textContent = viewModel.status.meta;
+  if (els.codexUpdatedDateText) els.codexUpdatedDateText.textContent = viewModel.updatedDate;
+  if (els.codexUpdatedTimeText) els.codexUpdatedTimeText.textContent = viewModel.updatedTime;
+
+  // Metrics Grid
+  if (els.codexActiveAccounts) els.codexActiveAccounts.textContent = codexActiveCount || "0";
+  const totalResetEvents = (viewModel.weeklyResets && viewModel.weeklyResets.eventCount) ? viewModel.weeklyResets.eventCount : 0;
+  if (els.codexResetEvents) els.codexResetEvents.textContent = totalResetEvents || "0";
+  if (els.codexPerformanceIndex) els.codexPerformanceIndex.textContent = viewModel.totalAvailability.weeklyText || "--%";
+
+  // Active Account Panel
+  renderActiveAccountPanel({
+    activeAccountPanel: els.codexActiveAccountPanel,
+    activeAccountName: els.codexActiveAccountName,
+    activeAccountMeta: els.codexActiveAccountMeta,
+    activeAccountBadge: els.codexActiveAccountBadge,
+    activeFiveHourRow: els.codexActiveFiveHourRow,
+    activeFiveHourText: els.codexActiveFiveHourText,
+    activeFiveHourBar: els.codexActiveFiveHourBar,
+    activeFiveHourMeta: els.codexActiveFiveHourMeta,
+    activeWeeklyLabel: els.codexActiveWeeklyLabel,
+    activeWeeklyText: els.codexActiveWeeklyText,
+    activeWeeklyBar: els.codexActiveWeeklyBar,
+    activeWeeklyMeta: els.codexActiveWeeklyMeta,
+  }, viewModel.activeAccount);
+
+  // Grid list
+  renderAccountsGrid(els.accountsGrid, viewModel.accounts);
+
+  // 2. Render Gemini/Antigravity Column
+  // Status Bar
+  const geminiStatus = resolveAntigravityStatus(viewModel.antigravity, hasLoadError);
+  setStatusState(els.antigravityStatusDot, geminiStatus.state);
+  if (els.antigravityStatusText) els.antigravityStatusText.textContent = geminiStatus.text;
+  if (els.antigravityStatusMeta) els.antigravityStatusMeta.textContent = geminiStatus.meta;
+
+  let geminiUpdatedDate = "--";
+  let geminiUpdatedTime = "--";
+  if (viewModel.antigravity && viewModel.antigravity.lastUpdatedDate) {
+    geminiUpdatedDate = formatDatePartPtBr(viewModel.antigravity.lastUpdatedDate);
+    geminiUpdatedTime = formatTimePartPtBr(viewModel.antigravity.lastUpdatedDate);
+  }
+  if (els.antigravityUpdatedDateText) els.antigravityUpdatedDateText.textContent = geminiUpdatedDate;
+  if (els.antigravityUpdatedTimeText) els.antigravityUpdatedTimeText.textContent = geminiUpdatedTime;
+
+  // Metrics Grid
+  const totalModelsCount = (viewModel.antigravity && viewModel.antigravity.accounts) ? viewModel.antigravity.accounts.length : 0;
+  if (els.antigravityTotalModels) els.antigravityTotalModels.textContent = totalModelsCount || "0";
+  if (els.antigravityActiveAccounts) els.antigravityActiveAccounts.textContent = activeAntigravityCount || "0";
+  if (els.antigravityPerformanceIndex) els.antigravityPerformanceIndex.textContent = geminiAvailabilityText;
+
+  // Active Account Panel
+  const geminiActiveAccountView = buildGeminiActiveAccountView(viewModel.antigravity);
+  renderActiveAccountPanel({
+    activeAccountPanel: els.antigravityActiveAccountPanel,
+    activeAccountName: els.antigravityActiveAccountName,
+    activeAccountMeta: els.antigravityActiveAccountMeta,
+    activeAccountBadge: els.antigravityActiveAccountBadge,
+    activeFiveHourRow: els.antigravityActiveFiveHourRow,
+    activeFiveHourText: els.antigravityActiveFiveHourText,
+    activeFiveHourBar: els.antigravityActiveFiveHourBar,
+    activeFiveHourMeta: els.antigravityActiveFiveHourMeta,
+    activeWeeklyLabel: els.antigravityActiveWeeklyLabel,
+    activeWeeklyText: els.antigravityActiveWeeklyText,
+    activeWeeklyBar: els.antigravityActiveWeeklyBar,
+    activeWeeklyMeta: els.antigravityActiveWeeklyMeta,
+  }, geminiActiveAccountView);
+
+  // Grid list
+  renderAntigravityGrid(els.antigravityGrid, viewModel.antigravity, els.antigravityPanel);
+
+  // 3. Render rest of dashboard elements (hidden on resets)
   if (els.weeklyResetArea) els.weeklyResetArea.hidden = !showResets;
   els.resetViewButton?.setAttribute("aria-pressed", String(showResets));
   els.resetViewButton?.setAttribute("title", showResets ? "Voltar ao painel" : "Renovações");
@@ -2345,29 +2587,22 @@ function renderDashboard(els, viewModel) {
   document.documentElement.dataset.weeklyTone = viewModel.tones.weekly;
   document.documentElement.dataset.usageTone = viewModel.tones.usage;
 
-  setStatusState(els.statusDot, viewModel.status.state);
-  els.statusText.textContent = viewModel.status.text;
-  els.statusMeta.textContent = viewModel.status.meta;
-  if (els.updatedAtText) els.updatedAtText.textContent = viewModel.updatedAt;
-  if (els.updatedDateText) els.updatedDateText.textContent = viewModel.updatedDate;
-  if (els.updatedTimeText) els.updatedTimeText.textContent = viewModel.updatedTime;
-
-  els.fiveHourPercent.textContent = viewModel.fiveHour.remaining;
-  els.fiveHourQuestion.textContent = viewModel.fiveHour.question;
-  els.fiveHourZeroAt.textContent = viewModel.fiveHour.zeroAt;
+  if (els.fiveHourPercent) els.fiveHourPercent.textContent = viewModel.fiveHour.remaining;
+  if (els.fiveHourQuestion) els.fiveHourQuestion.textContent = viewModel.fiveHour.question;
+  if (els.fiveHourZeroAt) els.fiveHourZeroAt.textContent = viewModel.fiveHour.zeroAt;
   if (els.fiveHourRhythm) els.fiveHourRhythm.textContent = viewModel.fiveHour.rhythm;
-  els.fiveHourAverage.textContent = viewModel.fiveHour.average;
+  if (els.fiveHourAverage) els.fiveHourAverage.textContent = viewModel.fiveHour.average;
   if (els.fiveHourUsedInline) els.fiveHourUsedInline.textContent = viewModel.fiveHour.usedInline;
   if (els.fiveHourIdealRate) els.fiveHourIdealRate.textContent = viewModel.fiveHour.idealRate;
   if (els.fiveHourUsePlan) els.fiveHourUsePlan.textContent = viewModel.fiveHour.usePlan;
   if (els.fiveHourUsed) els.fiveHourUsed.textContent = viewModel.fiveHour.used;
   if (els.fiveHourRenewal) els.fiveHourRenewal.textContent = viewModel.fiveHour.renewal;
   if (els.fiveHourCountdown) els.fiveHourCountdown.textContent = viewModel.fiveHour.countdown;
-  setProgress(els.fiveHourBar, viewModel.fiveHour.remaining);
+  if (els.fiveHourBar) setProgress(els.fiveHourBar, viewModel.fiveHour.remaining);
 
-  els.weeklyPercent.textContent = viewModel.weekly.remaining;
+  if (els.weeklyPercent) els.weeklyPercent.textContent = viewModel.weekly.remaining;
   if (els.weeklyProjection) els.weeklyProjection.textContent = viewModel.weekly.projection;
-  els.weeklyZeroAt.textContent = viewModel.weekly.zeroAt;
+  if (els.weeklyZeroAt) els.weeklyZeroAt.textContent = viewModel.weekly.zeroAt;
   if (els.weeklyWindowBadge) els.weeklyWindowBadge.textContent = viewModel.weekly.windowBadge;
   if (els.weeklyUsed) els.weeklyUsed.textContent = viewModel.weekly.used;
   if (els.weeklyRemainingDays) els.weeklyRemainingDays.textContent = viewModel.weekly.remainingTime;
@@ -2376,20 +2611,21 @@ function renderDashboard(els, viewModel) {
   if (els.weeklyUsedInline) els.weeklyUsedInline.textContent = viewModel.weekly.usedInline;
   if (els.weeklySideBadge) els.weeklySideBadge.textContent = viewModel.weekly.sideBadge;
   if (els.weeklyIdeal) els.weeklyIdeal.textContent = viewModel.weekly.ideal;
-  els.weeklyBand.textContent = viewModel.weekly.band;
+  if (els.weeklyBand) els.weeklyBand.textContent = viewModel.weekly.band;
   if (els.weeklyRenewal) els.weeklyRenewal.textContent = viewModel.weekly.renewal;
   if (els.weeklyUsePlan) els.weeklyUsePlan.textContent = viewModel.weekly.usePlan;
   if (els.weeklyCountdown) els.weeklyCountdown.textContent = viewModel.weekly.countdown;
   if (els.weeklyWindowZero) els.weeklyWindowZero.textContent = viewModel.weekly.zeroWindowText;
   if (els.weeklyWindowPlan) els.weeklyWindowPlan.textContent = viewModel.weekly.windowPlan;
   if (els.harvestSuggestion) els.harvestSuggestion.textContent = viewModel.weekly.harvest;
-  setProgress(els.weeklyBar, viewModel.weekly.remaining);
+  if (els.weeklyBar) setProgress(els.weeklyBar, viewModel.weekly.remaining);
+
   if (els.totalWeeklyAvailableText) els.totalWeeklyAvailableText.textContent = viewModel.totalAvailability.weeklyText;
-  setProgress(els.totalWeeklyAvailableBar, viewModel.totalAvailability.weeklyPercent);
+  if (els.totalWeeklyAvailableBar) setProgress(els.totalWeeklyAvailableBar, viewModel.totalAvailability.weeklyPercent);
   if (els.totalWeeklyAvailableMeta) els.totalWeeklyAvailableMeta.textContent = viewModel.totalAvailability.meta;
-  renderActiveAccountPanel(els, viewModel.activeAccount);
-  els.usageSuggestion.textContent = capitalizeFirst(viewModel.suggestion.title);
-  els.usageSuggestionMeta.textContent = viewModel.suggestion.meta;
+
+  if (els.usageSuggestion) els.usageSuggestion.textContent = capitalizeFirst(viewModel.suggestion.title);
+  if (els.usageSuggestionMeta) els.usageSuggestionMeta.textContent = viewModel.suggestion.meta;
   if (els.usageBandValue) els.usageBandValue.textContent = viewModel.compare.band;
   if (els.usageBandMeta) els.usageBandMeta.textContent = viewModel.compare.meta;
   if (els.compareActualText) els.compareActualText.textContent = viewModel.compare.actualText;
@@ -2398,11 +2634,12 @@ function renderDashboard(els, viewModel) {
   if (els.compareIdealValue) els.compareIdealValue.textContent = viewModel.compare.idealValue;
   if (els.compareActualBar) els.compareActualBar.style.left = viewModel.compare.actualWidth;
   if (els.compareIdealBar) els.compareIdealBar.style.left = viewModel.compare.idealWidth;
-  renderAccountsGrid(els.accountsGrid, viewModel.accounts);
-  renderAntigravityGrid(els.antigravityGrid, viewModel.antigravity, els.antigravityPanel);
+
   renderWeeklyResetArea(els, viewModel.weeklyResets);
   setChartButtons(els);
-  renderSparkline(els.usageSparkline, activeChart === "weekly" ? viewModel.charts.weekly : viewModel.charts.fiveHour);
+  if (els.usageSparkline) {
+    renderSparkline(els.usageSparkline, activeChart === "weekly" ? viewModel.charts.weekly : viewModel.charts.fiveHour);
+  }
 }
 
 /* =========================================
@@ -3034,7 +3271,7 @@ function bindEvents(els, usage, render) {
   }
 
   // Sidebar Navigation Click Handlers
-  const sidebarNavItems = document.querySelectorAll(".sidebar-nav .nav-item");
+  const sidebarNavItems = document.querySelectorAll(".sidebar-nav .nav-item, .mobile-nav-bar .mobile-nav-item");
   sidebarNavItems.forEach(item => {
     item.addEventListener("click", () => {
       const tab = item.dataset.tab;
@@ -3051,7 +3288,8 @@ function bindEvents(els, usage, render) {
         activeView = "dashboard";
         activeSidebarTab = "accounts";
         render();
-        document.getElementById("activeAccountPanel")?.scrollIntoView({ behavior: "smooth" });
+        const activePanelId = activeMobileTab === "antigravity" ? "antigravityActiveAccountPanel" : "codexActiveAccountPanel";
+        document.getElementById(activePanelId)?.scrollIntoView({ behavior: "smooth" });
       } else if (tab === "models") {
         activeView = "dashboard";
         activeSidebarTab = "models";
@@ -3095,7 +3333,7 @@ async function init() {
   document.body.classList.remove("is-loading");
 
   function render() {
-    renderDashboard(els, buildLimitViewModel(usage, hasLoadError));
+    renderDashboard(els, buildLimitViewModel(usage, hasLoadError), hasLoadError);
     renderNotificationPanel(els, usage);
     syncMobileTabs();
   }

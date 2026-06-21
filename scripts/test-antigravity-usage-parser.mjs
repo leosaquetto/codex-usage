@@ -15,7 +15,7 @@ const fixture = await readFile(resolve(root, "scripts/fixtures/antigravity-usage
 const now = new Date("2026-05-17T12:00:00.000Z");
 
 const parsed = parseModels(fixture, now);
-assert.equal(parsed.length, 6);
+assert.equal(parsed.length, 3);
 assert.equal(parsed[0].name, "Gemini 3.1 Pro");
 assert.equal(parsed[0].tier, "High");
 assert.equal(parsed[0].remainingPercent, 100);
@@ -92,8 +92,8 @@ const mockCliOutput = [
       email: "leosaquetto@gmail.com",
       models: [
         {
-          label: "Claude Opus 4.6 (Thinking)",
-          modelId: "claude-opus-4-6-thinking",
+          label: "Gemini 3.5 Flash (Medium)",
+          modelId: "gemini-3-5-flash-medium",
           remainingPercentage: 80,
           isExhausted: false,
           resetTime: "2026-06-28T02:29:36Z",
@@ -131,7 +131,7 @@ assert.equal(parsedCli.source, "antigravity-cli");
 assert.equal(parsedCli.accounts.length, 2);
 assert.equal(parsedCli.accounts[0].email, "leosaquetto@gmail.com");
 assert.equal(parsedCli.accounts[0].isActive, true);
-assert.equal(parsedCli.accounts[0].models[0].name, "Claude Opus 4.6");
+assert.equal(parsedCli.accounts[0].models[0].name, "Gemini 3.5 Flash");
 assert.equal(parsedCli.accounts[0].models[0].remainingPercent, 80);
 assert.equal(parsedCli.accounts[0].models[0].status, "ok");
 assert.equal(parsedCli.accounts[0].models[0].refreshText, "Refreshes in 7 days");
@@ -140,6 +140,6 @@ assert.equal(parsedCli.accounts[1].email, "saquettoleo@gmail.com");
 assert.equal(parsedCli.accounts[1].isActive, false);
 
 assert.equal(parsedCli.models.length, 1);
-assert.equal(parsedCli.models[0].id, "claude-opus-4-6-thinking");
+assert.equal(parsedCli.models[0].id, "gemini-3-5-flash-medium");
 
 console.log("antigravity usage parser tests ok");

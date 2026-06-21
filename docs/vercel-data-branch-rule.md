@@ -29,6 +29,12 @@ https://raw.githubusercontent.com/leosaquetto/codex-usage/usage-data/usage_summa
 
 Nao trocar essas URLs de volta para `main` sem uma migracao explicita e validada.
 
+## Especificidades do Antigravity CLI
+
+- O CLI `antigravity-usage` retorna o campo `remainingPercentage` como uma fração decimal entre `0.0` e `1.0` (por exemplo, `0.9992` representando `99.92%`).
+- O atualizador automático (`scripts/update-antigravity-usage-auto.mjs`) multiplica esse valor por `100` (`model.remainingPercentage * 100`) antes de aplicar o `clampPercent` para normalizar o percentual entre `0` e `100` antes de salvar.
+- Mock e testes devem espelhar esse comportamento do CLI real usando valores decimais (ex: `0.8` para 80%).
+
 ## Como atualizar dados
 
 Use o wrapper que prepara um worktree dedicado na branch `usage-data`:

@@ -63,18 +63,18 @@
               <svg class="nav-icon" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" fill="currentColor"/></svg>
               Dashboard
             </button>
-            <a href="#activeAccountPanel" class="nav-item">
+            <button type="button" class="nav-item" data-tab="accounts">
               <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" fill="currentColor"/></svg>
               Contas
-            </a>
-            <a href="#antigravityPanel" class="nav-item">
+            </button>
+            <button type="button" class="nav-item" data-tab="models">
               <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" fill="currentColor"/></svg>
               Modelos
-            </a>
-            <a href="#weeklyResetArea" class="nav-item">
+            </button>
+            <button type="button" class="nav-item" data-tab="reports">
               <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2zm0-4H7V7h10v2z" fill="currentColor"/></svg>
               Relatórios
-            </a>
+            </button>
             <button type="button" class="nav-item" id="sidebarSettingsBtn">
               <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" fill="currentColor"/></svg>
               Configurações
@@ -150,123 +150,148 @@
             <p>Welcom light mode tree dashboard</p>
           </div>
 
-          <!-- Mobile Tab Selector -->
-          <div class="mobile-tabs-container dashboard-only">
-            <button type="button" class="mobile-tab-btn active" data-tab-target="codex">ChatGPT (Codex)</button>
-            <button type="button" class="mobile-tab-btn" data-tab-target="antigravity">Gemini (Antigravity)</button>
+          <!-- Platforms Summary Cards (ChatGPT and Gemini overview) -->
+          <div class="platforms-summary-row dashboard-only">
+            <article class="platform-summary-card" data-platform="codex">
+              <div class="platform-card-top">
+                <img src="/assets/gpt_.png" class="platform-logo" alt="" />
+                <div>
+                  <h3>ChatGPT</h3>
+                  <span class="platform-subtitle">Codex Switcher</span>
+                </div>
+              </div>
+              <div class="platform-card-value">
+                <strong id="platformGptPercent">--%</strong>
+                <span id="platformGptMeta">Carregando...</span>
+              </div>
+            </article>
+            <article class="platform-summary-card" data-platform="antigravity">
+              <div class="platform-card-top">
+                <img src="/assets/gemini__2.png" class="platform-logo" alt="" />
+                <div>
+                  <h3>Gemini</h3>
+                  <span class="platform-subtitle">Antigravity Manager</span>
+                </div>
+              </div>
+              <div class="platform-card-value">
+                <strong id="platformGeminiPercent">--%</strong>
+                <span id="platformGeminiMeta">Carregando...</span>
+              </div>
+            </article>
           </div>
 
-          <section class="metrics-summary-grid dashboard-only">
-            <article class="metric-summary-card">
-              <div class="metric-card-info">
-                <span class="metric-label">Modelos Ativos</span>
-                <strong id="summaryTotalModels" class="metric-value">--</strong>
-              </div>
-              <div class="metric-sparkline-container">
-                <svg class="metric-mini-sparkline sparkline-orange" viewBox="0 0 100 30" aria-hidden="true">
-                  <path d="M 0 22 C 20 8, 40 18, 60 10 C 80 25, 90 5, 100 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-              </div>
-            </article>
-            <article class="metric-summary-card">
-              <div class="metric-card-info">
-                <span class="metric-label">Contas Ativas</span>
-                <strong id="summaryActiveAccounts" class="metric-value">--</strong>
-              </div>
-              <div class="metric-sparkline-container">
-                <svg class="metric-mini-sparkline sparkline-blue" viewBox="0 0 100 30" aria-hidden="true">
-                  <path d="M 0 12 C 20 25, 45 8, 65 22 C 85 10, 95 18, 100 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-              </div>
-            </article>
-            <article class="metric-summary-card">
-              <div class="metric-card-info">
-                <span class="metric-label">Eventos de Reset</span>
-                <strong id="summaryResetEvents" class="metric-value">--</strong>
-              </div>
-              <div class="metric-sparkline-container">
-                <svg class="metric-mini-sparkline sparkline-orange" viewBox="0 0 100 30" aria-hidden="true">
-                  <path d="M 0 25 C 15 10, 35 22, 55 8 C 75 18, 85 24, 100 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-              </div>
-            </article>
-            <article class="metric-summary-card">
-              <div class="metric-card-info">
-                <span class="metric-label">Disponibilidade</span>
-                <strong id="summaryPerformanceIndex" class="metric-value">--</strong>
-              </div>
-              <div class="metric-sparkline-container">
-                <svg class="metric-mini-sparkline sparkline-blue" viewBox="0 0 100 30" aria-hidden="true">
-                  <path d="M 0 18 C 20 8, 40 25, 60 12 C 80 18, 90 8, 100 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-              </div>
-            </article>
-          </section>
-
-          <!-- Full-Width Panels Above Grid -->
-          <section class="status-panel dashboard-only" aria-label="Status geral">
-            <div class="status-copy">
-              <span id="statusDot" class="status-dot"></span>
-              <svg class="metric-icon status-icon" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 3 20 7v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7l8-4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
-                <path d="m8.7 12.2 2.2 2.2 4.7-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-              <div>
-                <p id="statusText" class="status-title">Carregando...</p>
-                <p id="statusMeta" class="status-meta">Aguardando dados.</p>
-              </div>
-            </div>
-            <div class="status-updated">
-              <span>Atualizado</span>
-              <strong class="updated-parts">
-                <span>
-                  <svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M16 2v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><rect x="4" y="5" width="16" height="17" rx="3" fill="none" stroke="currentColor" stroke-width="2" /><path d="M4 10h16" fill="none" stroke="currentColor" stroke-width="2" /></svg>
-                  <span id="updatedDateText">--</span>
-                </span>
-                <span>
-                  <svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" /><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
-                  <span id="updatedTimeText">--</span>
-                </span>
-              </strong>
-            </div>
-          </section>
-
-          <section id="activeAccountPanel" class="active-account-panel dashboard-only" aria-label="Conta em uso" data-state="empty">
-            <div class="active-account-head">
-              <div class="active-account-title">
-                <p class="section-kicker">Conta em uso</p>
-                <h2 id="activeAccountName">Nenhuma conta recente</h2>
-                <p id="activeAccountMeta">Aguardando conta ativa ou uso na última 1h.</p>
-              </div>
-              <span id="activeAccountBadge" class="active-account-badge">--</span>
-            </div>
-            <div class="active-account-bars" aria-label="Uso da conta em foco">
-              <div id="activeFiveHourRow" class="active-usage-row" data-limit="fiveHour">
-                <div class="active-usage-line">
-                  <span>5h</span>
-                  <strong id="activeFiveHourText">--</strong>
-                </div>
-                <div class="active-progress-track" role="progressbar" aria-label="Saldo de 5 horas da conta em uso" aria-valuemin="0" aria-valuemax="100">
-                  <div id="activeFiveHourBar" class="active-progress-fill"></div>
-                </div>
-                <p id="activeFiveHourMeta">--</p>
-              </div>
-              <div class="active-usage-row" data-limit="weekly">
-                <div class="active-usage-line">
-                  <span id="activeWeeklyLabel">Semanal</span>
-                  <strong id="activeWeeklyText">--</strong>
-                </div>
-                <div class="active-progress-track" role="progressbar" aria-label="Saldo semanal da conta em uso" aria-valuemin="0" aria-valuemax="100">
-                  <div id="activeWeeklyBar" class="active-progress-fill"></div>
-                </div>
-                <p id="activeWeeklyMeta">--</p>
-              </div>
-            </div>
-          </section>
+          <!-- Mobile Tab Selector (with logos) -->
+          <div class="mobile-tabs-container dashboard-only">
+            <button type="button" class="mobile-tab-btn active" data-tab-target="codex">
+              <img src="/assets/gpt_.png" class="tab-logo" alt="" /> ChatGPT (Codex)
+            </button>
+            <button type="button" class="mobile-tab-btn" data-tab-target="antigravity">
+              <img src="/assets/gemini__2.png" class="tab-logo" alt="" /> Gemini (Antigravity)
+            </button>
+          </div>
 
           <!-- Main Layout Grid -->
           <div class="app-columns-grid">
             <div class="app-column-left">
+              <!-- Gemini Status Panel -->
+              <section id="antigravityStatusPanel" class="status-panel dashboard-only" aria-label="Status do Gemini">
+                <div class="status-copy">
+                  <span id="antigravityStatusDot" class="status-dot"></span>
+                  <svg class="metric-icon status-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 3 20 7v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7l8-4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+                    <path d="m8.7 12.2 2.2 2.2 4.7-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <div>
+                    <p id="antigravityStatusText" class="status-title">Carregando...</p>
+                    <p id="antigravityStatusMeta" class="status-meta">Aguardando dados.</p>
+                  </div>
+                </div>
+                <div class="status-updated">
+                  <span>Atualizado</span>
+                  <strong class="updated-parts">
+                    <span>
+                      <svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M16 2v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><rect x="4" y="5" width="16" height="17" rx="3" fill="none" stroke="currentColor" stroke-width="2" /><path d="M4 10h16" fill="none" stroke="currentColor" stroke-width="2" /></svg>
+                      <span id="antigravityUpdatedDateText">--</span>
+                    </span>
+                    <span>
+                      <svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" /><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                      <span id="antigravityUpdatedTimeText">--</span>
+                    </span>
+                  </strong>
+                </div>
+              </section>
+
+              <!-- Gemini Summary Metrics Grid -->
+              <section class="metrics-summary-grid dashboard-only">
+                <article class="metric-summary-card">
+                  <div class="metric-card-info">
+                    <span class="metric-label">Modelos Ativos</span>
+                    <strong id="antigravityTotalModels" class="metric-value">--</strong>
+                  </div>
+                  <div class="metric-sparkline-container">
+                    <svg class="metric-mini-sparkline sparkline-orange" viewBox="0 0 100 30" aria-hidden="true">
+                      <path d="M 0 22 C 20 8, 40 18, 60 10 C 80 25, 90 5, 100 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                </article>
+                <article class="metric-summary-card">
+                  <div class="metric-card-info">
+                    <span class="metric-label">Contas Ativas</span>
+                    <strong id="antigravityActiveAccounts" class="metric-value">--</strong>
+                  </div>
+                  <div class="metric-sparkline-container">
+                    <svg class="metric-mini-sparkline sparkline-blue" viewBox="0 0 100 30" aria-hidden="true">
+                      <path d="M 0 12 C 20 25, 45 8, 65 22 C 85 10, 95 18, 100 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                </article>
+                <article class="metric-summary-card">
+                  <div class="metric-card-info">
+                    <span class="metric-label">Disponibilidade</span>
+                    <strong id="antigravityPerformanceIndex" class="metric-value">--</strong>
+                  </div>
+                  <div class="metric-sparkline-container">
+                    <svg class="metric-mini-sparkline sparkline-blue" viewBox="0 0 100 30" aria-hidden="true">
+                      <path d="M 0 18 C 20 8, 40 25, 60 12 C 80 18, 90 8, 100 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                </article>
+              </section>
+
+              <!-- Gemini Active Account Panel -->
+              <section id="antigravityActiveAccountPanel" class="active-account-panel dashboard-only" aria-label="Conta em uso Gemini" data-state="empty">
+                <div class="active-account-head">
+                  <div class="active-account-title">
+                    <p class="section-kicker">Conta em uso Gemini</p>
+                    <h2 id="antigravityActiveAccountName">Nenhuma conta recente</h2>
+                    <p id="antigravityActiveAccountMeta">Aguardando conta ativa ou uso.</p>
+                  </div>
+                  <span id="antigravityActiveAccountBadge" class="active-account-badge">--</span>
+                </div>
+                <div class="active-account-bars" aria-label="Uso da conta em foco">
+                  <div id="antigravityActiveFiveHourRow" class="active-usage-row" data-limit="fiveHour">
+                    <div class="active-usage-line">
+                      <span>5h</span>
+                      <strong id="antigravityActiveFiveHourText">--</strong>
+                    </div>
+                    <div class="active-progress-track" role="progressbar" aria-label="Saldo de 5 horas da conta em uso" aria-valuemin="0" aria-valuemax="100">
+                      <div id="antigravityActiveFiveHourBar" class="active-progress-fill"></div>
+                    </div>
+                    <p id="antigravityActiveFiveHourMeta">--</p>
+                  </div>
+                  <div class="active-usage-row" data-limit="weekly">
+                    <div class="active-usage-line">
+                      <span id="antigravityActiveWeeklyLabel">Semanal</span>
+                      <strong id="antigravityActiveWeeklyText">--</strong>
+                    </div>
+                    <div class="active-progress-track" role="progressbar" aria-label="Saldo semanal da conta em uso" aria-valuemin="0" aria-valuemax="100">
+                      <div id="antigravityActiveWeeklyBar" class="active-progress-fill"></div>
+                    </div>
+                    <p id="antigravityActiveWeeklyMeta">--</p>
+                  </div>
+                </div>
+              </section>
+
               <!-- Antigravity Grid (Gemini Model Progress) -->
               <section id="antigravityPanel" class="accounts-panel dashboard-only">
                 <div class="section-header">
@@ -281,6 +306,105 @@
             </div>
 
             <div class="app-column-right">
+              <!-- Codex Status Panel -->
+              <section id="codexStatusPanel" class="status-panel dashboard-only" aria-label="Status do Codex">
+                <div class="status-copy">
+                  <span id="codexStatusDot" class="status-dot"></span>
+                  <svg class="metric-icon status-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 3 20 7v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7l8-4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+                    <path d="m8.7 12.2 2.2 2.2 4.7-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <div>
+                    <p id="codexStatusText" class="status-title">Carregando...</p>
+                    <p id="codexStatusMeta" class="status-meta">Aguardando dados.</p>
+                  </div>
+                </div>
+                <div class="status-updated">
+                  <span>Atualizado</span>
+                  <strong class="updated-parts">
+                    <span>
+                      <svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M16 2v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><rect x="4" y="5" width="16" height="17" rx="3" fill="none" stroke="currentColor" stroke-width="2" /><path d="M4 10h16" fill="none" stroke="currentColor" stroke-width="2" /></svg>
+                      <span id="codexUpdatedDateText">--</span>
+                    </span>
+                    <span>
+                      <svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" /><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                      <span id="codexUpdatedTimeText">--</span>
+                    </span>
+                  </strong>
+                </div>
+              </section>
+
+              <!-- Codex Summary Metrics Grid -->
+              <section class="metrics-summary-grid dashboard-only">
+                <article class="metric-summary-card">
+                  <div class="metric-card-info">
+                    <span class="metric-label">Contas Ativas</span>
+                    <strong id="codexActiveAccounts" class="metric-value">--</strong>
+                  </div>
+                  <div class="metric-sparkline-container">
+                    <svg class="metric-mini-sparkline sparkline-blue" viewBox="0 0 100 30" aria-hidden="true">
+                      <path d="M 0 12 C 20 25, 45 8, 65 22 C 85 10, 95 18, 100 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                </article>
+                <article class="metric-summary-card">
+                  <div class="metric-card-info">
+                    <span class="metric-label">Eventos de Reset</span>
+                    <strong id="codexResetEvents" class="metric-value">--</strong>
+                  </div>
+                  <div class="metric-sparkline-container">
+                    <svg class="metric-mini-sparkline sparkline-orange" viewBox="0 0 100 30" aria-hidden="true">
+                      <path d="M 0 25 C 15 10, 35 22, 55 8 C 75 18, 85 24, 100 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                </article>
+                <article class="metric-summary-card">
+                  <div class="metric-card-info">
+                    <span class="metric-label">Disponibilidade</span>
+                    <strong id="codexPerformanceIndex" class="metric-value">--</strong>
+                  </div>
+                  <div class="metric-sparkline-container">
+                    <svg class="metric-mini-sparkline sparkline-blue" viewBox="0 0 100 30" aria-hidden="true">
+                      <path d="M 0 18 C 20 8, 40 25, 60 12 C 80 18, 90 8, 100 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                </article>
+              </section>
+
+              <!-- Codex Active Account Panel -->
+              <section id="codexActiveAccountPanel" class="active-account-panel dashboard-only" aria-label="Conta em uso Codex" data-state="empty">
+                <div class="active-account-head">
+                  <div class="active-account-title">
+                    <p class="section-kicker">Conta em uso</p>
+                    <h2 id="codexActiveAccountName">Nenhuma conta recente</h2>
+                    <p id="codexActiveAccountMeta">Aguardando conta ativa ou uso na última 1h.</p>
+                  </div>
+                  <span id="codexActiveAccountBadge" class="active-account-badge">--</span>
+                </div>
+                <div class="active-account-bars" aria-label="Uso da conta em foco">
+                  <div id="codexActiveFiveHourRow" class="active-usage-row" data-limit="fiveHour">
+                    <div class="active-usage-line">
+                      <span>5h</span>
+                      <strong id="codexActiveFiveHourText">--</strong>
+                    </div>
+                    <div class="active-progress-track" role="progressbar" aria-label="Saldo de 5 horas da conta em uso" aria-valuemin="0" aria-valuemax="100">
+                      <div id="codexActiveFiveHourBar" class="active-progress-fill"></div>
+                    </div>
+                    <p id="codexActiveFiveHourMeta">--</p>
+                  </div>
+                  <div class="active-usage-row" data-limit="weekly">
+                    <div class="active-usage-line">
+                      <span id="codexActiveWeeklyLabel">Semanal</span>
+                      <strong id="codexActiveWeeklyText">--</strong>
+                    </div>
+                    <div class="active-progress-track" role="progressbar" aria-label="Saldo semanal da conta em uso" aria-valuemin="0" aria-valuemax="100">
+                      <div id="codexActiveWeeklyBar" class="active-progress-fill"></div>
+                    </div>
+                    <p id="codexActiveWeeklyMeta">--</p>
+                  </div>
+                </div>
+              </section>
+
               <!-- Codex Accounts Overview -->
               <section class="accounts-panel dashboard-only" aria-label="Contas do Codex">
                 <div class="section-header">
@@ -305,194 +429,192 @@
                         </select>
                       </label>
                     </div>
-                  </details>
+                  </d                <div id="accountsGrid" class="accounts-grid"></div>
+              </section>
+
+              <!-- Full-Width Panels Now Contained inside Codex Column -->
+              <div class="pool-rhythm-grid dashboard-only">
+                <section class="pool-panel" aria-label="Disponibilidade semanal total">
+                  <div class="pool-panel-top">
+                    <div>
+                      <p class="section-kicker">Pool semanal total</p>
+                      <h2 id="totalWeeklyAvailableText">--%</h2>
+                    </div>
+                    <p id="totalWeeklyAvailableMeta">Soma normalizada do semanal de todas as contas.</p>
+                  </div>
+                  <div class="total-availability-track" role="progressbar" aria-label="Total semanal disponível em todas as contas" aria-valuemin="0" aria-valuemax="100">
+                    <div id="totalWeeklyAvailableBar" class="total-availability-fill"></div>
+                  </div>
+                </section>
+
+                <section class="suggestion-card" aria-label="Sugestão de uso">
+                  <svg class="suggestion-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 3 20 7v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7l8-4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+                    <path d="m9 12 2 2 4-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <div>
+                    <p class="section-kicker">Saldo antes do reset</p>
+                    <h2 id="usageSuggestion">Aguardando</h2>
+                    <p id="usageSuggestionMeta">A tela calcula ritmo e saldo assim que carregar.</p>
+                  </div>
+                </section>
+              </div>
+
+              <section class="compare-card dashboard-only" aria-label="Comparativo de ritmo semanal">
+                <div class="compare-header">
+                  <div>
+                    <p class="section-kicker">Faixa de uso</p>
+                    <h2 id="usageBandValue">--</h2>
+                    <p id="usageBandMeta">--</p>
+                  </div>
+                  <svg class="compare-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 19V5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    <path d="M8 17v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    <path d="M13 17V8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    <path d="M18 17V11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                  </svg>
                 </div>
-                <div id="accountsGrid" class="accounts-grid"></div>
+                <div class="compare-summary">
+                  <div class="compare-stat actual">
+                    <span>Atual</span>
+                    <strong id="compareActualValue">--</strong>
+                  </div>
+                  <div class="compare-stat ideal">
+                    <span>Ideal</span>
+                    <strong id="compareIdealValue">--</strong>
+                  </div>
+                </div>
+                <div class="compare-meter" aria-hidden="true">
+                  <div class="compare-track">
+                    <div class="compare-zone safe"></div>
+                    <div class="compare-zone ok"></div>
+                    <div class="compare-zone warn"></div>
+                    <div class="compare-zone caution"></div>
+                    <div class="compare-zone danger"></div>
+                    <div id="compareIdealBar" class="compare-marker ideal"></div>
+                    <div id="compareActualBar" class="compare-marker actual"></div>
+                  </div>
+                  <div class="compare-scale">
+                    <span>Seguro</span>
+                    <span>Ideal</span>
+                    <span>Alto</span>
+                  </div>
+                </div>
+              </section>
+
+              <details class="indicators-drawer dashboard-only">
+                <summary>
+                  <span>Resumo agregado do pool</span>
+                  <strong>Média 5h/semanal</strong>
+                </summary>
+
+                <section class="limits-grid" aria-label="Limites do Codex">
+                  <article class="limit-card" data-limit="fiveHour">
+                    <div class="limit-card-top">
+                      <div class="card-heading">
+                        <span class="card-icon-shell">
+                          <svg class="card-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M13 2 5 13h6l-1 9 9-13h-6l1-7Z" fill="currentColor" />
+                          </svg>
+                        </span>
+                        <div>
+                          <p class="card-kicker">5 horas</p>
+                          <h2>Agora</h2>
+                        </div>
+                      </div>
+                      <span id="fiveHourQuestion" class="state-pill">--</span>
+                    </div>
+                    <div class="compact-readout">
+                      <span id="fiveHourPercent" class="percent-number">--</span>
+                      <span class="percent-unit">%</span>
+                    </div>
+                    <p class="percent-label">Restantes</p>
+                    <div class="progress-track" role="progressbar" aria-label="Uso restante na janela de 5 horas" aria-valuemin="0" aria-valuemax="100">
+                      <div id="fiveHourBar" class="progress-fill"></div>
+                    </div>
+                    <div class="mini-metrics">
+                      <div>
+                        <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2" /><path d="M9 2h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>Renova em</span>
+                        <strong id="fiveHourCountdown">--</strong>
+                      </div>
+                      <div>
+                        <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v6l4 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M21 12a9 9 0 1 1-9-9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M18 3v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>Nesse ritmo</span>
+                        <strong id="fiveHourZeroAt">--</strong>
+                      </div>
+                      <div>
+                        <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M8 17v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M13 17V9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M18 17V7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>Média/h</span>
+                        <strong id="fiveHourAverage">--/h</strong>
+                      </div>
+                      <div>
+                        <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 20 7v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7l8-4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /><path d="m9 12 2 2 4-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>Usado</span>
+                        <strong id="fiveHourUsedInline">--</strong>
+                      </div>
+                      <div>
+                        <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M7 7h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M9 17h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>Ideal/h</span>
+                        <strong id="fiveHourIdealRate">--/h</strong>
+                      </div>
+                    </div>
+                  </article>
+
+                  <article class="limit-card" data-limit="weekly">
+                    <div class="limit-card-top">
+                      <div class="card-heading">
+                        <span class="card-icon-shell">
+                          <svg class="card-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M4 7.5 12 3l8 4.5-8 4.5L4 7.5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                            <path d="m4 12 8 4.5 8-4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+                            <path d="m4 16.5 8 4.5 8-4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+                          </svg>
+                        </span>
+                        <div>
+                          <p class="card-kicker">Semanal</p>
+                          <h2>Semana</h2>
+                        </div>
+                      </div>
+                      <span id="weeklyBand" class="state-pill">--</span>
+                    </div>
+                    <div class="compact-readout">
+                      <span id="weeklyPercent" class="percent-number">--</span>
+                      <span class="percent-unit">%</span>
+                    </div>
+                    <p class="percent-label percent-label-split">
+                      <span>Restantes</span>
+                      <span id="weeklySideBadge">--/d</span>
+                    </p>
+                    <div class="progress-track" role="progressbar" aria-label="Uso restante no limite semanal" aria-valuemin="0" aria-valuemax="100">
+                      <div id="weeklyBar" class="progress-fill"></div>
+                    </div>
+                    <div class="mini-metrics">
+                      <div>
+                        <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v6l4 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M21 12a9 9 0 1 1-9-9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M18 3v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>Nesse ritmo</span>
+                        <strong class="metric-value-with-badge"><span id="weeklyZeroAt">--</span><span id="weeklyWindowBadge" class="metric-badge">--</span></strong>
+                      </div>
+                      <div>
+                        <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M8 17v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M13 17V9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M18 17V7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>Média/d</span>
+                        <strong id="weeklyAverage">--/h</strong>
+                      </div>
+                    </div>
+                  </article>
+                </section>
+              </details>
+
+              <section class="charts-grid dashboard-only" aria-label="Gráficos de uso">
+                <article class="chart-card">
+                  <div class="chart-card-header">
+                    <div>
+                      <p class="section-kicker"><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18 9 12l4 3 7-9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>Histórico</p>
+                      <h2 id="chartTitle">Uso semanal</h2>
+                    </div>
+                    <div class="chart-tabs" role="tablist" aria-label="Selecionar histórico">
+                      <button type="button" class="chart-tab" id="chartWeeklyButton" data-chart="weekly" aria-pressed="true">Semana</button>
+                      <button type="button" class="chart-tab" id="chartFiveHourButton" data-chart="fiveHour" aria-pressed="false">5h</button>
+                    </div>
+                  </div>
+                  <svg id="usageSparkline" class="sparkline" viewBox="0 0 320 96" role="img" aria-label="Linha do saldo restante selecionado"></svg>
+                </article>
               </section>
             </div>
           </div>
-
-          <!-- Full-Width Panels Below Grid -->
-          <div class="pool-rhythm-grid dashboard-only">
-            <section class="pool-panel" aria-label="Disponibilidade semanal total">
-              <div class="pool-panel-top">
-                <div>
-                  <p class="section-kicker">Pool semanal total</p>
-                  <h2 id="totalWeeklyAvailableText">--%</h2>
-                </div>
-                <p id="totalWeeklyAvailableMeta">Soma normalizada do semanal de todas as contas.</p>
-              </div>
-              <div class="total-availability-track" role="progressbar" aria-label="Total semanal disponível em todas as contas" aria-valuemin="0" aria-valuemax="100">
-                <div id="totalWeeklyAvailableBar" class="total-availability-fill"></div>
-              </div>
-            </section>
-
-            <section class="suggestion-card" aria-label="Sugestão de uso">
-              <svg class="suggestion-icon" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 3 20 7v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7l8-4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
-                <path d="m9 12 2 2 4-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-              <div>
-                <p class="section-kicker">Saldo antes do reset</p>
-                <h2 id="usageSuggestion">Aguardando</h2>
-                <p id="usageSuggestionMeta">A tela calcula ritmo e saldo assim que carregar.</p>
-              </div>
-            </section>
-          </div>
-
-          <section class="compare-card dashboard-only" aria-label="Comparativo de ritmo semanal">
-            <div class="compare-header">
-              <div>
-                <p class="section-kicker">Faixa de uso</p>
-                <h2 id="usageBandValue">--</h2>
-                <p id="usageBandMeta">--</p>
-              </div>
-              <svg class="compare-icon" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M4 19V5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                <path d="M8 17v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                <path d="M13 17V8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                <path d="M18 17V11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-              </svg>
-            </div>
-            <div class="compare-summary">
-              <div class="compare-stat actual">
-                <span>Atual</span>
-                <strong id="compareActualValue">--</strong>
-              </div>
-              <div class="compare-stat ideal">
-                <span>Ideal</span>
-                <strong id="compareIdealValue">--</strong>
-              </div>
-            </div>
-            <div class="compare-meter" aria-hidden="true">
-              <div class="compare-track">
-                <div class="compare-zone safe"></div>
-                <div class="compare-zone ok"></div>
-                <div class="compare-zone warn"></div>
-                <div class="compare-zone caution"></div>
-                <div class="compare-zone danger"></div>
-                <div id="compareIdealBar" class="compare-marker ideal"></div>
-                <div id="compareActualBar" class="compare-marker actual"></div>
-              </div>
-              <div class="compare-scale">
-                <span>Seguro</span>
-                <span>Ideal</span>
-                <span>Alto</span>
-              </div>
-            </div>
-          </section>
-
-          <details class="indicators-drawer dashboard-only">
-            <summary>
-              <span>Resumo agregado do pool</span>
-              <strong>Média 5h/semanal</strong>
-            </summary>
-
-            <section class="limits-grid" aria-label="Limites do Codex">
-              <article class="limit-card" data-limit="fiveHour">
-                <div class="limit-card-top">
-                  <div class="card-heading">
-                    <span class="card-icon-shell">
-                      <svg class="card-icon" viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M13 2 5 13h6l-1 9 9-13h-6l1-7Z" fill="currentColor" />
-                      </svg>
-                    </span>
-                    <div>
-                      <p class="card-kicker">5 horas</p>
-                      <h2>Agora</h2>
-                    </div>
-                  </div>
-                  <span id="fiveHourQuestion" class="state-pill">--</span>
-                </div>
-                <div class="compact-readout">
-                  <span id="fiveHourPercent" class="percent-number">--</span>
-                  <span class="percent-unit">%</span>
-                </div>
-                <p class="percent-label">Restantes</p>
-                <div class="progress-track" role="progressbar" aria-label="Uso restante na janela de 5 horas" aria-valuemin="0" aria-valuemax="100">
-                  <div id="fiveHourBar" class="progress-fill"></div>
-                </div>
-                <div class="mini-metrics">
-                  <div>
-                    <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2" /><path d="M9 2h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>Renova em</span>
-                    <strong id="fiveHourCountdown">--</strong>
-                  </div>
-                  <div>
-                    <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v6l4 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M21 12a9 9 0 1 1-9-9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M18 3v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>Nesse ritmo</span>
-                    <strong id="fiveHourZeroAt">--</strong>
-                  </div>
-                  <div>
-                    <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M8 17v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M13 17V9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M18 17V7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>Média/h</span>
-                    <strong id="fiveHourAverage">--/h</strong>
-                  </div>
-                  <div>
-                    <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 20 7v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7l8-4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /><path d="m9 12 2 2 4-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>Usado</span>
-                    <strong id="fiveHourUsedInline">--</strong>
-                  </div>
-                  <div>
-                    <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M7 7h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M9 17h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>Ideal/h</span>
-                    <strong id="fiveHourIdealRate">--/h</strong>
-                  </div>
-                </div>
-              </article>
-
-              <article class="limit-card" data-limit="weekly">
-                <div class="limit-card-top">
-                  <div class="card-heading">
-                    <span class="card-icon-shell">
-                      <svg class="card-icon" viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M4 7.5 12 3l8 4.5-8 4.5L4 7.5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
-                        <path d="m4 12 8 4.5 8-4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
-                        <path d="m4 16.5 8 4.5 8-4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
-                      </svg>
-                    </span>
-                    <div>
-                      <p class="card-kicker">Semanal</p>
-                      <h2>Semana</h2>
-                    </div>
-                  </div>
-                  <span id="weeklyBand" class="state-pill">--</span>
-                </div>
-                <div class="compact-readout">
-                  <span id="weeklyPercent" class="percent-number">--</span>
-                  <span class="percent-unit">%</span>
-                </div>
-                <p class="percent-label percent-label-split">
-                  <span>Restantes</span>
-                  <span id="weeklySideBadge">--/d</span>
-                </p>
-                <div class="progress-track" role="progressbar" aria-label="Uso restante no limite semanal" aria-valuemin="0" aria-valuemax="100">
-                  <div id="weeklyBar" class="progress-fill"></div>
-                </div>
-                <div class="mini-metrics">
-                  <div>
-                    <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v6l4 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M21 12a9 9 0 1 1-9-9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M18 3v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>Nesse ritmo</span>
-                    <strong class="metric-value-with-badge"><span id="weeklyZeroAt">--</span><span id="weeklyWindowBadge" class="metric-badge">--</span></strong>
-                  </div>
-                  <div>
-                    <span><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M8 17v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M13 17V9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M18 17V7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>Média/d</span>
-                    <strong id="weeklyAverage">--/h</strong>
-                  </div>
-                </div>
-              </article>
-            </section>
-          </details>
-
-          <section class="charts-grid dashboard-only" aria-label="Gráficos de uso">
-            <article class="chart-card">
-              <div class="chart-card-header">
-                <div>
-                  <p class="section-kicker"><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18 9 12l4 3 7-9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>Histórico</p>
-                  <h2 id="chartTitle">Uso semanal</h2>
-                </div>
-                <div class="chart-tabs" role="tablist" aria-label="Selecionar histórico">
-                  <button type="button" class="chart-tab" id="chartWeeklyButton" data-chart="weekly" aria-pressed="true">Semana</button>
-                  <button type="button" class="chart-tab" id="chartFiveHourButton" data-chart="fiveHour" aria-pressed="false">5h</button>
-                </div>
-              </div>
-              <svg id="usageSparkline" class="sparkline" viewBox="0 0 320 96" role="img" aria-label="Linha do saldo restante selecionado"></svg>
-            </article>
-          </section>
 
           <section id="weeklyResetArea" class="reset-area" aria-label="Renovações semanais" hidden>
             <div class="reset-area-head">
@@ -527,6 +649,26 @@
           </section>
         </div>
       </div>
+
+      <!-- Mobile Bottom Navigation Bar -->
+      <nav class="mobile-nav-bar" aria-label="Navegação móvel">
+        <button type="button" class="mobile-nav-item active" data-tab="dashboard">
+          <svg class="mobile-nav-icon" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" fill="currentColor"/></svg>
+          <span>Dashboard</span>
+        </button>
+        <button type="button" class="mobile-nav-item" data-tab="accounts">
+          <svg class="mobile-nav-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" fill="currentColor"/></svg>
+          <span>Contas</span>
+        </button>
+        <button type="button" class="mobile-nav-item" data-tab="models">
+          <svg class="mobile-nav-icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" fill="currentColor"/></svg>
+          <span>Modelos</span>
+        </button>
+        <button type="button" class="mobile-nav-item" data-tab="reports">
+          <svg class="mobile-nav-icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2zm0-4H7V7h10v2z" fill="currentColor"/></svg>
+          <span>Relatórios</span>
+        </button>
+      </nav>
     </main>
 
     <script src="./app.js?v=mockup_layout_v3" defer></script>

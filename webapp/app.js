@@ -35,6 +35,30 @@ let hideExhaustedAccounts = false;
 let hideFreeGoAccounts = false;
 let webPushStatus = "idle";
 
+const expandedAccounts = new Set();
+let activeMobileTab = "codex";
+
+function syncMobileTabs() {
+  if (activeMobileTab === "codex") {
+    document.body.classList.add("tab-codex");
+    document.body.classList.remove("tab-antigravity");
+  } else {
+    document.body.classList.add("tab-antigravity");
+    document.body.classList.remove("tab-codex");
+  }
+  
+  const btns = document.querySelectorAll(".mobile-tab-btn");
+  btns.forEach(btn => {
+    const target = btn.dataset.tabTarget;
+    if (target === activeMobileTab) {
+      btn.classList.add("active");
+    } else {
+      btn.classList.remove("active");
+    }
+  });
+}
+
+
 /* =========================================
    Theme and Viewport
 ========================================= */
@@ -1784,6 +1808,25 @@ function renderAccountsGrid(container, accounts) {
     expires.textContent = `Expira: ${account.expiresAt}`;
     footer.append(next, expires);
 
+    const isPro = account.isActive;
+    if (!isPro) {
+      card.classList.add("is-collapsible");
+      const storageKey = `codex:${account.id || account.name}`;
+      if (expandedAccounts.has(storageKey)) {
+        card.classList.add("is-expanded");
+      }
+      card.addEventListener("click", (e) => {
+        if (e.target.closest("button, a, select, details")) return;
+        if (expandedAccounts.has(storageKey)) {
+          expandedAccounts.delete(storageKey);
+          card.classList.remove("is-expanded");
+        } else {
+          expandedAccounts.add(storageKey);
+          card.classList.add("is-expanded");
+        }
+      });
+    }
+
     if (account.status === "error") {
       const error = document.createElement("p");
       error.className = "account-error";
@@ -2058,6 +2101,25 @@ function renderAntigravityGrid(container, antigravity, panel) {
     const updateTime = account.lastUpdatedDate ? formatDateTimePtBr(account.lastUpdatedDate) : "--";
     lastUpdatedSpan.textContent = `Atualizado: ${updateTime}`;
     footer.append(lastUpdatedSpan);
+
+    const isPro = account.email === "leosaquetto@gmail.com";
+    if (!isPro) {
+      card.classList.add("is-collapsible");
+      const storageKey = `antigravity:${account.email}`;
+      if (expandedAccounts.has(storageKey)) {
+        card.classList.add("is-expanded");
+      }
+      card.addEventListener("click", (e) => {
+        if (e.target.closest("button, a, select, details")) return;
+        if (expandedAccounts.has(storageKey)) {
+          expandedAccounts.delete(storageKey);
+          card.classList.remove("is-expanded");
+        } else {
+          expandedAccounts.add(storageKey);
+          card.classList.add("is-expanded");
+        }
+      });
+    }
 
     card.append(top, modelsContainer, footer);
     fragment.append(card);
@@ -3010,6 +3072,18 @@ function bindEvents(els, usage, render) {
       els.notificationMenu.open = !els.notificationMenu.open;
     }
   });
+
+  // Mobile Tabs Event Handlers
+  document.addEventListener("click", (event) => {
+    const btn = event.target.closest(".mobile-tab-btn");
+    if (!btn) return;
+    const target = btn.dataset.tabTarget;
+    if (target) {
+      activeMobileTab = target;
+      triggerHaptic(8);
+      syncMobileTabs();
+    }
+  });
 }
 
 async function init() {
@@ -3023,6 +3097,7 @@ async function init() {
   function render() {
     renderDashboard(els, buildLimitViewModel(usage, hasLoadError));
     renderNotificationPanel(els, usage);
+    syncMobileTabs();
   }
 
   render();

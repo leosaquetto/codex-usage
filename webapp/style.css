@@ -3119,7 +3119,116 @@ input {
   }
   
   .metrics-summary-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px;
+  }
+}
+
+/* Mobile Segmented Tab Selector */
+.mobile-tabs-container {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .mobile-tabs-container {
+    display: flex;
+    background: rgba(15, 23, 42, 0.05);
+    padding: 4px;
+    border-radius: 12px;
+    margin: 16px 0 20px;
+    gap: 4px;
+  }
+  
+  .mobile-tab-btn {
+    flex: 1;
+    border: none;
+    background: none;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 150ms ease, color 150ms ease, box-shadow 150ms ease;
+  }
+  
+  .mobile-tab-btn.active {
+    background: #ffffff;
+    color: var(--text-primary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Show / Hide main columns based on active tab state */
+  body.tab-codex .app-column-left {
+    display: none !important;
+  }
+  body.tab-codex .app-column-right {
+    display: block !important;
+  }
+  
+  body.tab-antigravity .app-column-left {
+    display: block !important;
+  }
+  body.tab-antigravity .app-column-right {
+    display: none !important;
+  }
+}
+
+/* Collapsible Accordion Account Cards */
+.account-card.is-collapsible {
+  cursor: pointer;
+  transition: all 200ms ease;
+  position: relative;
+  padding-bottom: 20px;
+}
+
+.account-card.is-collapsible .antigravity-models-list,
+.account-card.is-collapsible .account-meters,
+.account-card.is-collapsible .account-footer {
+  display: none !important;
+}
+
+.account-card.is-collapsible.is-expanded .antigravity-models-list {
+  display: grid !important;
+  animation: slideDown 200ms ease-out;
+}
+
+.account-card.is-collapsible.is-expanded .account-meters {
+  display: flex !important;
+  animation: slideDown 200ms ease-out;
+}
+
+.account-card.is-collapsible.is-expanded .account-footer {
+  display: flex !important;
+  animation: slideDown 200ms ease-out;
+}
+
+/* Chevron expand indicator */
+.account-card.is-collapsible::after {
+  content: "";
+  position: absolute;
+  top: 24px;
+  right: 20px;
+  width: 16px;
+  height: 16px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  transition: transform 200ms ease;
+}
+
+.account-card.is-collapsible.is-expanded::after {
+  transform: rotate(180deg);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

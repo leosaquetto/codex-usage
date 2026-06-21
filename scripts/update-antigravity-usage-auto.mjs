@@ -5,10 +5,15 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { inflateSync } from "node:zlib";
+import { existsSync } from "node:fs";
 import {
   normalizeStructuredModels,
   validateModels,
   writeAntigravityUsage,
+  splitNameTier,
+  clampPercent,
+  statusFor,
+  slugify,
 } from "./update-antigravity-usage.mjs";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
@@ -457,26 +462,148 @@ async function captureAntigravityModels() {
   }
 }
 
+function resolveCliPath() {
+  const home = process.env.HOME || "/Users/leosaquetto";
+  const paths = [
+    join(home, ".npm-global/bin/antigravity-usage"),
+    "/usr/local/bin/antigravity-usage",
+    "antigravity-usage"
+  ];
+  for (const p of paths) {
+    if (p.startsWith("/") && existsSync(p)) return p;
+  }
+  return "antigravity-usage";
+}
+
+function parseCliOutput(cliJson) {
+  const accounts = [];
+  let activeModels = [];
+
+  for (const acc of cliJson) {
+    if (!acc.email || !acc.snapshot) continue;
+    
+    const rawModels = acc.snapshot.models || [];
+    const models = rawModels.map((model) => {
+      const { name, tier } = splitNameTier(model.label || model.modelId);
+      const remainingPercent = clampPercent(model.remainingPercentage);
+      
+      const refreshAt = model.resetTime || null;
+      let refreshText = "";
+      if (model.timeUntilResetMs && model.timeUntilResetMs > 0) {
+        const hours = Math.round(model.timeUntilResetMs / 3600000);
+        if (hours >= 24) {
+          const days = Math.floor(hours / 24);
+          const remHours = hours % 24;
+          refreshText = `Refreshes in ${days} ${days === 1 ? "day" : "days"}${remHours > 0 ? `, ${remHours} ${remHours === 1 ? "hour" : "hours"}` : ""}`;
+        } else {
+          refreshText = `Refreshes in ${hours} ${hours === 1 ? "hour" : "hours"}`;
+        }
+      } else if (refreshAt) {
+        const diffMs = new Date(refreshAt).getTime() - Date.now();
+        if (diffMs > 0) {
+          const hours = Math.round(diffMs / 3600000);
+          if (hours >= 24) {
+            const days = Math.floor(hours / 24);
+            const remHours = hours % 24;
+            refreshText = `Refreshes in ${days} ${days === 1 ? "day" : "days"}${remHours > 0 ? `, ${remHours} ${remHours === 1 ? "hour" : "hours"}` : ""}`;
+          } else {
+            refreshText = `Refreshes in ${hours} ${hours === 1 ? "hour" : "hours"}`;
+          }
+        }
+      }
+
+      return {
+        id: model.modelId || slugify([name, tier].filter(Boolean).join(" ")),
+        name,
+        tier,
+        remainingPercent,
+        status: statusFor(remainingPercent),
+        refreshText: refreshText || "Refreshes soon",
+        refreshAt
+      };
+    });
+
+    accounts.push({
+      email: acc.email,
+      isActive: Boolean(acc.isActive),
+      status: acc.status || "success",
+      lastUpdated: acc.snapshot.timestamp || new Date().toISOString(),
+      models
+    });
+
+    if (acc.isActive) {
+      activeModels = models;
+    }
+  }
+
+  if (activeModels.length === 0 && accounts.length > 0) {
+    activeModels = accounts[0].models;
+  }
+
+  return {
+    source: "antigravity-cli",
+    lastUpdated: new Date().toISOString(),
+    accounts,
+    models: activeModels
+  };
+}
+
+async function tryCliPayload() {
+  const cliPath = resolveCliPath();
+  const result = spawnSync(cliPath, ["quota", "--all", "--json"], {
+    cwd: root,
+    encoding: "utf8",
+    timeout: 15000,
+  });
+
+  if (result.status !== 0) {
+    throw new Error(`CLI returned status ${result.status}: ${result.stderr || result.stdout}`);
+  }
+
+  const data = JSON.parse(result.stdout);
+  if (!Array.isArray(data) || data.length === 0) {
+    throw new Error("CLI returned empty or invalid accounts array.");
+  }
+
+  return parseCliOutput(data);
+}
+
 async function main() {
   if (args.has("help")) {
     console.log(usage());
     return;
   }
 
-  if (!isAntigravityRunning()) {
-    console.log(JSON.stringify({ ok: true, skipped: true, reason: "antigravity-not-running" }, null, 2));
-    return;
+  let payload;
+  let cliSuccess = false;
+  let details = {};
+
+  try {
+    console.log("Checking Antigravity quotas via CLI...");
+    payload = await tryCliPayload();
+    cliSuccess = true;
+    details = { method: "cli" };
+  } catch (error) {
+    console.warn(`CLI check failed: ${error.message}. Falling back to OCR...`);
   }
 
-  const capture = await captureAntigravityModels();
-  const payload = {
-    source: capture.source,
-    lastUpdated: capture.lastUpdated,
-    models: capture.models,
-  };
+  if (!cliSuccess) {
+    if (!isAntigravityRunning()) {
+      console.log(JSON.stringify({ ok: true, skipped: true, reason: "antigravity-not-running" }, null, 2));
+      return;
+    }
+
+    const capture = await captureAntigravityModels();
+    payload = {
+      source: capture.source,
+      lastUpdated: capture.lastUpdated,
+      models: capture.models,
+    };
+    details = capture.details;
+  }
 
   if (args.has("dry-run")) {
-    console.log(JSON.stringify({ ok: true, dryRun: true, saved: payload, details: capture.details }, null, 2));
+    console.log(JSON.stringify({ ok: true, dryRun: true, saved: payload, details }, null, 2));
     return;
   }
 
@@ -490,7 +617,7 @@ async function main() {
     committed: result.committed,
     pushed: result.pushed,
     saved: result.payload,
-    details: capture.details,
+    details,
   }, null, 2));
 }
 
@@ -508,4 +635,5 @@ export {
   decodePng,
   detectQuotaBarPercents,
   extractRowsFromOcr,
+  parseCliOutput,
 };

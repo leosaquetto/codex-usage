@@ -128,7 +128,10 @@ function evaluateNotificationSignals({
     ));
   }
 
-  for (const account of usage?.accounts || []) {
+  const codex = usage?.codex || usage;
+  const antigravity = usage?.antigravity;
+
+  for (const account of codex?.accounts || []) {
     const key = accountKey(account);
     if (!key) continue;
 
@@ -272,6 +275,66 @@ function evaluateNotificationSignals({
       weeklyPercent: currentPercent,
       fiveHourPercent: currentFiveHourPercent,
     };
+  }
+
+  if (antigravity && Array.isArray(antigravity.accounts)) {
+    for (const account of antigravity.accounts) {
+      const email = account.email;
+      if (!email) continue;
+
+      for (const model of account.models || []) {
+        const modelId = model.id;
+        const modelName = model.name;
+        const key = `antigravity:${email}:${modelId}`;
+        const currentPercent = clampPercent(model.remainingPercent, null);
+        const currentReset = dateIso(model.refreshAt || model.refreshText);
+        
+        const previous = nextState.byAccount[key] || {};
+        const previousPercent = clampPercent(previous.remainingPercent, null);
+        const firstSeen = !previous.seen;
+
+        if (
+          !firstSeen
+          && previousPercent !== null
+          && previousPercent < 90
+          && currentPercent !== null
+          && currentPercent >= 99
+        ) {
+          signals.push(buildSignal(
+            "antigravityRefill",
+            { email: key },
+            "Antigravity recarregado",
+            `${email} (${modelName}): cota foi de ${percentText(previousPercent)} para ${percentText(currentPercent)}.`,
+            `antigravity-refill-${email}-${modelId}-${currentReset || "full"}`,
+          ));
+        }
+
+        if (
+          !firstSeen
+          && currentPercent !== null
+          && currentPercent <= 15
+          && previousPercent !== null
+          && previousPercent > 15
+          && !isCoolingDown(previous.lastLowAt, 6 * 60 * 60 * 1000, nowMs)
+        ) {
+          signals.push(buildSignal(
+            "antigravityLow",
+            { email: key },
+            "Cota Antigravity baixa",
+            `${email} (${modelName}): ${percentText(currentPercent)} restante.`,
+            `antigravity-low-${email}-${modelId}-${currentReset || "unknown"}`,
+            "lastLowAt",
+          ));
+        }
+
+        nextState.byAccount[key] = {
+          ...previous,
+          seen: true,
+          remainingPercent: currentPercent,
+          refreshAt: currentReset,
+        };
+      }
+    }
   }
 
   nextState.lastSeenUpdatedAt = usageUpdatedAt?.toISOString() || null;

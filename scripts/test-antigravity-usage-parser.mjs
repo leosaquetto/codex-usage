@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { countBrightRunsFromRow, extractRowsFromOcr } from "./update-antigravity-usage-auto.mjs";
+import { countBrightRunsFromRow, extractRowsFromOcr, parseCliOutput } from "./update-antigravity-usage-auto.mjs";
 import {
   normalizeStructuredModels,
   parseModels,
@@ -80,5 +80,66 @@ assert.deepEqual(ocrRows.map((row) => [row.name, row.refreshText]), [
   ["Gemini 3 Flash", "Refreshes in 5 days, 6 hours"],
   ["Claude Sonnet 4.6 (Thinking)", "Refreshes in 5 days, 5 8 hours"],
 ]);
+
+const mockCliOutput = [
+  {
+    email: "leosaquetto@gmail.com",
+    isActive: true,
+    status: "success",
+    snapshot: {
+      timestamp: "2026-06-21T02:29:36.702Z",
+      method: "google",
+      email: "leosaquetto@gmail.com",
+      models: [
+        {
+          label: "Claude Opus 4.6 (Thinking)",
+          modelId: "claude-opus-4-6-thinking",
+          remainingPercentage: 80,
+          isExhausted: false,
+          resetTime: "2026-06-28T02:29:36Z",
+          timeUntilResetMs: 604799769,
+          isAutocompleteOnly: false
+        }
+      ]
+    }
+  },
+  {
+    email: "saquettoleo@gmail.com",
+    isActive: false,
+    status: "success",
+    snapshot: {
+      timestamp: "2026-06-21T02:29:38.231Z",
+      method: "google",
+      email: "saquettoleo@gmail.com",
+      models: [
+        {
+          label: "Gemini 3 Flash",
+          modelId: "gemini-3-flash",
+          remainingPercentage: 100,
+          isExhausted: false,
+          resetTime: "2026-06-28T02:29:38Z",
+          timeUntilResetMs: 604799769,
+          isAutocompleteOnly: false
+        }
+      ]
+    }
+  }
+];
+
+const parsedCli = parseCliOutput(mockCliOutput);
+assert.equal(parsedCli.source, "antigravity-cli");
+assert.equal(parsedCli.accounts.length, 2);
+assert.equal(parsedCli.accounts[0].email, "leosaquetto@gmail.com");
+assert.equal(parsedCli.accounts[0].isActive, true);
+assert.equal(parsedCli.accounts[0].models[0].name, "Claude Opus 4.6");
+assert.equal(parsedCli.accounts[0].models[0].remainingPercent, 80);
+assert.equal(parsedCli.accounts[0].models[0].status, "ok");
+assert.equal(parsedCli.accounts[0].models[0].refreshText, "Refreshes in 7 days");
+
+assert.equal(parsedCli.accounts[1].email, "saquettoleo@gmail.com");
+assert.equal(parsedCli.accounts[1].isActive, false);
+
+assert.equal(parsedCli.models.length, 1);
+assert.equal(parsedCli.models[0].id, "claude-opus-4-6-thinking");
 
 console.log("antigravity usage parser tests ok");

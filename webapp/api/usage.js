@@ -291,7 +291,7 @@ function formatZeroIn(days) {
   return d > 0 ? `${d}d ${h}h` : `${h}h`
 }
 
-function enrichPayload(raw = {}, history = null) {
+function enrichPayload(raw = {}, history = null, antigravity = null) {
   const now = Date.now()
   const aggregate = raw.aggregate && typeof raw.aggregate === "object" ? raw.aggregate : raw
   const accounts = normalizeAccounts(raw.accounts)
@@ -386,7 +386,8 @@ function enrichPayload(raw = {}, history = null) {
     },
     historySamples: normalizeHistorySamples(history),
     accountSamples: normalizeAccountSamples(history).filter((sample) => !nonWeeklyEmails.has(sample.email)),
-    weeklyResetEvents: normalizeWeeklyResetEvents(history).filter((event) => !nonWeeklyEmails.has(event.email))
+    weeklyResetEvents: normalizeWeeklyResetEvents(history).filter((event) => !nonWeeklyEmails.has(event.email)),
+    antigravity
   }
 }
 
@@ -395,14 +396,18 @@ const GITHUB_REPO = process.env.CODEX_USAGE_GITHUB_REPO || "codex-usage"
 const GITHUB_BRANCH = process.env.CODEX_USAGE_GITHUB_BRANCH || "usage-data"
 const REMOTE_USAGE_PATH = "codex_usage.json"
 const REMOTE_HISTORY_PATH = "codex_usage_history.json"
+const REMOTE_ANTIGRAVITY_PATH = "antigravity_usage.json"
 const REMOTE_USAGE_URL = process.env.CODEX_USAGE_REMOTE_USAGE_URL
   || `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/codex_usage.json`
 const REMOTE_HISTORY_URL = process.env.CODEX_USAGE_REMOTE_HISTORY_URL
   || `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/codex_usage_history.json`
+const REMOTE_ANTIGRAVITY_URL = process.env.CODEX_USAGE_REMOTE_ANTIGRAVITY_URL
+  || `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/antigravity_usage.json`
 const HAS_CUSTOM_REMOTE_URLS = Boolean(process.env.CODEX_USAGE_REMOTE_USAGE_URL)
 const REMOTE_TIMEOUT_MS = 7000
 const LOCAL_USAGE_PATH = resolve(__dirname, "../../codex_usage.json")
 const LOCAL_HISTORY_PATH = resolve(__dirname, "../../codex_usage_history.json")
+const LOCAL_ANTIGRAVITY_PATH = resolve(__dirname, "../../antigravity_usage.json")
 
 async function readLocalJson(path) {
   return JSON.parse(await readFile(path, "utf8"))
@@ -484,7 +489,8 @@ async function usageHandler(req, res) {
     if (process.env.CODEX_USAGE_USE_LOCAL_FILES === "1") {
       const localPayload = await readLocalJson(LOCAL_USAGE_PATH)
       const localHistory = await readLocalJson(LOCAL_HISTORY_PATH)
-      return res.status(200).json(enrichPayload(localPayload, localHistory))
+      const localAntigravity = await readLocalJson(LOCAL_ANTIGRAVITY_PATH).catch(() => null)
+      return res.status(200).json(enrichPayload(localPayload, localHistory, localAntigravity))
     }
 
     const remotePayload = HAS_CUSTOM_REMOTE_URLS
@@ -493,7 +499,10 @@ async function usageHandler(req, res) {
     const remoteHistory = HAS_CUSTOM_REMOTE_URLS
       ? await fetchRawJson(REMOTE_HISTORY_URL, false)
       : await fetchRemoteJson(REMOTE_HISTORY_PATH, REMOTE_HISTORY_URL, false)
-    return res.status(200).json(enrichPayload(remotePayload, remoteHistory))
+    const remoteAntigravity = HAS_CUSTOM_REMOTE_URLS
+      ? await fetchRawJson(REMOTE_ANTIGRAVITY_URL, false)
+      : await fetchRemoteJson(REMOTE_ANTIGRAVITY_PATH, REMOTE_ANTIGRAVITY_URL, false)
+    return res.status(200).json(enrichPayload(remotePayload, remoteHistory, remoteAntigravity))
   } catch (remoteError) {
     try {
       const envPayload = parsePayloadFromEnv()

@@ -332,6 +332,7 @@ async function writeAntigravityUsage(payload, options = {}) {
   const next = {
     source: payload.source || "desktop-automation",
     lastUpdated: payload.lastUpdated || new Date().toISOString(),
+    accounts: payload.accounts || undefined,
     models: payload.models,
   };
 

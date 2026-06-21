@@ -1889,6 +1889,7 @@ function renderAccountsGrid(container, accounts) {
     card.className = "account-card";
     card.dataset.tone = account.tone;
     if (account.isRecommended) card.dataset.recommended = "true";
+    if (account.isActive) card.dataset.active = "true";
 
     const top = document.createElement("div");
     top.className = "account-top";
@@ -1998,6 +1999,7 @@ function renderAntigravityGrid(container, antigravity, panel) {
     }
     const tone = minPercent <= 0 ? "danger" : minPercent <= 15 ? "warn" : "ok";
     card.dataset.tone = tone;
+    if (account.isActive) card.dataset.active = "true";
 
     const top = document.createElement("div");
     top.className = "account-top";

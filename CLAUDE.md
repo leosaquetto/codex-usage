@@ -55,6 +55,23 @@ npm run update:antigravity-usage:auto
 - Do not print or commit access tokens, refresh tokens, cookies or local account-store contents.
 - Use `npm run audit:automation` before diagnosing old snapshots.
 
+## Troubleshooting & Setup Tips
+
+- **Antigravity LaunchAgent**: If `npm run audit:automation` shows `com.leosaquetto.codexusage.antigravity.autoupdate` is loaded: `false` or state: `not-loaded`, copy the plist file to `~/Library/LaunchAgents/` and bootstrap it:
+  ```bash
+  cp launchagents/com.leosaquetto.codexusage.antigravity.autoupdate.plist ~/Library/LaunchAgents/
+  launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.leosaquetto.codexusage.antigravity.autoupdate.plist
+  ```
+  To force run the agent manually:
+  ```bash
+  launchctl kickstart -k gui/$(id -u)/com.leosaquetto.codexusage.antigravity.autoupdate
+  ```
+- **Playwright Chromium**: If Playwright scripts fail due to a missing browser executable, run:
+  ```bash
+  npx playwright install chromium
+  ```
+- **Web Push Dispatch 403 Forbidden**: If push dispatch logs show `BlobError: Vercel Blob: Failed to fetch blob: 403 Forbidden`, verify that `BLOB_READ_WRITE_TOKEN` environment variable on Vercel matches active store credentials and is synchronized.
+
 ## Validation before completion
 
 1. Run `npm run validate`.
@@ -63,4 +80,5 @@ npm run update:antigravity-usage:auto
 4. Check account focus, filters, sort, notification views/toggles and permission scenarios.
 5. Check browser console and PWA assets.
 6. Do not commit, push, open a PR or deploy without an explicit request.
+
 

@@ -3541,3 +3541,34 @@ input {
   }
 }
 
+/* Color filters for white PNG logos (ChatGPT & Gemini) */
+
+/* 1. Default (Deselected/Inactive) states - Muted dark-grey */
+.platform-summary-card:not(.active) .platform-logo,
+.mobile-tab-btn:not(.active) .tab-logo {
+  filter: brightness(0) opacity(0.35);
+}
+
+/* 2. ChatGPT (Codex) Active state - Solid dark slate/black */
+.platform-summary-card[data-platform="codex"].active .platform-logo,
+.mobile-tab-btn[data-tab-target="codex"].active .tab-logo {
+  filter: brightness(0) opacity(0.9);
+}
+
+/* 3. Gemini (Antigravity) Active state - Vibrant Google Blue */
+.platform-summary-card[data-platform="antigravity"].active .platform-logo,
+.mobile-tab-btn[data-tab-target="antigravity"].active .tab-logo {
+  filter: invert(34%) sepia(85%) saturate(1469%) hue-rotate(202deg) brightness(97%) contrast(92%);
+}
+
+/* 4. Gemini Account Cards in Grid */
+#antigravityGrid .account-card .account-logo {
+  filter: brightness(0) opacity(0.25);
+  transition: filter 150ms ease;
+}
+
+#antigravityGrid .account-card[data-active="true"] .account-logo {
+  filter: invert(34%) sepia(85%) saturate(1469%) hue-rotate(202deg) brightness(97%) contrast(92%);
+}
+
+

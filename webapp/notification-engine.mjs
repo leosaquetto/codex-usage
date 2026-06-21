@@ -282,56 +282,96 @@ function evaluateNotificationSignals({
       const email = account.email;
       if (!email) continue;
 
+      const accountStateKey = `antigravity:${email}`;
+      const previousAccountState = nextState.byAccount[accountStateKey] || {};
+
+      const refilledModels = [];
+      const lowModels = [];
+      let lastResetText = "";
+
       for (const model of account.models || []) {
         const modelId = model.id;
         const modelName = model.name;
-        const key = `antigravity:${email}:${modelId}`;
+        const modelKey = `antigravity:${email}:${modelId}`;
         const currentPercent = clampPercent(model.remainingPercent, null);
         const currentReset = dateIso(model.refreshAt || model.refreshText);
+        if (currentReset) {
+          lastResetText = currentReset;
+        }
         
-        const previous = nextState.byAccount[key] || {};
-        const previousPercent = clampPercent(previous.remainingPercent, null);
-        const firstSeen = !previous.seen;
+        const previousModel = nextState.byAccount[modelKey] || {};
+        const previousPercent = clampPercent(previousModel.remainingPercent, null);
+        const firstSeen = !previousModel.seen;
 
-        if (
-          !firstSeen
+        const isRefill = !firstSeen
           && previousPercent !== null
           && previousPercent < 90
           && currentPercent !== null
-          && currentPercent >= 99
-        ) {
-          signals.push(buildSignal(
-            "antigravityRefill",
-            { email: key },
-            "Antigravity recarregado",
-            `${email} (${modelName}): cota foi de ${percentText(previousPercent)} para ${percentText(currentPercent)}.`,
-            `antigravity-refill-${email}-${modelId}-${currentReset || "full"}`,
-          ));
-        }
+          && currentPercent >= 99;
 
-        if (
-          !firstSeen
+        const isLow = !firstSeen
           && currentPercent !== null
           && currentPercent <= 15
           && previousPercent !== null
-          && previousPercent > 15
-          && !isCoolingDown(previous.lastLowAt, 6 * 60 * 60 * 1000, nowMs)
-        ) {
-          signals.push(buildSignal(
-            "antigravityLow",
-            { email: key },
-            "Cota Antigravity baixa",
-            `${email} (${modelName}): ${percentText(currentPercent)} restante.`,
-            `antigravity-low-${email}-${modelId}-${currentReset || "unknown"}`,
-            "lastLowAt",
-          ));
+          && previousPercent > 15;
+
+        if (isRefill) {
+          refilledModels.push({ name: modelName, id: modelId, prev: previousPercent, curr: currentPercent });
         }
 
-        nextState.byAccount[key] = {
-          ...previous,
+        if (isLow) {
+          lowModels.push({ name: modelName, id: modelId, percent: currentPercent });
+        }
+
+        nextState.byAccount[modelKey] = {
+          ...previousModel,
           seen: true,
           remainingPercent: currentPercent,
           refreshAt: currentReset,
+        };
+      }
+
+      if (refilledModels.length > 0) {
+        let body;
+        if (refilledModels.length === 1) {
+          body = `${email} (${refilledModels[0].name}): cota foi de ${percentText(refilledModels[0].prev)} para ${percentText(refilledModels[0].curr)}.`;
+        } else {
+          body = `${email}: cotas Gemini foram recarregadas.`;
+        }
+
+        signals.push(buildSignal(
+          "antigravityRefill",
+          { email: accountStateKey },
+          "Antigravity recarregado",
+          body,
+          `antigravity-refill-${email}-${lastResetText || "full"}`
+        ));
+      }
+
+      if (lowModels.length > 0 && !isCoolingDown(previousAccountState.lastLowAt, 6 * 60 * 60 * 1000, nowMs)) {
+        let body;
+        if (lowModels.length === 1) {
+          body = `${email} (${lowModels[0].name}): ${percentText(lowModels[0].percent)} restante.`;
+        } else {
+          const percentStrings = lowModels.map((m) => `${m.name}: ${percentText(m.percent)}`);
+          body = `${email}: cotas Gemini baixas (${percentStrings.join(", ")}).`;
+          if (body.length > 120) {
+            body = `${email}: várias cotas Gemini estão baixas (15% ou menos).`;
+          }
+        }
+
+        signals.push(buildSignal(
+          "antigravityLow",
+          { email: accountStateKey },
+          "Cota Antigravity baixa",
+          body,
+          `antigravity-low-${email}-${lastResetText || "unknown"}`,
+          "lastLowAt"
+        ));
+
+        nextState.byAccount[accountStateKey] = {
+          ...previousAccountState,
+          lastLowAt: new Date(nowMs).toISOString(),
         };
       }
     }

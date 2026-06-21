@@ -229,6 +229,34 @@ function normalizeUsage(raw) {
     historySamples: normalizeHistorySamples(json.historySamples),
     accountSamples: normalizeAccountSamples(json.accountSamples),
     weeklyResetEvents: normalizeWeeklyResetEvents(json.weeklyResetEvents),
+    antigravity: json.antigravity && typeof json.antigravity === "object" ? {
+      lastUpdatedDate: parseDate(json.antigravity.lastUpdated),
+      source: typeof json.antigravity.source === "string" ? json.antigravity.source : null,
+      accounts: Array.isArray(json.antigravity.accounts) ? json.antigravity.accounts.map((acc) => ({
+        email: String(acc.email || ""),
+        isActive: Boolean(acc.isActive),
+        status: String(acc.status || "success"),
+        lastUpdatedDate: parseDate(acc.lastUpdated),
+        models: Array.isArray(acc.models) ? acc.models.map((m) => ({
+          id: String(m.id || ""),
+          name: String(m.name || ""),
+          tier: String(m.tier || ""),
+          remainingPercent: clampPercent(m.remainingPercent, null),
+          status: String(m.status || "ok"),
+          refreshText: String(m.refreshText || ""),
+          refreshAtDate: parseDate(m.refreshAt),
+        })) : []
+      })) : [],
+      models: Array.isArray(json.antigravity.models) ? json.antigravity.models.map((m) => ({
+        id: String(m.id || ""),
+        name: String(m.name || ""),
+        tier: String(m.tier || ""),
+        remainingPercent: clampPercent(m.remainingPercent, null),
+        status: String(m.status || "ok"),
+        refreshText: String(m.refreshText || ""),
+        refreshAtDate: parseDate(m.refreshAt),
+      })) : []
+    } : null,
   };
 }
 
@@ -1181,6 +1209,7 @@ function buildLimitViewModel(usage, hasLoadError = false) {
       })),
     },
     accounts: accountCards,
+    antigravity: usage.antigravity,
     weeklyResets: buildWeeklyResetView(usage),
     metrics,
   };
@@ -1511,6 +1540,8 @@ function getElements() {
     resetEarlyCount: document.getElementById("resetEarlyCount"),
     weeklyResetList: document.getElementById("weeklyResetList"),
     accountsGrid: document.getElementById("accountsGrid"),
+    antigravityGrid: document.getElementById("antigravityGrid"),
+    antigravityPanel: document.getElementById("antigravityPanel"),
     totalWeeklyAvailableText: document.getElementById("totalWeeklyAvailableText"),
     totalWeeklyAvailableBar: document.getElementById("totalWeeklyAvailableBar"),
     totalWeeklyAvailableMeta: document.getElementById("totalWeeklyAvailableMeta"),
@@ -1746,6 +1777,154 @@ function renderAccountsGrid(container, accounts) {
     } else {
       card.append(top, meters, footer);
     }
+    fragment.append(card);
+  }
+
+  container.append(fragment);
+}
+
+function renderAntigravityGrid(container, antigravity, panel) {
+  if (!container || !panel) return;
+  container.replaceChildren();
+
+  if (!antigravity || !Array.isArray(antigravity.accounts) || antigravity.accounts.length === 0) {
+    panel.hidden = true;
+    return;
+  }
+
+  panel.hidden = false;
+
+  const fragment = document.createDocumentFragment();
+
+  for (const account of antigravity.accounts) {
+    const card = document.createElement("article");
+    card.className = "account-card";
+    
+    let minPercent = 100;
+    for (const model of account.models || []) {
+      if (model.remainingPercent !== null && model.remainingPercent < minPercent) {
+        minPercent = model.remainingPercent;
+      }
+    }
+    const tone = minPercent <= 0 ? "danger" : minPercent <= 15 ? "warn" : "ok";
+    card.dataset.tone = tone;
+
+    const top = document.createElement("div");
+    top.className = "account-top";
+
+    const logo = document.createElement("img");
+    logo.className = "account-logo";
+    logo.src = "/assets/logo_background.png";
+    logo.alt = "";
+    logo.loading = "lazy";
+
+    const titleWrap = document.createElement("div");
+    titleWrap.className = "account-title";
+    const title = document.createElement("h3");
+    title.textContent = account.email;
+    const meta = document.createElement("p");
+    meta.textContent = account.isActive ? "Ativa no Antigravity" : "Google Cloud";
+    titleWrap.append(title, meta);
+
+    const pill = document.createElement("span");
+    pill.className = "account-pill";
+    pill.textContent = "Google";
+    pill.dataset.plan = "go";
+
+    top.append(logo, titleWrap, pill);
+
+    const modelsContainer = document.createElement("div");
+    modelsContainer.className = "antigravity-models-list";
+    modelsContainer.style.display = "grid";
+    modelsContainer.style.gap = "10px";
+    modelsContainer.style.marginTop = "10px";
+
+    for (const model of account.models || []) {
+      const modelRow = document.createElement("div");
+      modelRow.className = "model-usage-row";
+      modelRow.style.fontSize = "11px";
+
+      const line = document.createElement("div");
+      line.className = "active-usage-line";
+      line.style.display = "flex";
+      line.style.justifyContent = "space-between";
+      line.style.fontWeight = "600";
+
+      const nameSpan = document.createElement("span");
+      nameSpan.textContent = model.tier ? `${model.name} (${model.tier})` : model.name;
+      
+      const percentStrong = document.createElement("strong");
+      percentStrong.textContent = model.remainingPercent !== null ? `${model.remainingPercent}%` : "--";
+      if (model.remainingPercent !== null && model.remainingPercent <= 15) {
+        percentStrong.style.color = "var(--tone-danger)";
+      }
+
+      line.append(nameSpan, percentStrong);
+
+      const track = document.createElement("div");
+      track.className = "active-progress-track";
+      track.style.height = "6px";
+      track.style.background = "#e2e8f0";
+      track.style.borderRadius = "999px";
+      track.style.overflow = "hidden";
+      track.style.marginTop = "4px";
+
+      const bar = document.createElement("div");
+      bar.className = "active-progress-fill";
+      bar.style.height = "100%";
+      bar.style.width = model.remainingPercent !== null ? `${model.remainingPercent}%` : "0%";
+      
+      const barColor = model.remainingPercent === 0 
+        ? "var(--tone-danger)" 
+        : model.remainingPercent <= 15 
+          ? "var(--tone-warn)" 
+          : "var(--primary)";
+      bar.style.background = barColor;
+      
+      track.append(bar);
+
+      const metaText = document.createElement("p");
+      metaText.style.margin = "3px 0 0";
+      metaText.style.fontSize = "9px";
+      metaText.style.color = "var(--text-muted)";
+      metaText.style.fontWeight = "500";
+      
+      let resetText = model.refreshText || "";
+      if (model.refreshAtDate) {
+        const diffMs = model.refreshAtDate.getTime() - Date.now();
+        if (diffMs > 0) {
+          const hours = Math.round(diffMs / 3600000);
+          if (hours >= 24) {
+            const days = Math.floor(hours / 24);
+            const remHours = hours % 24;
+            resetText = `Renova em ${days}d ${remHours}h`;
+          } else {
+            resetText = `Renova em ${hours}h`;
+          }
+        }
+      }
+      metaText.textContent = resetText;
+
+      modelRow.append(line, track, metaText);
+      modelsContainer.append(modelRow);
+    }
+
+    const footer = document.createElement("div");
+    footer.className = "account-footer";
+    footer.style.marginTop = "10px";
+    footer.style.paddingTop = "8px";
+    footer.style.borderTop = "1px solid #f1f5f9";
+    footer.style.fontSize = "9px";
+    footer.style.color = "var(--text-muted)";
+    footer.style.display = "flex";
+    footer.style.justifyContent = "space-between";
+
+    const lastUpdatedSpan = document.createElement("span");
+    const updateTime = account.lastUpdatedDate ? formatDateTimePtBr(account.lastUpdatedDate) : "--";
+    lastUpdatedSpan.textContent = `Atualizado: ${updateTime}`;
+    footer.append(lastUpdatedSpan);
+
+    card.append(top, modelsContainer, footer);
     fragment.append(card);
   }
 
@@ -1995,6 +2174,7 @@ function renderDashboard(els, viewModel) {
   if (els.compareActualBar) els.compareActualBar.style.left = viewModel.compare.actualWidth;
   if (els.compareIdealBar) els.compareIdealBar.style.left = viewModel.compare.idealWidth;
   renderAccountsGrid(els.accountsGrid, viewModel.accounts);
+  renderAntigravityGrid(els.antigravityGrid, viewModel.antigravity, els.antigravityPanel);
   renderWeeklyResetArea(els, viewModel.weeklyResets);
   setChartButtons(els);
   renderSparkline(els.usageSparkline, activeChart === "weekly" ? viewModel.charts.weekly : viewModel.charts.fiveHour);
@@ -2049,6 +2229,20 @@ const NOTIFICATION_RULES = [
     description: "Avisa quando a janela de 5h cai para 15% ou menos.",
     defaultEnabled: false,
     accountScoped: true,
+  },
+  {
+    id: "antigravityLow",
+    title: "Antigravity baixo",
+    description: "Avisa quando uma cota de modelo Antigravity cai para 15% ou menos.",
+    defaultEnabled: true,
+    accountScoped: false,
+  },
+  {
+    id: "antigravityRefill",
+    title: "Antigravity recarregado",
+    description: "Avisa quando uma cota de modelo Antigravity é recarregada.",
+    defaultEnabled: true,
+    accountScoped: false,
   },
 ];
 

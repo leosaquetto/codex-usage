@@ -320,4 +320,96 @@ const goChanged = evaluateNotificationSignals({
 });
 assert.deepEqual(goChanged.signals, []);
 
+// Antigravity test cases
+const baseAntigravityUsage = {
+  lastUpdated: "2026-06-03T17:50:00.000Z",
+  codex: {
+    lastUpdated: "2026-06-03T17:50:00.000Z",
+    accounts: [baseAccount]
+  },
+  antigravity: {
+    lastUpdated: "2026-06-03T17:50:00.000Z",
+    accounts: [
+      {
+        email: "leosaquetto@gmail.com",
+        isActive: true,
+        models: [
+          {
+            id: "claude-opus-4-6-thinking",
+            name: "Claude Opus 4.6",
+            tier: "Thinking",
+            remainingPercent: 100,
+            refreshText: "Refreshes in 5 days, 8 hours",
+            refreshAt: "2026-06-08T20:00:00.000Z"
+          }
+        ]
+      }
+    ]
+  }
+};
+
+const agFirst = evaluateNotificationSignals({ usage: baseAntigravityUsage, nowMs });
+assert.deepEqual(agFirst.signals, []);
+assert.equal(agFirst.nextState.byAccount["antigravity:leosaquetto@gmail.com:claude-opus-4-6-thinking"].seen, true);
+
+const agLow = evaluateNotificationSignals({
+  usage: {
+    ...baseAntigravityUsage,
+    antigravity: {
+      lastUpdated: "2026-06-03T18:00:00.000Z",
+      accounts: [
+        {
+          email: "leosaquetto@gmail.com",
+          isActive: true,
+          models: [
+            {
+              id: "claude-opus-4-6-thinking",
+              name: "Claude Opus 4.6",
+              tier: "Thinking",
+              remainingPercent: 10,
+              refreshText: "Refreshes in 5 days, 8 hours",
+              refreshAt: "2026-06-08T20:00:00.000Z"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  state: agFirst.nextState,
+  nowMs
+});
+assert.deepEqual(agLow.signals.map(s => s.ruleId), ["antigravityLow"]);
+assert.equal(agLow.signals[0].accountKey, "antigravity:leosaquetto@gmail.com:claude-opus-4-6-thinking");
+assert.match(agLow.signals[0].body, /10% restante/);
+
+const agRefill = evaluateNotificationSignals({
+  usage: {
+    ...baseAntigravityUsage,
+    antigravity: {
+      lastUpdated: "2026-06-03T18:10:00.000Z",
+      accounts: [
+        {
+          email: "leosaquetto@gmail.com",
+          isActive: true,
+          models: [
+            {
+              id: "claude-opus-4-6-thinking",
+              name: "Claude Opus 4.6",
+              tier: "Thinking",
+              remainingPercent: 100,
+              refreshText: "Refreshes in 5 days, 8 hours",
+              refreshAt: "2026-06-08T20:00:00.000Z"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  state: agLow.nextState,
+  nowMs
+});
+assert.deepEqual(agRefill.signals.map(s => s.ruleId), ["antigravityRefill"]);
+assert.equal(agRefill.signals[0].accountKey, "antigravity:leosaquetto@gmail.com:claude-opus-4-6-thinking");
+assert.match(agRefill.signals[0].body, /foi de 10% para 100%/);
+
 console.log("notification engine tests ok");

@@ -70,7 +70,7 @@ async function dispatchPushNotifications() {
     console.log("Web Push dispatch ignorado: configuração local ausente.");
     return;
   }
-  const usage = JSON.parse(await readFile(resolve(dataWorktree, "codex_usage.json"), "utf8"));
+  const usage = JSON.parse(await readFile(resolve(dataWorktree, "usage_summary.json"), "utf8"));
   const response = await fetch(config.url, {
     method: "POST",
     headers: {

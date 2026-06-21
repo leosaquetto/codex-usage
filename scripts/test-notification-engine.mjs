@@ -379,7 +379,7 @@ const agLow = evaluateNotificationSignals({
   nowMs
 });
 assert.deepEqual(agLow.signals.map(s => s.ruleId), ["antigravityLow"]);
-assert.equal(agLow.signals[0].accountKey, "antigravity:leosaquetto@gmail.com:gemini-3-1-pro-high");
+assert.equal(agLow.signals[0].accountKey, "antigravity:leosaquetto@gmail.com");
 assert.match(agLow.signals[0].body, /10% restante/);
 
 const agRefill = evaluateNotificationSignals({
@@ -409,7 +409,7 @@ const agRefill = evaluateNotificationSignals({
   nowMs
 });
 assert.deepEqual(agRefill.signals.map(s => s.ruleId), ["antigravityRefill"]);
-assert.equal(agRefill.signals[0].accountKey, "antigravity:leosaquetto@gmail.com:gemini-3-1-pro-high");
+assert.equal(agRefill.signals[0].accountKey, "antigravity:leosaquetto@gmail.com");
 assert.match(agRefill.signals[0].body, /foi de 10% para 100%/);
 
 console.log("notification engine tests ok");

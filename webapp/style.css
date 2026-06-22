@@ -3101,9 +3101,16 @@ input {
 
 /* Desktop layout (>= 1024px) */
 @media (min-width: 1024px) {
+  .app-shell {
+    width: 100%;
+    max-width: none;
+    padding: 0;
+    margin: 0;
+  }
+
   .app-container {
     grid-template-columns: 260px 1fr;
-    gap: 30px;
+    gap: 0;
   }
   
   .sidebar {
@@ -3111,7 +3118,7 @@ input {
   }
   
   .app-main-content {
-    padding: 30px 0;
+    padding: 30px 40px;
   }
   
   .metrics-summary-grid {

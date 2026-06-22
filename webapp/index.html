@@ -192,119 +192,6 @@
 
           <!-- Main Layout Grid -->
           <div class="app-columns-grid">
-            <div class="app-column-left">
-              <!-- Gemini Status Panel -->
-              <section id="antigravityStatusPanel" class="status-panel dashboard-only" aria-label="Status do Gemini">
-                <div class="status-copy">
-                  <span id="antigravityStatusDot" class="status-dot"></span>
-                  <svg class="metric-icon status-icon" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M12 3 20 7v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7l8-4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
-                    <path d="m8.7 12.2 2.2 2.2 4.7-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                  <div>
-                    <p id="antigravityStatusText" class="status-title">Carregando...</p>
-                    <p id="antigravityStatusMeta" class="status-meta">Aguardando dados.</p>
-                  </div>
-                </div>
-                <div class="status-updated">
-                  <span>Atualizado</span>
-                  <strong class="updated-parts">
-                    <span>
-                      <svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M16 2v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><rect x="4" y="5" width="16" height="17" rx="3" fill="none" stroke="currentColor" stroke-width="2" /><path d="M4 10h16" fill="none" stroke="currentColor" stroke-width="2" /></svg>
-                      <span id="antigravityUpdatedDateText">--</span>
-                    </span>
-                    <span>
-                      <svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" /><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
-                      <span id="antigravityUpdatedTimeText">--</span>
-                    </span>
-                  </strong>
-                </div>
-              </section>
-
-              <!-- Gemini Summary Metrics Grid -->
-              <section class="metrics-summary-grid dashboard-only">
-                <article class="metric-summary-card">
-                  <div class="metric-card-info">
-                    <span class="metric-label">Modelos Ativos</span>
-                    <strong id="antigravityTotalModels" class="metric-value">--</strong>
-                  </div>
-                  <div class="metric-sparkline-container">
-                    <svg class="metric-mini-sparkline sparkline-orange" viewBox="0 0 100 30" aria-hidden="true">
-                      <path d="M 0 22 C 20 8, 40 18, 60 10 C 80 25, 90 5, 100 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                  </div>
-                </article>
-                <article class="metric-summary-card">
-                  <div class="metric-card-info">
-                    <span class="metric-label">Contas Ativas</span>
-                    <strong id="antigravityActiveAccounts" class="metric-value">--</strong>
-                  </div>
-                  <div class="metric-sparkline-container">
-                    <svg class="metric-mini-sparkline sparkline-blue" viewBox="0 0 100 30" aria-hidden="true">
-                      <path d="M 0 12 C 20 25, 45 8, 65 22 C 85 10, 95 18, 100 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                  </div>
-                </article>
-                <article class="metric-summary-card">
-                  <div class="metric-card-info">
-                    <span class="metric-label">Disponibilidade</span>
-                    <strong id="antigravityPerformanceIndex" class="metric-value">--</strong>
-                  </div>
-                  <div class="metric-sparkline-container">
-                    <svg class="metric-mini-sparkline sparkline-blue" viewBox="0 0 100 30" aria-hidden="true">
-                      <path d="M 0 18 C 20 8, 40 25, 60 12 C 80 18, 90 8, 100 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                  </div>
-                </article>
-              </section>
-
-              <!-- Gemini Active Account Panel -->
-              <section id="antigravityActiveAccountPanel" class="active-account-panel dashboard-only" aria-label="Conta em uso Gemini" data-state="empty">
-                <div class="active-account-head">
-                  <div class="active-account-title">
-                    <p class="section-kicker">Conta em uso Gemini</p>
-                    <h2 id="antigravityActiveAccountName">Nenhuma conta recente</h2>
-                    <p id="antigravityActiveAccountMeta">Aguardando conta ativa ou uso.</p>
-                  </div>
-                  <span id="antigravityActiveAccountBadge" class="active-account-badge">--</span>
-                </div>
-                <div class="active-account-bars" aria-label="Uso da conta em foco">
-                  <div id="antigravityActiveFiveHourRow" class="active-usage-row" data-limit="fiveHour">
-                    <div class="active-usage-line">
-                      <span>5h</span>
-                      <strong id="antigravityActiveFiveHourText">--</strong>
-                    </div>
-                    <div class="active-progress-track" role="progressbar" aria-label="Saldo de 5 horas da conta em uso" aria-valuemin="0" aria-valuemax="100">
-                      <div id="antigravityActiveFiveHourBar" class="active-progress-fill"></div>
-                    </div>
-                    <p id="antigravityActiveFiveHourMeta">--</p>
-                  </div>
-                  <div class="active-usage-row" data-limit="weekly">
-                    <div class="active-usage-line">
-                      <span id="antigravityActiveWeeklyLabel">Semanal</span>
-                      <strong id="antigravityActiveWeeklyText">--</strong>
-                    </div>
-                    <div class="active-progress-track" role="progressbar" aria-label="Saldo semanal da conta em uso" aria-valuemin="0" aria-valuemax="100">
-                      <div id="antigravityActiveWeeklyBar" class="active-progress-fill"></div>
-                    </div>
-                    <p id="antigravityActiveWeeklyMeta">--</p>
-                  </div>
-                </div>
-              </section>
-
-              <!-- Antigravity Grid (Gemini Model Progress) -->
-              <section id="antigravityPanel" class="accounts-panel dashboard-only">
-                <div class="section-header">
-                  <div>
-                    <p class="section-kicker">Antigravity</p>
-                    <h2>GEMINI MODEL PROGRESS</h2>
-                    <p class="account-method">Status e limite de cotas por modelo em cada uma de suas contas.</p>
-                  </div>
-                </div>
-                <div id="antigravityGrid" class="accounts-grid"></div>
-              </section>
-            </div>
-
             <div class="app-column-right">
               <!-- Codex Status Panel -->
               <section id="codexStatusPanel" class="status-panel dashboard-only" aria-label="Status do Codex">
@@ -614,6 +501,119 @@
                   </div>
                   <svg id="usageSparkline" class="sparkline" viewBox="0 0 320 96" role="img" aria-label="Linha do saldo restante selecionado"></svg>
                 </article>
+              </section>
+            </div>
+
+            <div class="app-column-left">
+              <!-- Gemini Status Panel -->
+              <section id="antigravityStatusPanel" class="status-panel dashboard-only" aria-label="Status do Gemini">
+                <div class="status-copy">
+                  <span id="antigravityStatusDot" class="status-dot"></span>
+                  <svg class="metric-icon status-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 3 20 7v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7l8-4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+                    <path d="m8.7 12.2 2.2 2.2 4.7-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <div>
+                    <p id="antigravityStatusText" class="status-title">Carregando...</p>
+                    <p id="antigravityStatusMeta" class="status-meta">Aguardando dados.</p>
+                  </div>
+                </div>
+                <div class="status-updated">
+                  <span>Atualizado</span>
+                  <strong class="updated-parts">
+                    <span>
+                      <svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><path d="M16 2v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><rect x="4" y="5" width="16" height="17" rx="3" fill="none" stroke="currentColor" stroke-width="2" /><path d="M4 10h16" fill="none" stroke="currentColor" stroke-width="2" /></svg>
+                      <span id="antigravityUpdatedDateText">--</span>
+                    </span>
+                    <span>
+                      <svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" /><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                      <span id="antigravityUpdatedTimeText">--</span>
+                    </span>
+                  </strong>
+                </div>
+              </section>
+
+              <!-- Gemini Summary Metrics Grid -->
+              <section class="metrics-summary-grid dashboard-only">
+                <article class="metric-summary-card">
+                  <div class="metric-card-info">
+                    <span class="metric-label">Modelos Ativos</span>
+                    <strong id="antigravityTotalModels" class="metric-value">--</strong>
+                  </div>
+                  <div class="metric-sparkline-container">
+                    <svg class="metric-mini-sparkline sparkline-orange" viewBox="0 0 100 30" aria-hidden="true">
+                      <path d="M 0 22 C 20 8, 40 18, 60 10 C 80 25, 90 5, 100 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                </article>
+                <article class="metric-summary-card">
+                  <div class="metric-card-info">
+                    <span class="metric-label">Contas Ativas</span>
+                    <strong id="antigravityActiveAccounts" class="metric-value">--</strong>
+                  </div>
+                  <div class="metric-sparkline-container">
+                    <svg class="metric-mini-sparkline sparkline-blue" viewBox="0 0 100 30" aria-hidden="true">
+                      <path d="M 0 12 C 20 25, 45 8, 65 22 C 85 10, 95 18, 100 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                </article>
+                <article class="metric-summary-card">
+                  <div class="metric-card-info">
+                    <span class="metric-label">Disponibilidade</span>
+                    <strong id="antigravityPerformanceIndex" class="metric-value">--</strong>
+                  </div>
+                  <div class="metric-sparkline-container">
+                    <svg class="metric-mini-sparkline sparkline-blue" viewBox="0 0 100 30" aria-hidden="true">
+                      <path d="M 0 18 C 20 8, 40 25, 60 12 C 80 18, 90 8, 100 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                </article>
+              </section>
+
+              <!-- Gemini Active Account Panel -->
+              <section id="antigravityActiveAccountPanel" class="active-account-panel dashboard-only" aria-label="Conta em uso Gemini" data-state="empty">
+                <div class="active-account-head">
+                  <div class="active-account-title">
+                    <p class="section-kicker">Conta em uso Gemini</p>
+                    <h2 id="antigravityActiveAccountName">Nenhuma conta recente</h2>
+                    <p id="antigravityActiveAccountMeta">Aguardando conta ativa ou uso.</p>
+                  </div>
+                  <span id="antigravityActiveAccountBadge" class="active-account-badge">--</span>
+                </div>
+                <div class="active-account-bars" aria-label="Uso da conta em foco">
+                  <div id="antigravityActiveFiveHourRow" class="active-usage-row" data-limit="fiveHour">
+                    <div class="active-usage-line">
+                      <span>5h</span>
+                      <strong id="antigravityActiveFiveHourText">--</strong>
+                    </div>
+                    <div class="active-progress-track" role="progressbar" aria-label="Saldo de 5 horas da conta em uso" aria-valuemin="0" aria-valuemax="100">
+                      <div id="antigravityActiveFiveHourBar" class="active-progress-fill"></div>
+                    </div>
+                    <p id="antigravityActiveFiveHourMeta">--</p>
+                  </div>
+                  <div class="active-usage-row" data-limit="weekly">
+                    <div class="active-usage-line">
+                      <span id="antigravityActiveWeeklyLabel">Semanal</span>
+                      <strong id="antigravityActiveWeeklyText">--</strong>
+                    </div>
+                    <div class="active-progress-track" role="progressbar" aria-label="Saldo semanal da conta em uso" aria-valuemin="0" aria-valuemax="100">
+                      <div id="antigravityActiveWeeklyBar" class="active-progress-fill"></div>
+                    </div>
+                    <p id="antigravityActiveWeeklyMeta">--</p>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Antigravity Grid (Gemini Model Progress) -->
+              <section id="antigravityPanel" class="accounts-panel dashboard-only">
+                <div class="section-header">
+                  <div>
+                    <p class="section-kicker">Antigravity</p>
+                    <h2>GEMINI MODEL PROGRESS</h2>
+                    <p class="account-method">Status e limite de cotas por modelo em cada uma de suas contas.</p>
+                  </div>
+                </div>
+                <div id="antigravityGrid" class="accounts-grid"></div>
               </section>
             </div>
           </div>

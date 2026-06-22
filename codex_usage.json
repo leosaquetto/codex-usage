@@ -1,15 +1,15 @@
 {
   "source": "codex-switcher",
-  "lastUpdated": "2026-06-22T02:38:22.068Z",
+  "lastUpdated": "2026-06-22T02:53:43.492Z",
   "accountCount": 3,
   "okCount": 3,
-  "activeAccountId": "2ae47458-892f-4ea2-b060-6366cbc1a53f",
+  "activeAccountId": "f4a89b6c-e389-4813-9fc7-01139ce6f16f",
   "aggregate": {
     "fiveHourPercent": 33,
     "fiveHourReset": "2026-06-22T03:01:50.000Z",
     "weeklyPercent": 30,
     "weeklyReset": "2026-06-24T22:32:09.000Z",
-    "lastUpdated": "2026-06-22T02:38:22.068Z"
+    "lastUpdated": "2026-06-22T02:53:43.492Z"
   },
   "fiveHourPercent": 33,
   "fiveHourReset": "2026-06-22T03:01:50.000Z",
@@ -28,7 +28,7 @@
       "lastUsedAt": "2026-06-21T00:42:39.445Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-22T07:38:23.000Z",
+      "fiveHourReset": "2026-06-22T07:53:44.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 0,
       "weeklyUsedPercent": 100,
@@ -39,7 +39,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-22T02:38:22.068Z",
+      "lastUpdated": "2026-06-22T02:53:43.492Z",
       "status": "ok",
       "error": null
     },
@@ -66,7 +66,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-22T02:38:22.068Z",
+      "lastUpdated": "2026-06-22T02:53:43.492Z",
       "status": "ok",
       "error": null
     },
@@ -78,22 +78,22 @@
       "email": "larauni@outlook.com",
       "planType": "free",
       "subscriptionExpiresAt": null,
-      "isActive": false,
-      "lastUsedAt": "2026-06-10T09:13:53.715Z",
+      "isActive": true,
+      "lastUsedAt": "2026-06-22T02:40:17.697Z",
       "fiveHourPercent": null,
       "fiveHourUsedPercent": null,
       "fiveHourReset": null,
       "fiveHourWindowMinutes": null,
-      "weeklyPercent": 95,
-      "weeklyUsedPercent": 5,
-      "weeklyReset": "2026-07-22T02:38:23.000Z",
+      "weeklyPercent": 0,
+      "weeklyUsedPercent": 100,
+      "weeklyReset": "2026-07-22T02:42:08.000Z",
       "weeklyWindowMinutes": 43200,
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-22T02:38:22.068Z",
+      "lastUpdated": "2026-06-22T02:53:43.492Z",
       "status": "ok",
       "error": null
     },
@@ -120,7 +120,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-22T02:38:22.068Z",
+      "lastUpdated": "2026-06-22T02:53:43.492Z",
       "status": "ok",
       "error": null
     },
@@ -147,7 +147,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-22T02:38:22.068Z",
+      "lastUpdated": "2026-06-22T02:53:43.492Z",
       "status": "ok",
       "error": null
     },
@@ -174,7 +174,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-22T02:38:22.068Z",
+      "lastUpdated": "2026-06-22T02:53:43.492Z",
       "status": "ok",
       "error": null
     },
@@ -201,7 +201,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-22T02:38:22.068Z",
+      "lastUpdated": "2026-06-22T02:53:43.492Z",
       "status": "ok",
       "error": null
     },
@@ -213,14 +213,14 @@
       "email": "leosaquetto@yahoo.com",
       "planType": "free",
       "subscriptionExpiresAt": null,
-      "isActive": true,
+      "isActive": false,
       "lastUsedAt": "2026-06-22T02:14:50.862Z",
       "fiveHourPercent": null,
       "fiveHourUsedPercent": null,
       "fiveHourReset": null,
       "fiveHourWindowMinutes": null,
-      "weeklyPercent": 10,
-      "weeklyUsedPercent": 90,
+      "weeklyPercent": 0,
+      "weeklyUsedPercent": 100,
       "weeklyReset": "2026-07-22T02:31:50.000Z",
       "weeklyWindowMinutes": 43200,
       "credits": {
@@ -228,7 +228,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-22T02:38:22.068Z",
+      "lastUpdated": "2026-06-22T02:53:43.492Z",
       "status": "ok",
       "error": null
     }

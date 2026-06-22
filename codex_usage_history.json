@@ -1,14 +1,7 @@
 {
   "version": 2,
-  "lastUpdated": "2026-06-22T14:03:25.039Z",
+  "lastUpdated": "2026-06-22T14:18:58.267Z",
   "samples": [
-    {
-      "capturedAt": "2026-05-30T20:33:16.109Z",
-      "fiveHourPercent": 79,
-      "fiveHourReset": "2026-05-30T21:15:44.000Z",
-      "weeklyPercent": 39,
-      "weeklyReset": "2026-05-31T01:47:07.000Z"
-    },
     {
       "capturedAt": "2026-05-30T20:48:18.693Z",
       "fiveHourPercent": 79,
@@ -14001,6 +13994,13 @@
       "fiveHourReset": "2026-06-22T16:59:15.000Z",
       "weeklyPercent": 13,
       "weeklyReset": "2026-06-24T21:25:10.000Z"
+    },
+    {
+      "capturedAt": "2026-06-22T14:18:58.267Z",
+      "fiveHourPercent": 69,
+      "fiveHourReset": "2026-06-22T16:59:15.000Z",
+      "weeklyPercent": 38,
+      "weeklyReset": "2026-06-24T22:32:09.000Z"
     }
   ],
   "accountSamples": [
@@ -85123,6 +85123,34 @@
       "displayName": "LEO II",
       "weeklyPercent": 53,
       "weeklyReset": "2026-06-28T22:01:50.000Z"
+    },
+    {
+      "capturedAt": "2026-06-22T14:18:58.267Z",
+      "email": "contatonatanaelrodrigs@gmail.com",
+      "displayName": "NATANAEL",
+      "weeklyPercent": 0,
+      "weeklyReset": "2026-06-24T22:32:09.000Z"
+    },
+    {
+      "capturedAt": "2026-06-22T14:18:58.267Z",
+      "email": "dzplaybacks@gmail.com",
+      "displayName": "DZPLAYBACKS@GMAIL.COM",
+      "weeklyPercent": 0,
+      "weeklyReset": "2026-06-27T14:53:14.000Z"
+    },
+    {
+      "capturedAt": "2026-06-22T14:18:58.267Z",
+      "email": "jv5pdcwnxp@privaterelay.appleid.com",
+      "displayName": "LEO I",
+      "weeklyPercent": 97,
+      "weeklyReset": "2026-06-29T14:07:21.000Z"
+    },
+    {
+      "capturedAt": "2026-06-22T14:18:58.267Z",
+      "email": "leoaraujo1949@gmail.com",
+      "displayName": "LEO II",
+      "weeklyPercent": 53,
+      "weeklyReset": "2026-06-28T22:01:50.000Z"
     }
   ],
   "weeklyResetEvents": [
@@ -86820,6 +86848,22 @@
       "previousWeeklyPercent": 65,
       "weeklyPercentDelta": -5,
       "earlyReason": null,
+      "isCarryoverFullReset": false
+    },
+    {
+      "email": "jv5pdcwnxp@privaterelay.appleid.com",
+      "displayName": "LEO I",
+      "capturedAt": "2026-06-22T14:18:58.267Z",
+      "weeklyReset": "2026-06-29T14:07:21.000Z",
+      "previousWeeklyReset": "2026-06-24T21:25:10.000Z",
+      "isEarlyReset": true,
+      "isNotifiableEarlyReset": false,
+      "deltaMs": -198371733,
+      "cycleDurationMs": 405731000,
+      "weeklyPercent": 97,
+      "previousWeeklyPercent": 0,
+      "weeklyPercentDelta": 97,
+      "earlyReason": "percent-increase",
       "isCarryoverFullReset": false
     }
   ]

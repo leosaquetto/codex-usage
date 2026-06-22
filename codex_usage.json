@@ -1,15 +1,15 @@
 {
   "source": "codex-switcher",
-  "lastUpdated": "2026-06-22T02:07:08.255Z",
+  "lastUpdated": "2026-06-22T02:22:51.364Z",
   "accountCount": 3,
   "okCount": 3,
-  "activeAccountId": "86ff9d21-01ce-4b7a-bf96-682cd0b2cb5b",
+  "activeAccountId": "2ae47458-892f-4ea2-b060-6366cbc1a53f",
   "aggregate": {
     "fiveHourPercent": 33,
     "fiveHourReset": "2026-06-22T03:01:50.000Z",
     "weeklyPercent": 30,
     "weeklyReset": "2026-06-24T22:32:09.000Z",
-    "lastUpdated": "2026-06-22T02:07:08.255Z"
+    "lastUpdated": "2026-06-22T02:22:51.364Z"
   },
   "fiveHourPercent": 33,
   "fiveHourReset": "2026-06-22T03:01:50.000Z",
@@ -28,7 +28,7 @@
       "lastUsedAt": "2026-06-21T00:42:39.445Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-22T07:07:09.000Z",
+      "fiveHourReset": "2026-06-22T07:22:52.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 0,
       "weeklyUsedPercent": 100,
@@ -39,7 +39,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-22T02:07:08.255Z",
+      "lastUpdated": "2026-06-22T02:22:51.364Z",
       "status": "ok",
       "error": null
     },
@@ -66,7 +66,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-22T02:07:08.255Z",
+      "lastUpdated": "2026-06-22T02:22:51.364Z",
       "status": "ok",
       "error": null
     },
@@ -86,14 +86,14 @@
       "fiveHourWindowMinutes": null,
       "weeklyPercent": 95,
       "weeklyUsedPercent": 5,
-      "weeklyReset": "2026-07-22T02:07:09.000Z",
+      "weeklyReset": "2026-07-22T02:22:52.000Z",
       "weeklyWindowMinutes": 43200,
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-22T02:07:08.255Z",
+      "lastUpdated": "2026-06-22T02:22:51.364Z",
       "status": "ok",
       "error": null
     },
@@ -105,14 +105,14 @@
       "email": "diegoacaki14@icloud.com",
       "planType": "go",
       "subscriptionExpiresAt": "2026-06-17T23:52:23.000Z",
-      "isActive": true,
+      "isActive": false,
       "lastUsedAt": "2026-06-22T01:58:48.426Z",
       "fiveHourPercent": null,
       "fiveHourUsedPercent": null,
       "fiveHourReset": null,
       "fiveHourWindowMinutes": null,
-      "weeklyPercent": 21,
-      "weeklyUsedPercent": 79,
+      "weeklyPercent": 0,
+      "weeklyUsedPercent": 100,
       "weeklyReset": "2026-07-22T02:00:25.000Z",
       "weeklyWindowMinutes": 43200,
       "credits": {
@@ -120,7 +120,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-22T02:07:08.255Z",
+      "lastUpdated": "2026-06-22T02:22:51.364Z",
       "status": "ok",
       "error": null
     },
@@ -147,7 +147,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-22T02:07:08.255Z",
+      "lastUpdated": "2026-06-22T02:22:51.364Z",
       "status": "ok",
       "error": null
     },
@@ -174,7 +174,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-22T02:07:08.255Z",
+      "lastUpdated": "2026-06-22T02:22:51.364Z",
       "status": "ok",
       "error": null
     },
@@ -201,7 +201,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-22T02:07:08.255Z",
+      "lastUpdated": "2026-06-22T02:22:51.364Z",
       "status": "ok",
       "error": null
     },
@@ -213,14 +213,14 @@
       "email": "leosaquetto@yahoo.com",
       "planType": "free",
       "subscriptionExpiresAt": null,
-      "isActive": false,
-      "lastUsedAt": "2026-06-21T15:36:17.372Z",
+      "isActive": true,
+      "lastUsedAt": "2026-06-22T02:14:50.862Z",
       "fiveHourPercent": null,
       "fiveHourUsedPercent": null,
       "fiveHourReset": null,
       "fiveHourWindowMinutes": null,
-      "weeklyPercent": 73,
-      "weeklyUsedPercent": 27,
+      "weeklyPercent": 25,
+      "weeklyUsedPercent": 75,
       "weeklyReset": "2026-07-21T14:53:06.000Z",
       "weeklyWindowMinutes": 43200,
       "credits": {
@@ -228,7 +228,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-22T02:07:08.255Z",
+      "lastUpdated": "2026-06-22T02:22:51.364Z",
       "status": "ok",
       "error": null
     }

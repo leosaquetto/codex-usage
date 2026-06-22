@@ -1,14 +1,7 @@
 {
   "version": 2,
-  "lastUpdated": "2026-06-21T23:50:17.146Z",
+  "lastUpdated": "2026-06-22T00:04:20.615Z",
   "samples": [
-    {
-      "capturedAt": "2026-05-30T06:43:26.671Z",
-      "fiveHourPercent": 79,
-      "fiveHourReset": "2026-05-30T08:02:57.000Z",
-      "weeklyPercent": 45,
-      "weeklyReset": "2026-05-31T01:47:07.000Z"
-    },
     {
       "capturedAt": "2026-05-30T06:58:29.028Z",
       "fiveHourPercent": 79,
@@ -14000,6 +13993,13 @@
       "fiveHourPercent": 64,
       "fiveHourReset": "2026-06-22T03:01:50.000Z",
       "weeklyPercent": 35,
+      "weeklyReset": "2026-06-24T22:32:09.000Z"
+    },
+    {
+      "capturedAt": "2026-06-22T00:04:20.615Z",
+      "fiveHourPercent": 58,
+      "fiveHourReset": "2026-06-22T03:01:50.000Z",
+      "weeklyPercent": 34,
       "weeklyReset": "2026-06-24T22:32:09.000Z"
     }
   ],
@@ -83723,6 +83723,27 @@
       "displayName": "LEO II",
       "weeklyPercent": 84,
       "weeklyReset": "2026-06-28T22:01:50.000Z"
+    },
+    {
+      "capturedAt": "2026-06-22T00:04:20.615Z",
+      "email": "contatonatanaelrodrigs@gmail.com",
+      "displayName": "NATANAEL",
+      "weeklyPercent": 0,
+      "weeklyReset": "2026-06-24T22:32:09.000Z"
+    },
+    {
+      "capturedAt": "2026-06-22T00:04:20.615Z",
+      "email": "dzplaybacks@gmail.com",
+      "displayName": "DZPLAYBACKS@GMAIL.COM",
+      "weeklyPercent": 18,
+      "weeklyReset": "2026-06-27T14:53:15.000Z"
+    },
+    {
+      "capturedAt": "2026-06-22T00:04:20.615Z",
+      "email": "leoaraujo1949@gmail.com",
+      "displayName": "LEO II",
+      "weeklyPercent": 84,
+      "weeklyReset": "2026-06-28T22:01:50.000Z"
     }
   ],
   "weeklyResetEvents": [
@@ -85387,6 +85408,22 @@
       "weeklyPercent": 97,
       "previousWeeklyPercent": 100,
       "weeklyPercentDelta": -3,
+      "earlyReason": null,
+      "isCarryoverFullReset": false
+    },
+    {
+      "email": "dzplaybacks@gmail.com",
+      "displayName": "DZPLAYBACKS@GMAIL.COM",
+      "capturedAt": "2026-06-22T00:04:20.615Z",
+      "weeklyReset": "2026-06-27T14:53:15.000Z",
+      "previousWeeklyReset": "2026-06-27T14:53:14.000Z",
+      "isEarlyReset": false,
+      "isNotifiableEarlyReset": false,
+      "deltaMs": -485333385,
+      "cycleDurationMs": 1000,
+      "weeklyPercent": 18,
+      "previousWeeklyPercent": 20,
+      "weeklyPercentDelta": -2,
       "earlyReason": null,
       "isCarryoverFullReset": false
     }

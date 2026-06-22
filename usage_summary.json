@@ -1,17 +1,17 @@
 {
-  "lastUpdated": "2026-06-22T01:50:29.464Z",
+  "lastUpdated": "2026-06-22T02:07:08.255Z",
   "codex": {
     "source": "codex-switcher",
-    "lastUpdated": "2026-06-22T01:50:29.464Z",
+    "lastUpdated": "2026-06-22T02:07:08.255Z",
     "accountCount": 3,
     "okCount": 3,
-    "activeAccountId": "907a56aa-e98e-4b62-9e2f-3c994918dbad",
+    "activeAccountId": "86ff9d21-01ce-4b7a-bf96-682cd0b2cb5b",
     "aggregate": {
       "fiveHourPercent": 33,
       "fiveHourReset": "2026-06-22T03:01:50.000Z",
       "weeklyPercent": 30,
       "weeklyReset": "2026-06-24T22:32:09.000Z",
-      "lastUpdated": "2026-06-22T01:50:29.464Z"
+      "lastUpdated": "2026-06-22T02:07:08.255Z"
     },
     "fiveHourPercent": 33,
     "fiveHourReset": "2026-06-22T03:01:50.000Z",
@@ -30,7 +30,7 @@
         "lastUsedAt": "2026-06-21T00:42:39.445Z",
         "fiveHourPercent": 99,
         "fiveHourUsedPercent": 1,
-        "fiveHourReset": "2026-06-22T06:50:30.000Z",
+        "fiveHourReset": "2026-06-22T07:07:09.000Z",
         "fiveHourWindowMinutes": 300,
         "weeklyPercent": 0,
         "weeklyUsedPercent": 100,
@@ -41,7 +41,7 @@
           "unlimited": false,
           "balance": "0"
         },
-        "lastUpdated": "2026-06-22T01:50:29.464Z",
+        "lastUpdated": "2026-06-22T02:07:08.255Z",
         "status": "ok",
         "error": null
       },
@@ -53,7 +53,7 @@
         "email": "fabinhomian@gmail.com",
         "planType": "go",
         "subscriptionExpiresAt": "2026-06-26T20:39:13.000Z",
-        "isActive": true,
+        "isActive": false,
         "lastUsedAt": "2026-06-22T00:58:47.474Z",
         "fiveHourPercent": null,
         "fiveHourUsedPercent": null,
@@ -68,7 +68,7 @@
           "unlimited": false,
           "balance": null
         },
-        "lastUpdated": "2026-06-22T01:50:29.464Z",
+        "lastUpdated": "2026-06-22T02:07:08.255Z",
         "status": "ok",
         "error": null
       },
@@ -88,14 +88,14 @@
         "fiveHourWindowMinutes": null,
         "weeklyPercent": 95,
         "weeklyUsedPercent": 5,
-        "weeklyReset": "2026-07-22T01:50:30.000Z",
+        "weeklyReset": "2026-07-22T02:07:09.000Z",
         "weeklyWindowMinutes": 43200,
         "credits": {
           "hasCredits": false,
           "unlimited": false,
           "balance": null
         },
-        "lastUpdated": "2026-06-22T01:50:29.464Z",
+        "lastUpdated": "2026-06-22T02:07:08.255Z",
         "status": "ok",
         "error": null
       },
@@ -107,22 +107,22 @@
         "email": "diegoacaki14@icloud.com",
         "planType": "go",
         "subscriptionExpiresAt": "2026-06-17T23:52:23.000Z",
-        "isActive": false,
-        "lastUsedAt": "2026-06-21T04:56:10.836Z",
+        "isActive": true,
+        "lastUsedAt": "2026-06-22T01:58:48.426Z",
         "fiveHourPercent": null,
         "fiveHourUsedPercent": null,
         "fiveHourReset": null,
         "fiveHourWindowMinutes": null,
-        "weeklyPercent": 0,
-        "weeklyUsedPercent": 100,
-        "weeklyReset": "2026-07-21T05:01:45.000Z",
+        "weeklyPercent": 21,
+        "weeklyUsedPercent": 79,
+        "weeklyReset": "2026-07-22T02:00:25.000Z",
         "weeklyWindowMinutes": 43200,
         "credits": {
           "hasCredits": false,
           "unlimited": false,
           "balance": null
         },
-        "lastUpdated": "2026-06-22T01:50:29.464Z",
+        "lastUpdated": "2026-06-22T02:07:08.255Z",
         "status": "ok",
         "error": null
       },
@@ -149,7 +149,7 @@
           "unlimited": false,
           "balance": "0"
         },
-        "lastUpdated": "2026-06-22T01:50:29.464Z",
+        "lastUpdated": "2026-06-22T02:07:08.255Z",
         "status": "ok",
         "error": null
       },
@@ -176,7 +176,7 @@
           "unlimited": false,
           "balance": "0"
         },
-        "lastUpdated": "2026-06-22T01:50:29.464Z",
+        "lastUpdated": "2026-06-22T02:07:08.255Z",
         "status": "ok",
         "error": null
       },
@@ -189,7 +189,7 @@
         "planType": "free",
         "subscriptionExpiresAt": null,
         "isActive": false,
-        "lastUsedAt": "2026-06-21T04:39:07.599Z",
+        "lastUsedAt": "2026-06-22T01:57:48.360Z",
         "fiveHourPercent": null,
         "fiveHourUsedPercent": null,
         "fiveHourReset": null,
@@ -203,7 +203,7 @@
           "unlimited": false,
           "balance": null
         },
-        "lastUpdated": "2026-06-22T01:50:29.464Z",
+        "lastUpdated": "2026-06-22T02:07:08.255Z",
         "status": "ok",
         "error": null
       },
@@ -230,7 +230,7 @@
           "unlimited": false,
           "balance": null
         },
-        "lastUpdated": "2026-06-22T01:50:29.464Z",
+        "lastUpdated": "2026-06-22T02:07:08.255Z",
         "status": "ok",
         "error": null
       }
@@ -238,15 +238,8 @@
   },
   "codexHistory": {
     "version": 2,
-    "lastUpdated": "2026-06-22T01:50:29.464Z",
+    "lastUpdated": "2026-06-22T02:07:08.255Z",
     "samples": [
-      {
-        "capturedAt": "2026-05-30T08:43:47.614Z",
-        "fiveHourPercent": 99,
-        "fiveHourReset": "2026-05-30T13:43:48.000Z",
-        "weeklyPercent": 45,
-        "weeklyReset": "2026-05-31T01:47:07.000Z"
-      },
       {
         "capturedAt": "2026-05-30T08:58:49.944Z",
         "fiveHourPercent": 99,
@@ -14235,6 +14228,13 @@
       },
       {
         "capturedAt": "2026-06-22T01:50:29.464Z",
+        "fiveHourPercent": 33,
+        "fiveHourReset": "2026-06-22T03:01:50.000Z",
+        "weeklyPercent": 30,
+        "weeklyReset": "2026-06-24T22:32:09.000Z"
+      },
+      {
+        "capturedAt": "2026-06-22T02:07:08.255Z",
         "fiveHourPercent": 33,
         "fiveHourReset": "2026-06-22T03:01:50.000Z",
         "weeklyPercent": 30,
@@ -84125,6 +84125,27 @@
       },
       {
         "capturedAt": "2026-06-22T01:50:29.464Z",
+        "email": "leoaraujo1949@gmail.com",
+        "displayName": "LEO II",
+        "weeklyPercent": 84,
+        "weeklyReset": "2026-06-28T22:01:50.000Z"
+      },
+      {
+        "capturedAt": "2026-06-22T02:07:08.255Z",
+        "email": "contatonatanaelrodrigs@gmail.com",
+        "displayName": "NATANAEL",
+        "weeklyPercent": 0,
+        "weeklyReset": "2026-06-24T22:32:09.000Z"
+      },
+      {
+        "capturedAt": "2026-06-22T02:07:08.255Z",
+        "email": "dzplaybacks@gmail.com",
+        "displayName": "DZPLAYBACKS@GMAIL.COM",
+        "weeklyPercent": 6,
+        "weeklyReset": "2026-06-27T14:53:14.000Z"
+      },
+      {
+        "capturedAt": "2026-06-22T02:07:08.255Z",
         "email": "leoaraujo1949@gmail.com",
         "displayName": "LEO II",
         "weeklyPercent": 84,

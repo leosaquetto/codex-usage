@@ -183,10 +183,22 @@
           <!-- Mobile Tab Selector (with logos) -->
           <div class="mobile-tabs-container dashboard-only">
             <button type="button" class="mobile-tab-btn active" data-tab-target="codex">
-              <img src="/assets/gpt_.png" class="tab-logo" alt="" /> ChatGPT (Codex)
+              <span class="mobile-tab-title">
+                <img src="/assets/gpt_.png" class="tab-logo" alt="" /> ChatGPT
+              </span>
+              <span class="mobile-tab-stats">
+                <strong id="mobileGptPercent">--%</strong>
+                <span id="mobileGptMeta" class="mobile-tab-meta">Carregando...</span>
+              </span>
             </button>
             <button type="button" class="mobile-tab-btn" data-tab-target="antigravity">
-              <img src="/assets/gemini__2.png" class="tab-logo" alt="" /> Gemini (Antigravity)
+              <span class="mobile-tab-title">
+                <img src="/assets/gemini__2.png" class="tab-logo" alt="" /> Gemini
+              </span>
+              <span class="mobile-tab-stats">
+                <strong id="mobileGeminiPercent">--%</strong>
+                <span id="mobileGeminiMeta" class="mobile-tab-meta">Carregando...</span>
+              </span>
             </button>
           </div>
 

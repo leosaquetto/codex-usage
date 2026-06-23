@@ -1673,6 +1673,10 @@ function getElements() {
     platformGptMeta: document.getElementById("platformGptMeta"),
     platformGeminiPercent: document.getElementById("platformGeminiPercent"),
     platformGeminiMeta: document.getElementById("platformGeminiMeta"),
+    mobileGptPercent: document.getElementById("mobileGptPercent"),
+    mobileGptMeta: document.getElementById("mobileGptMeta"),
+    mobileGeminiPercent: document.getElementById("mobileGeminiPercent"),
+    mobileGeminiMeta: document.getElementById("mobileGeminiMeta"),
 
     // Codex Column elements
     codexStatusDot: document.getElementById("codexStatusDot"),
@@ -2461,8 +2465,11 @@ function renderDashboard(els, viewModel, hasLoadError = false) {
   // Populate platform overview cards
   const codexActiveCount = (viewModel.accounts || []).filter(a => a.isActive).length;
   if (els.platformGptPercent) els.platformGptPercent.textContent = viewModel.totalAvailability.weeklyText || "--%";
+  if (els.mobileGptPercent) els.mobileGptPercent.textContent = viewModel.totalAvailability.weeklyText || "--%";
   if (els.platformGptMeta) {
-    els.platformGptMeta.textContent = `${codexActiveCount} ${codexActiveCount === 1 ? "conta ativa" : "contas ativas"}`;
+    const text = `${codexActiveCount} ${codexActiveCount === 1 ? "conta ativa" : "contas ativas"}`;
+    els.platformGptMeta.textContent = text;
+    if (els.mobileGptMeta) els.mobileGptMeta.textContent = `${codexActiveCount} ${codexActiveCount === 1 ? "ativa" : "ativas"}`;
   }
 
   const geminiAccounts = (viewModel.antigravity && viewModel.antigravity.accounts) ? viewModel.antigravity.accounts : [];
@@ -2497,12 +2504,16 @@ function renderDashboard(els, viewModel, hasLoadError = false) {
   }
 
   if (els.platformGeminiPercent) els.platformGeminiPercent.textContent = geminiAvailabilityText;
+  if (els.mobileGeminiPercent) els.mobileGeminiPercent.textContent = geminiAvailabilityText;
   let geminiMetaText = `${activeAntigravityCount} ${activeAntigravityCount === 1 ? "conta ativa" : "contas ativas"}`;
+  let mobileGeminiMetaText = `${activeAntigravityCount} ${activeAntigravityCount === 1 ? "ativa" : "ativas"}`;
   if (activeGeminiAccount && activeGeminiAccount.email) {
     const isPro = activeGeminiAccount.email === "leosaquetto@gmail.com";
     geminiMetaText = `${isPro ? "PRO" : "Google"} · ${activeGeminiAccount.email}`;
+    mobileGeminiMetaText = isPro ? "PRO" : activeGeminiAccount.email.split("@")[0];
   }
   if (els.platformGeminiMeta) els.platformGeminiMeta.textContent = geminiMetaText;
+  if (els.mobileGeminiMeta) els.mobileGeminiMeta.textContent = mobileGeminiMetaText;
 
   // 1. Render ChatGPT/Codex Column
   // Status Bar

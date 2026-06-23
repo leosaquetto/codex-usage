@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-06-23T18:13:34.140Z",
+  "lastUpdated": "2026-06-23T18:23:49.604Z",
   "codex": {
     "source": "codex-switcher",
     "lastUpdated": "2026-06-23T18:13:34.140Z",
@@ -90238,30 +90238,30 @@
   },
   "antigravity": {
     "source": "desktop-automation",
-    "lastUpdated": "2026-06-23T17:23:22.919Z",
+    "lastUpdated": "2026-06-23T18:23:49.604Z",
     "accounts": [
       {
         "email": "leosaquetto@gmail.com",
-        "isActive": true,
-        "status": "success",
-        "lastUpdated": "2026-06-23T17:23:22.919Z",
+        "isActive": false,
+        "status": "cached",
+        "lastUpdated": "2026-06-23T18:23:49.604Z",
         "models": [
           {
             "id": "gemini-3-1-pro-low",
             "name": "Gemini 3.1 Pro",
             "tier": "Low",
-            "remainingPercent": 54.76392,
+            "remainingPercent": 100,
             "status": "ok",
-            "refreshText": "Refreshes soon",
-            "refreshAt": "2026-06-23T07:06:54Z"
+            "refreshText": "Refreshes in 4 hours, 55 minutes",
+            "refreshAt": "2026-06-23T23:18:27Z"
           },
           {
             "id": "gemini-3-1-pro-high",
             "name": "Gemini 3.1 Pro",
             "tier": "High",
-            "remainingPercent": 50.05186,
+            "remainingPercent": 50.05981,
             "status": "ok",
-            "refreshText": "Refreshes in 4 days, 10 hours",
+            "refreshText": "Refreshes in 4 days, 9 hours",
             "refreshAt": "2026-06-28T03:42:56Z"
           }
         ]
@@ -90270,7 +90270,7 @@
         "email": "leoaraujo1949@gmail.com",
         "isActive": false,
         "status": "cached",
-        "lastUpdated": "2026-06-23T17:23:22.919Z",
+        "lastUpdated": "2026-06-23T18:23:49.604Z",
         "models": [
           {
             "id": "gemini-3-1-pro-high",
@@ -90278,7 +90278,7 @@
             "tier": "High",
             "remainingPercent": 0,
             "status": "empty",
-            "refreshText": "Refreshes in 4 days, 10 hours",
+            "refreshText": "Refreshes in 4 days, 9 hours",
             "refreshAt": "2026-06-28T03:00:30Z"
           }
         ]
@@ -90287,7 +90287,7 @@
         "email": "leoativo10@gmail.com",
         "isActive": false,
         "status": "cached",
-        "lastUpdated": "2026-06-23T17:23:22.919Z",
+        "lastUpdated": "2026-06-23T18:23:49.604Z",
         "models": [
           {
             "id": "gemini-3-1-pro-high",
@@ -90295,7 +90295,7 @@
             "tier": "High",
             "remainingPercent": 0,
             "status": "empty",
-            "refreshText": "Refreshes in 4 days, 9 hours",
+            "refreshText": "Refreshes in 4 days, 8 hours",
             "refreshAt": "2026-06-28T02:38:13Z"
           }
         ]
@@ -90304,7 +90304,7 @@
         "email": "leonardo_araujo@live.com",
         "isActive": false,
         "status": "cached",
-        "lastUpdated": "2026-06-23T17:23:22.919Z",
+        "lastUpdated": "2026-06-23T18:23:49.604Z",
         "models": [
           {
             "id": "gemini-3-1-pro-high",
@@ -90312,7 +90312,7 @@
             "tier": "High",
             "remainingPercent": 0,
             "status": "empty",
-            "refreshText": "Refreshes in 4 days, 9 hours",
+            "refreshText": "Refreshes in 4 days, 8 hours",
             "refreshAt": "2026-06-28T02:47:41Z"
           }
         ]
@@ -90321,7 +90321,7 @@
         "email": "leosaquetto.jobs@gmail.com",
         "isActive": false,
         "status": "cached",
-        "lastUpdated": "2026-06-23T17:23:22.919Z",
+        "lastUpdated": "2026-06-23T18:23:49.604Z",
         "models": [
           {
             "id": "gemini-3-1-pro-high",
@@ -90329,7 +90329,7 @@
             "tier": "High",
             "remainingPercent": 0,
             "status": "empty",
-            "refreshText": "Refreshes in 4 days, 10 hours",
+            "refreshText": "Refreshes in 4 days, 9 hours",
             "refreshAt": "2026-06-28T03:22:48Z"
           }
         ]
@@ -90338,7 +90338,7 @@
         "email": "laraujo@outlook.com",
         "isActive": false,
         "status": "cached",
-        "lastUpdated": "2026-06-23T17:23:22.919Z",
+        "lastUpdated": "2026-06-23T18:23:49.604Z",
         "models": [
           {
             "id": "gemini-3-1-pro-high",
@@ -90346,7 +90346,7 @@
             "tier": "High",
             "remainingPercent": 0.264,
             "status": "low",
-            "refreshText": "Refreshes in 4 days, 21 hours",
+            "refreshText": "Refreshes in 4 days, 20 hours",
             "refreshAt": "2026-06-28T14:03:24Z"
           }
         ]
@@ -90355,7 +90355,7 @@
         "email": "leosaquetto1@gmail.com",
         "isActive": false,
         "status": "cached",
-        "lastUpdated": "2026-06-23T17:23:22.919Z",
+        "lastUpdated": "2026-06-23T18:23:49.604Z",
         "models": [
           {
             "id": "gemini-3-1-pro-high",
@@ -90363,24 +90363,24 @@
             "tier": "High",
             "remainingPercent": 0,
             "status": "empty",
-            "refreshText": "Refreshes in 5 days, 3 hours",
+            "refreshText": "Refreshes in 5 days, 2 hours",
             "refreshAt": "2026-06-28T20:28:14Z"
           }
         ]
       },
       {
         "email": "leosaquetto0@gmail.com",
-        "isActive": false,
-        "status": "cached",
-        "lastUpdated": "2026-06-23T17:23:22.919Z",
+        "isActive": true,
+        "status": "success",
+        "lastUpdated": "2026-06-23T18:23:49.604Z",
         "models": [
           {
             "id": "gemini-3-1-pro-high",
             "name": "Gemini 3.1 Pro",
             "tier": "High",
-            "remainingPercent": 86.9202,
+            "remainingPercent": 84.93003,
             "status": "ok",
-            "refreshText": "Refreshes in 5 days, 3 hours",
+            "refreshText": "Refreshes in 5 days, 2 hours",
             "refreshAt": "2026-06-28T20:16:48Z"
           }
         ]
@@ -90388,22 +90388,13 @@
     ],
     "models": [
       {
-        "id": "gemini-3-1-pro-low",
-        "name": "Gemini 3.1 Pro",
-        "tier": "Low",
-        "remainingPercent": 54.76392,
-        "status": "ok",
-        "refreshText": "Refreshes soon",
-        "refreshAt": "2026-06-23T07:06:54Z"
-      },
-      {
         "id": "gemini-3-1-pro-high",
         "name": "Gemini 3.1 Pro",
         "tier": "High",
-        "remainingPercent": 50.05186,
+        "remainingPercent": 84.93003,
         "status": "ok",
-        "refreshText": "Refreshes in 4 days, 10 hours",
-        "refreshAt": "2026-06-28T03:42:56Z"
+        "refreshText": "Refreshes in 5 days, 2 hours",
+        "refreshAt": "2026-06-28T20:16:48Z"
       }
     ]
   }

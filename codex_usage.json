@@ -1,19 +1,19 @@
 {
   "source": "codex-switcher",
-  "lastUpdated": "2026-06-23T04:15:11.507Z",
+  "lastUpdated": "2026-06-23T04:30:31.651Z",
   "accountCount": 4,
   "okCount": 4,
-  "activeAccountId": "bf5b7ec7-3004-4883-97b4-9fdd6bb93fd7",
+  "activeAccountId": "16876632-bbc6-40cd-88fe-2000fb2bbf7c",
   "aggregate": {
-    "fiveHourPercent": 60,
+    "fiveHourPercent": 53,
     "fiveHourReset": "2026-06-23T05:16:35.000Z",
-    "weeklyPercent": 33,
+    "weeklyPercent": 32,
     "weeklyReset": "2026-06-24T22:32:09.000Z",
-    "lastUpdated": "2026-06-23T04:15:11.507Z"
+    "lastUpdated": "2026-06-23T04:30:31.651Z"
   },
-  "fiveHourPercent": 60,
+  "fiveHourPercent": 53,
   "fiveHourReset": "2026-06-23T05:16:35.000Z",
-  "weeklyPercent": 33,
+  "weeklyPercent": 32,
   "weeklyReset": "2026-06-24T22:32:09.000Z",
   "accounts": [
     {
@@ -28,7 +28,7 @@
       "lastUsedAt": "2026-06-21T00:42:39.445Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-23T09:15:20.000Z",
+      "fiveHourReset": "2026-06-23T09:30:33.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 0,
       "weeklyUsedPercent": 100,
@@ -39,7 +39,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-23T04:15:11.507Z",
+      "lastUpdated": "2026-06-23T04:30:31.651Z",
       "status": "ok",
       "error": null
     },
@@ -66,7 +66,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-23T04:15:11.507Z",
+      "lastUpdated": "2026-06-23T04:30:31.651Z",
       "status": "ok",
       "error": null
     },
@@ -93,7 +93,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-23T04:15:11.507Z",
+      "lastUpdated": "2026-06-23T04:30:31.651Z",
       "status": "ok",
       "error": null
     },
@@ -120,7 +120,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-23T04:15:11.507Z",
+      "lastUpdated": "2026-06-23T04:30:31.651Z",
       "status": "ok",
       "error": null
     },
@@ -147,7 +147,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-23T04:15:11.507Z",
+      "lastUpdated": "2026-06-23T04:30:31.651Z",
       "status": "ok",
       "error": null
     },
@@ -159,14 +159,14 @@
       "email": "leoaraujo1949@gmail.com",
       "planType": "plus",
       "subscriptionExpiresAt": "2026-06-25T20:50:41.000Z",
-      "isActive": false,
-      "lastUsedAt": "2026-06-22T22:25:36.025Z",
-      "fiveHourPercent": 99,
-      "fiveHourUsedPercent": 1,
+      "isActive": true,
+      "lastUsedAt": "2026-06-23T04:15:47.249Z",
+      "fiveHourPercent": 73,
+      "fiveHourUsedPercent": 27,
       "fiveHourReset": "2026-06-23T08:36:29.000Z",
       "fiveHourWindowMinutes": 300,
-      "weeklyPercent": 22,
-      "weeklyUsedPercent": 78,
+      "weeklyPercent": 18,
+      "weeklyUsedPercent": 82,
       "weeklyReset": "2026-06-28T22:01:50.000Z",
       "weeklyWindowMinutes": 10080,
       "credits": {
@@ -174,7 +174,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-23T04:15:11.507Z",
+      "lastUpdated": "2026-06-23T04:30:31.651Z",
       "status": "ok",
       "error": null
     },
@@ -201,7 +201,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-23T04:15:11.507Z",
+      "lastUpdated": "2026-06-23T04:30:31.651Z",
       "status": "ok",
       "error": null
     },
@@ -228,7 +228,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-23T04:15:11.507Z",
+      "lastUpdated": "2026-06-23T04:30:31.651Z",
       "status": "ok",
       "error": null
     },
@@ -255,7 +255,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-23T04:15:11.507Z",
+      "lastUpdated": "2026-06-23T04:30:31.651Z",
       "status": "ok",
       "error": null
     },
@@ -267,7 +267,7 @@
       "email": "camafeus45verde@icloud.com",
       "planType": "plus",
       "subscriptionExpiresAt": null,
-      "isActive": true,
+      "isActive": false,
       "lastUsedAt": "2026-06-23T01:08:10.964Z",
       "fiveHourPercent": 40,
       "fiveHourUsedPercent": 60,
@@ -282,7 +282,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-23T04:15:11.507Z",
+      "lastUpdated": "2026-06-23T04:30:31.651Z",
       "status": "ok",
       "error": null
     }

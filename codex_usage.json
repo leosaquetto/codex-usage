@@ -1,19 +1,19 @@
 {
   "source": "codex-switcher",
-  "lastUpdated": "2026-06-23T18:13:34.140Z",
+  "lastUpdated": "2026-06-23T18:29:57.623Z",
   "accountCount": 4,
   "okCount": 4,
   "activeAccountId": "7ab92aa0-bd56-4333-b948-b0734bc8c2d6",
   "aggregate": {
-    "fiveHourPercent": 59,
+    "fiveHourPercent": 53,
     "fiveHourReset": "2026-06-23T20:19:25.000Z",
-    "weeklyPercent": 33,
+    "weeklyPercent": 32,
     "weeklyReset": "2026-06-24T22:32:09.000Z",
-    "lastUpdated": "2026-06-23T18:13:34.140Z"
+    "lastUpdated": "2026-06-23T18:29:57.623Z"
   },
-  "fiveHourPercent": 59,
+  "fiveHourPercent": 53,
   "fiveHourReset": "2026-06-23T20:19:25.000Z",
-  "weeklyPercent": 33,
+  "weeklyPercent": 32,
   "weeklyReset": "2026-06-24T22:32:09.000Z",
   "accounts": [
     {
@@ -28,7 +28,7 @@
       "lastUsedAt": "2026-06-21T00:42:39.445Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-23T23:13:35.000Z",
+      "fiveHourReset": "2026-06-23T23:30:03.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 0,
       "weeklyUsedPercent": 100,
@@ -39,7 +39,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-23T18:13:34.140Z",
+      "lastUpdated": "2026-06-23T18:29:57.623Z",
       "status": "ok",
       "error": null
     },
@@ -66,7 +66,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-23T18:13:34.140Z",
+      "lastUpdated": "2026-06-23T18:29:57.623Z",
       "status": "ok",
       "error": null
     },
@@ -93,7 +93,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-23T18:13:34.140Z",
+      "lastUpdated": "2026-06-23T18:29:57.623Z",
       "status": "ok",
       "error": null
     },
@@ -120,7 +120,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-23T18:13:34.140Z",
+      "lastUpdated": "2026-06-23T18:29:57.623Z",
       "status": "ok",
       "error": null
     },
@@ -147,7 +147,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-23T18:13:34.140Z",
+      "lastUpdated": "2026-06-23T18:29:57.623Z",
       "status": "ok",
       "error": null
     },
@@ -163,18 +163,18 @@
       "lastUsedAt": "2026-06-23T15:04:06.803Z",
       "fiveHourPercent": 0,
       "fiveHourUsedPercent": 100,
-      "fiveHourReset": "2026-06-23T20:26:22.000Z",
+      "fiveHourReset": "2026-06-23T20:26:23.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 84,
       "weeklyUsedPercent": 16,
-      "weeklyReset": "2026-06-30T15:26:22.000Z",
+      "weeklyReset": "2026-06-30T15:26:23.000Z",
       "weeklyWindowMinutes": 10080,
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-23T18:13:34.140Z",
+      "lastUpdated": "2026-06-23T18:29:57.623Z",
       "status": "ok",
       "error": null
     },
@@ -194,14 +194,14 @@
       "fiveHourWindowMinutes": null,
       "weeklyPercent": 0,
       "weeklyUsedPercent": 100,
-      "weeklyReset": "2026-07-21T04:43:49.000Z",
+      "weeklyReset": "2026-07-21T04:43:48.000Z",
       "weeklyWindowMinutes": 43200,
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-23T18:13:34.140Z",
+      "lastUpdated": "2026-06-23T18:29:57.623Z",
       "status": "ok",
       "error": null
     },
@@ -228,7 +228,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-23T18:13:34.140Z",
+      "lastUpdated": "2026-06-23T18:29:57.623Z",
       "status": "ok",
       "error": null
     },
@@ -242,12 +242,12 @@
       "subscriptionExpiresAt": "2026-07-18T12:58:46.000Z",
       "isActive": true,
       "lastUsedAt": "2026-06-23T17:46:47.555Z",
-      "fiveHourPercent": 39,
-      "fiveHourUsedPercent": 61,
+      "fiveHourPercent": 15,
+      "fiveHourUsedPercent": 85,
       "fiveHourReset": "2026-06-23T20:19:25.000Z",
       "fiveHourWindowMinutes": 300,
-      "weeklyPercent": 9,
-      "weeklyUsedPercent": 91,
+      "weeklyPercent": 5,
+      "weeklyUsedPercent": 95,
       "weeklyReset": "2026-06-29T14:07:21.000Z",
       "weeklyWindowMinutes": 10080,
       "credits": {
@@ -255,7 +255,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-23T18:13:34.140Z",
+      "lastUpdated": "2026-06-23T18:29:57.623Z",
       "status": "ok",
       "error": null
     },
@@ -275,14 +275,14 @@
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 37,
       "weeklyUsedPercent": 63,
-      "weeklyReset": "2026-06-29T16:25:48.000Z",
+      "weeklyReset": "2026-06-29T16:25:47.000Z",
       "weeklyWindowMinutes": 10080,
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-23T18:13:34.140Z",
+      "lastUpdated": "2026-06-23T18:29:57.623Z",
       "status": "ok",
       "error": null
     }

@@ -3188,11 +3188,13 @@ function bindEvents(els, usage, render) {
   });
 
   els.resetViewButton?.addEventListener("click", () => {
-    activeView = activeView === "resets" ? "dashboard" : "resets";
-    activeSidebarTab = activeView === "resets" ? "reports" : "dashboard";
     triggerHaptic(10);
-    render();
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    switchView(() => {
+      activeView = activeView === "resets" ? "dashboard" : "resets";
+      activeSidebarTab = activeView === "resets" ? "reports" : "dashboard";
+      render();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
   });
 
   els.resetAllButton?.addEventListener("click", () => {
@@ -3283,6 +3285,24 @@ function bindEvents(els, usage, render) {
     });
   }
 
+  // View switching transition helper
+  function switchView(action) {
+    const container = document.querySelector(".app-main-content");
+    if (!container) {
+      action();
+      return;
+    }
+    container.classList.add("view-transition-fade");
+    setTimeout(() => {
+      action();
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          container.classList.remove("view-transition-fade");
+        }, 50);
+      });
+    }, 120);
+  }
+
   // Sidebar Navigation Click Handlers
   const sidebarNavItems = document.querySelectorAll(".sidebar-nav .nav-item, .mobile-nav-bar .mobile-nav-item");
   sidebarNavItems.forEach(item => {
@@ -3292,28 +3312,30 @@ function bindEvents(els, usage, render) {
       
       triggerHaptic(8);
       
-      if (tab === "dashboard") {
-        activeView = "dashboard";
-        activeSidebarTab = "dashboard";
-        render();
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      } else if (tab === "accounts") {
-        activeView = "dashboard";
-        activeSidebarTab = "accounts";
-        render();
-        const activePanelId = activeMobileTab === "antigravity" ? "antigravityActiveAccountPanel" : "codexActiveAccountPanel";
-        document.getElementById(activePanelId)?.scrollIntoView({ behavior: "smooth" });
-      } else if (tab === "models") {
-        activeView = "dashboard";
-        activeSidebarTab = "models";
-        render();
-        document.getElementById("antigravityPanel")?.scrollIntoView({ behavior: "smooth" });
-      } else if (tab === "reports") {
-        activeView = "resets";
-        activeSidebarTab = "reports";
-        render();
-        document.getElementById("weeklyResetArea")?.scrollIntoView({ behavior: "smooth" });
-      }
+      switchView(() => {
+        if (tab === "dashboard") {
+          activeView = "dashboard";
+          activeSidebarTab = "dashboard";
+          render();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else if (tab === "accounts") {
+          activeView = "dashboard";
+          activeSidebarTab = "accounts";
+          render();
+          const activePanelId = activeMobileTab === "antigravity" ? "antigravityActiveAccountPanel" : "codexActiveAccountPanel";
+          document.getElementById(activePanelId)?.scrollIntoView({ behavior: "smooth" });
+        } else if (tab === "models") {
+          activeView = "dashboard";
+          activeSidebarTab = "models";
+          render();
+          document.getElementById("antigravityPanel")?.scrollIntoView({ behavior: "smooth" });
+        } else if (tab === "reports") {
+          activeView = "resets";
+          activeSidebarTab = "reports";
+          render();
+          document.getElementById("weeklyResetArea")?.scrollIntoView({ behavior: "smooth" });
+        }
+      });
     });
   });
 

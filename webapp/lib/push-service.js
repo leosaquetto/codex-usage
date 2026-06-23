@@ -4,7 +4,12 @@ const {
   loadPushState,
   removeSubscription,
   savePushState,
+  saveUsageData,
 } = require("./push-store");
+
+// Cache em memória local para early exit (evita ler o estado do Blob se nada mudou)
+let lastProcessedUsageUpdated = null;
+let lastProcessedHasLoadError = null;
 
 function configureWebPush() {
   const subject = process.env.VAPID_SUBJECT;
@@ -44,13 +49,79 @@ async function sendPush(subscription, payload) {
 
 async function dispatchUsagePushes(usage, hasLoadError = false) {
   configureWebPush();
-  const { evaluateNotificationSignals, markNotificationSignalSent } = await import("../notification-engine.mjs");
+
+  const { resetBlobOps, getBlobOps } = require("./push-store");
+  resetBlobOps();
+
+  // 1. Verificação do cache quente local (memória) para evitar chamadas de rede desnecessárias
+  if (
+    usage &&
+    lastProcessedUsageUpdated === usage.lastUpdated &&
+    lastProcessedHasLoadError === hasLoadError
+  ) {
+    console.log("dispatch skipped: no relevant change (warm cache)");
+    const ops = getBlobOps();
+    console.log(`blob ops this run: simple=${ops.simple} advanced=${ops.advanced}`);
+    return { signals: 0, subscriptions: 0, sent: 0, removed: 0, failed: 0 };
+  }
+
+  // Carrega o estado persistido do Blob (custa 1 get / operação simples)
   const state = await loadPushState();
+
+  // 2. Verificação de cache persistente (útil após cold start)
+  if (
+    usage &&
+    state &&
+    state.lastEvaluatedUsageUpdated === usage.lastUpdated &&
+    state.lastEvaluatedHasLoadError === hasLoadError
+  ) {
+    // Atualiza o cache quente local
+    lastProcessedUsageUpdated = usage.lastUpdated;
+    lastProcessedHasLoadError = hasLoadError;
+
+    console.log("dispatch skipped: no relevant change");
+    const ops = getBlobOps();
+    console.log(`blob ops this run: simple=${ops.simple} advanced=${ops.advanced}`);
+    return { signals: 0, subscriptions: 0, sent: 0, removed: 0, failed: 0 };
+  }
+
+  const { evaluateNotificationSignals, markNotificationSignalSent } = await import("../notification-engine.mjs");
   const { signals, nextState } = evaluateNotificationSignals({
     usage,
     state,
     hasLoadError,
   });
+
+  // Atualiza propriedades de controle do estado processado
+  if (usage) {
+    nextState.lastEvaluatedUsageUpdated = usage.lastUpdated;
+  }
+  nextState.lastEvaluatedHasLoadError = hasLoadError;
+
+  // Atualiza cache quente local em memória
+  if (usage) {
+    lastProcessedUsageUpdated = usage.lastUpdated;
+  }
+  lastProcessedHasLoadError = hasLoadError;
+
+  // Se não houver notificações/sinais para processar
+  if (signals.length === 0) {
+    // Opcionalmente atualiza dados de uso se necessário (respeitando o throttling individual)
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      try {
+        await saveUsageData(usage);
+      } catch (err) {
+        console.error("[Push Service] Falha ao espelhar dados de uso no Vercel Blob:", err?.message || err);
+      }
+    }
+
+    // ATENÇÃO: NÃO grava o push/state.json no Blob se signals for 0 (evitando escrita incondicional)
+    const ops = getBlobOps();
+    console.log(`blob ops this run: simple=${ops.simple} advanced=${ops.advanced}`);
+    return { signals: 0, subscriptions: 0, sent: 0, removed: 0, failed: 0 };
+  }
+
+  // Se houver sinais, carrega a lista de subscriptions (lê o índice, custa 1 get / op simples)
   const subscriptions = await listSubscriptions();
   let sent = 0;
   let removed = 0;
@@ -78,7 +149,21 @@ async function dispatchUsagePushes(usage, hasLoadError = false) {
     if (signalSent) markNotificationSignalSent(nextState, signal);
   }
 
+  // Salva dados de uso se o token estiver ativo
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    try {
+      await saveUsageData(usage);
+    } catch (err) {
+      console.error("[Push Service] Falha ao espelhar dados de uso no Vercel Blob:", err?.message || err);
+    }
+  }
+
+  // Grava o novo estado no Blob apenas se houve notificações enviadas
   await savePushState(nextState);
+
+  const ops = getBlobOps();
+  console.log(`blob ops this run: simple=${ops.simple} advanced=${ops.advanced}`);
+
   return { signals: signals.length, subscriptions: subscriptions.length, sent, removed, failed };
 }
 

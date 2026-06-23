@@ -1,6 +1,7 @@
 const { readFile } = require("fs/promises")
 const { resolve } = require("path")
 const { buildWeeklyResetEvents, numberOrNull } = require("../weekly-reset-events.cjs")
+const { readJsonBlob, CODEX_USAGE_BLOB_PATH } = require("../lib/push-store")
 
 const STALE_AFTER_MS = 60 * 60 * 1000
 const LONG_WINDOW_MINUTES = 20 * 24 * 60
@@ -493,15 +494,36 @@ async function usageHandler(req, res) {
       return res.status(200).json(enrichPayload(localPayload, localHistory, localAntigravity))
     }
 
-    const remotePayload = HAS_CUSTOM_REMOTE_URLS
-      ? await fetchRawJson(REMOTE_USAGE_URL)
-      : await fetchRemoteJson(REMOTE_USAGE_PATH, REMOTE_USAGE_URL)
-    const remoteHistory = HAS_CUSTOM_REMOTE_URLS
-      ? await fetchRawJson(REMOTE_HISTORY_URL, false)
-      : await fetchRemoteJson(REMOTE_HISTORY_PATH, REMOTE_HISTORY_URL, false)
-    const remoteAntigravity = HAS_CUSTOM_REMOTE_URLS
-      ? await fetchRawJson(REMOTE_ANTIGRAVITY_URL, false)
-      : await fetchRemoteJson(REMOTE_ANTIGRAVITY_PATH, REMOTE_ANTIGRAVITY_URL, false)
+    let remotePayload = null;
+    let remoteHistory = null;
+    let remoteAntigravity = null;
+
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      try {
+        remotePayload = await readJsonBlob(CODEX_USAGE_BLOB_PATH);
+        remoteHistory = await readJsonBlob("codex_usage_history.json", null);
+        remoteAntigravity = await readJsonBlob("antigravity_usage.json", null);
+      } catch (blobError) {
+        console.error("[Usage API] Erro ao carregar dados do Vercel Blob:", blobError?.message || blobError);
+      }
+    }
+
+    if (!remotePayload) {
+      remotePayload = HAS_CUSTOM_REMOTE_URLS
+        ? await fetchRawJson(REMOTE_USAGE_URL)
+        : await fetchRemoteJson(REMOTE_USAGE_PATH, REMOTE_USAGE_URL);
+    }
+    if (!remoteHistory) {
+      remoteHistory = HAS_CUSTOM_REMOTE_URLS
+        ? await fetchRawJson(REMOTE_HISTORY_URL, false)
+        : await fetchRemoteJson(REMOTE_HISTORY_PATH, REMOTE_HISTORY_URL, false);
+    }
+    if (!remoteAntigravity) {
+      remoteAntigravity = HAS_CUSTOM_REMOTE_URLS
+        ? await fetchRawJson(REMOTE_ANTIGRAVITY_URL, false)
+        : await fetchRemoteJson(REMOTE_ANTIGRAVITY_PATH, REMOTE_ANTIGRAVITY_URL, false);
+    }
+
     return res.status(200).json(enrichPayload(remotePayload, remoteHistory, remoteAntigravity))
   } catch (remoteError) {
     try {

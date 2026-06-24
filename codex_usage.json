@@ -1,19 +1,19 @@
 {
   "source": "codex-switcher",
-  "lastUpdated": "2026-06-24T23:20:09.804Z",
+  "lastUpdated": "2026-06-24T23:35:26.636Z",
   "accountCount": 4,
   "okCount": 4,
-  "activeAccountId": "7ab92aa0-bd56-4333-b948-b0734bc8c2d6",
+  "activeAccountId": "bf5b7ec7-3004-4883-97b4-9fdd6bb93fd7",
   "aggregate": {
-    "fiveHourPercent": 74,
+    "fiveHourPercent": 67,
     "fiveHourReset": "2026-06-25T00:54:47.000Z",
-    "weeklyPercent": 54,
+    "weeklyPercent": 53,
     "weeklyReset": "2026-06-30T15:26:22.000Z",
-    "lastUpdated": "2026-06-24T23:20:09.804Z"
+    "lastUpdated": "2026-06-24T23:35:26.636Z"
   },
-  "fiveHourPercent": 74,
+  "fiveHourPercent": 67,
   "fiveHourReset": "2026-06-25T00:54:47.000Z",
-  "weeklyPercent": 54,
+  "weeklyPercent": 53,
   "weeklyReset": "2026-06-30T15:26:22.000Z",
   "accounts": [
     {
@@ -28,18 +28,18 @@
       "lastUsedAt": "2026-06-21T00:42:39.445Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
-      "fiveHourReset": "2026-06-25T04:20:11.000Z",
+      "fiveHourReset": "2026-06-25T04:35:27.000Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 100,
       "weeklyUsedPercent": 0,
-      "weeklyReset": "2026-07-01T23:20:11.000Z",
+      "weeklyReset": "2026-07-01T23:35:27.000Z",
       "weeklyWindowMinutes": 10080,
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-24T23:20:09.804Z",
+      "lastUpdated": "2026-06-24T23:35:26.636Z",
       "status": "ok",
       "error": null
     },
@@ -66,7 +66,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-24T23:20:09.804Z",
+      "lastUpdated": "2026-06-24T23:35:26.636Z",
       "status": "ok",
       "error": null
     },
@@ -93,7 +93,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-24T23:20:09.804Z",
+      "lastUpdated": "2026-06-24T23:35:26.636Z",
       "status": "ok",
       "error": null
     },
@@ -120,7 +120,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-24T23:20:09.804Z",
+      "lastUpdated": "2026-06-24T23:35:26.636Z",
       "status": "ok",
       "error": null
     },
@@ -147,7 +147,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-24T23:20:09.804Z",
+      "lastUpdated": "2026-06-24T23:35:26.636Z",
       "status": "ok",
       "error": null
     },
@@ -174,7 +174,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-24T23:20:09.804Z",
+      "lastUpdated": "2026-06-24T23:35:26.636Z",
       "status": "ok",
       "error": null
     },
@@ -201,7 +201,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-24T23:20:09.804Z",
+      "lastUpdated": "2026-06-24T23:35:26.636Z",
       "status": "ok",
       "error": null
     },
@@ -228,7 +228,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-24T23:20:09.804Z",
+      "lastUpdated": "2026-06-24T23:35:26.636Z",
       "status": "ok",
       "error": null
     },
@@ -240,7 +240,7 @@
       "email": "jv5pdcwnxp@privaterelay.appleid.com",
       "planType": "plus",
       "subscriptionExpiresAt": "2026-07-18T12:58:46.000Z",
-      "isActive": true,
+      "isActive": false,
       "lastUsedAt": "2026-06-24T18:12:40.343Z",
       "fiveHourPercent": 0,
       "fiveHourUsedPercent": 100,
@@ -255,7 +255,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-24T23:20:09.804Z",
+      "lastUpdated": "2026-06-24T23:35:26.636Z",
       "status": "ok",
       "error": null
     },
@@ -267,14 +267,14 @@
       "email": "camafeus45verde@icloud.com",
       "planType": "plus",
       "subscriptionExpiresAt": null,
-      "isActive": false,
-      "lastUsedAt": "2026-06-24T14:45:30.751Z",
-      "fiveHourPercent": 99,
-      "fiveHourUsedPercent": 1,
+      "isActive": true,
+      "lastUsedAt": "2026-06-24T23:22:18.045Z",
+      "fiveHourPercent": 68,
+      "fiveHourUsedPercent": 32,
       "fiveHourReset": "2026-06-25T01:34:29.000Z",
       "fiveHourWindowMinutes": 300,
-      "weeklyPercent": 59,
-      "weeklyUsedPercent": 41,
+      "weeklyPercent": 54,
+      "weeklyUsedPercent": 46,
       "weeklyReset": "2026-07-01T05:31:26.000Z",
       "weeklyWindowMinutes": 10080,
       "credits": {
@@ -282,7 +282,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-24T23:20:09.804Z",
+      "lastUpdated": "2026-06-24T23:35:26.636Z",
       "status": "ok",
       "error": null
     }

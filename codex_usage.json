@@ -1,15 +1,15 @@
 {
   "source": "codex-switcher",
-  "lastUpdated": "2026-06-25T16:12:14.631Z",
+  "lastUpdated": "2026-06-25T16:22:20.714Z",
   "accountCount": 4,
   "okCount": 4,
-  "activeAccountId": "be5c4686-c38c-4cac-9296-5cd93d2f1274",
+  "activeAccountId": "bf5b7ec7-3004-4883-97b4-9fdd6bb93fd7",
   "aggregate": {
     "fiveHourPercent": 74,
     "fiveHourReset": "2026-06-25T16:38:06.000Z",
     "weeklyPercent": 33,
     "weeklyReset": "2026-06-30T15:26:22.000Z",
-    "lastUpdated": "2026-06-25T16:12:14.631Z"
+    "lastUpdated": "2026-06-25T16:22:20.714Z"
   },
   "fiveHourPercent": 74,
   "fiveHourReset": "2026-06-25T16:38:06.000Z",
@@ -24,14 +24,14 @@
       "email": "contatonatanaelrodrigs@gmail.com",
       "planType": "plus",
       "subscriptionExpiresAt": "2026-06-26T14:28:52.000Z",
-      "isActive": true,
+      "isActive": false,
       "lastUsedAt": "2026-06-25T14:38:02.695Z",
       "fiveHourPercent": 0,
       "fiveHourUsedPercent": 100,
       "fiveHourReset": "2026-06-25T19:44:56.000Z",
       "fiveHourWindowMinutes": 300,
-      "weeklyPercent": 66,
-      "weeklyUsedPercent": 34,
+      "weeklyPercent": 65,
+      "weeklyUsedPercent": 35,
       "weeklyReset": "2026-07-02T01:34:17.000Z",
       "weeklyWindowMinutes": 10080,
       "credits": {
@@ -39,7 +39,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-25T16:12:14.631Z",
+      "lastUpdated": "2026-06-25T16:22:20.714Z",
       "status": "ok",
       "error": null
     },
@@ -66,7 +66,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-25T16:12:14.631Z",
+      "lastUpdated": "2026-06-25T16:22:20.714Z",
       "status": "ok",
       "error": null
     },
@@ -93,7 +93,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-25T16:12:14.631Z",
+      "lastUpdated": "2026-06-25T16:22:20.714Z",
       "status": "ok",
       "error": null
     },
@@ -120,7 +120,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-25T16:12:14.631Z",
+      "lastUpdated": "2026-06-25T16:22:20.714Z",
       "status": "ok",
       "error": null
     },
@@ -147,7 +147,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-25T16:12:14.631Z",
+      "lastUpdated": "2026-06-25T16:22:20.714Z",
       "status": "ok",
       "error": null
     },
@@ -174,7 +174,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-25T16:12:14.631Z",
+      "lastUpdated": "2026-06-25T16:22:20.714Z",
       "status": "ok",
       "error": null
     },
@@ -201,7 +201,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-25T16:12:14.631Z",
+      "lastUpdated": "2026-06-25T16:22:20.714Z",
       "status": "ok",
       "error": null
     },
@@ -228,7 +228,7 @@
         "unlimited": false,
         "balance": null
       },
-      "lastUpdated": "2026-06-25T16:12:14.631Z",
+      "lastUpdated": "2026-06-25T16:22:20.714Z",
       "status": "ok",
       "error": null
     },
@@ -255,7 +255,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-25T16:12:14.631Z",
+      "lastUpdated": "2026-06-25T16:22:20.714Z",
       "status": "ok",
       "error": null
     },
@@ -267,8 +267,8 @@
       "email": "camafeus45verde@icloud.com",
       "planType": "plus",
       "subscriptionExpiresAt": "2026-07-22T22:25:00.000Z",
-      "isActive": false,
-      "lastUsedAt": "2026-06-24T23:22:18.045Z",
+      "isActive": true,
+      "lastUsedAt": "2026-06-25T16:15:28.026Z",
       "fiveHourPercent": 99,
       "fiveHourUsedPercent": 1,
       "fiveHourReset": "2026-06-25T16:38:06.000Z",
@@ -282,7 +282,7 @@
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-06-25T16:12:14.631Z",
+      "lastUpdated": "2026-06-25T16:22:20.714Z",
       "status": "ok",
       "error": null
     }

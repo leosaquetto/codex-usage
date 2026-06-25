@@ -1,14 +1,7 @@
 {
   "version": 2,
-  "lastUpdated": "2026-06-25T22:21:36.378Z",
+  "lastUpdated": "2026-06-25T22:37:09.552Z",
   "samples": [
-    {
-      "capturedAt": "2026-06-03T01:17:42.390Z",
-      "fiveHourPercent": 99,
-      "fiveHourReset": "2026-06-03T06:17:43.000Z",
-      "weeklyPercent": 37,
-      "weeklyReset": "2026-06-07T17:12:17.000Z"
-    },
     {
       "capturedAt": "2026-06-03T01:32:48.905Z",
       "fiveHourPercent": 99,
@@ -13998,6 +13991,13 @@
     {
       "capturedAt": "2026-06-25T22:21:36.378Z",
       "fiveHourPercent": 97,
+      "fiveHourReset": "2026-06-26T02:08:34.000Z",
+      "weeklyPercent": 29,
+      "weeklyReset": "2026-06-30T23:51:50.000Z"
+    },
+    {
+      "capturedAt": "2026-06-25T22:37:09.552Z",
+      "fiveHourPercent": 96,
       "fiveHourReset": "2026-06-26T02:08:34.000Z",
       "weeklyPercent": 29,
       "weeklyReset": "2026-06-30T23:51:50.000Z"
@@ -93526,6 +93526,27 @@
     },
     {
       "capturedAt": "2026-06-25T22:21:36.378Z",
+      "email": "jv5pdcwnxp@privaterelay.appleid.com",
+      "displayName": "LEO I",
+      "weeklyPercent": 4,
+      "weeklyReset": "2026-06-30T23:51:50.000Z"
+    },
+    {
+      "capturedAt": "2026-06-25T22:37:09.552Z",
+      "email": "camafeus45verde@icloud.com",
+      "displayName": "LEO III",
+      "weeklyPercent": 19,
+      "weeklyReset": "2026-07-01T05:31:26.000Z"
+    },
+    {
+      "capturedAt": "2026-06-25T22:37:09.552Z",
+      "email": "contatonatanaelrodrigs@gmail.com",
+      "displayName": "NATANAEL",
+      "weeklyPercent": 64,
+      "weeklyReset": "2026-07-02T01:34:17.000Z"
+    },
+    {
+      "capturedAt": "2026-06-25T22:37:09.552Z",
       "email": "jv5pdcwnxp@privaterelay.appleid.com",
       "displayName": "LEO I",
       "weeklyPercent": 4,

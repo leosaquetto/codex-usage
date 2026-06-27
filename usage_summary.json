@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-06-27T10:09:31.932Z",
+  "lastUpdated": "2026-06-27T10:23:09.415Z",
   "codex": {
     "source": "codex-switcher",
     "lastUpdated": "2026-06-27T10:09:31.932Z",
@@ -98185,13 +98185,13 @@
   },
   "antigravity": {
     "source": "desktop-automation",
-    "lastUpdated": "2026-06-27T09:23:04.078Z",
+    "lastUpdated": "2026-06-27T10:23:09.415Z",
     "accounts": [
       {
         "email": "leosaquetto@gmail.com",
         "isActive": false,
         "status": "cached",
-        "lastUpdated": "2026-06-27T09:23:04.078Z",
+        "lastUpdated": "2026-06-27T10:23:09.415Z",
         "models": [
           {
             "id": "gemini-3-1-pro-low",
@@ -98208,7 +98208,7 @@
             "tier": "High",
             "remainingPercent": 50.05981,
             "status": "ok",
-            "refreshText": "Refreshes in 18 hours, 20 minutes",
+            "refreshText": "Refreshes in 17 hours, 20 minutes",
             "refreshAt": "2026-06-28T03:42:56Z"
           }
         ]
@@ -98217,7 +98217,7 @@
         "email": "leoaraujo1949@gmail.com",
         "isActive": false,
         "status": "cached",
-        "lastUpdated": "2026-06-27T09:23:04.078Z",
+        "lastUpdated": "2026-06-27T10:23:09.415Z",
         "models": [
           {
             "id": "gemini-3-1-pro-high",
@@ -98225,7 +98225,7 @@
             "tier": "High",
             "remainingPercent": 0,
             "status": "empty",
-            "refreshText": "Refreshes in 17 hours, 37 minutes",
+            "refreshText": "Refreshes in 16 hours, 37 minutes",
             "refreshAt": "2026-06-28T03:00:30Z"
           }
         ]
@@ -98234,7 +98234,7 @@
         "email": "leoativo10@gmail.com",
         "isActive": false,
         "status": "cached",
-        "lastUpdated": "2026-06-27T09:23:04.078Z",
+        "lastUpdated": "2026-06-27T10:23:09.415Z",
         "models": [
           {
             "id": "gemini-3-1-pro-high",
@@ -98242,7 +98242,7 @@
             "tier": "High",
             "remainingPercent": 0,
             "status": "empty",
-            "refreshText": "Refreshes in 17 hours, 15 minutes",
+            "refreshText": "Refreshes in 16 hours, 15 minutes",
             "refreshAt": "2026-06-28T02:38:13Z"
           }
         ]
@@ -98251,7 +98251,7 @@
         "email": "leonardo_araujo@live.com",
         "isActive": false,
         "status": "cached",
-        "lastUpdated": "2026-06-27T09:23:04.078Z",
+        "lastUpdated": "2026-06-27T10:23:09.415Z",
         "models": [
           {
             "id": "gemini-3-1-pro-high",
@@ -98259,7 +98259,7 @@
             "tier": "High",
             "remainingPercent": 0,
             "status": "empty",
-            "refreshText": "Refreshes in 17 hours, 25 minutes",
+            "refreshText": "Refreshes in 16 hours, 25 minutes",
             "refreshAt": "2026-06-28T02:47:41Z"
           }
         ]
@@ -98268,7 +98268,7 @@
         "email": "leosaquetto.jobs@gmail.com",
         "isActive": false,
         "status": "cached",
-        "lastUpdated": "2026-06-27T09:23:04.078Z",
+        "lastUpdated": "2026-06-27T10:23:09.415Z",
         "models": [
           {
             "id": "gemini-3-1-pro-high",
@@ -98276,7 +98276,7 @@
             "tier": "High",
             "remainingPercent": 0,
             "status": "empty",
-            "refreshText": "Refreshes in 18 hours",
+            "refreshText": "Refreshes in 17 hours",
             "refreshAt": "2026-06-28T03:22:48Z"
           }
         ]
@@ -98285,7 +98285,7 @@
         "email": "laraujo@outlook.com",
         "isActive": false,
         "status": "cached",
-        "lastUpdated": "2026-06-27T09:23:04.078Z",
+        "lastUpdated": "2026-06-27T10:23:09.415Z",
         "models": [
           {
             "id": "gemini-3-1-pro-high",
@@ -98293,7 +98293,7 @@
             "tier": "High",
             "remainingPercent": 0.264,
             "status": "low",
-            "refreshText": "Refreshes in 1 day, 5 hours",
+            "refreshText": "Refreshes in 1 day, 4 hours",
             "refreshAt": "2026-06-28T14:03:24Z"
           }
         ]
@@ -98302,7 +98302,7 @@
         "email": "leosaquetto1@gmail.com",
         "isActive": false,
         "status": "cached",
-        "lastUpdated": "2026-06-27T09:23:04.078Z",
+        "lastUpdated": "2026-06-27T10:23:09.415Z",
         "models": [
           {
             "id": "gemini-3-1-pro-high",
@@ -98310,7 +98310,7 @@
             "tier": "High",
             "remainingPercent": 0,
             "status": "empty",
-            "refreshText": "Refreshes in 1 day, 11 hours",
+            "refreshText": "Refreshes in 1 day, 10 hours",
             "refreshAt": "2026-06-28T20:28:14Z"
           }
         ]
@@ -98319,7 +98319,7 @@
         "email": "leosaquetto0@gmail.com",
         "isActive": true,
         "status": "success",
-        "lastUpdated": "2026-06-27T09:23:04.078Z",
+        "lastUpdated": "2026-06-27T10:23:09.415Z",
         "models": [
           {
             "id": "gemini-3-1-pro-high",
@@ -98327,7 +98327,7 @@
             "tier": "High",
             "remainingPercent": 83.92836,
             "status": "ok",
-            "refreshText": "Refreshes in 1 day, 11 hours",
+            "refreshText": "Refreshes in 1 day, 10 hours",
             "refreshAt": "2026-06-28T20:16:48Z"
           }
         ]
@@ -98340,7 +98340,7 @@
         "tier": "High",
         "remainingPercent": 83.92836,
         "status": "ok",
-        "refreshText": "Refreshes in 1 day, 11 hours",
+        "refreshText": "Refreshes in 1 day, 10 hours",
         "refreshAt": "2026-06-28T20:16:48Z"
       }
     ]

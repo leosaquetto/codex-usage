@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-06-28T08:20:21.542Z",
+  "lastUpdated": "2026-06-28T08:23:04.335Z",
   "codex": {
     "source": "codex-switcher",
     "lastUpdated": "2026-06-28T08:20:21.542Z",
@@ -99403,13 +99403,13 @@
   },
   "antigravity": {
     "source": "desktop-automation",
-    "lastUpdated": "2026-06-28T07:23:03.698Z",
+    "lastUpdated": "2026-06-28T08:23:04.335Z",
     "accounts": [
       {
         "email": "leosaquetto@gmail.com",
         "isActive": false,
         "status": "cached",
-        "lastUpdated": "2026-06-28T07:23:03.698Z",
+        "lastUpdated": "2026-06-28T08:23:04.335Z",
         "models": [
           {
             "id": "gemini-3-1-pro-low",
@@ -99435,7 +99435,7 @@
         "email": "leoaraujo1949@gmail.com",
         "isActive": false,
         "status": "cached",
-        "lastUpdated": "2026-06-28T07:23:03.698Z",
+        "lastUpdated": "2026-06-28T08:23:04.335Z",
         "models": [
           {
             "id": "gemini-3-1-pro-high",
@@ -99452,7 +99452,7 @@
         "email": "leoativo10@gmail.com",
         "isActive": false,
         "status": "cached",
-        "lastUpdated": "2026-06-28T07:23:03.698Z",
+        "lastUpdated": "2026-06-28T08:23:04.335Z",
         "models": [
           {
             "id": "gemini-3-1-pro-high",
@@ -99469,7 +99469,7 @@
         "email": "leonardo_araujo@live.com",
         "isActive": false,
         "status": "cached",
-        "lastUpdated": "2026-06-28T07:23:03.698Z",
+        "lastUpdated": "2026-06-28T08:23:04.335Z",
         "models": [
           {
             "id": "gemini-3-1-pro-high",
@@ -99486,7 +99486,7 @@
         "email": "leosaquetto.jobs@gmail.com",
         "isActive": false,
         "status": "cached",
-        "lastUpdated": "2026-06-28T07:23:03.698Z",
+        "lastUpdated": "2026-06-28T08:23:04.335Z",
         "models": [
           {
             "id": "gemini-3-1-pro-high",
@@ -99503,7 +99503,7 @@
         "email": "laraujo@outlook.com",
         "isActive": false,
         "status": "cached",
-        "lastUpdated": "2026-06-28T07:23:03.698Z",
+        "lastUpdated": "2026-06-28T08:23:04.335Z",
         "models": [
           {
             "id": "gemini-3-1-pro-high",
@@ -99511,7 +99511,7 @@
             "tier": "High",
             "remainingPercent": 0.264,
             "status": "low",
-            "refreshText": "Refreshes in 6 hours, 40 minutes",
+            "refreshText": "Refreshes in 5 hours, 40 minutes",
             "refreshAt": "2026-06-28T14:03:24Z"
           }
         ]
@@ -99520,7 +99520,7 @@
         "email": "leosaquetto1@gmail.com",
         "isActive": false,
         "status": "cached",
-        "lastUpdated": "2026-06-28T07:23:03.698Z",
+        "lastUpdated": "2026-06-28T08:23:04.335Z",
         "models": [
           {
             "id": "gemini-3-1-pro-high",
@@ -99528,7 +99528,7 @@
             "tier": "High",
             "remainingPercent": 0,
             "status": "empty",
-            "refreshText": "Refreshes in 13 hours, 5 minutes",
+            "refreshText": "Refreshes in 12 hours, 5 minutes",
             "refreshAt": "2026-06-28T20:28:14Z"
           }
         ]
@@ -99537,7 +99537,7 @@
         "email": "leosaquetto0@gmail.com",
         "isActive": true,
         "status": "success",
-        "lastUpdated": "2026-06-28T07:23:03.698Z",
+        "lastUpdated": "2026-06-28T08:23:04.335Z",
         "models": [
           {
             "id": "gemini-3-1-pro-high",
@@ -99545,7 +99545,7 @@
             "tier": "High",
             "remainingPercent": 83.92836,
             "status": "ok",
-            "refreshText": "Refreshes in 12 hours, 54 minutes",
+            "refreshText": "Refreshes in 11 hours, 54 minutes",
             "refreshAt": "2026-06-28T20:16:48Z"
           }
         ]
@@ -99558,7 +99558,7 @@
         "tier": "High",
         "remainingPercent": 83.92836,
         "status": "ok",
-        "refreshText": "Refreshes in 12 hours, 54 minutes",
+        "refreshText": "Refreshes in 11 hours, 54 minutes",
         "refreshAt": "2026-06-28T20:16:48Z"
       }
     ]

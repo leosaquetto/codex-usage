@@ -1,14 +1,7 @@
 {
   "version": 2,
-  "lastUpdated": "2026-06-29T14:55:34.150Z",
+  "lastUpdated": "2026-06-29T15:10:45.190Z",
   "samples": [
-    {
-      "capturedAt": "2026-06-06T17:06:55.108Z",
-      "fiveHourPercent": 99,
-      "fiveHourReset": "2026-06-06T22:06:56.000Z",
-      "weeklyPercent": 78,
-      "weeklyReset": "2026-06-11T00:44:44.000Z"
-    },
     {
       "capturedAt": "2026-06-06T17:22:01.559Z",
       "fiveHourPercent": 99,
@@ -14001,23 +13994,16 @@
       "fiveHourReset": "2026-06-29T19:55:34.000Z",
       "weeklyPercent": 100,
       "weeklyReset": "2026-07-06T14:55:34.000Z"
+    },
+    {
+      "capturedAt": "2026-06-29T15:10:45.190Z",
+      "fiveHourPercent": 99,
+      "fiveHourReset": "2026-06-29T20:10:46.000Z",
+      "weeklyPercent": 100,
+      "weeklyReset": "2026-07-06T15:10:46.000Z"
     }
   ],
   "accountSamples": [
-    {
-      "capturedAt": "2026-05-30T01:56:18.880Z",
-      "email": "contatonatanaelrodrigs@gmail.com",
-      "displayName": "NATANAEL",
-      "weeklyPercent": 50,
-      "weeklyReset": "2026-05-31T01:47:07.000Z"
-    },
-    {
-      "capturedAt": "2026-05-30T01:56:18.880Z",
-      "email": "douglaschatgpt.am@gmail.com",
-      "displayName": "DOUGLAS",
-      "weeklyPercent": 50,
-      "weeklyReset": "2026-05-31T01:47:07.000Z"
-    },
     {
       "capturedAt": "2026-05-30T01:56:18.880Z",
       "email": "dzplaybacks@gmail.com",
@@ -98003,41 +97989,23 @@
       "displayName": "LEO I",
       "weeklyPercent": 100,
       "weeklyReset": "2026-07-06T14:55:34.000Z"
+    },
+    {
+      "capturedAt": "2026-06-29T15:10:45.190Z",
+      "email": "camafeus45verde@icloud.com",
+      "displayName": "LEO III",
+      "weeklyPercent": 100,
+      "weeklyReset": "2026-07-06T15:10:46.000Z"
+    },
+    {
+      "capturedAt": "2026-06-29T15:10:45.190Z",
+      "email": "jv5pdcwnxp@privaterelay.appleid.com",
+      "displayName": "LEO I",
+      "weeklyPercent": 100,
+      "weeklyReset": "2026-07-06T15:10:46.000Z"
     }
   ],
   "weeklyResetEvents": [
-    {
-      "email": "contatonatanaelrodrigs@gmail.com",
-      "displayName": "NATANAEL",
-      "capturedAt": "2026-05-30T01:56:18.880Z",
-      "weeklyReset": "2026-05-31T01:47:07.000Z",
-      "previousWeeklyReset": null,
-      "isEarlyReset": false,
-      "isNotifiableEarlyReset": false,
-      "deltaMs": null,
-      "cycleDurationMs": null,
-      "weeklyPercent": 50,
-      "previousWeeklyPercent": null,
-      "weeklyPercentDelta": null,
-      "earlyReason": null,
-      "isCarryoverFullReset": false
-    },
-    {
-      "email": "douglaschatgpt.am@gmail.com",
-      "displayName": "DOUGLAS",
-      "capturedAt": "2026-05-30T01:56:18.880Z",
-      "weeklyReset": "2026-05-31T01:47:07.000Z",
-      "previousWeeklyReset": null,
-      "isEarlyReset": false,
-      "isNotifiableEarlyReset": false,
-      "deltaMs": null,
-      "cycleDurationMs": null,
-      "weeklyPercent": 50,
-      "previousWeeklyPercent": null,
-      "weeklyPercentDelta": null,
-      "earlyReason": null,
-      "isCarryoverFullReset": false
-    },
     {
       "email": "dzplaybacks@gmail.com",
       "displayName": "AMANDA",
@@ -98074,6 +98042,38 @@
       "email": "leoaraujo1949@gmail.com",
       "displayName": "LEO II",
       "capturedAt": "2026-05-30T01:56:18.880Z",
+      "weeklyReset": "2026-05-31T01:47:07.000Z",
+      "previousWeeklyReset": null,
+      "isEarlyReset": false,
+      "isNotifiableEarlyReset": false,
+      "deltaMs": null,
+      "cycleDurationMs": null,
+      "weeklyPercent": 50,
+      "previousWeeklyPercent": null,
+      "weeklyPercentDelta": null,
+      "earlyReason": null,
+      "isCarryoverFullReset": false
+    },
+    {
+      "email": "contatonatanaelrodrigs@gmail.com",
+      "displayName": "NATANAEL",
+      "capturedAt": "2026-05-30T02:11:21.479Z",
+      "weeklyReset": "2026-05-31T01:47:07.000Z",
+      "previousWeeklyReset": null,
+      "isEarlyReset": false,
+      "isNotifiableEarlyReset": false,
+      "deltaMs": null,
+      "cycleDurationMs": null,
+      "weeklyPercent": 50,
+      "previousWeeklyPercent": null,
+      "weeklyPercentDelta": null,
+      "earlyReason": null,
+      "isCarryoverFullReset": false
+    },
+    {
+      "email": "douglaschatgpt.am@gmail.com",
+      "displayName": "DOUGLAS",
+      "capturedAt": "2026-05-30T02:11:21.479Z",
       "weeklyReset": "2026-05-31T01:47:07.000Z",
       "previousWeeklyReset": null,
       "isEarlyReset": false,

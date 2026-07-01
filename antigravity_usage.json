@@ -1,12 +1,12 @@
 {
   "source": "desktop-automation",
-  "lastUpdated": "2026-07-01T00:23:02.760Z",
+  "lastUpdated": "2026-07-01T01:23:02.643Z",
   "accounts": [
     {
       "email": "leosaquetto@gmail.com",
       "isActive": false,
       "status": "cached",
-      "lastUpdated": "2026-07-01T00:23:02.760Z",
+      "lastUpdated": "2026-07-01T01:23:02.643Z",
       "models": [
         {
           "id": "gemini-3-1-pro-low",
@@ -32,7 +32,7 @@
       "email": "leoaraujo1949@gmail.com",
       "isActive": false,
       "status": "cached",
-      "lastUpdated": "2026-07-01T00:23:02.760Z",
+      "lastUpdated": "2026-07-01T01:23:02.643Z",
       "models": [
         {
           "id": "gemini-3-1-pro-high",
@@ -49,7 +49,7 @@
       "email": "leoativo10@gmail.com",
       "isActive": false,
       "status": "cached",
-      "lastUpdated": "2026-07-01T00:23:02.760Z",
+      "lastUpdated": "2026-07-01T01:23:02.643Z",
       "models": [
         {
           "id": "gemini-3-1-pro-high",
@@ -66,7 +66,7 @@
       "email": "leonardo_araujo@live.com",
       "isActive": false,
       "status": "cached",
-      "lastUpdated": "2026-07-01T00:23:02.760Z",
+      "lastUpdated": "2026-07-01T01:23:02.643Z",
       "models": [
         {
           "id": "gemini-3-1-pro-high",
@@ -83,7 +83,7 @@
       "email": "leosaquetto.jobs@gmail.com",
       "isActive": false,
       "status": "cached",
-      "lastUpdated": "2026-07-01T00:23:02.760Z",
+      "lastUpdated": "2026-07-01T01:23:02.643Z",
       "models": [
         {
           "id": "gemini-3-1-pro-high",
@@ -100,7 +100,7 @@
       "email": "laraujo@outlook.com",
       "isActive": false,
       "status": "cached",
-      "lastUpdated": "2026-07-01T00:23:02.760Z",
+      "lastUpdated": "2026-07-01T01:23:02.643Z",
       "models": [
         {
           "id": "gemini-3-1-pro-high",
@@ -117,7 +117,7 @@
       "email": "leosaquetto1@gmail.com",
       "isActive": false,
       "status": "cached",
-      "lastUpdated": "2026-07-01T00:23:02.760Z",
+      "lastUpdated": "2026-07-01T01:23:02.643Z",
       "models": [
         {
           "id": "gemini-3-1-pro-high",
@@ -134,7 +134,7 @@
       "email": "leosaquetto0@gmail.com",
       "isActive": true,
       "status": "success",
-      "lastUpdated": "2026-07-01T00:23:02.760Z",
+      "lastUpdated": "2026-07-01T01:23:02.643Z",
       "models": [
         {
           "id": "gemini-3-1-pro-high",

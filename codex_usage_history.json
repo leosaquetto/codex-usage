@@ -1,14 +1,7 @@
 {
   "version": 2,
-  "lastUpdated": "2026-07-01T15:35:18.744Z",
+  "lastUpdated": "2026-07-01T15:50:29.952Z",
   "samples": [
-    {
-      "capturedAt": "2026-06-08T17:39:37.147Z",
-      "fiveHourPercent": 99,
-      "fiveHourReset": "2026-06-08T22:39:39.000Z",
-      "weeklyPercent": 66,
-      "weeklyReset": "2026-06-11T00:44:44.000Z"
-    },
     {
       "capturedAt": "2026-06-08T17:54:43.657Z",
       "fiveHourPercent": 99,
@@ -14001,23 +13994,16 @@
       "fiveHourReset": "2026-07-01T20:19:46.000Z",
       "weeklyPercent": 100,
       "weeklyReset": "2026-07-07T14:14:32.000Z"
+    },
+    {
+      "capturedAt": "2026-07-01T15:50:29.952Z",
+      "fiveHourPercent": 99,
+      "fiveHourReset": "2026-07-01T20:19:46.000Z",
+      "weeklyPercent": 100,
+      "weeklyReset": "2026-07-07T14:14:32.000Z"
     }
   ],
   "accountSamples": [
-    {
-      "capturedAt": "2026-05-30T21:03:21.666Z",
-      "email": "leoaraujo1949@gmail.com",
-      "displayName": "LEO II",
-      "weeklyPercent": 39,
-      "weeklyReset": "2026-05-31T01:47:07.000Z"
-    },
-    {
-      "capturedAt": "2026-05-30T21:18:24.474Z",
-      "email": "contatonatanaelrodrigs@gmail.com",
-      "displayName": "NATANAEL",
-      "weeklyPercent": 39,
-      "weeklyReset": "2026-05-31T01:47:07.000Z"
-    },
     {
       "capturedAt": "2026-05-30T21:18:24.474Z",
       "email": "douglaschatgpt.am@gmail.com",
@@ -98003,41 +97989,23 @@
       "displayName": "LEO I",
       "weeklyPercent": 100,
       "weeklyReset": "2026-07-07T14:14:40.000Z"
+    },
+    {
+      "capturedAt": "2026-07-01T15:50:29.952Z",
+      "email": "camafeus45verde@icloud.com",
+      "displayName": "LEO III",
+      "weeklyPercent": 100,
+      "weeklyReset": "2026-07-07T14:14:32.000Z"
+    },
+    {
+      "capturedAt": "2026-07-01T15:50:29.952Z",
+      "email": "jv5pdcwnxp@privaterelay.appleid.com",
+      "displayName": "LEO I",
+      "weeklyPercent": 100,
+      "weeklyReset": "2026-07-07T14:14:40.000Z"
     }
   ],
   "weeklyResetEvents": [
-    {
-      "email": "leoaraujo1949@gmail.com",
-      "displayName": "LEO II",
-      "capturedAt": "2026-05-30T21:03:21.666Z",
-      "weeklyReset": "2026-05-31T01:47:07.000Z",
-      "previousWeeklyReset": null,
-      "isEarlyReset": false,
-      "isNotifiableEarlyReset": false,
-      "deltaMs": null,
-      "cycleDurationMs": null,
-      "weeklyPercent": 39,
-      "previousWeeklyPercent": null,
-      "weeklyPercentDelta": null,
-      "earlyReason": null,
-      "isCarryoverFullReset": false
-    },
-    {
-      "email": "contatonatanaelrodrigs@gmail.com",
-      "displayName": "NATANAEL",
-      "capturedAt": "2026-05-30T21:18:24.474Z",
-      "weeklyReset": "2026-05-31T01:47:07.000Z",
-      "previousWeeklyReset": null,
-      "isEarlyReset": false,
-      "isNotifiableEarlyReset": false,
-      "deltaMs": null,
-      "cycleDurationMs": null,
-      "weeklyPercent": 39,
-      "previousWeeklyPercent": null,
-      "weeklyPercentDelta": null,
-      "earlyReason": null,
-      "isCarryoverFullReset": false
-    },
     {
       "email": "douglaschatgpt.am@gmail.com",
       "displayName": "DOUGLAS",
@@ -98081,6 +98049,38 @@
       "deltaMs": null,
       "cycleDurationMs": null,
       "weeklyPercent": 39,
+      "previousWeeklyPercent": null,
+      "weeklyPercentDelta": null,
+      "earlyReason": null,
+      "isCarryoverFullReset": false
+    },
+    {
+      "email": "leoaraujo1949@gmail.com",
+      "displayName": "LEO II",
+      "capturedAt": "2026-05-30T21:18:24.474Z",
+      "weeklyReset": "2026-05-31T01:47:07.000Z",
+      "previousWeeklyReset": null,
+      "isEarlyReset": false,
+      "isNotifiableEarlyReset": false,
+      "deltaMs": null,
+      "cycleDurationMs": null,
+      "weeklyPercent": 39,
+      "previousWeeklyPercent": null,
+      "weeklyPercentDelta": null,
+      "earlyReason": null,
+      "isCarryoverFullReset": false
+    },
+    {
+      "email": "contatonatanaelrodrigs@gmail.com",
+      "displayName": "NATANAEL",
+      "capturedAt": "2026-05-30T21:33:33.146Z",
+      "weeklyReset": "2026-05-31T01:47:07.000Z",
+      "previousWeeklyReset": null,
+      "isEarlyReset": false,
+      "isNotifiableEarlyReset": false,
+      "deltaMs": null,
+      "cycleDurationMs": null,
+      "weeklyPercent": 38,
       "previousWeeklyPercent": null,
       "weeklyPercentDelta": null,
       "earlyReason": null,

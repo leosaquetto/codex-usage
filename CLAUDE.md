@@ -50,8 +50,9 @@ npm run update:antigravity-usage:auto
 
 - Switcher updates run through `scripts/run-usage-data-update.mjs switcher`.
 - The Switcher wrapper dispatches background Push only after the `usage-data` update has completed.
-- Antigravity only captures while the app is open and requires macOS Accessibility and Screen Recording permissions.
-- **Quota Overrides**: `scripts/update-antigravity-usage-auto.mjs` intercepts the CLI collector output for `leosaquetto@gmail.com` to map the `gemini-3.1-pro-high` (Weekly) and `gemini-3.1-pro-low` (5-Hour) models with their overridden mock percentages (88% and 82%), mapping the model IDs correctly to prevent overrides from being wiped.
+- Antigravity reads the encrypted quota cache maintained by Antigravity Manager through `scripts/read-antigravity-manager-usage.mjs`; it does not use screenshots, OCR, Accessibility, or Screen Recording.
+- The SQL query must never select `token_json`. The reader decrypts only `quota_json` in memory and publishes the five locally allowlisted accounts with Gemini and Claude/GPT 5-hour and weekly windows.
+- The canonical setup and recovery procedure is `docs/when-reset-antigravity-manager-runbook.md`.
 - Do not print or commit access tokens, refresh tokens, cookies or local account-store contents.
 - Use `npm run audit:automation` before diagnosing old snapshots.
 
@@ -80,5 +81,4 @@ npm run update:antigravity-usage:auto
 4. Check account focus, filters, sort, notification views/toggles and permission scenarios.
 5. Check browser console and PWA assets.
 6. Do not commit, push, open a PR or deploy without an explicit request.
-
 

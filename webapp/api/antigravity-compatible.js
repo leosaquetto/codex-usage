@@ -81,11 +81,11 @@ async function handler(request, response) {
 async function accountHandler(request, response) {
   const rawAccount = request?.query?.account;
   const value = Array.isArray(rawAccount) ? rawAccount[0] : rawAccount;
-  const match = /^account-(\d+)$/.exec(String(value || ""));
-  if (!match) return response.status(404).json({ error: "Conta Antigravity não encontrada." });
-
-  const accountIndex = Number(match[1]) - 1;
-  return handle(request, response, { accountIndex, includeAccountLabel: false });
+  const accountSelector = String(value || "").trim().toLowerCase();
+  if (!/^[a-z0-9][a-z0-9-]{0,79}$/.test(accountSelector)) {
+    return response.status(404).json({ error: "Conta Antigravity não encontrada." });
+  }
+  return handle(request, response, { accountSelector, includeAccountLabel: false });
 }
 
 module.exports = handler;

@@ -6,6 +6,7 @@ Dashboard local/PWA para acompanhar limites de 5 horas e semanal de várias cont
 
 - `scripts/update-codex-usage-from-switcher.mjs`: lê as contas locais do Switcher, consulta uso e gera os snapshots públicos.
 - `scripts/run-usage-data-update.mjs`: executa atualizações em um worktree dedicado à branch `usage-data`.
+- `scripts/read-antigravity-manager-usage.mjs`: lê somente a cota criptografada mantida pelo Antigravity Manager e gera dados sanitizados.
 - `webapp/api/usage.js`: lê a branch `usage-data` em produção e arquivos locais no servidor de desenvolvimento.
 - `webapp/`: dashboard PWA, faixa de conta em uso, visão geral, redefinições por e-mail, filtros, gráficos e Web Push.
 - `scriptable/`: widgets iOS que leem diretamente a branch `usage-data`.
@@ -46,9 +47,9 @@ npm run update:antigravity-usage:auto
 
 O Switcher deve publicar apenas na branch `usage-data`. Não rode atualizadores automáticos com commit/push diretamente na `main`.
 
-O Antigravity só atualiza quando o aplicativo está aberto, o LaunchAgent está carregado e o processo possui permissões de Acessibilidade e Gravação de Tela. O CLI do Antigravity expõe cotas como frações de `0.0` a `1.0` (ex: `0.9992` para `99.92%`), e o atualizador faz a conversão multiplicando por `100`.
+O Antigravity é atualizado a cada 15 minutos a partir do cache criptografado do Antigravity Manager. A consulta local nunca seleciona `token_json`; somente identidade, plano, percentuais e resets entram no snapshot sanitizado. Não há OCR, foco de janela, Acessibilidade ou Gravação de Tela nesse fluxo.
 
-Para consultar as mesmas cotas no app When Reset, configure `WHEN_RESET_ANTIGRAVITY_KEY` na Vercel. O endpoint agregado é `https://codex-usage-nine.vercel.app/api/antigravity-compatible`; para criar uma conta separada no app, use `/account-1`, `/account-2` e assim por diante. As rotas são protegidas por bearer key e retornam somente janelas futuras sanitizadas; nunca servem o export de contas nem tokens. Detalhes em `webapp/docs/when-reset-compatible-api.md`.
+Para consultar as mesmas cotas no app When Reset, configure `WHEN_RESET_ANTIGRAVITY_KEY` na Vercel. O endpoint agregado é `https://codex-usage-nine.vercel.app/api/antigravity-compatible`; contas separadas usam slugs estáveis, por exemplo `/leosaquetto0`. As rotas são protegidas por bearer key e retornam somente janelas futuras sanitizadas; nunca servem o export de contas nem tokens. O procedimento completo está em `docs/when-reset-antigravity-manager-runbook.md`.
 
 O **Self-hosted Worker** do When Reset é um protocolo separado, com Cloudflare Worker, D1, Queue e vínculo por QR. O projeto oficial mantém Antigravity e origens Compatible API somente no dispositivo; por isso o Worker não deve receber os tokens Google nem é necessário para estas rotas. Consulte a documentação oficial do [servidor self-hosted](https://github.com/iebb/when-reset/tree/master/server) antes de ativá-lo para provedores compatíveis.
 

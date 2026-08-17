@@ -1,21 +1,13 @@
 #!/usr/bin/env node
-import { readFile } from "node:fs/promises";
-import { spawnSync } from "node:child_process";
-import { homedir } from "node:os";
-import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { existsSync, readdirSync, statSync } from "node:fs";
 import {
-  normalizeStructuredModels,
-  validateModels,
   writeAntigravityUsage,
   splitNameTier,
   clampPercent,
   statusFor,
   slugify,
 } from "./update-antigravity-usage.mjs";
-
-const root = resolve(new URL("..", import.meta.url).pathname);
+import { readAntigravityManagerUsage } from "./read-antigravity-manager-usage.mjs";
 
 const args = new Map();
 for (let i = 2; i < process.argv.length; i += 1) {
@@ -38,20 +30,9 @@ function usage() {
     "  node scripts/update-antigravity-usage-auto.mjs --dry-run",
     "  node scripts/update-antigravity-usage-auto.mjs --commit --push",
     "",
-    "Fetches Antigravity quotas using local IDE method (to get real percentages like 38%)",
-    "and merges them into the multi-account Google Cloud CLI output.",
+    "Reads the encrypted quota cache maintained by Antigravity Manager.",
+    "Only sanitized account identity, percentages, plans, and reset times are published.",
   ].join("\n");
-}
-
-function run(command, commandArgs, options = {}) {
-  const result = spawnSync(command, commandArgs, {
-    cwd: root,
-    encoding: "utf8",
-    ...options,
-  });
-
-  if (result.error) throw result.error;
-  return result;
 }
 
 // Kept for backward compatibility with parser test suite
@@ -141,99 +122,6 @@ function extractRowsFromOcr(observations) {
 // Kept for backward compatibility with parser test suite
 function decodePng() { return null; }
 function detectQuotaBarPercents() { return []; }
-
-function resolveCliPath() {
-  const home = process.env.HOME || "/Users/leosaquetto";
-  const paths = [
-    join(home, ".npm-global/bin/antigravity-usage"),
-    "/usr/local/bin/antigravity-usage",
-    "antigravity-usage"
-  ];
-  for (const p of paths) {
-    if (p.startsWith("/") && existsSync(p)) return p;
-  }
-  return "antigravity-usage";
-}
-
-function parseTimestamp(value) {
-  if (value === null || value === undefined || value === "") return null;
-  const numeric = Number(value);
-  const date = Number.isFinite(numeric)
-    ? new Date(Math.abs(numeric) < 1e12 ? numeric * 1000 : numeric)
-    : new Date(value);
-  return Number.isNaN(date.getTime()) ? null : date;
-}
-
-function newestCloudAccountsExport(downloadsPath = join(homedir(), "Downloads")) {
-  if (!existsSync(downloadsPath)) return null;
-
-  const candidates = readdirSync(downloadsPath, { withFileTypes: true })
-    .filter((entry) => entry.isFile() && /^cloud-accounts-export-.*\.json$/i.test(entry.name))
-    .map((entry) => join(downloadsPath, entry.name))
-    .filter((path) => existsSync(path));
-
-  return candidates.sort((left, right) => {
-    const leftTime = statSync(left).mtimeMs;
-    const rightTime = statSync(right).mtimeMs;
-    return rightTime - leftTime;
-  })[0] || null;
-}
-
-function defaultAccountsSourcePath() {
-  return join(homedir(), ".antigravity-agent", "decrypted_accounts.json");
-}
-
-function resolveAccountsSourcePath() {
-  const configured = String(process.env.ANTIGRAVITY_ACCOUNTS_PATH || "").trim();
-  if (configured) return configured;
-
-  const defaultPath = defaultAccountsSourcePath();
-  const exportPath = newestCloudAccountsExport();
-  const candidates = [exportPath, defaultPath].filter(Boolean).filter((path) => existsSync(path));
-  if (candidates.length === 0) return defaultPath;
-
-  return candidates.sort((left, right) => {
-    const leftTime = statSync(left).mtimeMs;
-    const rightTime = statSync(right).mtimeMs;
-    return rightTime - leftTime;
-  })[0];
-}
-
-async function readActiveFlags(sourcePath) {
-  const fallbackPath = defaultAccountsSourcePath();
-  if (sourcePath === fallbackPath || !existsSync(fallbackPath)) return new Map();
-
-  try {
-    const parsed = JSON.parse(await readFile(fallbackPath, "utf8"));
-    const accounts = Array.isArray(parsed) ? parsed : parsed?.accounts;
-    return new Map(
-      (Array.isArray(accounts) ? accounts : [])
-        .filter((account) => typeof account?.email === "string" && typeof account?.isActive === "boolean")
-        .map((account) => [account.email.toLowerCase(), account.isActive]),
-    );
-  } catch {
-    return new Map();
-  }
-}
-
-function quotaWindow(bucket, index) {
-  const remainingPercent = clampPercent(Number(bucket?.remaining_fraction) * 100);
-  if (remainingPercent === null) return null;
-
-  const rawKind = String(bucket?.window || bucket?.bucket_id || "additional").trim();
-  const kind = /5\s*h|five[ -]?hour/i.test(rawKind) ? "5h" : /weekly|7\s*d/i.test(rawKind) ? "weekly" : rawKind;
-  const windowMinutes = kind === "5h" ? 300 : kind === "weekly" ? 10_080 : null;
-  const refreshAt = parseTimestamp(bucket?.reset_time)?.toISOString() || null;
-
-  return {
-    id: String(bucket?.bucket_id || `${kind}-${index}`),
-    title: String(bucket?.display_name || bucket?.name || `${kind} limit`).trim(),
-    kind,
-    ...(windowMinutes === null ? {} : { windowMinutes }),
-    remainingPercent,
-    refreshAt,
-  };
-}
 
 function parseCliOutput(cliJson, localSnapshot = null) {
   const accounts = [];
@@ -336,155 +224,6 @@ function parseCliOutput(cliJson, localSnapshot = null) {
   };
 }
 
-function getRefreshTextAndAt(resetTime, now = new Date()) {
-  if (!resetTime) {
-    return { refreshText: "Refreshes soon", refreshAt: null };
-  }
-  const resetDate = new Date(resetTime);
-  const diffMs = resetDate.getTime() - now.getTime();
-  if (diffMs <= 0) {
-    return { refreshText: "Refreshes soon", refreshAt: resetTime };
-  }
-  const totalHours = Math.round(diffMs / 3600000);
-  if (totalHours >= 24) {
-    const days = Math.floor(totalHours / 24);
-    const remHours = totalHours % 24;
-    return {
-      refreshText: `Refreshes in ${days} ${days === 1 ? "day" : "days"}${remHours > 0 ? `, ${remHours} ${remHours === 1 ? "hour" : "hours"}` : ""}`,
-      refreshAt: resetTime
-    };
-  } else {
-    const totalMinutes = Math.round(diffMs / 60000);
-    const remMinutes = totalMinutes % 60;
-    const remHours = Math.floor(totalMinutes / 60);
-    if (remHours > 0) {
-      return {
-        refreshText: `Refreshes in ${remHours} ${remHours === 1 ? "hour" : "hours"}${remMinutes > 0 ? `, ${remMinutes} ${remMinutes === 1 ? "minute" : "minutes"}` : ""}`,
-        refreshAt: resetTime
-      };
-    } else {
-      return {
-        refreshText: `Refreshes in ${remMinutes} ${remMinutes === 1 ? "minute" : "minutes"}`,
-        refreshAt: resetTime
-      };
-    }
-  }
-}
-
-async function readDecryptedAccounts(decryptedPath = null, now = new Date()) {
-  const sourcePath = decryptedPath || resolveAccountsSourcePath();
-  const parsed = JSON.parse(await readFile(sourcePath, "utf8"));
-  const rawAccounts = Array.isArray(parsed) ? parsed : parsed?.accounts;
-  if (!Array.isArray(rawAccounts)) throw new Error("Accounts source must contain an accounts array.");
-
-  const exportedAt = parseTimestamp(parsed?.exportedAt);
-  const sourceStat = statSync(sourcePath);
-  const capturedAt = exportedAt || (Number.isFinite(sourceStat.mtimeMs) ? new Date(sourceStat.mtimeMs) : now);
-  const activeFlags = await readActiveFlags(sourcePath);
-  
-  const accounts = [];
-  
-  for (const acc of rawAccounts) {
-    if (!acc.email || !acc.quota) continue;
-    
-    const quotaGroups = acc.quota.quota_groups || [];
-    const geminiGroup = quotaGroups.find(g => g.display_name === "Gemini Models") || quotaGroups[0];
-    if (!geminiGroup || !Array.isArray(geminiGroup.buckets)) continue;
-    
-    const buckets = geminiGroup.buckets;
-    const windows = buckets.map(quotaWindow).filter(Boolean);
-    const isPro = acc.email.toLowerCase() === "leosaquetto@gmail.com";
-    
-    const models = [];
-    
-    if (isPro) {
-      // Find 5h bucket (Five Hour Limit) - put it first (above Weekly)
-      const fiveHourBucket = buckets.find(b => b.bucket_id === "gemini-5h" || b.window === "5h");
-      if (fiveHourBucket) {
-        const { refreshText, refreshAt } = getRefreshTextAndAt(fiveHourBucket.reset_time, now);
-        const remainingPercent = clampPercent(Number((fiveHourBucket.remaining_fraction * 100).toFixed(5)));
-        models.push({
-          id: "gemini-3-1-pro-low",
-          name: "Gemini 3.1 Pro",
-          tier: "Low",
-          remainingPercent,
-          status: statusFor(remainingPercent),
-          refreshText,
-          refreshAt
-        });
-      }
-      
-      // Find weekly bucket (Weekly Limit) - put it second
-      const weeklyBucket = buckets.find(b => b.bucket_id === "gemini-weekly" || b.window === "weekly");
-      if (weeklyBucket) {
-        const { refreshText, refreshAt } = getRefreshTextAndAt(weeklyBucket.reset_time, now);
-        const remainingPercent = clampPercent(Number((weeklyBucket.remaining_fraction * 100).toFixed(5)));
-        models.push({
-          id: "gemini-3-1-pro-high",
-          name: "Gemini 3.1 Pro",
-          tier: "High",
-          remainingPercent,
-          status: statusFor(remainingPercent),
-          refreshText,
-          refreshAt
-        });
-      }
-    } else {
-      // Standard accounts - only weekly limit
-      const weeklyBucket = buckets.find(b => b.bucket_id === "gemini-weekly" || b.window === "weekly") || buckets[0];
-      if (weeklyBucket) {
-        const { refreshText, refreshAt } = getRefreshTextAndAt(weeklyBucket.reset_time, now);
-        const remainingPercent = clampPercent(Number((weeklyBucket.remaining_fraction * 100).toFixed(5)));
-        models.push({
-          id: "gemini-3-1-pro-high",
-          name: "Gemini 3.1 Pro",
-          tier: "High",
-          remainingPercent,
-          status: statusFor(remainingPercent),
-          refreshText,
-          refreshAt
-        });
-      }
-    }
-    
-    const isActive = typeof acc.isActive === "boolean"
-      ? acc.isActive
-      : activeFlags.get(String(acc.email).toLowerCase()) === true;
-
-    accounts.push({
-      email: acc.email,
-      isActive,
-      status: isActive ? "success" : "cached",
-      lastUpdated: capturedAt.toISOString(),
-      models,
-      windows,
-    });
-  }
-  
-  // Find active models
-  let activeModels = [];
-  const activeAcc = accounts.find(acc => acc.isActive);
-  if (activeAcc) {
-    activeModels = activeAcc.models;
-  } else if (accounts.length > 0) {
-    activeModels = accounts[0].models;
-  }
-  
-  return {
-    source: exportedAt ? "local-account-export" : "desktop-automation",
-    lastUpdated: capturedAt.toISOString(),
-    accounts,
-    models: activeModels
-  };
-}
-
-async function tryLocalCliPayload() {
-  return null;
-}
-
-async function tryCliPayload(localSnapshot = null) {
-  return null;
-}
 
 async function main() {
   if (args.has("help")) {
@@ -493,15 +232,13 @@ async function main() {
   }
 
   let payload;
-  let details = { method: "local-account-source" };
+  let details = { method: "antigravity-manager-db" };
 
   try {
-    console.log("Reading the newest local Antigravity accounts source...");
-    payload = await readDecryptedAccounts();
+    console.log("Reading live quota cache from Antigravity Manager...");
+    payload = readAntigravityManagerUsage();
   } catch (error) {
-    console.error(`Failed to read decrypted accounts: ${error.message}`);
-    console.log(JSON.stringify({ ok: true, skipped: true, reason: "read-failed" }, null, 2));
-    return;
+    throw new Error(`Failed to read Antigravity Manager quota cache: ${error.message}`);
   }
 
   if (args.has("dry-run")) {

@@ -7,6 +7,7 @@ const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const syntaxFiles = [
   "webapp/app.js",
   "webapp/api/usage.js",
+  "webapp/api/antigravity-compatible.js",
   "webapp/api/push-config.js",
   "webapp/api/push-dispatch.js",
   "webapp/api/push-subscription.js",
@@ -31,6 +32,7 @@ const commands = [
   { label: "notification engine", args: ["scripts/test-notification-engine.mjs"] },
   { label: "push API", args: ["scripts/test-push-api.mjs"] },
   { label: "usage API", args: ["scripts/test-usage-api.mjs"] },
+  { label: "When Reset Antigravity API", args: ["scripts/test-when-reset-antigravity-api.mjs"] },
   { label: "summary consistency", args: ["scripts/build-usage-summary.mjs", "--verify-only"] },
   { label: "static contracts", args: ["scripts/validate-static-contracts.mjs"] },
 ];

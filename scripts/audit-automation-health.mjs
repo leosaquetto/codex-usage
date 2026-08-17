@@ -51,7 +51,7 @@ const report = {
   },
   notes: [
     "O dashboard publicado le a branch usage-data; o snapshot da main pode ser antigo por design.",
-    "Antigravity so atualiza quando o app esta aberto e o LaunchAgent tem permissoes de Acessibilidade e Gravacao de Tela.",
+    "Antigravity le o cache criptografado do Antigravity Manager sem OCR, Acessibilidade ou Gravacao de Tela; o Manager precisa ter atualizado as cotas locais.",
   ],
 };
 

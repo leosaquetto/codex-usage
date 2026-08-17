@@ -17,6 +17,7 @@ const syntaxFiles = [
   "webapp/sw.js",
   "webapp/notification-engine.mjs",
   "scripts/build-usage-summary.mjs",
+  "scripts/audit-automation-health.mjs",
   "scripts/codex-usage-history.mjs",
   "scripts/run-usage-data-update.mjs",
   "scripts/read-antigravity-manager-usage.mjs",

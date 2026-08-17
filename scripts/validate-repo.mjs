@@ -8,6 +8,7 @@ const syntaxFiles = [
   "webapp/app.js",
   "webapp/api/usage.js",
   "webapp/api/antigravity-compatible.js",
+  "webapp/api/antigravity-compatible/[account].js",
   "webapp/api/push-config.js",
   "webapp/api/push-dispatch.js",
   "webapp/api/push-subscription.js",

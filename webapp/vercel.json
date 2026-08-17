@@ -11,6 +11,9 @@
   "functions": {
     "api/antigravity-compatible.js": {
       "maxDuration": 10
+    },
+    "api/antigravity-compatible/[account].js": {
+      "maxDuration": 10
     }
   },
   "headers": [

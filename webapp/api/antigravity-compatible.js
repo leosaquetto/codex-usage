@@ -51,7 +51,7 @@ async function readSnapshot() {
   }
 }
 
-module.exports = async function handler(request, response) {
+async function handle(request, response, options = {}) {
   response.setHeader("Cache-Control", "no-store");
   response.setHeader("X-Content-Type-Options", "nosniff");
 
@@ -67,9 +67,26 @@ module.exports = async function handler(request, response) {
 
   try {
     const snapshot = await readSnapshot();
-    return response.status(200).json(buildCompatiblePayload(snapshot));
+    return response.status(200).json(buildCompatiblePayload(snapshot, new Date(), options));
   } catch (error) {
     console.error("Falha ao preparar quota Antigravity para o When Reset:", error?.message || error);
     return response.status(503).json({ error: "Quota Antigravity indisponível." });
   }
-};
+}
+
+async function handler(request, response) {
+  return handle(request, response);
+}
+
+async function accountHandler(request, response) {
+  const rawAccount = request?.query?.account;
+  const value = Array.isArray(rawAccount) ? rawAccount[0] : rawAccount;
+  const match = /^account-(\d+)$/.exec(String(value || ""));
+  if (!match) return response.status(404).json({ error: "Conta Antigravity não encontrada." });
+
+  const accountIndex = Number(match[1]) - 1;
+  return handle(request, response, { accountIndex, includeAccountLabel: false });
+}
+
+module.exports = handler;
+module.exports.accountHandler = accountHandler;

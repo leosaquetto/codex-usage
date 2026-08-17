@@ -27,6 +27,10 @@ function accountLabel(account, index) {
   return name || `Conta ${index + 1}`;
 }
 
+function accountEndpointSlug(_account, index) {
+  return `account-${index + 1}`;
+}
+
 function rawWindowTitle(rawWindow) {
   const explicit = String(
     rawWindow?.title
@@ -66,14 +70,16 @@ function rawWindowsForAccount(account) {
   return Array.isArray(account?.models) ? account.models : [];
 }
 
-function compatibleWindow(rawWindow, account, accountIndex, windowIndex, now) {
+function compatibleWindow(rawWindow, account, accountIndex, windowIndex, now, options = {}) {
   const remainingPercent = clampPercent(rawWindow?.remainingPercent);
   const resetAt = isoDate(rawWindow?.refreshAt || rawWindow?.resetAt || rawWindow?.reset_time);
   if (remainingPercent === null || !resetAt || new Date(resetAt) <= now) return null;
 
   const { kind, windowMinutes } = windowKind(rawWindow);
   const bucketID = String(rawWindow?.id || `${kind}-${windowIndex}`).trim();
-  const title = `${accountLabel(account, accountIndex)} · ${rawWindowTitle(rawWindow)}`;
+  const title = options.includeAccountLabel === false
+    ? rawWindowTitle(rawWindow)
+    : `${accountLabel(account, accountIndex)} · ${rawWindowTitle(rawWindow)}`;
 
   return {
     id: `antigravity-${accountIndex}-${bucketID}`,
@@ -85,23 +91,32 @@ function compatibleWindow(rawWindow, account, accountIndex, windowIndex, now) {
   };
 }
 
-function buildCompatiblePayload(snapshot, now = new Date()) {
+function buildCompatiblePayload(snapshot, now = new Date(), options = {}) {
   const current = now instanceof Date ? now : new Date(now);
   if (Number.isNaN(current.getTime())) throw new Error("Data de referência inválida.");
 
   const accounts = Array.isArray(snapshot?.accounts) ? snapshot.accounts : [];
+  const accountIndex = options.accountIndex === undefined || options.accountIndex === null
+    ? null
+    : Number(options.accountIndex);
+  if (accountIndex !== null && (!Number.isInteger(accountIndex) || !accounts[accountIndex])) {
+    throw new Error("Conta Antigravity não encontrada.");
+  }
+  const selectedAccounts = accountIndex === null
+    ? accounts.map((account, index) => ({ account, index }))
+    : [{ account: accounts[accountIndex], index: accountIndex }];
   const windows = [];
 
-  accounts.forEach((account, accountIndex) => {
+  selectedAccounts.forEach(({ account, index }) => {
     rawWindowsForAccount(account).forEach((rawWindow, windowIndex) => {
-      const window = compatibleWindow(rawWindow, account, accountIndex, windowIndex, current);
+      const window = compatibleWindow(rawWindow, account, index, windowIndex, current, options);
       if (window) windows.push(window);
     });
   });
 
-  if (windows.length === 0 && Array.isArray(snapshot?.models)) {
+  if (accountIndex === null && windows.length === 0 && Array.isArray(snapshot?.models)) {
     snapshot.models.forEach((rawWindow, windowIndex) => {
-      const window = compatibleWindow(rawWindow, snapshot, 0, windowIndex, current);
+      const window = compatibleWindow(rawWindow, snapshot, 0, windowIndex, current, options);
       if (window) windows.push(window);
     });
   }
@@ -115,7 +130,7 @@ function buildCompatiblePayload(snapshot, now = new Date()) {
     source: "codex-usage-antigravity",
     provider: "Antigravity",
     lastUpdated,
-    accountCount: accounts.length || 1,
+    accountCount: selectedAccounts.length || 1,
     data: {
       provider: "Antigravity",
       lastUpdated,
@@ -125,5 +140,6 @@ function buildCompatiblePayload(snapshot, now = new Date()) {
 }
 
 module.exports = {
+  accountEndpointSlug,
   buildCompatiblePayload,
 };

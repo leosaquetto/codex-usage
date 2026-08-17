@@ -28,6 +28,16 @@ usam slugs como `/leosaquetto0`; a forma legada `/account-1` continua aceita. O
 JSON devolve somente janelas futuras; se a fonte estiver sem uma janela futura,
 responde `503` para não exibir quota antiga como se fosse atual.
 
+As quatro quotas são devolvidas como janelas nomeadas (`Gemini Models` e
+`Claude and GPT models`, cada uma com limites de 5 horas e 7 dias). Elas usam o
+tipo `additional` sem `windowMinutes` de propósito: o When Reset sobrescreve o
+título de janelas canônicas de 300/10.080 minutos por textos genéricos e perderia
+a identificação do grupo. IDs, percentuais e horários de reset continuam iguais.
+
+O parser Compatible API do app só incorpora `plan` aos detalhes da conta. Embora
+o bridge também envie identidade sanitizada, a versão atual do When Reset não a
+usa para preencher `Name`, `Email` ou `Plan expiry`.
+
 O coletor local lê `~/.antigravity-agent/cloud_accounts.db`, mantido pelo
 Antigravity Manager. A consulta SQL exclui `token_json`; apenas `quota_json` é
 descriptografado em memória. A seleção fica em

@@ -56,6 +56,14 @@ function rawWindowTitle(rawWindow) {
   return tier ? `${name} (${tier})` : name;
 }
 
+function whenResetDisplayTitle(rawWindow) {
+  return rawWindowTitle(rawWindow)
+    .replace(/\b5\s*h\b/gi, "5-hour")
+    .replace(/\bfive[ -]+hour\b/gi, "5-hour")
+    .replace(/\bweekly\b/gi, "7-day")
+    .replace(/\b7\s*d\b/gi, "7-day");
+}
+
 function windowKind(rawWindow) {
   const raw = String(
     rawWindow?.kind
@@ -84,17 +92,20 @@ function compatibleWindow(rawWindow, account, accountIndex, windowIndex, now, op
   const resetAt = isoDate(rawWindow?.refreshAt || rawWindow?.resetAt || rawWindow?.reset_time);
   if (remainingPercent === null || !resetAt || new Date(resetAt) <= now) return null;
 
-  const { kind, windowMinutes } = windowKind(rawWindow);
+  const { kind } = windowKind(rawWindow);
   const bucketID = String(rawWindow?.id || `${kind}-${windowIndex}`).trim();
+  const displayTitle = whenResetDisplayTitle(rawWindow);
   const title = options.includeAccountLabel === false
-    ? rawWindowTitle(rawWindow)
-    : `${accountLabel(account, accountIndex)} · ${rawWindowTitle(rawWindow)}`;
+    ? displayTitle
+    : `${accountLabel(account, accountIndex)} · ${displayTitle}`;
 
   return {
     id: `antigravity-${accountEndpointSlug(account, accountIndex)}-${bucketID}`,
     title,
-    kind,
-    ...(windowMinutes === null ? {} : { windowMinutes }),
+    // When Reset replaces custom titles with "5h limit"/"Weekly limit" whenever
+    // it classifies a window as canonical. Named additional windows preserve the
+    // Gemini vs Claude/GPT group in the app.
+    kind: "additional",
     usedPercent: Math.max(0, Math.min(100, 100 - remainingPercent)),
     resetAt,
   };

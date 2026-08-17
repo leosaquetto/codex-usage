@@ -38,11 +38,17 @@ committed and currently selects, in this order:
 Every account publishes four independent windows when the Manager provides them:
 
 - Gemini Models — 5-hour limit
-- Gemini Models — weekly limit
+- Gemini Models — 7-day limit
 - Claude and GPT models — 5-hour limit
-- Claude and GPT models — weekly limit
+- Claude and GPT models — 7-day limit
 
 The Manager-provided `subscription_tier` becomes the When Reset plan.
+
+The Compatible API response intentionally publishes these as named `additional`
+windows without `windowMinutes`. When Reset otherwise replaces any 300-minute or
+10,080-minute title with the generic `5h limit` or `Weekly limit`, hiding whether
+the quota belongs to Gemini or Claude/GPT. IDs, percentages, and reset timestamps
+remain unchanged, so account history and refresh behavior stay stable.
 
 ## Add the five accounts in When Reset
 
@@ -61,7 +67,8 @@ When Reset derives the displayed account name from the manually entered Provider
 name. Its Compatible API parser does not map server-returned identity into the
 Account tab, so `Name` and `Email` may still say `Not provided`; the account header
 will nevertheless be the entered email. This is an upstream app limitation, not
-a missing field in this bridge.
+a missing field in this bridge. The same parser accepts `plan` but has no response
+field for `plan expiry`, so that row also remains `Not provided`.
 
 The old `/account-1` form remains accepted for compatibility, but stable slugs
 above should be used because they do not change when account order changes.

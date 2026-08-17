@@ -11,16 +11,13 @@
 		<string>antigravity</string>
 	</array>
 	<key>RunAtLoad</key>
-	<false/>
+	<true/>
 	<key>StandardErrorPath</key>
 	<string>/Users/leosaquetto/Developer/GitHub/codex-usage/.local/logs/antigravity-usage-launchd.err.log</string>
 	<key>StandardOutPath</key>
 	<string>/Users/leosaquetto/Developer/GitHub/codex-usage/.local/logs/antigravity-usage-launchd.out.log</string>
-	<key>StartCalendarInterval</key>
-	<dict>
-		<key>Minute</key>
-		<integer>23</integer>
-	</dict>
+	<key>StartInterval</key>
+	<integer>3600</integer>
 	<key>WorkingDirectory</key>
 	<string>/Users/leosaquetto/Developer/GitHub/codex-usage</string>
 </dict>

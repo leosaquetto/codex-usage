@@ -11,6 +11,7 @@ const require = createRequire(import.meta.url);
 const pushConfigHandler = require("../webapp/api/push-config.js");
 const pushSubscriptionHandler = require("../webapp/api/push-subscription.js");
 const pushDispatchHandler = require("../webapp/api/push-dispatch.js");
+const antigravityCompatibleHandler = require("../webapp/api/antigravity-compatible.js");
 const rootDir = new URL("../webapp/", import.meta.url);
 const port = Number(process.env.PORT || 8080);
 const host = process.env.HOST || "0.0.0.0";
@@ -83,6 +84,7 @@ const server = http.createServer(async (req, res) => {
       ["/api/push-config", pushConfigHandler],
       ["/api/push-subscription", pushSubscriptionHandler],
       ["/api/push-dispatch", pushDispatchHandler],
+      ["/api/antigravity-compatible", antigravityCompatibleHandler],
     ]);
     const apiHandler = apiHandlers.get(pathname);
     if (apiHandler) {

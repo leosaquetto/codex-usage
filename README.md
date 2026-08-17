@@ -48,6 +48,8 @@ O Switcher deve publicar apenas na branch `usage-data`. Não rode atualizadores 
 
 O Antigravity só atualiza quando o aplicativo está aberto, o LaunchAgent está carregado e o processo possui permissões de Acessibilidade e Gravação de Tela. O CLI do Antigravity expõe cotas como frações de `0.0` a `1.0` (ex: `0.9992` para `99.92%`), e o atualizador faz a conversão multiplicando por `100`.
 
+Para consultar as mesmas cotas no app When Reset, configure `WHEN_RESET_ANTIGRAVITY_KEY` na Vercel e use `https://codex-usage-nine.vercel.app/api/antigravity-compatible` como endpoint Compatible API. A rota é protegida por bearer key e retorna somente janelas futuras sanitizadas; ela nunca serve o export de contas nem tokens. Detalhes em `webapp/docs/when-reset-compatible-api.md`.
+
 ## Dashboard
 
 - A faixa **Conta em uso** prioriza a conta ativa do Switcher e, como fallback, a última usada na última hora.

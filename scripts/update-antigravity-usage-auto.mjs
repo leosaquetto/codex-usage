@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 import { readFile } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
+import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { existsSync } from "node:fs";
+import { existsSync, readdirSync, statSync } from "node:fs";
 import {
   normalizeStructuredModels,
   validateModels,
@@ -154,6 +155,86 @@ function resolveCliPath() {
   return "antigravity-usage";
 }
 
+function parseTimestamp(value) {
+  if (value === null || value === undefined || value === "") return null;
+  const numeric = Number(value);
+  const date = Number.isFinite(numeric)
+    ? new Date(Math.abs(numeric) < 1e12 ? numeric * 1000 : numeric)
+    : new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function newestCloudAccountsExport(downloadsPath = join(homedir(), "Downloads")) {
+  if (!existsSync(downloadsPath)) return null;
+
+  const candidates = readdirSync(downloadsPath, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && /^cloud-accounts-export-.*\.json$/i.test(entry.name))
+    .map((entry) => join(downloadsPath, entry.name))
+    .filter((path) => existsSync(path));
+
+  return candidates.sort((left, right) => {
+    const leftTime = statSync(left).mtimeMs;
+    const rightTime = statSync(right).mtimeMs;
+    return rightTime - leftTime;
+  })[0] || null;
+}
+
+function defaultAccountsSourcePath() {
+  return join(homedir(), ".antigravity-agent", "decrypted_accounts.json");
+}
+
+function resolveAccountsSourcePath() {
+  const configured = String(process.env.ANTIGRAVITY_ACCOUNTS_PATH || "").trim();
+  if (configured) return configured;
+
+  const defaultPath = defaultAccountsSourcePath();
+  const exportPath = newestCloudAccountsExport();
+  const candidates = [exportPath, defaultPath].filter(Boolean).filter((path) => existsSync(path));
+  if (candidates.length === 0) return defaultPath;
+
+  return candidates.sort((left, right) => {
+    const leftTime = statSync(left).mtimeMs;
+    const rightTime = statSync(right).mtimeMs;
+    return rightTime - leftTime;
+  })[0];
+}
+
+async function readActiveFlags(sourcePath) {
+  const fallbackPath = defaultAccountsSourcePath();
+  if (sourcePath === fallbackPath || !existsSync(fallbackPath)) return new Map();
+
+  try {
+    const parsed = JSON.parse(await readFile(fallbackPath, "utf8"));
+    const accounts = Array.isArray(parsed) ? parsed : parsed?.accounts;
+    return new Map(
+      (Array.isArray(accounts) ? accounts : [])
+        .filter((account) => typeof account?.email === "string" && typeof account?.isActive === "boolean")
+        .map((account) => [account.email.toLowerCase(), account.isActive]),
+    );
+  } catch {
+    return new Map();
+  }
+}
+
+function quotaWindow(bucket, index) {
+  const remainingPercent = clampPercent(Number(bucket?.remaining_fraction) * 100);
+  if (remainingPercent === null) return null;
+
+  const rawKind = String(bucket?.window || bucket?.bucket_id || "additional").trim();
+  const kind = /5\s*h|five[ -]?hour/i.test(rawKind) ? "5h" : /weekly|7\s*d/i.test(rawKind) ? "weekly" : rawKind;
+  const windowMinutes = kind === "5h" ? 300 : kind === "weekly" ? 10_080 : null;
+  const refreshAt = parseTimestamp(bucket?.reset_time)?.toISOString() || null;
+
+  return {
+    id: String(bucket?.bucket_id || `${kind}-${index}`),
+    title: String(bucket?.display_name || bucket?.name || `${kind} limit`).trim(),
+    kind,
+    ...(windowMinutes === null ? {} : { windowMinutes }),
+    remainingPercent,
+    refreshAt,
+  };
+}
+
 function parseCliOutput(cliJson, localSnapshot = null) {
   const accounts = [];
   let activeModels = [];
@@ -290,9 +371,16 @@ function getRefreshTextAndAt(resetTime, now = new Date()) {
   }
 }
 
-async function readDecryptedAccounts(decryptedPath = "/Users/leosaquetto/.antigravity-agent/decrypted_accounts.json", now = new Date()) {
-  const content = await readFile(decryptedPath, "utf8");
-  const rawAccounts = JSON.parse(content);
+async function readDecryptedAccounts(decryptedPath = null, now = new Date()) {
+  const sourcePath = decryptedPath || resolveAccountsSourcePath();
+  const parsed = JSON.parse(await readFile(sourcePath, "utf8"));
+  const rawAccounts = Array.isArray(parsed) ? parsed : parsed?.accounts;
+  if (!Array.isArray(rawAccounts)) throw new Error("Accounts source must contain an accounts array.");
+
+  const exportedAt = parseTimestamp(parsed?.exportedAt);
+  const sourceStat = statSync(sourcePath);
+  const capturedAt = exportedAt || (Number.isFinite(sourceStat.mtimeMs) ? new Date(sourceStat.mtimeMs) : now);
+  const activeFlags = await readActiveFlags(sourcePath);
   
   const accounts = [];
   
@@ -304,6 +392,7 @@ async function readDecryptedAccounts(decryptedPath = "/Users/leosaquetto/.antigr
     if (!geminiGroup || !Array.isArray(geminiGroup.buckets)) continue;
     
     const buckets = geminiGroup.buckets;
+    const windows = buckets.map(quotaWindow).filter(Boolean);
     const isPro = acc.email.toLowerCase() === "leosaquetto@gmail.com";
     
     const models = [];
@@ -358,12 +447,17 @@ async function readDecryptedAccounts(decryptedPath = "/Users/leosaquetto/.antigr
       }
     }
     
+    const isActive = typeof acc.isActive === "boolean"
+      ? acc.isActive
+      : activeFlags.get(String(acc.email).toLowerCase()) === true;
+
     accounts.push({
       email: acc.email,
-      isActive: Boolean(acc.isActive),
-      status: acc.isActive ? "success" : "cached",
-      lastUpdated: now.toISOString(),
-      models
+      isActive,
+      status: isActive ? "success" : "cached",
+      lastUpdated: capturedAt.toISOString(),
+      models,
+      windows,
     });
   }
   
@@ -377,8 +471,8 @@ async function readDecryptedAccounts(decryptedPath = "/Users/leosaquetto/.antigr
   }
   
   return {
-    source: "desktop-automation",
-    lastUpdated: now.toISOString(),
+    source: exportedAt ? "local-account-export" : "desktop-automation",
+    lastUpdated: capturedAt.toISOString(),
     accounts,
     models: activeModels
   };
@@ -399,10 +493,10 @@ async function main() {
   }
 
   let payload;
-  let details = { method: "direct-db-json" };
+  let details = { method: "local-account-source" };
 
   try {
-    console.log("Reading decrypted accounts JSON directly...");
+    console.log("Reading the newest local Antigravity accounts source...");
     payload = await readDecryptedAccounts();
   } catch (error) {
     console.error(`Failed to read decrypted accounts: ${error.message}`);

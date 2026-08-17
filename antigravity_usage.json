@@ -1,171 +1,122 @@
 {
-  "source": "local-account-export",
-  "lastUpdated": "2026-08-17T20:13:07.000Z",
+  "source": "antigravity-manager-db",
+  "lastUpdated": "2026-08-17T22:55:33.000Z",
   "accounts": [
     {
-      "email": "leoaraujo1949@gmail.com",
-      "isActive": false,
-      "status": "cached",
-      "lastUpdated": "2026-08-17T20:13:07.000Z",
-      "models": [
-        {
-          "id": "gemini-3-1-pro-high",
-          "name": "Gemini 3.1 Pro",
-          "tier": "High",
-          "remainingPercent": 100,
-          "status": "ok",
-          "refreshText": "Refreshes in 6 days, 22 hours",
-          "refreshAt": "2026-08-24T20:13:06Z"
-        }
-      ],
-      "windows": [
-        {
-          "id": "gemini-weekly",
-          "title": "Weekly Limit Remaining",
-          "kind": "weekly",
-          "windowMinutes": 10080,
-          "remainingPercent": 100,
-          "refreshAt": "2026-08-24T20:13:06.000Z"
-        }
-      ]
-    },
-    {
-      "email": "laraujo@outlook.com",
-      "isActive": false,
-      "status": "cached",
-      "lastUpdated": "2026-08-17T20:13:07.000Z",
-      "models": [
-        {
-          "id": "gemini-3-1-pro-high",
-          "name": "Gemini 3.1 Pro",
-          "tier": "High",
-          "remainingPercent": 100,
-          "status": "ok",
-          "refreshText": "Refreshes in 6 days, 22 hours",
-          "refreshAt": "2026-08-24T20:13:01Z"
-        }
-      ],
-      "windows": [
-        {
-          "id": "gemini-weekly",
-          "title": "Weekly Limit Remaining",
-          "kind": "weekly",
-          "windowMinutes": 10080,
-          "remainingPercent": 100,
-          "refreshAt": "2026-08-24T20:13:01.000Z"
-        },
-        {
-          "id": "gemini-5h",
-          "title": "Five Hour Limit Remaining",
-          "kind": "5h",
-          "windowMinutes": 300,
-          "remainingPercent": 100,
-          "refreshAt": "2026-08-18T01:13:01.000Z"
-        }
-      ]
-    },
-    {
+      "id": "leosaquetto0",
       "email": "leosaquetto0@gmail.com",
+      "name": "leo saquetto",
+      "displayName": "leosaquetto0@gmail.com",
+      "plan": "Google AI Pro",
       "isActive": true,
       "status": "success",
-      "lastUpdated": "2026-08-17T20:13:07.000Z",
-      "models": [
-        {
-          "id": "gemini-3-1-pro-high",
-          "name": "Gemini 3.1 Pro",
-          "tier": "High",
-          "remainingPercent": 97.99666,
-          "status": "ok",
-          "refreshText": "Refreshes in 3 days, 7 hours",
-          "refreshAt": "2026-08-21T05:10:59Z"
-        }
-      ],
+      "lastUpdated": "2026-08-17T22:55:16.000Z",
       "windows": [
         {
           "id": "gemini-weekly",
-          "title": "Weekly Limit Remaining",
+          "group": "Gemini Models",
+          "title": "Gemini Models · Weekly limit",
           "kind": "weekly",
           "windowMinutes": 10080,
-          "remainingPercent": 97.996664,
+          "remainingPercent": 97.86329,
           "refreshAt": "2026-08-21T05:10:59.000Z"
         },
         {
           "id": "gemini-5h",
-          "title": "Five Hour Limit Remaining",
+          "group": "Gemini Models",
+          "title": "Gemini Models · 5-hour limit",
           "kind": "5h",
           "windowMinutes": 300,
-          "remainingPercent": 95.98,
-          "refreshAt": "2026-08-14T10:10:59.000Z"
+          "remainingPercent": 99.07628,
+          "refreshAt": "2026-08-18T01:49:15.000Z"
+        },
+        {
+          "id": "3p-weekly",
+          "group": "Claude and GPT models",
+          "title": "Claude and GPT models · Weekly limit",
+          "kind": "weekly",
+          "windowMinutes": 10080,
+          "remainingPercent": 100,
+          "refreshAt": "2026-08-24T22:55:16.000Z"
+        },
+        {
+          "id": "3p-5h",
+          "group": "Claude and GPT models",
+          "title": "Claude and GPT models · 5-hour limit",
+          "kind": "5h",
+          "windowMinutes": 300,
+          "remainingPercent": 100,
+          "refreshAt": "2026-08-18T03:55:16.000Z"
         }
-      ]
-    },
-    {
-      "email": "leoativo10@gmail.com",
-      "isActive": false,
-      "status": "cached",
-      "lastUpdated": "2026-08-17T20:13:07.000Z",
+      ],
       "models": [
         {
           "id": "gemini-3-1-pro-high",
           "name": "Gemini 3.1 Pro",
           "tier": "High",
-          "remainingPercent": 100,
+          "remainingPercent": 97.86329,
           "status": "ok",
-          "refreshText": "Refreshes in 3 days, 7 hours",
-          "refreshAt": "2026-08-21T05:19:35Z"
-        }
-      ],
-      "windows": [
+          "refreshText": "Weekly reset",
+          "refreshAt": "2026-08-21T05:10:59.000Z"
+        },
         {
-          "id": "gemini-weekly",
-          "title": "Weekly Limit Remaining",
-          "kind": "weekly",
-          "windowMinutes": 10080,
-          "remainingPercent": 100,
-          "refreshAt": "2026-08-21T05:19:35.000Z"
+          "id": "gemini-3-1-pro-low",
+          "name": "Gemini 3.1 Pro",
+          "tier": "Low",
+          "remainingPercent": 99.07628,
+          "status": "ok",
+          "refreshText": "5-hour reset",
+          "refreshAt": "2026-08-18T01:49:15.000Z"
         }
       ]
     },
     {
-      "email": "leosaquetto.jobs@gmail.com",
+      "id": "leosaquetto1",
+      "email": "leosaquetto1@gmail.com",
+      "name": "leo",
+      "displayName": "leosaquetto1@gmail.com",
+      "plan": "Google AI Pro",
       "isActive": false,
       "status": "cached",
-      "lastUpdated": "2026-08-17T20:13:07.000Z",
-      "models": [
-        {
-          "id": "gemini-3-1-pro-high",
-          "name": "Gemini 3.1 Pro",
-          "tier": "High",
-          "remainingPercent": 93.21383,
-          "status": "ok",
-          "refreshText": "Refreshes in 23 hours, 2 minutes",
-          "refreshAt": "2026-08-18T21:41:36Z"
-        }
-      ],
+      "lastUpdated": "2026-08-17T22:55:33.000Z",
       "windows": [
         {
           "id": "gemini-weekly",
-          "title": "Weekly Limit Remaining",
+          "group": "Gemini Models",
+          "title": "Gemini Models · Weekly limit",
           "kind": "weekly",
           "windowMinutes": 10080,
-          "remainingPercent": 93.213826,
-          "refreshAt": "2026-08-18T21:41:36.000Z"
+          "remainingPercent": 100,
+          "refreshAt": "2026-08-24T22:55:32.000Z"
         },
         {
           "id": "gemini-5h",
-          "title": "Five Hour Limit Remaining",
+          "group": "Gemini Models",
+          "title": "Gemini Models · 5-hour limit",
           "kind": "5h",
           "windowMinutes": 300,
-          "remainingPercent": 89.65541,
-          "refreshAt": "2026-08-14T07:34:31.000Z"
+          "remainingPercent": 100,
+          "refreshAt": "2026-08-18T03:55:32.000Z"
+        },
+        {
+          "id": "3p-weekly",
+          "group": "Claude and GPT models",
+          "title": "Claude and GPT models · Weekly limit",
+          "kind": "weekly",
+          "windowMinutes": 10080,
+          "remainingPercent": 100,
+          "refreshAt": "2026-08-24T22:55:32.000Z"
+        },
+        {
+          "id": "3p-5h",
+          "group": "Claude and GPT models",
+          "title": "Claude and GPT models · 5-hour limit",
+          "kind": "5h",
+          "windowMinutes": 300,
+          "remainingPercent": 100,
+          "refreshAt": "2026-08-18T03:55:32.000Z"
         }
-      ]
-    },
-    {
-      "email": "leonardo_araujo@live.com",
-      "isActive": false,
-      "status": "cached",
-      "lastUpdated": "2026-08-17T20:13:07.000Z",
+      ],
       "models": [
         {
           "id": "gemini-3-1-pro-high",
@@ -173,97 +124,221 @@
           "tier": "High",
           "remainingPercent": 100,
           "status": "ok",
-          "refreshText": "Refreshes in 3 days, 7 hours",
-          "refreshAt": "2026-08-21T05:19:28Z"
-        }
-      ],
-      "windows": [
-        {
-          "id": "gemini-weekly",
-          "title": "Weekly Limit Remaining",
-          "kind": "weekly",
-          "windowMinutes": 10080,
-          "remainingPercent": 100,
-          "refreshAt": "2026-08-21T05:19:28.000Z"
-        }
-      ]
-    },
-    {
-      "email": "leosaquetto@gmail.com",
-      "isActive": false,
-      "status": "cached",
-      "lastUpdated": "2026-08-17T20:13:07.000Z",
-      "models": [
+          "refreshText": "Weekly reset",
+          "refreshAt": "2026-08-24T22:55:32.000Z"
+        },
         {
           "id": "gemini-3-1-pro-low",
           "name": "Gemini 3.1 Pro",
           "tier": "Low",
           "remainingPercent": 100,
           "status": "ok",
-          "refreshText": "Refreshes soon",
-          "refreshAt": "2026-08-14T10:19:24Z"
-        },
-        {
-          "id": "gemini-3-1-pro-high",
-          "name": "Gemini 3.1 Pro",
-          "tier": "High",
-          "remainingPercent": 76.34934,
-          "status": "ok",
-          "refreshText": "Refreshes soon",
-          "refreshAt": "2026-08-15T04:58:13Z"
-        }
-      ],
-      "windows": [
-        {
-          "id": "gemini-weekly",
-          "title": "Weekly Limit Remaining",
-          "kind": "weekly",
-          "windowMinutes": 10080,
-          "remainingPercent": 76.34934,
-          "refreshAt": "2026-08-15T04:58:13.000Z"
-        },
-        {
-          "id": "gemini-5h",
-          "title": "Five Hour Limit Remaining",
-          "kind": "5h",
-          "windowMinutes": 300,
-          "remainingPercent": 100,
-          "refreshAt": "2026-08-14T10:19:24.000Z"
+          "refreshText": "5-hour reset",
+          "refreshAt": "2026-08-18T03:55:32.000Z"
         }
       ]
     },
     {
-      "email": "leosaquetto1@gmail.com",
+      "id": "laraujo-outlook",
+      "email": "laraujo@outlook.com",
+      "name": "Leonardo Araujo",
+      "displayName": "laraujo@outlook.com",
+      "plan": "Google AI Pro",
       "isActive": false,
       "status": "cached",
-      "lastUpdated": "2026-08-17T20:13:07.000Z",
+      "lastUpdated": "2026-08-17T22:55:09.000Z",
+      "windows": [
+        {
+          "id": "gemini-weekly",
+          "group": "Gemini Models",
+          "title": "Gemini Models · Weekly limit",
+          "kind": "weekly",
+          "windowMinutes": 10080,
+          "remainingPercent": 100,
+          "refreshAt": "2026-08-24T22:55:09.000Z"
+        },
+        {
+          "id": "gemini-5h",
+          "group": "Gemini Models",
+          "title": "Gemini Models · 5-hour limit",
+          "kind": "5h",
+          "windowMinutes": 300,
+          "remainingPercent": 100,
+          "refreshAt": "2026-08-18T03:55:09.000Z"
+        },
+        {
+          "id": "3p-weekly",
+          "group": "Claude and GPT models",
+          "title": "Claude and GPT models · Weekly limit",
+          "kind": "weekly",
+          "windowMinutes": 10080,
+          "remainingPercent": 100,
+          "refreshAt": "2026-08-24T22:55:09.000Z"
+        },
+        {
+          "id": "3p-5h",
+          "group": "Claude and GPT models",
+          "title": "Claude and GPT models · 5-hour limit",
+          "kind": "5h",
+          "windowMinutes": 300,
+          "remainingPercent": 100,
+          "refreshAt": "2026-08-18T03:55:09.000Z"
+        }
+      ],
       "models": [
         {
           "id": "gemini-3-1-pro-high",
           "name": "Gemini 3.1 Pro",
           "tier": "High",
-          "remainingPercent": 59.02609,
+          "remainingPercent": 100,
           "status": "ok",
-          "refreshText": "Refreshes soon",
-          "refreshAt": "2026-08-14T16:06:36Z"
+          "refreshText": "Weekly reset",
+          "refreshAt": "2026-08-24T22:55:09.000Z"
+        },
+        {
+          "id": "gemini-3-1-pro-low",
+          "name": "Gemini 3.1 Pro",
+          "tier": "Low",
+          "remainingPercent": 100,
+          "status": "ok",
+          "refreshText": "5-hour reset",
+          "refreshAt": "2026-08-18T03:55:09.000Z"
         }
-      ],
+      ]
+    },
+    {
+      "id": "leosaquetto-jobs",
+      "email": "leosaquetto.jobs@gmail.com",
+      "name": "Leo Saquetto",
+      "displayName": "leosaquetto.jobs@gmail.com",
+      "plan": "Google AI Pro",
+      "isActive": false,
+      "status": "cached",
+      "lastUpdated": "2026-08-17T22:55:22.000Z",
       "windows": [
         {
           "id": "gemini-weekly",
-          "title": "Weekly Limit Remaining",
+          "group": "Gemini Models",
+          "title": "Gemini Models · Weekly limit",
           "kind": "weekly",
           "windowMinutes": 10080,
-          "remainingPercent": 59.026089999999996,
-          "refreshAt": "2026-08-14T16:06:36.000Z"
+          "remainingPercent": 94.23885,
+          "refreshAt": "2026-08-18T21:41:36.000Z"
         },
         {
           "id": "gemini-5h",
-          "title": "Five Hour Limit Remaining",
+          "group": "Gemini Models",
+          "title": "Gemini Models · 5-hour limit",
           "kind": "5h",
           "windowMinutes": 300,
           "remainingPercent": 100,
-          "refreshAt": "2026-08-14T10:19:20.000Z"
+          "refreshAt": "2026-08-18T03:55:22.000Z"
+        },
+        {
+          "id": "3p-weekly",
+          "group": "Claude and GPT models",
+          "title": "Claude and GPT models · Weekly limit",
+          "kind": "weekly",
+          "windowMinutes": 10080,
+          "remainingPercent": 100,
+          "refreshAt": "2026-08-24T22:55:22.000Z"
+        },
+        {
+          "id": "3p-5h",
+          "group": "Claude and GPT models",
+          "title": "Claude and GPT models · 5-hour limit",
+          "kind": "5h",
+          "windowMinutes": 300,
+          "remainingPercent": 100,
+          "refreshAt": "2026-08-18T03:55:22.000Z"
+        }
+      ],
+      "models": [
+        {
+          "id": "gemini-3-1-pro-high",
+          "name": "Gemini 3.1 Pro",
+          "tier": "High",
+          "remainingPercent": 94.23885,
+          "status": "ok",
+          "refreshText": "Weekly reset",
+          "refreshAt": "2026-08-18T21:41:36.000Z"
+        },
+        {
+          "id": "gemini-3-1-pro-low",
+          "name": "Gemini 3.1 Pro",
+          "tier": "Low",
+          "remainingPercent": 100,
+          "status": "ok",
+          "refreshText": "5-hour reset",
+          "refreshAt": "2026-08-18T03:55:22.000Z"
+        }
+      ]
+    },
+    {
+      "id": "leosaquetto-main",
+      "email": "leosaquetto@gmail.com",
+      "name": "Leo Saquetto",
+      "displayName": "leosaquetto@gmail.com",
+      "plan": "Google AI Pro",
+      "isActive": false,
+      "status": "cached",
+      "lastUpdated": "2026-08-17T22:55:29.000Z",
+      "windows": [
+        {
+          "id": "gemini-weekly",
+          "group": "Gemini Models",
+          "title": "Gemini Models · Weekly limit",
+          "kind": "weekly",
+          "windowMinutes": 10080,
+          "remainingPercent": 100,
+          "refreshAt": "2026-08-24T22:55:29.000Z"
+        },
+        {
+          "id": "gemini-5h",
+          "group": "Gemini Models",
+          "title": "Gemini Models · 5-hour limit",
+          "kind": "5h",
+          "windowMinutes": 300,
+          "remainingPercent": 100,
+          "refreshAt": "2026-08-18T03:55:29.000Z"
+        },
+        {
+          "id": "3p-weekly",
+          "group": "Claude and GPT models",
+          "title": "Claude and GPT models · Weekly limit",
+          "kind": "weekly",
+          "windowMinutes": 10080,
+          "remainingPercent": 100,
+          "refreshAt": "2026-08-24T22:55:29.000Z"
+        },
+        {
+          "id": "3p-5h",
+          "group": "Claude and GPT models",
+          "title": "Claude and GPT models · 5-hour limit",
+          "kind": "5h",
+          "windowMinutes": 300,
+          "remainingPercent": 100,
+          "refreshAt": "2026-08-18T03:55:29.000Z"
+        }
+      ],
+      "models": [
+        {
+          "id": "gemini-3-1-pro-high",
+          "name": "Gemini 3.1 Pro",
+          "tier": "High",
+          "remainingPercent": 100,
+          "status": "ok",
+          "refreshText": "Weekly reset",
+          "refreshAt": "2026-08-24T22:55:29.000Z"
+        },
+        {
+          "id": "gemini-3-1-pro-low",
+          "name": "Gemini 3.1 Pro",
+          "tier": "Low",
+          "remainingPercent": 100,
+          "status": "ok",
+          "refreshText": "5-hour reset",
+          "refreshAt": "2026-08-18T03:55:29.000Z"
         }
       ]
     }
@@ -273,10 +348,19 @@
       "id": "gemini-3-1-pro-high",
       "name": "Gemini 3.1 Pro",
       "tier": "High",
-      "remainingPercent": 97.99666,
+      "remainingPercent": 97.86329,
       "status": "ok",
-      "refreshText": "Refreshes in 3 days, 7 hours",
-      "refreshAt": "2026-08-21T05:10:59Z"
+      "refreshText": "Weekly reset",
+      "refreshAt": "2026-08-21T05:10:59.000Z"
+    },
+    {
+      "id": "gemini-3-1-pro-low",
+      "name": "Gemini 3.1 Pro",
+      "tier": "Low",
+      "remainingPercent": 99.07628,
+      "status": "ok",
+      "refreshText": "5-hour reset",
+      "refreshAt": "2026-08-18T01:49:15.000Z"
     }
   ]
 }

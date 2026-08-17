@@ -14,6 +14,7 @@
     "update:codex-usage:login": "node scripts/update-codex-usage-playwright.mjs --headed --no-cdp-fallback --no-commit",
     "audit:automation": "node scripts/audit-automation-health.mjs",
     "test:antigravity-usage-parser": "node scripts/test-antigravity-usage-parser.mjs",
+    "test:antigravity-manager-reader": "node scripts/test-antigravity-manager-reader.mjs",
     "test:codex-usage-parser": "node scripts/test-codex-usage-parser.mjs",
     "test:codex-usage-history": "node scripts/test-codex-usage-history.mjs",
     "test:notifications": "node scripts/test-notification-engine.mjs",

@@ -8,7 +8,9 @@ const payload = buildCompatiblePayload({
   lastUpdated: "2026-08-17T20:55:00.000Z",
   accounts: [
     {
+      id: "one",
       email: "one@example.com",
+      plan: "Google AI Pro",
       windows: [
         {
           id: "gemini-weekly",
@@ -33,6 +35,7 @@ const payload = buildCompatiblePayload({
       ],
     },
     {
+      id: "two",
       email: "two@example.com",
       models: [{
         id: "gemini-3-1-pro-high",
@@ -56,11 +59,13 @@ assert.ok(payload.data.windows[0].title.includes("one@example.com"));
 assert.ok(!JSON.stringify(payload).includes("access_token"));
 assert.ok(!JSON.stringify(payload).includes("refresh_token"));
 
-assert.equal(accountEndpointSlug(payload.data.windows[0], 0), "account-1");
+assert.equal(accountEndpointSlug({ id: "one", email: "one@example.com" }, 0), "one");
+assert.match(payload.data.windows[0].id, /^antigravity-one-/);
 const oneAccount = buildCompatiblePayload({
   lastUpdated: "2026-08-17T20:55:00.000Z",
   accounts: [
     {
+      id: "one",
       email: "one@example.com",
       windows: [
         {
@@ -72,7 +77,9 @@ const oneAccount = buildCompatiblePayload({
       ],
     },
     {
+      id: "two",
       email: "two@example.com",
+      plan: "Google AI Pro",
       windows: [
         {
           id: "gemini-weekly",
@@ -83,11 +90,13 @@ const oneAccount = buildCompatiblePayload({
       ],
     },
   ],
-}, now, { accountIndex: 1, includeAccountLabel: false });
+}, now, { accountSelector: "two", includeAccountLabel: false });
 assert.equal(oneAccount.accountCount, 1);
 assert.equal(oneAccount.data.windows.length, 1);
 assert.equal(oneAccount.data.windows[0].usedPercent, 50);
 assert.equal(oneAccount.data.windows[0].title, "Weekly Limit Remaining");
+assert.equal(oneAccount.data.plan, "Google AI Pro");
+assert.equal(oneAccount.data.account.email, "two@example.com");
 
 assert.throws(
   () => buildCompatiblePayload({ lastUpdated: "2026-08-17T20:55:00.000Z", models: [{ remainingPercent: 80, refreshAt: "2026-08-17T20:00:00.000Z" }] }, now),

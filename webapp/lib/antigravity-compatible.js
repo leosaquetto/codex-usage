@@ -27,8 +27,17 @@ function accountLabel(account, index) {
   return name || `Conta ${index + 1}`;
 }
 
-function accountEndpointSlug(_account, index) {
-  return `account-${index + 1}`;
+function slugify(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/@/g, "-")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}
+
+function accountEndpointSlug(account, index) {
+  return slugify(account?.id || account?.slug || account?.email) || `account-${index + 1}`;
 }
 
 function rawWindowTitle(rawWindow) {
@@ -82,7 +91,7 @@ function compatibleWindow(rawWindow, account, accountIndex, windowIndex, now, op
     : `${accountLabel(account, accountIndex)} · ${rawWindowTitle(rawWindow)}`;
 
   return {
-    id: `antigravity-${accountIndex}-${bucketID}`,
+    id: `antigravity-${accountEndpointSlug(account, accountIndex)}-${bucketID}`,
     title,
     kind,
     ...(windowMinutes === null ? {} : { windowMinutes }),
@@ -96,9 +105,19 @@ function buildCompatiblePayload(snapshot, now = new Date(), options = {}) {
   if (Number.isNaN(current.getTime())) throw new Error("Data de referência inválida.");
 
   const accounts = Array.isArray(snapshot?.accounts) ? snapshot.accounts : [];
-  const accountIndex = options.accountIndex === undefined || options.accountIndex === null
+  let accountIndex = options.accountIndex === undefined || options.accountIndex === null
     ? null
     : Number(options.accountIndex);
+  const accountSelector = String(options.accountSelector || "").trim().toLowerCase();
+  if (accountSelector) {
+    accountIndex = accounts.findIndex((account, index) =>
+      accountEndpointSlug(account, index) === accountSelector
+    );
+    if (accountIndex < 0) {
+      const legacyMatch = /^account-(\d+)$/.exec(accountSelector);
+      accountIndex = legacyMatch ? Number(legacyMatch[1]) - 1 : -1;
+    }
+  }
   if (accountIndex !== null && (!Number.isInteger(accountIndex) || !accounts[accountIndex])) {
     throw new Error("Conta Antigravity não encontrada.");
   }
@@ -126,6 +145,14 @@ function buildCompatiblePayload(snapshot, now = new Date(), options = {}) {
   }
 
   const lastUpdated = isoDate(snapshot?.lastUpdated) || current.toISOString();
+  const selectedAccount = selectedAccounts.length === 1 ? selectedAccounts[0].account : null;
+  const plan = String(selectedAccount?.plan || "").trim() || null;
+  const account = selectedAccount ? {
+    id: accountEndpointSlug(selectedAccount, selectedAccounts[0].index),
+    name: String(selectedAccount?.name || selectedAccount?.displayName || accountLabel(selectedAccount, 0)),
+    email: String(selectedAccount?.email || ""),
+    ...(plan ? { plan } : {}),
+  } : null;
   return {
     source: "codex-usage-antigravity",
     provider: "Antigravity",
@@ -133,6 +160,8 @@ function buildCompatiblePayload(snapshot, now = new Date(), options = {}) {
     accountCount: selectedAccounts.length || 1,
     data: {
       provider: "Antigravity",
+      ...(plan ? { plan } : {}),
+      ...(account ? { account } : {}),
       lastUpdated,
       windows,
     },

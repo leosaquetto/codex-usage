@@ -24,6 +24,7 @@ Validações específicas:
 ```bash
 npm run test:codex-usage-parser
 npm run test:antigravity-usage-parser
+npm run test:antigravity-manager-reader
 npm run test:notifications
 npm run test:usage-api
 npm run validate:static

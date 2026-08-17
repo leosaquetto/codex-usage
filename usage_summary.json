@@ -100140,7 +100140,7 @@
             "tier": "High",
             "remainingPercent": 100,
             "status": "ok",
-            "refreshText": "Refreshes in 6 days, 23 hours",
+            "refreshText": "Refreshes in 6 days, 22 hours",
             "refreshAt": "2026-08-24T20:13:06Z"
           }
         ],
@@ -100167,7 +100167,7 @@
             "tier": "High",
             "remainingPercent": 100,
             "status": "ok",
-            "refreshText": "Refreshes in 6 days, 23 hours",
+            "refreshText": "Refreshes in 6 days, 22 hours",
             "refreshAt": "2026-08-24T20:13:01Z"
           }
         ],
@@ -100202,7 +100202,7 @@
             "tier": "High",
             "remainingPercent": 97.99666,
             "status": "ok",
-            "refreshText": "Refreshes in 3 days, 8 hours",
+            "refreshText": "Refreshes in 3 days, 7 hours",
             "refreshAt": "2026-08-21T05:10:59Z"
           }
         ],
@@ -100237,7 +100237,7 @@
             "tier": "High",
             "remainingPercent": 100,
             "status": "ok",
-            "refreshText": "Refreshes in 3 days, 8 hours",
+            "refreshText": "Refreshes in 3 days, 7 hours",
             "refreshAt": "2026-08-21T05:19:35Z"
           }
         ],
@@ -100264,7 +100264,7 @@
             "tier": "High",
             "remainingPercent": 93.21383,
             "status": "ok",
-            "refreshText": "Refreshes in 1 day",
+            "refreshText": "Refreshes in 23 hours, 2 minutes",
             "refreshAt": "2026-08-18T21:41:36Z"
           }
         ],
@@ -100299,7 +100299,7 @@
             "tier": "High",
             "remainingPercent": 100,
             "status": "ok",
-            "refreshText": "Refreshes in 3 days, 8 hours",
+            "refreshText": "Refreshes in 3 days, 7 hours",
             "refreshAt": "2026-08-21T05:19:28Z"
           }
         ],
@@ -100401,7 +100401,7 @@
         "tier": "High",
         "remainingPercent": 97.99666,
         "status": "ok",
-        "refreshText": "Refreshes in 3 days, 8 hours",
+        "refreshText": "Refreshes in 3 days, 7 hours",
         "refreshAt": "2026-08-21T05:10:59Z"
       }
     ]

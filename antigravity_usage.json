@@ -1,6 +1,6 @@
 {
   "source": "antigravity-manager-db",
-  "lastUpdated": "2026-08-19T03:49:33.000Z",
+  "lastUpdated": "2026-08-19T03:50:42.000Z",
   "accounts": [
     {
       "id": "leosaquetto0",
@@ -10,7 +10,7 @@
       "plan": "Google AI Pro",
       "isActive": false,
       "status": "cached",
-      "lastUpdated": "2026-08-19T03:47:04.000Z",
+      "lastUpdated": "2026-08-19T03:50:42.000Z",
       "windows": [
         {
           "id": "gemini-weekly",
@@ -28,7 +28,7 @@
           "kind": "5h",
           "windowMinutes": 300,
           "remainingPercent": 100,
-          "refreshAt": "2026-08-19T08:46:58.000Z"
+          "refreshAt": "2026-08-19T08:50:42.000Z"
         },
         {
           "id": "3p-weekly",
@@ -37,7 +37,7 @@
           "kind": "weekly",
           "windowMinutes": 10080,
           "remainingPercent": 100,
-          "refreshAt": "2026-08-26T03:46:58.000Z"
+          "refreshAt": "2026-08-26T03:50:42.000Z"
         },
         {
           "id": "3p-5h",
@@ -46,7 +46,7 @@
           "kind": "5h",
           "windowMinutes": 300,
           "remainingPercent": 100,
-          "refreshAt": "2026-08-19T08:46:58.000Z"
+          "refreshAt": "2026-08-19T08:50:42.000Z"
         }
       ],
       "models": [
@@ -66,7 +66,7 @@
           "remainingPercent": 100,
           "status": "ok",
           "refreshText": "5-hour reset",
-          "refreshAt": "2026-08-19T08:46:58.000Z"
+          "refreshAt": "2026-08-19T08:50:42.000Z"
         }
       ]
     },
@@ -214,7 +214,7 @@
       "plan": "Google AI Pro",
       "isActive": true,
       "status": "success",
-      "lastUpdated": "2026-08-19T03:47:17.000Z",
+      "lastUpdated": "2026-08-19T03:50:30.000Z",
       "windows": [
         {
           "id": "gemini-weekly",
@@ -241,7 +241,7 @@
           "kind": "weekly",
           "windowMinutes": 10080,
           "remainingPercent": 100,
-          "refreshAt": "2026-08-26T03:47:13.000Z"
+          "refreshAt": "2026-08-26T03:50:29.000Z"
         },
         {
           "id": "3p-5h",
@@ -250,7 +250,7 @@
           "kind": "5h",
           "windowMinutes": 300,
           "remainingPercent": 100,
-          "refreshAt": "2026-08-19T08:47:13.000Z"
+          "refreshAt": "2026-08-19T08:50:29.000Z"
         }
       ],
       "models": [

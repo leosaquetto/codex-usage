@@ -1,6 +1,6 @@
 {
   "source": "antigravity-manager-db",
-  "lastUpdated": "2026-08-26T21:38:05.000Z",
+  "lastUpdated": "2026-08-26T21:57:04.000Z",
   "accounts": [
     {
       "id": "leosaquetto0",
@@ -8,9 +8,9 @@
       "name": "leo saquetto",
       "displayName": "leosaquetto0@gmail.com",
       "plan": "Google AI Pro",
-      "isActive": false,
-      "status": "cached",
-      "lastUpdated": "2026-08-26T21:37:44.000Z",
+      "isActive": true,
+      "status": "success",
+      "lastUpdated": "2026-08-26T21:56:48.000Z",
       "windows": [
         {
           "id": "gemini-weekly",
@@ -28,7 +28,7 @@
           "kind": "5h",
           "windowMinutes": 300,
           "remainingPercent": 100,
-          "refreshAt": "2026-08-27T02:37:44.000Z"
+          "refreshAt": "2026-08-27T02:56:47.000Z"
         },
         {
           "id": "3p-weekly",
@@ -37,7 +37,7 @@
           "kind": "weekly",
           "windowMinutes": 10080,
           "remainingPercent": 100,
-          "refreshAt": "2026-09-02T21:37:44.000Z"
+          "refreshAt": "2026-09-02T21:56:47.000Z"
         },
         {
           "id": "3p-5h",
@@ -46,7 +46,7 @@
           "kind": "5h",
           "windowMinutes": 300,
           "remainingPercent": 100,
-          "refreshAt": "2026-08-27T02:37:44.000Z"
+          "refreshAt": "2026-08-27T02:56:47.000Z"
         }
       ],
       "models": [
@@ -66,7 +66,7 @@
           "remainingPercent": 100,
           "status": "ok",
           "refreshText": "5-hour reset",
-          "refreshAt": "2026-08-27T02:37:44.000Z"
+          "refreshAt": "2026-08-27T02:56:47.000Z"
         }
       ]
     },
@@ -78,7 +78,7 @@
       "plan": "Google AI Pro",
       "isActive": false,
       "status": "cached",
-      "lastUpdated": "2026-08-26T21:37:47.000Z",
+      "lastUpdated": "2026-08-26T21:57:04.000Z",
       "windows": [
         {
           "id": "gemini-weekly",
@@ -96,7 +96,7 @@
           "kind": "5h",
           "windowMinutes": 300,
           "remainingPercent": 100,
-          "refreshAt": "2026-08-27T02:37:47.000Z"
+          "refreshAt": "2026-08-27T02:57:04.000Z"
         },
         {
           "id": "3p-weekly",
@@ -105,7 +105,7 @@
           "kind": "weekly",
           "windowMinutes": 10080,
           "remainingPercent": 100,
-          "refreshAt": "2026-09-02T21:37:47.000Z"
+          "refreshAt": "2026-09-02T21:57:04.000Z"
         },
         {
           "id": "3p-5h",
@@ -114,7 +114,7 @@
           "kind": "5h",
           "windowMinutes": 300,
           "remainingPercent": 100,
-          "refreshAt": "2026-08-27T02:37:47.000Z"
+          "refreshAt": "2026-08-27T02:57:04.000Z"
         }
       ],
       "models": [
@@ -134,7 +134,7 @@
           "remainingPercent": 100,
           "status": "ok",
           "refreshText": "5-hour reset",
-          "refreshAt": "2026-08-27T02:37:47.000Z"
+          "refreshAt": "2026-08-27T02:57:04.000Z"
         }
       ]
     },
@@ -144,9 +144,9 @@
       "name": "Leonardo Araujo",
       "displayName": "laraujo@outlook.com",
       "plan": "Google AI Pro",
-      "isActive": true,
-      "status": "success",
-      "lastUpdated": "2026-08-26T21:38:05.000Z",
+      "isActive": false,
+      "status": "cached",
+      "lastUpdated": "2026-08-26T21:56:41.000Z",
       "windows": [
         {
           "id": "gemini-weekly",
@@ -154,7 +154,7 @@
           "title": "Gemini Models · Weekly limit",
           "kind": "weekly",
           "windowMinutes": 10080,
-          "remainingPercent": 88.86817,
+          "remainingPercent": 84.47033,
           "refreshAt": "2026-09-02T20:37:05.000Z"
         },
         {
@@ -163,7 +163,7 @@
           "title": "Gemini Models · 5-hour limit",
           "kind": "5h",
           "windowMinutes": 300,
-          "remainingPercent": 37.214,
+          "remainingPercent": 8.849,
           "refreshAt": "2026-08-27T01:37:05.000Z"
         },
         {
@@ -173,7 +173,7 @@
           "kind": "weekly",
           "windowMinutes": 10080,
           "remainingPercent": 100,
-          "refreshAt": "2026-09-02T21:38:04.000Z"
+          "refreshAt": "2026-09-02T21:56:39.000Z"
         },
         {
           "id": "3p-5h",
@@ -182,7 +182,7 @@
           "kind": "5h",
           "windowMinutes": 300,
           "remainingPercent": 100,
-          "refreshAt": "2026-08-27T02:38:04.000Z"
+          "refreshAt": "2026-08-27T02:56:39.000Z"
         }
       ],
       "models": [
@@ -190,7 +190,7 @@
           "id": "gemini-3-1-pro-high",
           "name": "Gemini 3.1 Pro",
           "tier": "High",
-          "remainingPercent": 88.86817,
+          "remainingPercent": 84.47033,
           "status": "ok",
           "refreshText": "Weekly reset",
           "refreshAt": "2026-09-02T20:37:05.000Z"
@@ -199,8 +199,8 @@
           "id": "gemini-3-1-pro-low",
           "name": "Gemini 3.1 Pro",
           "tier": "Low",
-          "remainingPercent": 37.214,
-          "status": "ok",
+          "remainingPercent": 8.849,
+          "status": "low",
           "refreshText": "5-hour reset",
           "refreshAt": "2026-08-27T01:37:05.000Z"
         }
@@ -214,7 +214,7 @@
       "plan": "Google AI Pro",
       "isActive": false,
       "status": "cached",
-      "lastUpdated": "2026-08-26T21:37:51.000Z",
+      "lastUpdated": "2026-08-26T21:57:00.000Z",
       "windows": [
         {
           "id": "gemini-weekly",
@@ -223,7 +223,7 @@
           "kind": "weekly",
           "windowMinutes": 10080,
           "remainingPercent": 100,
-          "refreshAt": "2026-09-02T21:37:50.000Z"
+          "refreshAt": "2026-09-02T21:56:59.000Z"
         },
         {
           "id": "gemini-5h",
@@ -232,7 +232,7 @@
           "kind": "5h",
           "windowMinutes": 300,
           "remainingPercent": 100,
-          "refreshAt": "2026-08-27T02:37:50.000Z"
+          "refreshAt": "2026-08-27T02:56:59.000Z"
         },
         {
           "id": "3p-weekly",
@@ -241,7 +241,7 @@
           "kind": "weekly",
           "windowMinutes": 10080,
           "remainingPercent": 100,
-          "refreshAt": "2026-09-02T21:37:50.000Z"
+          "refreshAt": "2026-09-02T21:56:59.000Z"
         },
         {
           "id": "3p-5h",
@@ -250,7 +250,7 @@
           "kind": "5h",
           "windowMinutes": 300,
           "remainingPercent": 100,
-          "refreshAt": "2026-08-27T02:37:50.000Z"
+          "refreshAt": "2026-08-27T02:56:59.000Z"
         }
       ],
       "models": [
@@ -261,7 +261,7 @@
           "remainingPercent": 100,
           "status": "ok",
           "refreshText": "Weekly reset",
-          "refreshAt": "2026-09-02T21:37:50.000Z"
+          "refreshAt": "2026-09-02T21:56:59.000Z"
         },
         {
           "id": "gemini-3-1-pro-low",
@@ -270,7 +270,7 @@
           "remainingPercent": 100,
           "status": "ok",
           "refreshText": "5-hour reset",
-          "refreshAt": "2026-08-27T02:37:50.000Z"
+          "refreshAt": "2026-08-27T02:56:59.000Z"
         }
       ]
     },
@@ -282,7 +282,7 @@
       "plan": "Google AI Pro",
       "isActive": false,
       "status": "cached",
-      "lastUpdated": "2026-08-26T21:37:55.000Z",
+      "lastUpdated": "2026-08-26T21:56:55.000Z",
       "windows": [
         {
           "id": "gemini-weekly",
@@ -309,7 +309,7 @@
           "kind": "weekly",
           "windowMinutes": 10080,
           "remainingPercent": 100,
-          "refreshAt": "2026-09-02T21:37:53.000Z"
+          "refreshAt": "2026-09-02T21:56:55.000Z"
         },
         {
           "id": "3p-5h",
@@ -318,7 +318,7 @@
           "kind": "5h",
           "windowMinutes": 300,
           "remainingPercent": 100,
-          "refreshAt": "2026-08-27T02:37:53.000Z"
+          "refreshAt": "2026-08-27T02:56:55.000Z"
         }
       ],
       "models": [
@@ -348,19 +348,19 @@
       "id": "gemini-3-1-pro-high",
       "name": "Gemini 3.1 Pro",
       "tier": "High",
-      "remainingPercent": 88.86817,
+      "remainingPercent": 95.22525,
       "status": "ok",
       "refreshText": "Weekly reset",
-      "refreshAt": "2026-09-02T20:37:05.000Z"
+      "refreshAt": "2026-08-28T05:10:59.000Z"
     },
     {
       "id": "gemini-3-1-pro-low",
       "name": "Gemini 3.1 Pro",
       "tier": "Low",
-      "remainingPercent": 37.214,
+      "remainingPercent": 100,
       "status": "ok",
       "refreshText": "5-hour reset",
-      "refreshAt": "2026-08-27T01:37:05.000Z"
+      "refreshAt": "2026-08-27T02:56:47.000Z"
     }
   ]
 }

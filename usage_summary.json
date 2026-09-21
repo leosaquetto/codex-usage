@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-09-21T00:51:21.000Z",
+  "lastUpdated": "2026-09-21T00:52:30.000Z",
   "codex": {
     "source": "codex-switcher",
     "lastUpdated": "2026-07-02T03:10:47.743Z",
@@ -100126,7 +100126,7 @@
   },
   "antigravity": {
     "source": "antigravity-manager-db",
-    "lastUpdated": "2026-09-21T00:51:21.000Z",
+    "lastUpdated": "2026-09-21T00:52:30.000Z",
     "accounts": [
       {
         "id": "leosaquetto0",
@@ -100340,7 +100340,7 @@
         "plan": "Google AI Pro",
         "isActive": false,
         "status": "cached",
-        "lastUpdated": "2026-09-21T00:28:04.000Z",
+        "lastUpdated": "2026-09-21T00:52:30.000Z",
         "windows": [
           {
             "id": "gemini-weekly",
@@ -100358,7 +100358,7 @@
             "kind": "5h",
             "windowMinutes": 300,
             "remainingPercent": 100,
-            "refreshAt": "2026-09-21T05:28:04.000Z"
+            "refreshAt": "2026-09-21T05:52:29.000Z"
           },
           {
             "id": "3p-weekly",
@@ -100367,7 +100367,7 @@
             "kind": "weekly",
             "windowMinutes": 10080,
             "remainingPercent": 100,
-            "refreshAt": "2026-09-28T00:28:04.000Z"
+            "refreshAt": "2026-09-28T00:52:29.000Z"
           },
           {
             "id": "3p-5h",
@@ -100376,7 +100376,7 @@
             "kind": "5h",
             "windowMinutes": 300,
             "remainingPercent": 100,
-            "refreshAt": "2026-09-21T05:28:04.000Z"
+            "refreshAt": "2026-09-21T05:52:29.000Z"
           }
         ],
         "models": [
@@ -100396,7 +100396,7 @@
             "remainingPercent": 100,
             "status": "ok",
             "refreshText": "5-hour reset",
-            "refreshAt": "2026-09-21T05:28:04.000Z"
+            "refreshAt": "2026-09-21T05:52:29.000Z"
           }
         ]
       },

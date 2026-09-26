@@ -19,7 +19,7 @@
           "kind": "weekly",
           "windowMinutes": 10080,
           "remainingPercent": 100,
-          "refreshAt": "2026-10-03T08:15:40.000Z"
+          "refreshAt": "2026-10-03T08:30:43.000Z"
         },
         {
           "id": "gemini-5h",
@@ -28,7 +28,7 @@
           "kind": "5h",
           "windowMinutes": 300,
           "remainingPercent": 100,
-          "refreshAt": "2026-09-26T13:15:40.000Z"
+          "refreshAt": "2026-09-26T13:30:43.000Z"
         },
         {
           "id": "3p-weekly",
@@ -46,7 +46,7 @@
           "kind": "5h",
           "windowMinutes": 300,
           "remainingPercent": 100,
-          "refreshAt": "2026-09-26T13:15:40.000Z"
+          "refreshAt": "2026-09-26T13:30:43.000Z"
         }
       ],
       "models": [
@@ -57,7 +57,7 @@
           "remainingPercent": 100,
           "status": "ok",
           "refreshText": "Weekly reset",
-          "refreshAt": "2026-10-03T08:15:40.000Z"
+          "refreshAt": "2026-10-03T08:30:43.000Z"
         },
         {
           "id": "gemini-3-1-pro-low",
@@ -66,7 +66,7 @@
           "remainingPercent": 100,
           "status": "ok",
           "refreshText": "5-hour reset",
-          "refreshAt": "2026-09-26T13:15:40.000Z"
+          "refreshAt": "2026-09-26T13:30:43.000Z"
         }
       ]
     },
@@ -87,7 +87,7 @@
           "kind": "weekly",
           "windowMinutes": 10080,
           "remainingPercent": 100,
-          "refreshAt": "2026-10-03T08:15:37.000Z"
+          "refreshAt": "2026-10-03T08:30:37.000Z"
         },
         {
           "id": "gemini-5h",
@@ -96,7 +96,7 @@
           "kind": "5h",
           "windowMinutes": 300,
           "remainingPercent": 100,
-          "refreshAt": "2026-09-26T13:15:37.000Z"
+          "refreshAt": "2026-09-26T13:30:37.000Z"
         },
         {
           "id": "3p-weekly",
@@ -114,7 +114,7 @@
           "kind": "5h",
           "windowMinutes": 300,
           "remainingPercent": 100,
-          "refreshAt": "2026-09-26T13:15:37.000Z"
+          "refreshAt": "2026-09-26T13:30:37.000Z"
         }
       ],
       "models": [
@@ -125,7 +125,7 @@
           "remainingPercent": 100,
           "status": "ok",
           "refreshText": "Weekly reset",
-          "refreshAt": "2026-10-03T08:15:37.000Z"
+          "refreshAt": "2026-10-03T08:30:37.000Z"
         },
         {
           "id": "gemini-3-1-pro-low",
@@ -134,7 +134,7 @@
           "remainingPercent": 100,
           "status": "ok",
           "refreshText": "5-hour reset",
-          "refreshAt": "2026-09-26T13:15:37.000Z"
+          "refreshAt": "2026-09-26T13:30:37.000Z"
         }
       ]
     },
@@ -164,7 +164,7 @@
           "kind": "5h",
           "windowMinutes": 300,
           "remainingPercent": 100,
-          "refreshAt": "2026-09-26T13:15:44.000Z"
+          "refreshAt": "2026-09-26T13:30:48.000Z"
         },
         {
           "id": "3p-weekly",
@@ -202,7 +202,7 @@
           "remainingPercent": 100,
           "status": "ok",
           "refreshText": "5-hour reset",
-          "refreshAt": "2026-09-26T13:15:44.000Z"
+          "refreshAt": "2026-09-26T13:30:48.000Z"
         }
       ]
     },
@@ -222,7 +222,7 @@
           "title": "Gemini Models · Weekly limit",
           "kind": "weekly",
           "windowMinutes": 10080,
-          "remainingPercent": 88.91885,
+          "remainingPercent": 90.01535,
           "refreshAt": "2026-10-03T06:29:22.000Z"
         },
         {
@@ -231,7 +231,7 @@
           "title": "Gemini Models · 5-hour limit",
           "kind": "5h",
           "windowMinutes": 300,
-          "remainingPercent": 43.2711,
+          "remainingPercent": 44.51212,
           "refreshAt": "2026-09-26T11:29:22.000Z"
         },
         {
@@ -250,7 +250,7 @@
           "kind": "5h",
           "windowMinutes": 300,
           "remainingPercent": 100,
-          "refreshAt": "2026-09-26T13:15:27.000Z"
+          "refreshAt": "2026-09-26T13:30:27.000Z"
         }
       ],
       "models": [
@@ -258,7 +258,7 @@
           "id": "gemini-3-1-pro-high",
           "name": "Gemini 3.1 Pro",
           "tier": "High",
-          "remainingPercent": 88.91885,
+          "remainingPercent": 90.01535,
           "status": "ok",
           "refreshText": "Weekly reset",
           "refreshAt": "2026-10-03T06:29:22.000Z"
@@ -267,7 +267,7 @@
           "id": "gemini-3-1-pro-low",
           "name": "Gemini 3.1 Pro",
           "tier": "Low",
-          "remainingPercent": 43.2711,
+          "remainingPercent": 44.51212,
           "status": "ok",
           "refreshText": "5-hour reset",
           "refreshAt": "2026-09-26T11:29:22.000Z"
@@ -318,7 +318,7 @@
           "kind": "5h",
           "windowMinutes": 300,
           "remainingPercent": 100,
-          "refreshAt": "2026-09-26T13:15:33.000Z"
+          "refreshAt": "2026-09-26T13:30:34.000Z"
         }
       ],
       "models": [
@@ -348,7 +348,7 @@
       "id": "gemini-3-1-pro-high",
       "name": "Gemini 3.1 Pro",
       "tier": "High",
-      "remainingPercent": 88.91885,
+      "remainingPercent": 90.01535,
       "status": "ok",
       "refreshText": "Weekly reset",
       "refreshAt": "2026-10-03T06:29:22.000Z"
@@ -357,7 +357,7 @@
       "id": "gemini-3-1-pro-low",
       "name": "Gemini 3.1 Pro",
       "tier": "Low",
-      "remainingPercent": 43.2711,
+      "remainingPercent": 44.51212,
       "status": "ok",
       "refreshText": "5-hour reset",
       "refreshAt": "2026-09-26T11:29:22.000Z"

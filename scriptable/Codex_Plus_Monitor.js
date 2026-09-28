@@ -285,14 +285,16 @@ function buildMediumWidget(item) {
   titleTxt.font = Font.boldSystemFont(14);
   titleTxt.textColor = Color.white();
 
-  tRow.addSpacer(6);
-  const bBadge = tRow.addStack();
-  bBadge.backgroundColor = new Color("#ffffff", 0.14);
-  bBadge.cornerRadius = 4;
-  bBadge.setPadding(1, 4, 1, 4);
-  const bTxt = bBadge.addText(`${item.banked} ${item.banked === 1 ? "reset" : "resets"}`);
-  bTxt.font = Font.systemFont(8);
-  bTxt.textColor = new Color("#ffd60a");
+  if (item.banked > 0) {
+    tRow.addSpacer(6);
+    const bBadge = tRow.addStack();
+    bBadge.backgroundColor = new Color("#ffffff", 0.14);
+    bBadge.cornerRadius = 4;
+    bBadge.setPadding(1, 4, 1, 4);
+    const bTxt = bBadge.addText(`${item.banked} ${item.banked === 1 ? "reset" : "resets"}`);
+    bTxt.font = Font.systemFont(8);
+    bTxt.textColor = new Color("#ffd60a");
+  }
 
   const expInfo = item.countdown ? `${item.expires} (${item.countdown} restantes)` : item.expires;
   const subTxt = titleCol.addText(`${item.email}  |  Expira: ${expInfo}`);
@@ -434,17 +436,18 @@ function buildLargeWidget(items) {
     nameTxt.textColor = item.isUrgent ? new Color("#ff453a") : Color.white();
     nameTxt.lineLimit = 1;
 
-    row1.addSpacer(3);
-
-    // Label de resets ("2 resets" ou "1 reset")
-    const resetBadge = row1.addStack();
-    resetBadge.backgroundColor = new Color("#ffffff", 0.1);
-    resetBadge.cornerRadius = 3;
-    resetBadge.setPadding(1, 3, 1, 3);
-    const resetStr = `${item.banked} ${item.banked === 1 ? "reset" : "resets"}`;
-    const rTxt = resetBadge.addText(resetStr);
-    rTxt.font = Font.systemFont(7);
-    rTxt.textColor = item.banked > 0 ? new Color("#ffd60a") : new Color("#8e8e93");
+    // Label de resets (apenas exibe se tiver mais de 0 resets)
+    if (item.banked > 0) {
+      row1.addSpacer(3);
+      const resetBadge = row1.addStack();
+      resetBadge.backgroundColor = new Color("#ffffff", 0.1);
+      resetBadge.cornerRadius = 3;
+      resetBadge.setPadding(1, 3, 1, 3);
+      const resetStr = `${item.banked} ${item.banked === 1 ? "reset" : "resets"}`;
+      const rTxt = resetBadge.addText(resetStr);
+      rTxt.font = Font.systemFont(7);
+      rTxt.textColor = new Color("#ffd60a");
+    }
 
     row1.addSpacer();
 

@@ -113,14 +113,15 @@ async function renderMirror() {
 
     const isUrgent = meta.priority <= 2;
     const borderChar = isUrgent ? "🚨" : "🔹";
-    const resetsBadge = meta.banked !== undefined ? `[${meta.banked}r]` : "";
+    const resetsBadge = meta.banked > 0 ? `[${meta.banked} ${meta.banked === 1 ? "reset" : "resets"}]` : "";
 
     const targetDate = meta.recurringDay ? getNextMonthlyDate(meta.recurringDay) : meta.expiresDate;
     const countdown = formatDaysCountdown(targetDate);
     const expInfo = countdown ? `${meta.expires} (${countdown} restantes)` : meta.expires;
+    const resetsInfo = meta.banked > 0 ? `  |  Resets: ${meta.banked}` : "";
 
     console.log(`┌─ ${borderChar} ${meta.label.toUpperCase()} ${resetsBadge} ────────────────────────────────────`);
-    console.log(`│ 📧 ${acc.email}  |  Expira: ${expInfo}  |  Resets: ${meta.banked ?? 0}`);
+    console.log(`│ 📧 ${acc.email}  |  Expira: ${expInfo}${resetsInfo}`);
     console.log(`│`);
     console.log(`│  Sessão:  ${renderProgressBar(sessaoPct, 22)}  ${String(sessaoPct).padStart(3, " ")}% restante`);
     console.log(`│           ↻ Renova em: ${sessaoRenova}`);

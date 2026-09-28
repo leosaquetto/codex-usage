@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.leosaquetto.codexusage.switcher.icloud</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/local/bin/node</string>
+    <string>/Users/leosaquetto/Developer/GitHub/codex-usage/scripts/sync-switcher-to-icloud.mjs</string>
+  </array>
+
+  <key>WatchPaths</key>
+  <array>
+    <string>/Users/leosaquetto/.codex-switcher/accounts.json</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/leosaquetto/Developer/GitHub/codex-usage</string>
+
+  <key>StandardOutPath</key>
+  <string>/tmp/codex-switcher-icloud-sync.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>/tmp/codex-switcher-icloud-sync.err</string>
+</dict>
+</plist>

@@ -6,6 +6,8 @@
     "chrome:cdp": "open -na \"Google Chrome\" --args --remote-debugging-port=9222 --user-data-dir=/Users/leosaquetto/Developer/BrowserProfiles/codex-cdp-profile",
     "update:antigravity-usage:auto": "node scripts/run-usage-data-update.mjs antigravity",
     "update:codex-usage:switcher": "node scripts/update-codex-usage-from-switcher.mjs",
+    "mirror": "node scripts/codex-widget-mirror.mjs",
+    "sync:structured": "node scripts/sync-codex-to-structured.mjs",
     "update:codex-usage:switcher:auto": "node scripts/run-usage-data-update.mjs switcher",
     "update:codex-usage:switcher:publish": "node scripts/update-codex-usage-from-switcher.mjs --publish",
     "update:codex-usage:auto": "node scripts/run-usage-data-update.mjs playwright --ensure-cdp --close-cdp",

@@ -11,7 +11,7 @@
  *  - Cota de Sessão (5h) com barra de progresso e contagem regressiva
  *  - Cota Semanal (7d) com barra de progresso e contagem regressiva
  *  - Data de expiração da assinatura (ou renovação mensal)
- *  - Label pequena com a quantidade de Banked Resets acumulados
+ *  - Label com a quantidade de Resets acumulados ("2 resets")
  * ==============================================================================
  */
 
@@ -424,6 +424,7 @@ function buildLargeWidget(items) {
     card.borderColor = item.isUrgent ? new Color("#ff453a", 0.5) : new Color("#ffffff", 0.07);
 
     // Linha 1: Alias + Resets Label + Countdown & Expiração
+    card.addSpacer(2);
     const row1 = card.addStack();
     row1.centerAlignContent();
 
@@ -434,13 +435,14 @@ function buildLargeWidget(items) {
 
     row1.addSpacer(3);
 
-    // Label pequena de resets
+    // Label de resets ("2 resets" ou "1 reset")
     const resetBadge = row1.addStack();
     resetBadge.backgroundColor = new Color("#ffffff", 0.1);
     resetBadge.cornerRadius = 3;
     resetBadge.setPadding(1, 3, 1, 3);
-    const rTxt = resetBadge.addText(`${item.banked}r`);
-    rTxt.font = Font.systemFont(7.5);
+    const resetStr = `${item.banked} ${item.banked === 1 ? "reset" : "resets"}`;
+    const rTxt = resetBadge.addText(resetStr);
+    rTxt.font = Font.systemFont(7);
     rTxt.textColor = item.banked > 0 ? new Color("#ffd60a") : new Color("#8e8e93");
 
     row1.addSpacer();
@@ -466,7 +468,7 @@ function buildLargeWidget(items) {
     expTxt.textColor = item.isUrgent ? new Color("#ff453a") : new Color("#8e8e93");
     expTxt.lineLimit = 1;
 
-    card.addSpacer(3.5);
+    card.addSpacer(4.5);
 
     // Linha 2: Sessão (5h)
     const row2 = card.addStack();
@@ -486,7 +488,7 @@ function buildLargeWidget(items) {
     t5h.textColor = new Color("#8e8e93");
     t5h.lineLimit = 1;
 
-    card.addSpacer(3);
+    card.addSpacer(4);
 
     // Linha 3: Semanal
     const row3 = card.addStack();
@@ -505,6 +507,8 @@ function buildLargeWidget(items) {
     tWk.font = Font.systemFont(7);
     tWk.textColor = new Color("#8e8e93");
     tWk.lineLimit = 1;
+
+    card.addSpacer(2);
   }
 
   // Distribuir exatamente as 10 contas (5 por coluna)

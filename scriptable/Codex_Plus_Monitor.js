@@ -24,7 +24,7 @@ const REFRESH_INTERVAL_MINUTES = 15;
 const MONITORED_CONFIG = [
   {
     email: "dhj6smm47v@privaterelay.appleid.com",
-    alias: "Mãe",
+    alias: "mãe",
     priority: 1,
     banked: 2,
     expires: "01/10 às 15:00",
@@ -34,7 +34,7 @@ const MONITORED_CONFIG = [
   },
   {
     email: "gratinado-17-dirigiveis@icloud.com",
-    alias: "Gratinado",
+    alias: "gratinado",
     priority: 2,
     banked: 1,
     expires: "03/10 às 08:39",
@@ -44,7 +44,7 @@ const MONITORED_CONFIG = [
   },
   {
     email: "leonardo.a@live.com",
-    alias: "Leonardo.a",
+    alias: "leo.a@live",
     priority: 3,
     banked: 1,
     expires: "07/10 às 16:19",
@@ -54,7 +54,7 @@ const MONITORED_CONFIG = [
   },
   {
     email: "leosaquetto@outlook.com",
-    alias: "Leo Outlook",
+    alias: "ls@out",
     priority: 4,
     banked: 0,
     expires: "07/10 às 18:41",
@@ -64,7 +64,7 @@ const MONITORED_CONFIG = [
   },
   {
     email: "ldionisioxavier@gmail.com",
-    alias: "Lays Dionisio",
+    alias: "ldio",
     priority: 5,
     banked: 1,
     expires: "18/10 às 11:50",
@@ -74,7 +74,7 @@ const MONITORED_CONFIG = [
   },
   {
     email: "peterscastro@gmail.com",
-    alias: "Peter Castro",
+    alias: "ptr-cas",
     priority: 6,
     banked: 1,
     expires: "18/10 às 14:00",
@@ -84,7 +84,7 @@ const MONITORED_CONFIG = [
   },
   {
     email: "rohsuehiro@gmail.com",
-    alias: "Roh Suehiro",
+    alias: "roh-sue",
     priority: 7,
     banked: 1,
     expires: "20/10 às 21:00",
@@ -94,7 +94,7 @@ const MONITORED_CONFIG = [
   },
   {
     email: "stephanie.arcos@gmail.com",
-    alias: "Stephanie",
+    alias: "step",
     priority: 8,
     banked: 1,
     expires: "20/10 às 21:00",
@@ -104,7 +104,7 @@ const MONITORED_CONFIG = [
   },
   {
     email: "daniel.lovizzaro@gmail.com",
-    alias: "Daniel",
+    alias: "dan",
     priority: 9,
     banked: 3,
     expires: "Mensal (24)",
@@ -114,7 +114,7 @@ const MONITORED_CONFIG = [
   },
   {
     email: "jv5pdcwnxp@privaterelay.appleid.com",
-    alias: "Leo Principal",
+    alias: "leo",
     priority: 10,
     banked: 3,
     expires: "Mensal (20)",
@@ -204,6 +204,7 @@ async function loadData() {
       const str = fmIcloud.readString(icloudPath);
       const parsed = JSON.parse(str);
       if (Array.isArray(parsed?.accounts) && parsed.accounts.length >= 8) {
+        try { fmLocal.writeString(localCachePath, str); } catch (_) {}
         return parsed;
       }
     } catch (e) {}
@@ -284,14 +285,16 @@ function buildMediumWidget(item) {
   titleTxt.font = Font.boldSystemFont(14);
   titleTxt.textColor = Color.white();
 
-  tRow.addSpacer(6);
-  const bBadge = tRow.addStack();
-  bBadge.backgroundColor = new Color("#ffffff", 0.14);
-  bBadge.cornerRadius = 4;
-  bBadge.setPadding(1, 4, 1, 4);
-  const bTxt = bBadge.addText(`${item.banked} ${item.banked === 1 ? "reset" : "resets"}`);
-  bTxt.font = Font.systemFont(8);
-  bTxt.textColor = new Color("#ffd60a");
+  if (item.banked > 0) {
+    tRow.addSpacer(6);
+    const bBadge = tRow.addStack();
+    bBadge.backgroundColor = new Color("#ffffff", 0.14);
+    bBadge.cornerRadius = 4;
+    bBadge.setPadding(1, 4, 1, 4);
+    const bTxt = bBadge.addText(`${item.banked} ${item.banked === 1 ? "reset" : "resets"}`);
+    bTxt.font = Font.systemFont(8);
+    bTxt.textColor = new Color("#ffd60a");
+  }
 
   const expInfo = item.countdown ? `${item.expires} (${item.countdown} restantes)` : item.expires;
   const subTxt = titleCol.addText(`${item.email}  |  Expira: ${expInfo}`);
@@ -433,17 +436,18 @@ function buildLargeWidget(items) {
     nameTxt.textColor = item.isUrgent ? new Color("#ff453a") : Color.white();
     nameTxt.lineLimit = 1;
 
-    row1.addSpacer(3);
-
-    // Label de resets ("2 resets" ou "1 reset")
-    const resetBadge = row1.addStack();
-    resetBadge.backgroundColor = new Color("#ffffff", 0.1);
-    resetBadge.cornerRadius = 3;
-    resetBadge.setPadding(1, 3, 1, 3);
-    const resetStr = `${item.banked} ${item.banked === 1 ? "reset" : "resets"}`;
-    const rTxt = resetBadge.addText(resetStr);
-    rTxt.font = Font.systemFont(7);
-    rTxt.textColor = item.banked > 0 ? new Color("#ffd60a") : new Color("#8e8e93");
+    // Label de resets (apenas exibe se tiver mais de 0 resets)
+    if (item.banked > 0) {
+      row1.addSpacer(3);
+      const resetBadge = row1.addStack();
+      resetBadge.backgroundColor = new Color("#ffffff", 0.1);
+      resetBadge.cornerRadius = 3;
+      resetBadge.setPadding(1, 3, 1, 3);
+      const resetStr = `${item.banked} ${item.banked === 1 ? "reset" : "resets"}`;
+      const rTxt = resetBadge.addText(resetStr);
+      rTxt.font = Font.systemFont(7);
+      rTxt.textColor = new Color("#ffd60a");
+    }
 
     row1.addSpacer();
 

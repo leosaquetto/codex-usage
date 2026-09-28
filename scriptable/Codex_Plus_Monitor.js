@@ -24,7 +24,7 @@ const REFRESH_INTERVAL_MINUTES = 15;
 const MONITORED_CONFIG = [
   {
     email: "dhj6smm47v@privaterelay.appleid.com",
-    alias: "Mãe",
+    alias: "mãe",
     priority: 1,
     banked: 2,
     expires: "01/10 às 15:00",
@@ -34,7 +34,7 @@ const MONITORED_CONFIG = [
   },
   {
     email: "gratinado-17-dirigiveis@icloud.com",
-    alias: "Gratinado",
+    alias: "gratinado",
     priority: 2,
     banked: 1,
     expires: "03/10 às 08:39",
@@ -44,7 +44,7 @@ const MONITORED_CONFIG = [
   },
   {
     email: "leonardo.a@live.com",
-    alias: "Leonardo.a",
+    alias: "leo.a@live",
     priority: 3,
     banked: 1,
     expires: "07/10 às 16:19",
@@ -54,7 +54,7 @@ const MONITORED_CONFIG = [
   },
   {
     email: "leosaquetto@outlook.com",
-    alias: "Leo Outlook",
+    alias: "ls@out",
     priority: 4,
     banked: 0,
     expires: "07/10 às 18:41",
@@ -64,7 +64,7 @@ const MONITORED_CONFIG = [
   },
   {
     email: "ldionisioxavier@gmail.com",
-    alias: "Lays Dionisio",
+    alias: "ldio",
     priority: 5,
     banked: 1,
     expires: "18/10 às 11:50",
@@ -74,7 +74,7 @@ const MONITORED_CONFIG = [
   },
   {
     email: "peterscastro@gmail.com",
-    alias: "Peter Castro",
+    alias: "ptr-cas",
     priority: 6,
     banked: 1,
     expires: "18/10 às 14:00",
@@ -84,7 +84,7 @@ const MONITORED_CONFIG = [
   },
   {
     email: "rohsuehiro@gmail.com",
-    alias: "Roh Suehiro",
+    alias: "roh-sue",
     priority: 7,
     banked: 1,
     expires: "20/10 às 21:00",
@@ -94,7 +94,7 @@ const MONITORED_CONFIG = [
   },
   {
     email: "stephanie.arcos@gmail.com",
-    alias: "Stephanie",
+    alias: "step",
     priority: 8,
     banked: 1,
     expires: "20/10 às 21:00",
@@ -104,7 +104,7 @@ const MONITORED_CONFIG = [
   },
   {
     email: "daniel.lovizzaro@gmail.com",
-    alias: "Daniel",
+    alias: "dan",
     priority: 9,
     banked: 3,
     expires: "Mensal (24)",
@@ -114,7 +114,7 @@ const MONITORED_CONFIG = [
   },
   {
     email: "jv5pdcwnxp@privaterelay.appleid.com",
-    alias: "Leo Principal",
+    alias: "leo",
     priority: 10,
     banked: 3,
     expires: "Mensal (20)",
@@ -204,6 +204,7 @@ async function loadData() {
       const str = fmIcloud.readString(icloudPath);
       const parsed = JSON.parse(str);
       if (Array.isArray(parsed?.accounts) && parsed.accounts.length >= 8) {
+        try { fmLocal.writeString(localCachePath, str); } catch (_) {}
         return parsed;
       }
     } catch (e) {}

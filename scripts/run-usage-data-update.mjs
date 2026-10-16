@@ -64,13 +64,13 @@ async function pushDispatchConfig() {
   return config;
 }
 
-async function dispatchPushNotifications() {
+async function dispatchPushNotifications(worktree = dataWorktree) {
   const config = await pushDispatchConfig();
   if (!config.url || !config.secret) {
     console.log("Web Push dispatch ignorado: configuração local ausente.");
     return;
   }
-  const usage = JSON.parse(await readFile(resolve(dataWorktree, "usage_summary.json"), "utf8"));
+  const usage = JSON.parse(await readFile(resolve(worktree, "usage_summary.json"), "utf8"));
   const response = await fetch(config.url, {
     method: "POST",
     headers: {
@@ -86,45 +86,83 @@ async function dispatchPushNotifications() {
   console.log(`Web Push: ${payload.sent || 0} enviados para ${payload.subscriptions || 0} subscriptions.`);
 }
 
-function remoteDataBranchExists() {
+function remoteDataBranchExists(repositoryRoot = root) {
   return git(["show-ref", "--verify", "--quiet", `refs/remotes/origin/${dataBranch}`], {
+    cwd: repositoryRoot,
     allowFailure: true,
   }).status === 0;
 }
 
-async function assertVercelDataBranchGuard() {
-  const config = JSON.parse(await readFile(resolve(dataWorktree, "webapp/vercel.json"), "utf8"));
+async function assertVercelDataBranchGuard(worktree) {
+  const config = JSON.parse(await readFile(resolve(worktree, "webapp/vercel.json"), "utf8"));
   if (config?.git?.deploymentEnabled?.[dataBranch] !== false) {
     throw new Error(`webapp/vercel.json precisa desativar deployments Git para a branch ${dataBranch}.`);
   }
 }
 
-async function ensureDataWorktree() {
-  await mkdir(resolve(root, ".local"), { recursive: true });
-  git(["fetch", "origin", "main"]);
-  git(["fetch", "origin", `${dataBranch}:refs/remotes/origin/${dataBranch}`], { allowFailure: true });
+export async function ensureDataWorktree(repositoryRoot = root) {
+  const worktree = resolve(repositoryRoot, ".local/usage-data-worktree");
+  await mkdir(resolve(repositoryRoot, ".local"), { recursive: true });
+  // Explicit refs work with main-only clones. The data pattern may match nothing
+  // during bootstrap and lets prune remove a deleted remote data branch.
+  git(["fetch", "--prune", "origin",
+    "+refs/heads/main:refs/remotes/origin/main",
+    "+refs/heads/usage-data*:refs/remotes/origin/usage-data*",
+  ], { cwd: repositoryRoot });
 
-  const hasRemoteDataBranch = remoteDataBranchExists();
-  if (!existsSync(resolve(dataWorktree, ".git"))) {
-    git(["worktree", "prune"]);
-    if (hasRemoteDataBranch) {
-      git(["worktree", "add", "--force", "-B", dataBranch, dataWorktree, `origin/${dataBranch}`]);
+  const hasRemoteDataBranch = remoteDataBranchExists(repositoryRoot);
+  if (!existsSync(resolve(worktree, ".git"))) {
+    git(["worktree", "prune"], { cwd: repositoryRoot });
+    const hasLocalDataBranch = git(["show-ref", "--verify", "--quiet", `refs/heads/${dataBranch}`], {
+      cwd: repositoryRoot,
+      allowFailure: true,
+    }).status === 0;
+    if (hasLocalDataBranch) {
+      git(["worktree", "add", worktree, dataBranch], { cwd: repositoryRoot });
     } else {
-      git(["worktree", "add", "-b", dataBranch, dataWorktree, "origin/main"]);
+      git(["worktree", "add", "-b", dataBranch, worktree, hasRemoteDataBranch ? `origin/${dataBranch}` : "origin/main"], { cwd: repositoryRoot });
     }
   } else {
-    const currentBranch = git(["branch", "--show-current"], { cwd: dataWorktree }).stdout.trim();
+    const currentBranch = git(["branch", "--show-current"], { cwd: worktree }).stdout.trim();
     if (currentBranch !== dataBranch) {
       throw new Error(`Worktree de dados está na branch ${currentBranch || "<detached>"}, esperado ${dataBranch}.`);
     }
-    if (hasRemoteDataBranch) {
-      git(["pull", "--ff-only", "origin", dataBranch], { cwd: dataWorktree });
-    }
   }
 
-  git(["merge", "--no-edit", "origin/main"], { cwd: dataWorktree });
-  await assertVercelDataBranchGuard();
-  git(["push", "--set-upstream", "origin", `HEAD:refs/heads/${dataBranch}`], { cwd: dataWorktree });
+  if (hasRemoteDataBranch) {
+    git(["merge", "--ff-only", `origin/${dataBranch}`], { cwd: worktree });
+  }
+  git(["merge", "--no-edit", "origin/main"], { cwd: worktree });
+  await assertVercelDataBranchGuard(worktree);
+  return worktree;
+}
+
+export async function publishDataBranch(worktree) {
+  await assertVercelDataBranchGuard(worktree);
+  if (remoteDataBranchExists(worktree)) {
+    const ahead = git(["rev-list", "--count", `origin/${dataBranch}..HEAD`], { cwd: worktree }).stdout.trim();
+    if (ahead === "0") return false;
+  }
+  // One non-force push publishes both the main merge and any new data commit.
+  git(["push", "--set-upstream", "origin", `HEAD:refs/heads/${dataBranch}`], { cwd: worktree });
+  return true;
+}
+
+export async function runDataUpdate(mode, updaterArgs = [], {
+  repositoryRoot = root,
+  dispatch = dispatchPushNotifications,
+} = {}) {
+  if (!modes[mode]) throw new Error("Modo de atualização inválido.");
+  const worktree = await ensureDataWorktree(repositoryRoot);
+  const updater = resolve(worktree, modes[mode]);
+  // This wrapper owns publishing; updaters only create the data commit.
+  run(process.execPath, [updater, ...updaterArgs.filter((arg) => arg !== "--push"), "--commit"], {
+    cwd: worktree,
+    stdio: "inherit",
+  });
+  const pushed = await publishDataBranch(worktree);
+  await dispatch(worktree);
+  return { worktree, pushed };
 }
 
 async function main() {
@@ -136,18 +174,7 @@ async function main() {
     return;
   }
 
-  await ensureDataWorktree();
-
-  const updater = resolve(dataWorktree, modes[mode]);
-  const result = run(process.execPath, [updater, ...updaterArgs, "--commit", "--push"], {
-    cwd: dataWorktree,
-    stdio: "inherit",
-  });
-  if (result.status !== 0) process.exit(result.status || 1);
-
-  // Also publish a main -> usage-data merge when the updater skipped unchanged data.
-  git(["push", "origin", `HEAD:refs/heads/${dataBranch}`], { cwd: dataWorktree });
-  await dispatchPushNotifications();
+  await runDataUpdate(mode, updaterArgs);
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] || "").href) {

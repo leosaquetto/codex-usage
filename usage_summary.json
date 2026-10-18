@@ -100479,7 +100479,7 @@
             "kind": "weekly",
             "windowMinutes": 10080,
             "remainingPercent": 100,
-            "refreshAt": "2026-10-25T18:21:00.000Z"
+            "refreshAt": "2026-10-25T18:36:01.000Z"
           },
           {
             "id": "gemini-5h",
@@ -100488,7 +100488,7 @@
             "kind": "5h",
             "windowMinutes": 300,
             "remainingPercent": 100,
-            "refreshAt": "2026-10-18T23:21:00.000Z"
+            "refreshAt": "2026-10-18T23:36:01.000Z"
           },
           {
             "id": "3p-weekly",
@@ -100506,7 +100506,7 @@
             "kind": "5h",
             "windowMinutes": 300,
             "remainingPercent": 100,
-            "refreshAt": "2026-10-18T23:21:00.000Z"
+            "refreshAt": "2026-10-18T23:36:01.000Z"
           }
         ],
         "models": [
@@ -100517,7 +100517,7 @@
             "remainingPercent": 100,
             "status": "ok",
             "refreshText": "Weekly reset",
-            "refreshAt": "2026-10-25T18:21:00.000Z"
+            "refreshAt": "2026-10-25T18:36:01.000Z"
           },
           {
             "id": "gemini-3-1-pro-low",
@@ -100526,7 +100526,7 @@
             "remainingPercent": 100,
             "status": "ok",
             "refreshText": "5-hour reset",
-            "refreshAt": "2026-10-18T23:21:00.000Z"
+            "refreshAt": "2026-10-18T23:36:01.000Z"
           }
         ]
       },
@@ -100574,7 +100574,7 @@
             "kind": "5h",
             "windowMinutes": 300,
             "remainingPercent": 100,
-            "refreshAt": "2026-10-18T23:20:45.000Z"
+            "refreshAt": "2026-10-18T23:35:46.000Z"
           }
         ],
         "models": [
@@ -100624,7 +100624,7 @@
             "kind": "5h",
             "windowMinutes": 300,
             "remainingPercent": 100,
-            "refreshAt": "2026-10-18T23:20:52.000Z"
+            "refreshAt": "2026-10-18T23:35:54.000Z"
           },
           {
             "id": "3p-weekly",
@@ -100642,7 +100642,7 @@
             "kind": "5h",
             "windowMinutes": 300,
             "remainingPercent": 100,
-            "refreshAt": "2026-10-18T23:20:52.000Z"
+            "refreshAt": "2026-10-18T23:35:54.000Z"
           }
         ],
         "models": [
@@ -100662,7 +100662,7 @@
             "remainingPercent": 100,
             "status": "ok",
             "refreshText": "5-hour reset",
-            "refreshAt": "2026-10-18T23:20:52.000Z"
+            "refreshAt": "2026-10-18T23:35:54.000Z"
           }
         ]
       },
@@ -100692,7 +100692,7 @@
             "kind": "5h",
             "windowMinutes": 300,
             "remainingPercent": 100,
-            "refreshAt": "2026-10-18T23:20:48.000Z"
+            "refreshAt": "2026-10-18T23:35:50.000Z"
           },
           {
             "id": "3p-weekly",
@@ -100710,7 +100710,7 @@
             "kind": "5h",
             "windowMinutes": 300,
             "remainingPercent": 100,
-            "refreshAt": "2026-10-18T23:20:48.000Z"
+            "refreshAt": "2026-10-18T23:35:50.000Z"
           }
         ],
         "models": [
@@ -100730,7 +100730,7 @@
             "remainingPercent": 100,
             "status": "ok",
             "refreshText": "5-hour reset",
-            "refreshAt": "2026-10-18T23:20:48.000Z"
+            "refreshAt": "2026-10-18T23:35:50.000Z"
           }
         ]
       },
@@ -100760,7 +100760,7 @@
             "kind": "5h",
             "windowMinutes": 300,
             "remainingPercent": 100,
-            "refreshAt": "2026-10-18T23:20:57.000Z"
+            "refreshAt": "2026-10-18T23:35:58.000Z"
           },
           {
             "id": "3p-weekly",
@@ -100778,7 +100778,7 @@
             "kind": "5h",
             "windowMinutes": 300,
             "remainingPercent": 100,
-            "refreshAt": "2026-10-18T23:20:57.000Z"
+            "refreshAt": "2026-10-18T23:35:58.000Z"
           }
         ],
         "models": [
@@ -100798,7 +100798,7 @@
             "remainingPercent": 100,
             "status": "ok",
             "refreshText": "5-hour reset",
-            "refreshAt": "2026-10-18T23:20:57.000Z"
+            "refreshAt": "2026-10-18T23:35:58.000Z"
           }
         ]
       }

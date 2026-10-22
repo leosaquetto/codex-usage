@@ -1,20 +1,9 @@
 {
   "source": "codex-switcher",
-  "lastUpdated": "2026-09-28T21:30:40.949Z",
-  "accountCount": 10,
-  "okCount": 10,
-  "activeAccountId": "32106373-cada-4aa7-83b6-54451b559e3c",
-  "aggregate": {
-    "fiveHourPercent": 65,
-    "fiveHourReset": "2026-09-28T22:33:33.000Z",
-    "weeklyPercent": 56,
-    "weeklyReset": "2026-10-03T17:20:36.000Z",
-    "lastUpdated": "2026-09-28T21:30:40.949Z"
-  },
-  "fiveHourPercent": 65,
-  "fiveHourReset": "2026-09-28T22:33:33.000Z",
-  "weeklyPercent": 56,
-  "weeklyReset": "2026-10-03T17:20:36.000Z",
+  "lastUpdated": "2026-10-22T14:40:30.140446+00:00",
+  "accountCount": 17,
+  "okCount": 17,
+  "activeAccountId": "3e325b1d-091f-4b86-ad81-0a878b303a45",
   "accounts": [
     {
       "id": "35a00e79-ef8a-4b87-9ad3-cda11a0d7199",
@@ -23,25 +12,29 @@
       "displayName": "JV5PDCWNXP@PRIVATERELAY.APPLEID.COM",
       "email": "jv5pdcwnxp@privaterelay.appleid.com",
       "planType": "plus",
-      "subscriptionExpiresAt": "2026-09-20T08:24:08.000Z",
+      "subscriptionExpiresAt": "2026-09-20T08:24:08Z",
       "isActive": false,
-      "lastUsedAt": "2026-09-28T18:15:08.403Z",
+      "lastUsedAt": "2026-10-21T23:21:15.494212Z",
       "fiveHourPercent": 100,
       "fiveHourUsedPercent": 0,
-      "fiveHourReset": "2026-09-29T01:03:57.000Z",
+      "fiveHourReset": "2026-10-22T19:40:29Z",
       "fiveHourWindowMinutes": 300,
-      "weeklyPercent": 51,
-      "weeklyUsedPercent": 49,
-      "weeklyReset": "2026-10-03T17:20:37.000Z",
+      "weeklyPercent": 12,
+      "weeklyUsedPercent": 88,
+      "weeklyReset": "2026-10-27T06:33:43Z",
       "weeklyWindowMinutes": 10080,
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-09-28T21:30:40.949Z",
+      "lastUpdated": "2026-10-22T14:40:29.030437+00:00",
       "status": "ok",
-      "error": null
+      "error": null,
+      "bankedResets": 2,
+      "rate_limit_reset_credits": {
+        "available_count": 2
+      }
     },
     {
       "id": "e739910c-5ec7-417d-bad6-a380fe05b5ac",
@@ -50,25 +43,29 @@
       "displayName": "ARTURRUFFLES@OUTLOOK.COM",
       "email": "arturruffles@outlook.com",
       "planType": "free",
-      "subscriptionExpiresAt": "2026-08-31T21:22:56.000Z",
+      "subscriptionExpiresAt": "2026-08-31T21:22:56Z",
       "isActive": false,
-      "lastUsedAt": "2026-09-26T21:18:34.312Z",
+      "lastUsedAt": "2026-10-20T19:04:21.811682Z",
       "fiveHourPercent": null,
-      "fiveHourUsedPercent": null,
+      "fiveHourUsedPercent": 0,
       "fiveHourReset": null,
       "fiveHourWindowMinutes": null,
-      "weeklyPercent": 35,
-      "weeklyUsedPercent": 65,
-      "weeklyReset": "2026-10-20T23:32:58.000Z",
+      "weeklyPercent": 46,
+      "weeklyUsedPercent": 54,
+      "weeklyReset": "2026-11-16T20:41:50Z",
       "weeklyWindowMinutes": 43200,
       "credits": {
         "hasCredits": false,
         "unlimited": false,
-        "balance": null
+        "balance": "None"
       },
-      "lastUpdated": "2026-09-28T21:30:40.949Z",
+      "lastUpdated": "2026-10-22T14:40:29.357695+00:00",
       "status": "ok",
-      "error": null
+      "error": null,
+      "bankedResets": 0,
+      "rate_limit_reset_credits": {
+        "available_count": 0
+      }
     },
     {
       "id": "e3f446a7-63e3-4741-924b-7457dbc8f016",
@@ -77,25 +74,29 @@
       "displayName": "CONTATONATANAELRODRIGS@GMAIL.COM",
       "email": "contatonatanaelrodrigs@gmail.com",
       "planType": "plus",
-      "subscriptionExpiresAt": "2026-09-23T18:16:32.000Z",
+      "subscriptionExpiresAt": "2026-09-23T18:16:32Z",
       "isActive": false,
-      "lastUsedAt": "2026-09-27T00:47:05.367Z",
-      "fiveHourPercent": 75,
-      "fiveHourUsedPercent": 25,
-      "fiveHourReset": "2026-09-28T22:33:33.000Z",
+      "lastUsedAt": "2026-10-22T07:01:17.554432Z",
+      "fiveHourPercent": 95,
+      "fiveHourUsedPercent": 5,
+      "fiveHourReset": "2026-10-22T18:56:23Z",
       "fiveHourWindowMinutes": 300,
-      "weeklyPercent": 49,
-      "weeklyUsedPercent": 51,
-      "weeklyReset": "2026-10-03T17:20:37.000Z",
+      "weeklyPercent": 31,
+      "weeklyUsedPercent": 69,
+      "weeklyReset": "2026-10-27T06:33:45Z",
       "weeklyWindowMinutes": 10080,
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-09-28T21:30:40.949Z",
+      "lastUpdated": "2026-10-22T14:40:28.992820+00:00",
       "status": "ok",
-      "error": null
+      "error": null,
+      "bankedResets": 0,
+      "rate_limit_reset_credits": {
+        "available_count": 0
+      }
     },
     {
       "id": "80dd6124-5b9b-4642-a3e0-a4aac7499c38",
@@ -104,25 +105,29 @@
       "displayName": "DANIEL.LOVIZZARO@GMAIL.COM",
       "email": "daniel.lovizzaro@gmail.com",
       "planType": "plus",
-      "subscriptionExpiresAt": "2026-09-24T13:16:21.000Z",
+      "subscriptionExpiresAt": "2026-09-24T13:16:21Z",
       "isActive": false,
-      "lastUsedAt": "2026-09-27T13:54:38.667Z",
+      "lastUsedAt": "2026-10-22T13:10:04.731973Z",
       "fiveHourPercent": 100,
       "fiveHourUsedPercent": 0,
-      "fiveHourReset": "2026-09-29T01:08:02.000Z",
+      "fiveHourReset": "2026-10-22T19:40:28Z",
       "fiveHourWindowMinutes": 300,
-      "weeklyPercent": 36,
-      "weeklyUsedPercent": 64,
-      "weeklyReset": "2026-10-03T17:20:38.000Z",
+      "weeklyPercent": 13,
+      "weeklyUsedPercent": 87,
+      "weeklyReset": "2026-10-27T06:33:45Z",
       "weeklyWindowMinutes": 10080,
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-09-28T21:30:40.949Z",
+      "lastUpdated": "2026-10-22T14:40:28.878288+00:00",
       "status": "ok",
-      "error": null
+      "error": null,
+      "bankedResets": 1,
+      "rate_limit_reset_credits": {
+        "available_count": 1
+      }
     },
     {
       "id": "cb5c045b-0609-434d-bc6e-fdc122e1b19f",
@@ -131,25 +136,29 @@
       "displayName": "LEOSAQUETTO@YAHOO.COM",
       "email": "leosaquetto@yahoo.com",
       "planType": "free",
-      "subscriptionExpiresAt": "2026-09-03T11:34:06.000Z",
+      "subscriptionExpiresAt": "2026-09-03T11:34:06Z",
       "isActive": false,
-      "lastUsedAt": "2026-09-26T21:16:01.910Z",
+      "lastUsedAt": "2026-09-26T21:16:01.910247Z",
       "fiveHourPercent": null,
-      "fiveHourUsedPercent": null,
+      "fiveHourUsedPercent": 0,
       "fiveHourReset": null,
       "fiveHourWindowMinutes": null,
-      "weeklyPercent": 9,
-      "weeklyUsedPercent": 91,
-      "weeklyReset": "2026-10-03T12:22:30.000Z",
+      "weeklyPercent": 100,
+      "weeklyUsedPercent": 0,
+      "weeklyReset": "2026-11-16T20:41:50Z",
       "weeklyWindowMinutes": 43200,
       "credits": {
         "hasCredits": false,
         "unlimited": false,
-        "balance": null
+        "balance": "None"
       },
-      "lastUpdated": "2026-09-28T21:30:40.949Z",
+      "lastUpdated": "2026-10-22T14:40:29.449750+00:00",
       "status": "ok",
-      "error": null
+      "error": null,
+      "bankedResets": 0,
+      "rate_limit_reset_credits": {
+        "available_count": 0
+      }
     },
     {
       "id": "807c942f-bd85-4ca3-8669-ab655e9a5888",
@@ -158,25 +167,29 @@
       "displayName": "SAMUELCUNHAPERSONAL@GMAIL.COM",
       "email": "samuelcunhapersonal@gmail.com",
       "planType": "free",
-      "subscriptionExpiresAt": "2026-09-03T16:28:32.000Z",
+      "subscriptionExpiresAt": "2026-09-03T16:28:32Z",
       "isActive": false,
-      "lastUsedAt": "2026-09-26T21:15:27.159Z",
+      "lastUsedAt": "2026-09-26T21:15:27.159119Z",
       "fiveHourPercent": null,
-      "fiveHourUsedPercent": null,
+      "fiveHourUsedPercent": 0,
       "fiveHourReset": null,
       "fiveHourWindowMinutes": null,
-      "weeklyPercent": 0,
-      "weeklyUsedPercent": 100,
-      "weeklyReset": "2026-10-03T16:30:24.000Z",
+      "weeklyPercent": 100,
+      "weeklyUsedPercent": 0,
+      "weeklyReset": "2026-11-16T20:41:50Z",
       "weeklyWindowMinutes": 43200,
       "credits": {
         "hasCredits": false,
         "unlimited": false,
-        "balance": null
+        "balance": "None"
       },
-      "lastUpdated": "2026-09-28T21:30:40.949Z",
+      "lastUpdated": "2026-10-22T14:40:29.364362+00:00",
       "status": "ok",
-      "error": null
+      "error": null,
+      "bankedResets": 0,
+      "rate_limit_reset_credits": {
+        "available_count": 0
+      }
     },
     {
       "id": "92c00353-cef3-412b-980c-19588e0a16b6",
@@ -185,25 +198,29 @@
       "displayName": "GABRIELLEMOS0@ICLOUD.COM",
       "email": "gabriellemos0@icloud.com",
       "planType": "free",
-      "subscriptionExpiresAt": "2026-09-03T16:50:25.000Z",
+      "subscriptionExpiresAt": "2026-09-03T16:50:25Z",
       "isActive": false,
-      "lastUsedAt": "2026-09-26T21:15:46.115Z",
+      "lastUsedAt": "2026-09-26T21:15:46.115147Z",
       "fiveHourPercent": null,
-      "fiveHourUsedPercent": null,
+      "fiveHourUsedPercent": 0,
       "fiveHourReset": null,
       "fiveHourWindowMinutes": null,
-      "weeklyPercent": 14,
-      "weeklyUsedPercent": 86,
-      "weeklyReset": "2026-10-03T16:52:13.000Z",
+      "weeklyPercent": 100,
+      "weeklyUsedPercent": 0,
+      "weeklyReset": "2026-11-16T20:41:51Z",
       "weeklyWindowMinutes": 43200,
       "credits": {
         "hasCredits": false,
         "unlimited": false,
-        "balance": null
+        "balance": "None"
       },
-      "lastUpdated": "2026-09-28T21:30:40.949Z",
+      "lastUpdated": "2026-10-22T14:40:29.382813+00:00",
       "status": "ok",
-      "error": null
+      "error": null,
+      "bankedResets": 0,
+      "rate_limit_reset_credits": {
+        "available_count": 0
+      }
     },
     {
       "id": "d0dbdb6e-b98e-420f-97e3-68b9323ee705",
@@ -211,26 +228,30 @@
       "name": "laraujo@outlook.com",
       "displayName": "LARAUJO@OUTLOOK.COM",
       "email": "laraujo@outlook.com",
-      "planType": "free",
+      "planType": "plus",
       "subscriptionExpiresAt": null,
       "isActive": false,
-      "lastUsedAt": "2026-09-26T21:16:32.970Z",
-      "fiveHourPercent": null,
-      "fiveHourUsedPercent": null,
-      "fiveHourReset": null,
-      "fiveHourWindowMinutes": null,
-      "weeklyPercent": 100,
-      "weeklyUsedPercent": 0,
-      "weeklyReset": "2026-10-18T13:47:08.000Z",
-      "weeklyWindowMinutes": 43200,
+      "lastUsedAt": "2026-10-22T08:13:32.620349Z",
+      "fiveHourPercent": 100,
+      "fiveHourUsedPercent": 0,
+      "fiveHourReset": "2026-10-22T19:40:29Z",
+      "fiveHourWindowMinutes": 300,
+      "weeklyPercent": 0,
+      "weeklyUsedPercent": 100,
+      "weeklyReset": "2026-10-27T06:33:43Z",
+      "weeklyWindowMinutes": 10080,
       "credits": {
         "hasCredits": false,
         "unlimited": false,
-        "balance": null
+        "balance": "0"
       },
-      "lastUpdated": "2026-09-28T21:30:40.949Z",
+      "lastUpdated": "2026-10-22T14:40:29.362328+00:00",
       "status": "ok",
-      "error": null
+      "error": null,
+      "bankedResets": 0,
+      "rate_limit_reset_credits": {
+        "available_count": 0
+      }
     },
     {
       "id": "c84c6e1a-8861-4732-a6f2-019130ba5361",
@@ -238,26 +259,30 @@
       "name": "stephanie.arcos@gmail.com",
       "displayName": "STEPHANIE.ARCOS@GMAIL.COM",
       "email": "stephanie.arcos@gmail.com",
-      "planType": "plus",
-      "subscriptionExpiresAt": "2026-10-20T00:01:40.000Z",
+      "planType": "free",
+      "subscriptionExpiresAt": "2026-10-20T00:01:40Z",
       "isActive": false,
-      "lastUsedAt": "2026-09-26T21:17:21.087Z",
+      "lastUsedAt": "2026-10-20T15:31:50.363735Z",
       "fiveHourPercent": null,
-      "fiveHourUsedPercent": null,
+      "fiveHourUsedPercent": 0,
       "fiveHourReset": null,
       "fiveHourWindowMinutes": null,
-      "weeklyPercent": 100,
-      "weeklyUsedPercent": 0,
-      "weeklyReset": "2026-10-03T17:20:36.000Z",
-      "weeklyWindowMinutes": 10080,
+      "weeklyPercent": 87,
+      "weeklyUsedPercent": 13,
+      "weeklyReset": "2026-11-19T00:05:44Z",
+      "weeklyWindowMinutes": 43200,
       "credits": {
         "hasCredits": false,
         "unlimited": false,
-        "balance": "0"
+        "balance": "None"
       },
-      "lastUpdated": "2026-09-28T21:30:40.949Z",
+      "lastUpdated": "2026-10-22T14:40:29.447853+00:00",
       "status": "ok",
-      "error": null
+      "error": null,
+      "bankedResets": 0,
+      "rate_limit_reset_credits": {
+        "available_count": 0
+      }
     },
     {
       "id": "cf574ccb-89c4-4f29-a212-2491e817cbf4",
@@ -266,52 +291,29 @@
       "displayName": "DHJ6SMM47V@PRIVATERELAY.APPLEID.COM",
       "email": "dhj6smm47v@privaterelay.appleid.com",
       "planType": "plus",
-      "subscriptionExpiresAt": "2026-10-01T19:19:48.000Z",
+      "subscriptionExpiresAt": "2026-10-01T19:19:48Z",
       "isActive": false,
-      "lastUsedAt": "2026-09-28T19:02:39.437Z",
-      "fiveHourPercent": 0,
-      "fiveHourUsedPercent": 100,
-      "fiveHourReset": "2026-09-28T23:45:25.000Z",
+      "lastUsedAt": "2026-10-21T20:40:39.020554Z",
+      "fiveHourPercent": 100,
+      "fiveHourUsedPercent": 0,
+      "fiveHourReset": "2026-10-22T19:40:29Z",
       "fiveHourWindowMinutes": 300,
-      "weeklyPercent": 5,
-      "weeklyUsedPercent": 95,
-      "weeklyReset": "2026-10-03T17:20:37.000Z",
+      "weeklyPercent": 19,
+      "weeklyUsedPercent": 81,
+      "weeklyReset": "2026-10-27T06:33:43Z",
       "weeklyWindowMinutes": 10080,
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-09-28T21:30:40.949Z",
+      "lastUpdated": "2026-10-22T14:40:29.375226+00:00",
       "status": "ok",
-      "error": null
-    },
-    {
-      "id": "7ffe51e7-6a0f-4289-83ed-727d8c16ca2c",
-      "chatgptAccountId": "00d33508-6971-4d50-8aa9-a4aa8298c73a",
-      "name": "leonardo.a@live.com",
-      "displayName": "LEONARDO.A@LIVE.COM",
-      "email": "leonardo.a@live.com",
-      "planType": "plus",
-      "subscriptionExpiresAt": "2026-10-06T22:46:48.000Z",
-      "isActive": false,
-      "lastUsedAt": "2026-09-28T18:51:36.502Z",
-      "fiveHourPercent": 0,
-      "fiveHourUsedPercent": 100,
-      "fiveHourReset": "2026-09-28T23:48:51.000Z",
-      "fiveHourWindowMinutes": 300,
-      "weeklyPercent": 52,
-      "weeklyUsedPercent": 48,
-      "weeklyReset": "2026-10-03T17:20:38.000Z",
-      "weeklyWindowMinutes": 10080,
-      "credits": {
-        "hasCredits": false,
-        "unlimited": false,
-        "balance": "0"
-      },
-      "lastUpdated": "2026-09-28T21:30:40.949Z",
-      "status": "ok",
-      "error": null
+      "error": null,
+      "bankedResets": 2,
+      "rate_limit_reset_credits": {
+        "available_count": 2
+      }
     },
     {
       "id": "854884f2-4eaa-46c7-8566-bfe3daf0d43d",
@@ -319,130 +321,216 @@
       "name": "gratinado-17-dirigiveis@icloud.com",
       "displayName": "GRATINADO-17-DIRIGIVEIS@ICLOUD.COM",
       "email": "gratinado-17-dirigiveis@icloud.com",
-      "planType": "plus",
-      "subscriptionExpiresAt": "2026-10-02T21:27:55.000Z",
+      "planType": "free",
+      "subscriptionExpiresAt": "2026-10-02T21:27:55Z",
       "isActive": false,
-      "lastUsedAt": "2026-09-28T19:21:43.834Z",
-      "fiveHourPercent": 13,
-      "fiveHourUsedPercent": 87,
-      "fiveHourReset": "2026-09-28T23:49:57.000Z",
-      "fiveHourWindowMinutes": 300,
-      "weeklyPercent": 61,
-      "weeklyUsedPercent": 39,
-      "weeklyReset": "2026-10-03T17:20:36.000Z",
-      "weeklyWindowMinutes": 10080,
-      "credits": {
-        "hasCredits": false,
-        "unlimited": false,
-        "balance": "0"
-      },
-      "lastUpdated": "2026-09-28T21:30:40.949Z",
-      "status": "ok",
-      "error": null
-    },
-    {
-      "id": "4d67f3e6-be2c-442e-a07e-245f28d0add6",
-      "chatgptAccountId": "1bba11e4-ccf8-4c06-95e2-5a7a835159b5",
-      "name": "leosaquetto@outlook.com",
-      "displayName": "LEOSAQUETTO@OUTLOOK.COM",
-      "email": "leosaquetto@outlook.com",
-      "planType": "plus",
-      "subscriptionExpiresAt": "2026-10-07T19:51:31.000Z",
-      "isActive": false,
-      "lastUsedAt": "2026-09-28T18:50:49.854Z",
-      "fiveHourPercent": 100,
-      "fiveHourUsedPercent": 0,
-      "fiveHourReset": "2026-09-28T23:51:28.000Z",
-      "fiveHourWindowMinutes": 300,
-      "weeklyPercent": 67,
-      "weeklyUsedPercent": 33,
-      "weeklyReset": "2026-10-03T17:20:37.000Z",
-      "weeklyWindowMinutes": 10080,
-      "credits": {
-        "hasCredits": false,
-        "unlimited": false,
-        "balance": "0"
-      },
-      "lastUpdated": "2026-09-28T21:30:40.949Z",
-      "status": "ok",
-      "error": null
-    },
-    {
-      "id": "83971b59-5b21-45cb-9acb-43b0de82c7f8",
-      "chatgptAccountId": "97680189-c16f-4996-8164-3453b962e1c3",
-      "name": "peterscastro@gmail.com",
-      "displayName": "PETERSCASTRO@GMAIL.COM",
-      "email": "peterscastro@gmail.com",
-      "planType": "plus",
-      "subscriptionExpiresAt": "2026-10-18T17:01:59.000Z",
-      "isActive": false,
-      "lastUsedAt": "2026-09-28T20:42:27.744Z",
+      "lastUsedAt": "2026-10-08T11:21:55.593348Z",
       "fiveHourPercent": null,
-      "fiveHourUsedPercent": null,
+      "fiveHourUsedPercent": 0,
       "fiveHourReset": null,
       "fiveHourWindowMinutes": null,
-      "weeklyPercent": null,
-      "weeklyUsedPercent": null,
-      "weeklyReset": null,
-      "weeklyWindowMinutes": null,
-      "credits": null,
-      "lastUpdated": "2026-09-28T21:30:40.949Z",
-      "status": "error",
-      "error": "usage HTTP 500: {\"detail\":\"Request timeout\"}"
+      "weeklyPercent": 100,
+      "weeklyUsedPercent": 0,
+      "weeklyReset": "2026-11-16T20:41:51Z",
+      "weeklyWindowMinutes": 43200,
+      "credits": {
+        "hasCredits": false,
+        "unlimited": false,
+        "balance": "None"
+      },
+      "lastUpdated": "2026-10-22T14:40:29.014652+00:00",
+      "status": "ok",
+      "error": null,
+      "bankedResets": 1,
+      "rate_limit_reset_credits": {
+        "available_count": 1
+      }
     },
     {
-      "id": "0bb50eac-57cf-45cf-bbc0-9bea44cd6cc4",
+      "id": "d63a5ed5-33f1-46d7-aa50-b503f0dfc390",
       "chatgptAccountId": "fbf005a2-ad1b-4494-a075-17398951d6ff",
       "name": "ldionisioxavier@gmail.com",
       "displayName": "LDIONISIOXAVIER@GMAIL.COM",
       "email": "ldionisioxavier@gmail.com",
-      "planType": "plus",
-      "subscriptionExpiresAt": "2026-10-18T14:21:47.000Z",
+      "planType": "free",
+      "subscriptionExpiresAt": "2026-10-18T14:21:47Z",
       "isActive": false,
-      "lastUsedAt": "2026-09-28T20:43:11.835Z",
-      "fiveHourPercent": 100,
+      "lastUsedAt": "2026-10-18T14:28:42.607912Z",
+      "fiveHourPercent": null,
       "fiveHourUsedPercent": 0,
-      "fiveHourReset": "2026-09-29T01:43:33.000Z",
-      "fiveHourWindowMinutes": 300,
-      "weeklyPercent": 68,
-      "weeklyUsedPercent": 32,
-      "weeklyReset": "2026-10-03T17:20:37.000Z",
-      "weeklyWindowMinutes": 10080,
+      "fiveHourReset": null,
+      "fiveHourWindowMinutes": null,
+      "weeklyPercent": 100,
+      "weeklyUsedPercent": 0,
+      "weeklyReset": "2026-11-17T14:28:53Z",
+      "weeklyWindowMinutes": 43200,
       "credits": {
         "hasCredits": false,
         "unlimited": false,
-        "balance": "0"
+        "balance": "None"
       },
-      "lastUpdated": "2026-09-28T21:30:40.949Z",
+      "lastUpdated": "2026-10-22T14:40:29.124010+00:00",
       "status": "ok",
-      "error": null
+      "error": null,
+      "bankedResets": 1,
+      "rate_limit_reset_credits": {
+        "available_count": 1
+      }
     },
     {
-      "id": "32106373-cada-4aa7-83b6-54451b559e3c",
+      "id": "b3684211-c043-43ae-8e8d-6a6bad5819a6",
+      "chatgptAccountId": "00d33508-6971-4d50-8aa9-a4aa8298c73a",
+      "name": "leonardo.a@live.com",
+      "displayName": "LEONARDO.A@LIVE.COM",
+      "email": "leonardo.a@live.com",
+      "planType": "free",
+      "subscriptionExpiresAt": "2026-10-06T22:46:48Z",
+      "isActive": false,
+      "lastUsedAt": "2026-10-06T21:26:46.873764Z",
+      "fiveHourPercent": null,
+      "fiveHourUsedPercent": 0,
+      "fiveHourReset": null,
+      "fiveHourWindowMinutes": null,
+      "weeklyPercent": 100,
+      "weeklyUsedPercent": 0,
+      "weeklyReset": "2026-11-16T20:41:50Z",
+      "weeklyWindowMinutes": 43200,
+      "credits": {
+        "hasCredits": false,
+        "unlimited": false,
+        "balance": "None"
+      },
+      "lastUpdated": "2026-10-22T14:40:29.457730+00:00",
+      "status": "ok",
+      "error": null,
+      "bankedResets": 1,
+      "rate_limit_reset_credits": {
+        "available_count": 1
+      }
+    },
+    {
+      "id": "e78ca4de-b5f3-4d8c-927d-4f28e9913c84",
+      "chatgptAccountId": "1bba11e4-ccf8-4c06-95e2-5a7a835159b5",
+      "name": "leosaquetto@outlook.com",
+      "displayName": "LEOSAQUETTO@OUTLOOK.COM",
+      "email": "leosaquetto@outlook.com",
+      "planType": "free",
+      "subscriptionExpiresAt": "2026-10-07T19:51:31Z",
+      "isActive": false,
+      "lastUsedAt": "2026-10-07T19:38:01.782217Z",
+      "fiveHourPercent": null,
+      "fiveHourUsedPercent": 0,
+      "fiveHourReset": null,
+      "fiveHourWindowMinutes": null,
+      "weeklyPercent": 100,
+      "weeklyUsedPercent": 0,
+      "weeklyReset": "2026-11-16T20:41:50Z",
+      "weeklyWindowMinutes": 43200,
+      "credits": {
+        "hasCredits": false,
+        "unlimited": false,
+        "balance": "None"
+      },
+      "lastUpdated": "2026-10-22T14:40:29.539938+00:00",
+      "status": "ok",
+      "error": null,
+      "bankedResets": 1,
+      "rate_limit_reset_credits": {
+        "available_count": 1
+      }
+    },
+    {
+      "id": "29e3f15f-7322-49ce-8ad3-7bbc02ca47e4",
       "chatgptAccountId": "a374e417-4e99-4fdf-b7ad-956b316fe348",
       "name": "rohsuehiro@gmail.com",
       "displayName": "ROHSUEHIRO@GMAIL.COM",
       "email": "rohsuehiro@gmail.com",
-      "planType": "plus",
-      "subscriptionExpiresAt": "2026-10-19T23:59:30.000Z",
-      "isActive": true,
-      "lastUsedAt": "2026-09-28T21:10:04.589Z",
-      "fiveHourPercent": 100,
+      "planType": "free",
+      "subscriptionExpiresAt": "2026-10-19T23:59:30Z",
+      "isActive": false,
+      "lastUsedAt": "2026-10-19T21:08:08.766953Z",
+      "fiveHourPercent": null,
       "fiveHourUsedPercent": 0,
-      "fiveHourReset": "2026-09-29T02:10:28.000Z",
+      "fiveHourReset": null,
+      "fiveHourWindowMinutes": null,
+      "weeklyPercent": 100,
+      "weeklyUsedPercent": 0,
+      "weeklyReset": "2026-11-19T00:01:10Z",
+      "weeklyWindowMinutes": 43200,
+      "credits": {
+        "hasCredits": false,
+        "unlimited": false,
+        "balance": "None"
+      },
+      "lastUpdated": "2026-10-22T14:40:29.523307+00:00",
+      "status": "ok",
+      "error": null,
+      "bankedResets": 0,
+      "rate_limit_reset_credits": {
+        "available_count": 0
+      }
+    },
+    {
+      "id": "d5f6884a-9e5f-4de9-a2d8-eff7ef2e93d0",
+      "chatgptAccountId": "97680189-c16f-4996-8164-3453b962e1c3",
+      "name": "peterscastro@gmail.com",
+      "displayName": "PETERSCASTRO@GMAIL.COM",
+      "email": "peterscastro@gmail.com",
+      "planType": "free",
+      "subscriptionExpiresAt": "2026-10-18T17:01:59Z",
+      "isActive": false,
+      "lastUsedAt": "2026-10-18T14:31:14.619457Z",
+      "fiveHourPercent": null,
+      "fiveHourUsedPercent": 0,
+      "fiveHourReset": null,
+      "fiveHourWindowMinutes": null,
+      "weeklyPercent": 100,
+      "weeklyUsedPercent": 0,
+      "weeklyReset": "2026-11-17T17:04:29Z",
+      "weeklyWindowMinutes": 43200,
+      "credits": {
+        "hasCredits": false,
+        "unlimited": false,
+        "balance": "None"
+      },
+      "lastUpdated": "2026-10-22T14:40:29.448804+00:00",
+      "status": "ok",
+      "error": null,
+      "bankedResets": 0,
+      "rate_limit_reset_credits": {
+        "available_count": 0
+      }
+    },
+    {
+      "id": "3e325b1d-091f-4b86-ad81-0a878b303a45",
+      "chatgptAccountId": "c5b3a132-5785-478a-8721-5fb19531c9af",
+      "name": "gnomos_pintas4k@icloud.com",
+      "displayName": "GNOMOS_PINTAS4K@ICLOUD.COM",
+      "email": "gnomos_pintas4k@icloud.com",
+      "planType": "plus",
+      "subscriptionExpiresAt": "2026-11-16T15:26:58Z",
+      "isActive": true,
+      "lastUsedAt": "2026-10-22T13:53:33.222918Z",
+      "fiveHourPercent": 25,
+      "fiveHourUsedPercent": 75,
+      "fiveHourReset": "2026-10-22T19:11:32Z",
       "fiveHourWindowMinutes": 300,
-      "weeklyPercent": 68,
-      "weeklyUsedPercent": 32,
-      "weeklyReset": "2026-10-03T17:20:37.000Z",
+      "weeklyPercent": 12,
+      "weeklyUsedPercent": 88,
+      "weeklyReset": "2026-10-27T06:33:45Z",
       "weeklyWindowMinutes": 10080,
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-09-28T21:30:40.949Z",
+      "lastUpdated": "2026-10-22T14:40:30.092071+00:00",
       "status": "ok",
-      "error": null
+      "error": null,
+      "bankedResets": 0,
+      "rate_limit_reset_credits": {
+        "available_count": 0
+      }
     }
   ]
 }

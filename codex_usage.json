@@ -1,9 +1,9 @@
 {
   "source": "codex-switcher",
-  "lastUpdated": "2026-10-22T14:40:30.140446+00:00",
+  "lastUpdated": "2026-10-22T15:47:28.469169+00:00",
   "accountCount": 17,
   "okCount": 17,
-  "activeAccountId": "3e325b1d-091f-4b86-ad81-0a878b303a45",
+  "activeAccountId": "cf574ccb-89c4-4f29-a212-2491e817cbf4",
   "accounts": [
     {
       "id": "35a00e79-ef8a-4b87-9ad3-cda11a0d7199",
@@ -17,24 +17,24 @@
       "lastUsedAt": "2026-10-21T23:21:15.494212Z",
       "fiveHourPercent": 100,
       "fiveHourUsedPercent": 0,
-      "fiveHourReset": "2026-10-22T19:40:29Z",
+      "fiveHourReset": "2026-10-22T19:45:12Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 12,
       "weeklyUsedPercent": 88,
       "weeklyReset": "2026-10-27T06:33:43Z",
       "weeklyWindowMinutes": 10080,
+      "bankedResets": 2,
+      "rate_limit_reset_credits": {
+        "available_count": 2
+      },
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-10-22T14:40:29.030437+00:00",
       "status": "ok",
       "error": null,
-      "bankedResets": 2,
-      "rate_limit_reset_credits": {
-        "available_count": 2
-      }
+      "lastUpdated": "2026-10-22T15:45:31.744982+00:00"
     },
     {
       "id": "e739910c-5ec7-417d-bad6-a380fe05b5ac",
@@ -52,20 +52,20 @@
       "fiveHourWindowMinutes": null,
       "weeklyPercent": 46,
       "weeklyUsedPercent": 54,
-      "weeklyReset": "2026-11-16T20:41:50Z",
+      "weeklyReset": "2026-11-16T20:41:51Z",
       "weeklyWindowMinutes": 43200,
+      "bankedResets": 0,
+      "rate_limit_reset_credits": {
+        "available_count": 0
+      },
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": "None"
       },
-      "lastUpdated": "2026-10-22T14:40:29.357695+00:00",
       "status": "ok",
       "error": null,
-      "bankedResets": 0,
-      "rate_limit_reset_credits": {
-        "available_count": 0
-      }
+      "lastUpdated": "2026-10-22T15:45:32.404573+00:00"
     },
     {
       "id": "e3f446a7-63e3-4741-924b-7457dbc8f016",
@@ -85,18 +85,18 @@
       "weeklyUsedPercent": 69,
       "weeklyReset": "2026-10-27T06:33:45Z",
       "weeklyWindowMinutes": 10080,
+      "bankedResets": 0,
+      "rate_limit_reset_credits": {
+        "available_count": 0
+      },
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-10-22T14:40:28.992820+00:00",
       "status": "ok",
       "error": null,
-      "bankedResets": 0,
-      "rate_limit_reset_credits": {
-        "available_count": 0
-      }
+      "lastUpdated": "2026-10-22T15:45:31.645795+00:00"
     },
     {
       "id": "80dd6124-5b9b-4642-a3e0-a4aac7499c38",
@@ -107,27 +107,27 @@
       "planType": "plus",
       "subscriptionExpiresAt": "2026-09-24T13:16:21Z",
       "isActive": false,
-      "lastUsedAt": "2026-10-22T13:10:04.731973Z",
-      "fiveHourPercent": 100,
-      "fiveHourUsedPercent": 0,
-      "fiveHourReset": "2026-10-22T19:40:28Z",
+      "lastUsedAt": "2026-10-22T14:56:12.562590Z",
+      "fiveHourPercent": 56,
+      "fiveHourUsedPercent": 44,
+      "fiveHourReset": "2026-10-22T19:45:12Z",
       "fiveHourWindowMinutes": 300,
-      "weeklyPercent": 13,
-      "weeklyUsedPercent": 87,
+      "weeklyPercent": 6,
+      "weeklyUsedPercent": 94,
       "weeklyReset": "2026-10-27T06:33:45Z",
       "weeklyWindowMinutes": 10080,
+      "bankedResets": 1,
+      "rate_limit_reset_credits": {
+        "available_count": 1
+      },
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-10-22T14:40:28.878288+00:00",
       "status": "ok",
       "error": null,
-      "bankedResets": 1,
-      "rate_limit_reset_credits": {
-        "available_count": 1
-      }
+      "lastUpdated": "2026-10-22T15:45:31.642940+00:00"
     },
     {
       "id": "cb5c045b-0609-434d-bc6e-fdc122e1b19f",
@@ -145,20 +145,20 @@
       "fiveHourWindowMinutes": null,
       "weeklyPercent": 100,
       "weeklyUsedPercent": 0,
-      "weeklyReset": "2026-11-16T20:41:50Z",
+      "weeklyReset": null,
       "weeklyWindowMinutes": 43200,
+      "bankedResets": 0,
+      "rate_limit_reset_credits": {
+        "available_count": 0
+      },
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": "None"
       },
-      "lastUpdated": "2026-10-22T14:40:29.449750+00:00",
       "status": "ok",
       "error": null,
-      "bankedResets": 0,
-      "rate_limit_reset_credits": {
-        "available_count": 0
-      }
+      "lastUpdated": "2026-10-22T15:45:32.125241+00:00"
     },
     {
       "id": "807c942f-bd85-4ca3-8669-ab655e9a5888",
@@ -176,20 +176,20 @@
       "fiveHourWindowMinutes": null,
       "weeklyPercent": 100,
       "weeklyUsedPercent": 0,
-      "weeklyReset": "2026-11-16T20:41:50Z",
+      "weeklyReset": null,
       "weeklyWindowMinutes": 43200,
+      "bankedResets": 0,
+      "rate_limit_reset_credits": {
+        "available_count": 0
+      },
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": "None"
       },
-      "lastUpdated": "2026-10-22T14:40:29.364362+00:00",
       "status": "ok",
       "error": null,
-      "bankedResets": 0,
-      "rate_limit_reset_credits": {
-        "available_count": 0
-      }
+      "lastUpdated": "2026-10-22T15:45:31.811235+00:00"
     },
     {
       "id": "92c00353-cef3-412b-980c-19588e0a16b6",
@@ -207,20 +207,20 @@
       "fiveHourWindowMinutes": null,
       "weeklyPercent": 100,
       "weeklyUsedPercent": 0,
-      "weeklyReset": "2026-11-16T20:41:51Z",
+      "weeklyReset": null,
       "weeklyWindowMinutes": 43200,
+      "bankedResets": 0,
+      "rate_limit_reset_credits": {
+        "available_count": 0
+      },
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": "None"
       },
-      "lastUpdated": "2026-10-22T14:40:29.382813+00:00",
       "status": "ok",
       "error": null,
-      "bankedResets": 0,
-      "rate_limit_reset_credits": {
-        "available_count": 0
-      }
+      "lastUpdated": "2026-10-22T15:45:31.958693+00:00"
     },
     {
       "id": "d0dbdb6e-b98e-420f-97e3-68b9323ee705",
@@ -234,24 +234,24 @@
       "lastUsedAt": "2026-10-22T08:13:32.620349Z",
       "fiveHourPercent": 100,
       "fiveHourUsedPercent": 0,
-      "fiveHourReset": "2026-10-22T19:40:29Z",
+      "fiveHourReset": "2026-10-22T20:45:33Z",
       "fiveHourWindowMinutes": 300,
       "weeklyPercent": 0,
       "weeklyUsedPercent": 100,
       "weeklyReset": "2026-10-27T06:33:43Z",
       "weeklyWindowMinutes": 10080,
+      "bankedResets": 0,
+      "rate_limit_reset_credits": {
+        "available_count": 0
+      },
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-10-22T14:40:29.362328+00:00",
       "status": "ok",
       "error": null,
-      "bankedResets": 0,
-      "rate_limit_reset_credits": {
-        "available_count": 0
-      }
+      "lastUpdated": "2026-10-22T15:45:31.674392+00:00"
     },
     {
       "id": "c84c6e1a-8861-4732-a6f2-019130ba5361",
@@ -271,18 +271,18 @@
       "weeklyUsedPercent": 13,
       "weeklyReset": "2026-11-19T00:05:44Z",
       "weeklyWindowMinutes": 43200,
+      "bankedResets": 0,
+      "rate_limit_reset_credits": {
+        "available_count": 0
+      },
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": "None"
       },
-      "lastUpdated": "2026-10-22T14:40:29.447853+00:00",
       "status": "ok",
       "error": null,
-      "bankedResets": 0,
-      "rate_limit_reset_credits": {
-        "available_count": 0
-      }
+      "lastUpdated": "2026-10-22T15:45:31.835221+00:00"
     },
     {
       "id": "cf574ccb-89c4-4f29-a212-2491e817cbf4",
@@ -292,28 +292,28 @@
       "email": "dhj6smm47v@privaterelay.appleid.com",
       "planType": "plus",
       "subscriptionExpiresAt": "2026-10-01T19:19:48Z",
-      "isActive": false,
-      "lastUsedAt": "2026-10-21T20:40:39.020554Z",
-      "fiveHourPercent": 100,
-      "fiveHourUsedPercent": 0,
-      "fiveHourReset": "2026-10-22T19:40:29Z",
+      "isActive": true,
+      "lastUsedAt": "2026-10-22T15:29:02.074706Z",
+      "fiveHourPercent": 49,
+      "fiveHourUsedPercent": 51,
+      "fiveHourReset": "2026-10-22T19:45:12Z",
       "fiveHourWindowMinutes": 300,
-      "weeklyPercent": 19,
-      "weeklyUsedPercent": 81,
+      "weeklyPercent": 11,
+      "weeklyUsedPercent": 89,
       "weeklyReset": "2026-10-27T06:33:43Z",
       "weeklyWindowMinutes": 10080,
+      "bankedResets": 2,
+      "rate_limit_reset_credits": {
+        "available_count": 2
+      },
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-10-22T14:40:29.375226+00:00",
       "status": "ok",
       "error": null,
-      "bankedResets": 2,
-      "rate_limit_reset_credits": {
-        "available_count": 2
-      }
+      "lastUpdated": "2026-10-22T15:45:31.775901+00:00"
     },
     {
       "id": "854884f2-4eaa-46c7-8566-bfe3daf0d43d",
@@ -331,20 +331,20 @@
       "fiveHourWindowMinutes": null,
       "weeklyPercent": 100,
       "weeklyUsedPercent": 0,
-      "weeklyReset": "2026-11-16T20:41:51Z",
+      "weeklyReset": null,
       "weeklyWindowMinutes": 43200,
+      "bankedResets": 1,
+      "rate_limit_reset_credits": {
+        "available_count": 1
+      },
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": "None"
       },
-      "lastUpdated": "2026-10-22T14:40:29.014652+00:00",
       "status": "ok",
       "error": null,
-      "bankedResets": 1,
-      "rate_limit_reset_credits": {
-        "available_count": 1
-      }
+      "lastUpdated": "2026-10-22T15:45:31.811882+00:00"
     },
     {
       "id": "d63a5ed5-33f1-46d7-aa50-b503f0dfc390",
@@ -362,20 +362,20 @@
       "fiveHourWindowMinutes": null,
       "weeklyPercent": 100,
       "weeklyUsedPercent": 0,
-      "weeklyReset": "2026-11-17T14:28:53Z",
+      "weeklyReset": null,
       "weeklyWindowMinutes": 43200,
+      "bankedResets": 1,
+      "rate_limit_reset_credits": {
+        "available_count": 1
+      },
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": "None"
       },
-      "lastUpdated": "2026-10-22T14:40:29.124010+00:00",
       "status": "ok",
       "error": null,
-      "bankedResets": 1,
-      "rate_limit_reset_credits": {
-        "available_count": 1
-      }
+      "lastUpdated": "2026-10-22T15:45:31.758094+00:00"
     },
     {
       "id": "b3684211-c043-43ae-8e8d-6a6bad5819a6",
@@ -393,20 +393,20 @@
       "fiveHourWindowMinutes": null,
       "weeklyPercent": 100,
       "weeklyUsedPercent": 0,
-      "weeklyReset": "2026-11-16T20:41:50Z",
+      "weeklyReset": null,
       "weeklyWindowMinutes": 43200,
+      "bankedResets": 1,
+      "rate_limit_reset_credits": {
+        "available_count": 1
+      },
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": "None"
       },
-      "lastUpdated": "2026-10-22T14:40:29.457730+00:00",
       "status": "ok",
       "error": null,
-      "bankedResets": 1,
-      "rate_limit_reset_credits": {
-        "available_count": 1
-      }
+      "lastUpdated": "2026-10-22T15:45:32.076128+00:00"
     },
     {
       "id": "e78ca4de-b5f3-4d8c-927d-4f28e9913c84",
@@ -424,20 +424,20 @@
       "fiveHourWindowMinutes": null,
       "weeklyPercent": 100,
       "weeklyUsedPercent": 0,
-      "weeklyReset": "2026-11-16T20:41:50Z",
+      "weeklyReset": null,
       "weeklyWindowMinutes": 43200,
+      "bankedResets": 1,
+      "rate_limit_reset_credits": {
+        "available_count": 1
+      },
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": "None"
       },
-      "lastUpdated": "2026-10-22T14:40:29.539938+00:00",
       "status": "ok",
       "error": null,
-      "bankedResets": 1,
-      "rate_limit_reset_credits": {
-        "available_count": 1
-      }
+      "lastUpdated": "2026-10-22T15:45:31.811637+00:00"
     },
     {
       "id": "29e3f15f-7322-49ce-8ad3-7bbc02ca47e4",
@@ -455,20 +455,20 @@
       "fiveHourWindowMinutes": null,
       "weeklyPercent": 100,
       "weeklyUsedPercent": 0,
-      "weeklyReset": "2026-11-19T00:01:10Z",
+      "weeklyReset": null,
       "weeklyWindowMinutes": 43200,
+      "bankedResets": 0,
+      "rate_limit_reset_credits": {
+        "available_count": 0
+      },
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": "None"
       },
-      "lastUpdated": "2026-10-22T14:40:29.523307+00:00",
       "status": "ok",
       "error": null,
-      "bankedResets": 0,
-      "rate_limit_reset_credits": {
-        "available_count": 0
-      }
+      "lastUpdated": "2026-10-22T15:45:31.824534+00:00"
     },
     {
       "id": "d5f6884a-9e5f-4de9-a2d8-eff7ef2e93d0",
@@ -486,20 +486,20 @@
       "fiveHourWindowMinutes": null,
       "weeklyPercent": 100,
       "weeklyUsedPercent": 0,
-      "weeklyReset": "2026-11-17T17:04:29Z",
+      "weeklyReset": null,
       "weeklyWindowMinutes": 43200,
+      "bankedResets": 0,
+      "rate_limit_reset_credits": {
+        "available_count": 0
+      },
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": "None"
       },
-      "lastUpdated": "2026-10-22T14:40:29.448804+00:00",
       "status": "ok",
       "error": null,
-      "bankedResets": 0,
-      "rate_limit_reset_credits": {
-        "available_count": 0
-      }
+      "lastUpdated": "2026-10-22T15:45:31.743729+00:00"
     },
     {
       "id": "3e325b1d-091f-4b86-ad81-0a878b303a45",
@@ -509,28 +509,28 @@
       "email": "gnomos_pintas4k@icloud.com",
       "planType": "plus",
       "subscriptionExpiresAt": "2026-11-16T15:26:58Z",
-      "isActive": true,
+      "isActive": false,
       "lastUsedAt": "2026-10-22T13:53:33.222918Z",
-      "fiveHourPercent": 25,
-      "fiveHourUsedPercent": 75,
+      "fiveHourPercent": 0,
+      "fiveHourUsedPercent": 100,
       "fiveHourReset": "2026-10-22T19:11:32Z",
       "fiveHourWindowMinutes": 300,
-      "weeklyPercent": 12,
-      "weeklyUsedPercent": 88,
+      "weeklyPercent": 7,
+      "weeklyUsedPercent": 93,
       "weeklyReset": "2026-10-27T06:33:45Z",
       "weeklyWindowMinutes": 10080,
+      "bankedResets": 0,
+      "rate_limit_reset_credits": {
+        "available_count": 0
+      },
       "credits": {
         "hasCredits": false,
         "unlimited": false,
         "balance": "0"
       },
-      "lastUpdated": "2026-10-22T14:40:30.092071+00:00",
       "status": "ok",
       "error": null,
-      "bankedResets": 0,
-      "rate_limit_reset_credits": {
-        "available_count": 0
-      }
+      "lastUpdated": "2026-10-22T15:45:32.092477+00:00"
     }
   ]
 }

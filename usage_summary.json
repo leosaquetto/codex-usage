@@ -100820,7 +100820,7 @@
             "title": "Gemini Models · Weekly limit",
             "kind": "weekly",
             "windowMinutes": 10080,
-            "remainingPercent": 83.54548,
+            "remainingPercent": 84.06258,
             "refreshAt": "2026-11-28T13:22:38.000Z"
           },
           {
@@ -100829,7 +100829,7 @@
             "title": "Gemini Models · 5-hour limit",
             "kind": "5h",
             "windowMinutes": 300,
-            "remainingPercent": 91.70206,
+            "remainingPercent": 91.35526,
             "refreshAt": "2026-11-22T04:22:38.000Z"
           },
           {
@@ -100848,7 +100848,7 @@
             "kind": "5h",
             "windowMinutes": 300,
             "remainingPercent": 100,
-            "refreshAt": "2026-11-22T04:44:07.000Z"
+            "refreshAt": "2026-11-22T05:55:12.000Z"
           }
         ],
         "models": [
@@ -100856,7 +100856,7 @@
             "id": "gemini-3-1-pro-high",
             "name": "Gemini 3.1 Pro",
             "tier": "High",
-            "remainingPercent": 83.54548,
+            "remainingPercent": 84.06258,
             "status": "ok",
             "refreshText": "Weekly reset",
             "refreshAt": "2026-11-28T13:22:38.000Z"
@@ -100865,7 +100865,7 @@
             "id": "gemini-3-1-pro-low",
             "name": "Gemini 3.1 Pro",
             "tier": "Low",
-            "remainingPercent": 91.70206,
+            "remainingPercent": 91.35526,
             "status": "ok",
             "refreshText": "5-hour reset",
             "refreshAt": "2026-11-22T04:22:38.000Z"
@@ -100878,7 +100878,7 @@
         "id": "gemini-3-1-pro-high",
         "name": "Gemini 3.1 Pro",
         "tier": "High",
-        "remainingPercent": 83.54548,
+        "remainingPercent": 84.06258,
         "status": "ok",
         "refreshText": "Weekly reset",
         "refreshAt": "2026-11-28T13:22:38.000Z"
@@ -100887,7 +100887,7 @@
         "id": "gemini-3-1-pro-low",
         "name": "Gemini 3.1 Pro",
         "tier": "Low",
-        "remainingPercent": 91.70206,
+        "remainingPercent": 91.35526,
         "status": "ok",
         "refreshText": "5-hour reset",
         "refreshAt": "2026-11-22T04:22:38.000Z"

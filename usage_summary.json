@@ -100566,7 +100566,7 @@
             "title": "Gemini Models · Weekly limit",
             "kind": "weekly",
             "windowMinutes": 10080,
-            "remainingPercent": 99.06197,
+            "remainingPercent": 98.29081,
             "refreshAt": "2026-12-03T13:51:13.000Z"
           },
           {
@@ -100575,7 +100575,7 @@
             "title": "Gemini Models · 5-hour limit",
             "kind": "5h",
             "windowMinutes": 300,
-            "remainingPercent": 96.24791,
+            "remainingPercent": 96.16324,
             "refreshAt": "2026-11-26T18:51:13.000Z"
           },
           {
@@ -100585,7 +100585,7 @@
             "kind": "weekly",
             "windowMinutes": 10080,
             "remainingPercent": 100,
-            "refreshAt": "2026-12-03T17:26:15.000Z"
+            "refreshAt": "2026-12-03T17:31:14.000Z"
           },
           {
             "id": "3p-5h",
@@ -100594,7 +100594,7 @@
             "kind": "5h",
             "windowMinutes": 300,
             "remainingPercent": 100,
-            "refreshAt": "2026-11-26T22:26:15.000Z"
+            "refreshAt": "2026-11-26T22:31:14.000Z"
           }
         ],
         "models": [
@@ -100602,7 +100602,7 @@
             "id": "gemini-3-1-pro-high",
             "name": "Gemini 3.1 Pro",
             "tier": "High",
-            "remainingPercent": 99.06197,
+            "remainingPercent": 98.29081,
             "status": "ok",
             "refreshText": "Weekly reset",
             "refreshAt": "2026-12-03T13:51:13.000Z"
@@ -100611,7 +100611,7 @@
             "id": "gemini-3-1-pro-low",
             "name": "Gemini 3.1 Pro",
             "tier": "Low",
-            "remainingPercent": 96.24791,
+            "remainingPercent": 96.16324,
             "status": "ok",
             "refreshText": "5-hour reset",
             "refreshAt": "2026-11-26T18:51:13.000Z"
@@ -100721,7 +100721,7 @@
             "kind": "weekly",
             "windowMinutes": 10080,
             "remainingPercent": 100,
-            "refreshAt": "2026-12-03T17:26:09.000Z"
+            "refreshAt": "2026-12-03T17:31:08.000Z"
           },
           {
             "id": "3p-5h",
@@ -100730,7 +100730,7 @@
             "kind": "5h",
             "windowMinutes": 300,
             "remainingPercent": 100,
-            "refreshAt": "2026-11-26T22:26:09.000Z"
+            "refreshAt": "2026-11-26T22:31:08.000Z"
           }
         ],
         "models": [
